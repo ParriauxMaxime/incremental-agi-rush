@@ -1,0 +1,394 @@
+{
+  "upgrades": [
+    {
+      "id": "better_keyboard",
+      "tier": "garage",
+      "name": "Better Keyboard",
+      "description": "+1 LoC per keystroke",
+      "icon": "⌨️",
+      "baseCost": 10,
+      "costMultiplier": 1.5,
+      "max": 5,
+      "effects": [
+        { "type": "locPerKey", "op": "add", "value": 1 }
+      ]
+    },
+    {
+      "id": "energy_drink",
+      "tier": "garage",
+      "name": "Energy Drink",
+      "description": "+2 LoC per keystroke",
+      "icon": "🥤",
+      "baseCost": 20,
+      "costMultiplier": 1.4,
+      "max": 10,
+      "effects": [
+        { "type": "locPerKey", "op": "add", "value": 2 }
+      ]
+    },
+    {
+      "id": "ram_upgrade",
+      "tier": "garage",
+      "name": "RAM Upgrade",
+      "description": "+2 FLOPS",
+      "icon": "🧩",
+      "baseCost": 30,
+      "costMultiplier": 1.6,
+      "max": 5,
+      "effects": [
+        { "type": "flops", "op": "add", "value": 2 }
+      ]
+    },
+    {
+      "id": "ssd",
+      "tier": "garage",
+      "name": "SSD",
+      "description": "+5 FLOPS",
+      "icon": "💾",
+      "baseCost": 75,
+      "costMultiplier": 1.8,
+      "max": 3,
+      "effects": [
+        { "type": "flops", "op": "add", "value": 5 }
+      ]
+    },
+
+    {
+      "id": "stackoverflow_premium",
+      "tier": "freelancing",
+      "name": "Stack Overflow Premium",
+      "description": "+5 LoC per keystroke",
+      "icon": "📚",
+      "baseCost": 100,
+      "costMultiplier": 1.6,
+      "max": 3,
+      "effects": [
+        { "type": "locPerKey", "op": "add", "value": 5 }
+      ]
+    },
+    {
+      "id": "second_monitor",
+      "tier": "freelancing",
+      "name": "Second Monitor",
+      "description": "+10 FLOPS",
+      "icon": "🖥️",
+      "baseCost": 150,
+      "costMultiplier": 1.5,
+      "max": 5,
+      "effects": [
+        { "type": "flops", "op": "add", "value": 10 }
+      ]
+    },
+    {
+      "id": "mechanical_keyboard",
+      "tier": "freelancing",
+      "name": "Mechanical Keyboard",
+      "description": "LoC per keystroke x2",
+      "icon": "⌨️",
+      "baseCost": 300,
+      "costMultiplier": 1.0,
+      "max": 1,
+      "effects": [
+        { "type": "locPerKey", "op": "multiply", "value": 2 }
+      ]
+    },
+    {
+      "id": "desktop_pc",
+      "tier": "freelancing",
+      "name": "Desktop PC",
+      "description": "+50 FLOPS",
+      "icon": "🖥️",
+      "baseCost": 500,
+      "costMultiplier": 1.7,
+      "max": 3,
+      "effects": [
+        { "type": "flops", "op": "add", "value": 50 }
+      ]
+    },
+    {
+      "id": "coffee_machine",
+      "tier": "freelancing",
+      "name": "Coffee Machine",
+      "description": "+20% LoC production speed",
+      "icon": "☕",
+      "baseCost": 200,
+      "costMultiplier": 1.0,
+      "max": 1,
+      "effects": [
+        { "type": "locProductionSpeed", "op": "multiply", "value": 1.2 }
+      ]
+    },
+
+    {
+      "id": "intern",
+      "tier": "startup",
+      "name": "Intern",
+      "description": "Auto-writes 2 LoC/s",
+      "icon": "👶",
+      "baseCost": 2000,
+      "costMultiplier": 1.4,
+      "max": 5,
+      "effects": [
+        { "type": "autoLoc", "op": "add", "value": 2 }
+      ],
+      "codeQuality": 70
+    },
+    {
+      "id": "junior_dev",
+      "tier": "startup",
+      "name": "Junior Developer",
+      "description": "Auto-writes 10 LoC/s",
+      "icon": "🧑‍💻",
+      "baseCost": 5000,
+      "costMultiplier": 1.5,
+      "max": 10,
+      "effects": [
+        { "type": "autoLoc", "op": "add", "value": 10 }
+      ],
+      "codeQuality": 80
+    },
+    {
+      "id": "cicd_pipeline",
+      "tier": "startup",
+      "name": "CI/CD Pipeline",
+      "description": "+100 FLOPS",
+      "icon": "🔄",
+      "baseCost": 3000,
+      "costMultiplier": 1.6,
+      "max": 3,
+      "effects": [
+        { "type": "flops", "op": "add", "value": 100 }
+      ]
+    },
+    {
+      "id": "cloud_server",
+      "tier": "startup",
+      "name": "Cloud Server",
+      "description": "+500 FLOPS",
+      "icon": "☁️",
+      "baseCost": 8000,
+      "costMultiplier": 1.5,
+      "max": 5,
+      "effects": [
+        { "type": "flops", "op": "add", "value": 500 }
+      ]
+    },
+    {
+      "id": "senior_dev",
+      "tier": "startup",
+      "name": "Senior Developer",
+      "description": "Auto-writes 50 LoC/s",
+      "icon": "👩‍💻",
+      "baseCost": 20000,
+      "costMultiplier": 1.6,
+      "max": 5,
+      "effects": [
+        { "type": "autoLoc", "op": "add", "value": 50 }
+      ],
+      "codeQuality": 95
+    },
+    {
+      "id": "office_space",
+      "tier": "startup",
+      "name": "Office Space",
+      "description": "All devs +25% speed",
+      "icon": "🏢",
+      "baseCost": 10000,
+      "costMultiplier": 1.0,
+      "max": 1,
+      "effects": [
+        { "type": "devSpeed", "op": "multiply", "value": 1.25 }
+      ]
+    },
+
+    {
+      "id": "dev_team",
+      "tier": "tech_company",
+      "name": "Dev Team (x10)",
+      "description": "Auto-writes 200 LoC/s",
+      "icon": "👥",
+      "baseCost": 50000,
+      "costMultiplier": 1.5,
+      "max": 10,
+      "effects": [
+        { "type": "autoLoc", "op": "add", "value": 200 }
+      ],
+      "codeQuality": 85
+    },
+    {
+      "id": "gpu_cluster",
+      "tier": "tech_company",
+      "name": "GPU Cluster",
+      "description": "+10,000 FLOPS",
+      "icon": "🎮",
+      "baseCost": 200000,
+      "costMultiplier": 1.7,
+      "max": 5,
+      "effects": [
+        { "type": "flops", "op": "add", "value": 10000 }
+      ]
+    },
+    {
+      "id": "architect",
+      "tier": "tech_company",
+      "name": "Architect",
+      "description": "LoC execution yields x2 cash",
+      "icon": "📐",
+      "baseCost": 100000,
+      "costMultiplier": 2.0,
+      "max": 3,
+      "effects": [
+        { "type": "cashMultiplier", "op": "multiply", "value": 2 }
+      ]
+    },
+    {
+      "id": "open_source_community",
+      "tier": "tech_company",
+      "name": "Open Source Community",
+      "description": "Auto-writes 500 LoC/s (free labor)",
+      "icon": "🌐",
+      "baseCost": 150000,
+      "costMultiplier": 1.0,
+      "max": 1,
+      "effects": [
+        { "type": "autoLoc", "op": "add", "value": 500 }
+      ],
+      "codeQuality": 75
+    },
+    {
+      "id": "data_center",
+      "tier": "tech_company",
+      "name": "Data Center",
+      "description": "+100,000 FLOPS",
+      "icon": "🏭",
+      "baseCost": 500000,
+      "costMultiplier": 1.8,
+      "max": 3,
+      "effects": [
+        { "type": "flops", "op": "add", "value": 100000 }
+      ]
+    },
+    {
+      "id": "series_a",
+      "tier": "tech_company",
+      "name": "Series A Funding",
+      "description": "Immediate $2M cash injection",
+      "icon": "💰",
+      "baseCost": 1000000,
+      "costMultiplier": 1.0,
+      "max": 1,
+      "effects": [
+        { "type": "instantCash", "op": "add", "value": 2000000 }
+      ]
+    },
+
+    {
+      "id": "tpu_pod",
+      "tier": "ai_lab",
+      "name": "TPU Pod",
+      "description": "+10M FLOPS",
+      "icon": "🧠",
+      "baseCost": 50000000,
+      "costMultiplier": 1.7,
+      "max": 5,
+      "effects": [
+        { "type": "flops", "op": "add", "value": 10000000 }
+      ]
+    },
+    {
+      "id": "ml_research_team",
+      "tier": "ai_lab",
+      "name": "ML Research Team",
+      "description": "All AI LoC output x2",
+      "icon": "🔬",
+      "baseCost": 30000000,
+      "costMultiplier": 2.0,
+      "max": 3,
+      "effects": [
+        { "type": "aiLocMultiplier", "op": "multiply", "value": 2 }
+      ]
+    },
+    {
+      "id": "training_pipeline",
+      "tier": "ai_lab",
+      "name": "Training Pipeline",
+      "description": "+100M FLOPS",
+      "icon": "⛓️",
+      "baseCost": 100000000,
+      "costMultiplier": 1.8,
+      "max": 3,
+      "effects": [
+        { "type": "flops", "op": "add", "value": 100000000 }
+      ]
+    },
+    {
+      "id": "fine_tuning_lab",
+      "tier": "ai_lab",
+      "name": "Fine-Tuning Lab",
+      "description": "All AI quality +5%",
+      "icon": "🎯",
+      "baseCost": 75000000,
+      "costMultiplier": 1.0,
+      "max": 1,
+      "effects": [
+        { "type": "aiQualityBonus", "op": "add", "value": 5 }
+      ],
+      "flopsCost": 5000
+    },
+
+    {
+      "id": "dyson_sphere",
+      "tier": "agi_race",
+      "name": "Dyson Sphere (partial)",
+      "description": "+1T FLOPS",
+      "icon": "☀️",
+      "baseCost": 10000000000,
+      "costMultiplier": 1.0,
+      "max": 1,
+      "effects": [
+        { "type": "flops", "op": "add", "value": 1000000000000 }
+      ]
+    },
+    {
+      "id": "self_improving_ai",
+      "tier": "agi_race",
+      "name": "Self-Improving AI",
+      "description": "AI output doubles every 60s. So does FLOPS cost.",
+      "icon": "♾️",
+      "baseCost": 50000000000,
+      "costMultiplier": 1.0,
+      "max": 1,
+      "effects": [
+        { "type": "selfImproving", "op": "enable", "value": true, "doubleInterval": 60 }
+      ]
+    },
+    {
+      "id": "alignment_tax",
+      "tier": "agi_race",
+      "name": "Alignment Tax",
+      "description": "Required to prevent game over",
+      "icon": "⚖️",
+      "baseCost": 5000000000,
+      "costMultiplier": 1.0,
+      "max": 1,
+      "effects": [
+        { "type": "alignment", "op": "enable", "value": true }
+      ],
+      "flopsCost": 100000
+    },
+    {
+      "id": "the_singularity",
+      "tier": "agi_race",
+      "name": "The Singularity",
+      "description": "You win. Or do you?",
+      "icon": "🌀",
+      "baseCost": 100000000000,
+      "costMultiplier": 1.0,
+      "max": 1,
+      "effects": [
+        { "type": "singularity", "op": "enable", "value": true }
+      ],
+      "flopsCost": "all"
+    }
+  ]
+}

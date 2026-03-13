@@ -1,0 +1,30 @@
+{
+	"name": "agi-rush",
+	"version": "1.0.0",
+	"description": "",
+	"private": true,
+	"scripts": {
+		"dev": "rspack serve",
+		"build": "rspack build",
+		"check": "biome check .",
+		"check:fix": "biome check --fix .",
+		"typecheck": "tsc --noEmit"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"type": "commonjs",
+	"dependencies": {
+		"@emotion/react": "^11.14.0",
+		"react": "^19.2.4",
+		"react-dom": "^19.2.4"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.7",
+		"@rspack/cli": "^1.7.8",
+		"@rspack/core": "^1.7.8",
+		"@types/react": "^19.2.14",
+		"@types/react-dom": "^19.2.3",
+		"typescript": "^5.9.3"
+	}
+}

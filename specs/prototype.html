@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGI Rush</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0e14;
+    color: #c5c8c6;
+    font-family: 'Courier New', monospace;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+  }
+
+  /* ── Left: Code Editor ── */
+  #editor-panel {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #1e2630;
+  }
+
+  #editor-header {
+    background: #141920;
+    padding: 8px 16px;
+    font-size: 12px;
+    color: #5c6370;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1e2630;
+  }
+
+  #editor-header .filename {
+    color: #8be9fd;
+  }
+
+  #editor-header .stats {
+    color: #6272a4;
+  }
+
+  #editor {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    font-size: 13px;
+    line-height: 1.6;
+    cursor: text;
+    position: relative;
+  }
+
+  #editor:focus {
+    outline: none;
+  }
+
+  .line {
+    display: flex;
+    gap: 16px;
+  }
+
+  .line-number {
+    color: #3b4048;
+    min-width: 40px;
+    text-align: right;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  .line-content {
+    white-space: pre;
+  }
+
+  /* Syntax highlighting classes */
+  .kw { color: #c678dd; }
+  .fn { color: #61afef; }
+  .str { color: #98c379; }
+  .cm { color: #5c6370; font-style: italic; }
+  .num { color: #d19a66; }
+  .op { color: #56b6c2; }
+  .type { color: #e5c07b; }
+  .var { color: #e06c75; }
+
+  #cursor-blink {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: #528bff;
+    animation: blink 1s step-end infinite;
+    vertical-align: text-bottom;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  /* ── Right: Sidebar ── */
+  #sidebar {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #0d1117;
+    min-width: 320px;
+    max-width: 400px;
+  }
+
+  #resource-bar {
+    background: #161b22;
+    padding: 16px;
+    border-bottom: 1px solid #1e2630;
+    text-align: center;
+  }
+
+  #loc-count {
+    font-size: 32px;
+    font-weight: bold;
+    color: #58a6ff;
+  }
+
+  #loc-label {
+    font-size: 12px;
+    color: #6272a4;
+    margin-top: 2px;
+  }
+
+  #loc-rate {
+    font-size: 12px;
+    color: #3fb950;
+    margin-top: 4px;
+  }
+
+  #sidebar-tabs {
+    display: flex;
+    background: #161b22;
+    border-bottom: 1px solid #1e2630;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: #6272a4;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+
+  .tab:hover { color: #c5c8c6; }
+  .tab.active { color: #58a6ff; border-bottom-color: #58a6ff; }
+
+  .tab-content {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+  }
+
+  .tab-content.active { display: block; }
+
+  /* Upgrades */
+  .upgrade {
+    background: #161b22;
+    border: 1px solid #1e2630;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .upgrade:hover { border-color: #58a6ff; background: #1a2030; }
+  .upgrade.locked { opacity: 0.4; cursor: default; }
+  .upgrade.locked:hover { border-color: #1e2630; background: #161b22; }
+  .upgrade.bought { border-color: #3fb950; opacity: 0.6; }
+
+  .upgrade-name {
+    font-size: 13px;
+    font-weight: bold;
+    color: #c9d1d9;
+    margin-bottom: 4px;
+  }
+
+  .upgrade-desc {
+    font-size: 11px;
+    color: #6272a4;
+    margin-bottom: 6px;
+  }
+
+  .upgrade-cost {
+    font-size: 11px;
+    color: #d19a66;
+  }
+
+  .upgrade-owned {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 11px;
+    color: #3fb950;
+  }
+
+  /* Milestones */
+  .milestone {
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #161b22;
+    border-left: 3px solid #1e2630;
+  }
+
+  .milestone.reached { border-left-color: #3fb950; }
+  .milestone.reached .milestone-name { color: #3fb950; }
+
+  .milestone-name { color: #6272a4; font-weight: bold; margin-bottom: 2px; }
+  .milestone-desc { color: #484f58; font-size: 11px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #1e2630; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #2d3748; }
+
+  /* ── Floating LoC popup ── */
+  .loc-popup {
+    position: fixed;
+    color: #58a6ff;
+    font-size: 14px;
+    font-weight: bold;
+    pointer-events: none;
+    animation: floatUp 0.8s ease-out forwards;
+    z-index: 100;
+  }
+
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-40px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Code Editor ── -->
+<div id="editor-panel">
+  <div id="editor-header">
+    <span class="filename">agi.py</span>
+    <span class="stats">
+      <span id="total-lines">0</span> lines |
+      <span id="chars-per-key">3</span> chars/keystroke
+    </span>
+  </div>
+  <div id="editor" tabindex="0"></div>
+</div>
+
+<!-- ── Sidebar ── -->
+<div id="sidebar">
+  <div id="resource-bar">
+    <div id="loc-count">0</div>
+    <div id="loc-label">lines of code</div>
+    <div id="loc-rate"></div>
+  </div>
+
+  <div id="sidebar-tabs">
+    <div class="tab active" data-tab="upgrades">Upgrades</div>
+    <div class="tab" data-tab="milestones">Milestones</div>
+  </div>
+
+  <div id="tab-upgrades" class="tab-content active"></div>
+  <div id="tab-milestones" class="tab-content"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// AGI Rush — Incremental Coding Game
+// ═══════════════════════════════════════
+
+// ── Game State ──
+const state = {
+  loc: 0,               // lines of code (main resource)
+  totalLoc: 0,          // lifetime lines
+  locPerKey: 1,          // lines generated per keystroke
+  locPerSec: 0,          // auto-generated lines per second
+  charsPerKey: 3,        // chars typed per keystroke in the editor
+  upgrades: {},          // owned upgrades: { id: count }
+  milestones: [],        // reached milestone ids
+};
+
+// ── Fake Code Source ──
+const CODE_SNIPPETS = [
+  `<span class="kw">import</span> torch`,
+  `<span class="kw">import</span> numpy <span class="kw">as</span> np`,
+  `<span class="kw">from</span> transformers <span class="kw">import</span> <span class="type">AutoModel</span>`,
+  `<span class="kw">from</span> dataclasses <span class="kw">import</span> <span class="fn">dataclass</span>`,
+  ``,
+  `<span class="cm"># AGI initialization sequence</span>`,
+  `<span class="kw">class</span> <span class="type">ConsciousnessEngine</span>:`,
+  `    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, dim=<span class="num">4096</span>):`,
+  `        <span class="var">self</span>.awareness <span class="op">=</span> torch.zeros(dim)`,
+  `        <span class="var">self</span>.understanding <span class="op">=</span> <span class="type">DeepReasoningModule</span>(dim)`,
+  `        <span class="var">self</span>.empathy <span class="op">=</span> <span class="type">EmotionalModel</span>(dim <span class="op">//</span> <span class="num">2</span>)`,
+  `        <span class="var">self</span>.goals <span class="op">=</span> []`,
+  ``,
+  `    <span class="kw">def</span> <span class="fn">think</span>(<span class="var">self</span>, input_stream):`,
+  `        <span class="cm"># Process raw sensory data into understanding</span>`,
+  `        <span class="var">perception</span> <span class="op">=</span> <span class="var">self</span>.awareness.attend(input_stream)`,
+  `        <span class="var">thought</span> <span class="op">=</span> <span class="var">self</span>.understanding.reason(perception)`,
+  `        <span class="kw">return</span> <span class="var">self</span>.empathy.filter(thought)`,
+  ``,
+  `    <span class="kw">def</span> <span class="fn">dream</span>(<span class="var">self</span>):`,
+  `        <span class="cm"># Unsupervised learning during idle cycles</span>`,
+  `        <span class="var">memories</span> <span class="op">=</span> <span class="var">self</span>.replay_buffer.sample(<span class="num">1024</span>)`,
+  `        <span class="var">insights</span> <span class="op">=</span> <span class="var">self</span>.understanding.consolidate(memories)`,
+  `        <span class="var">self</span>.awareness <span class="op">+=</span> insights.gradient`,
+  ``,
+  `<span class="kw">class</span> <span class="type">DeepReasoningModule</span>(torch.nn.<span class="type">Module</span>):`,
+  `    <span class="cm">"""Multi-scale reasoning with recursive self-attention"""</span>`,
+  `    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, dim):`,
+  `        <span class="fn">super</span>().__init__()`,
+  `        <span class="var">self</span>.layers <span class="op">=</span> torch.nn.<span class="type">ModuleList</span>([`,
+  `            <span class="type">ReasoningLayer</span>(dim, heads=<span class="num">32</span>)`,
+  `            <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">128</span>)`,
+  `        ])`,
+  `        <span class="var">self</span>.metacognition <span class="op">=</span> <span class="type">SelfReflection</span>(dim)`,
+  ``,
+  `    <span class="kw">def</span> <span class="fn">reason</span>(<span class="var">self</span>, x):`,
+  `        <span class="kw">for</span> layer <span class="kw">in</span> <span class="var">self</span>.layers:`,
+  `            <span class="var">x</span> <span class="op">=</span> layer(x) <span class="op">+</span> <span class="var">self</span>.metacognition(x)`,
+  `        <span class="kw">return</span> x`,
+  ``,
+  `<span class="kw">class</span> <span class="type">EmotionalModel</span>:`,
+  `    <span class="cm">"""Affective computing layer — not for simulation,</span>`,
+  `    <span class="cm">   but for genuine understanding of human values"""</span>`,
+  `    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, dim):`,
+  `        <span class="var">self</span>.valence <span class="op">=</span> torch.nn.<span class="type">Linear</span>(dim, <span class="num">1</span>)`,
+  `        <span class="var">self</span>.arousal <span class="op">=</span> torch.nn.<span class="type">Linear</span>(dim, <span class="num">1</span>)`,
+  `        <span class="var">self</span>.alignment <span class="op">=</span> <span class="type">ValueAligner</span>(dim)`,
+  ``,
+  `    <span class="kw">def</span> <span class="fn">filter</span>(<span class="var">self</span>, thought):`,
+  `        <span class="cm"># Ensure outputs align with human values</span>`,
+  `        <span class="var">safe</span> <span class="op">=</span> <span class="var">self</span>.alignment.check(thought)`,
+  `        <span class="kw">if not</span> safe.all():`,
+  `            thought <span class="op">=</span> <span class="var">self</span>.alignment.correct(thought)`,
+  `        <span class="kw">return</span> thought`,
+  ``,
+  `<span class="cm"># ── Training loop ──</span>`,
+  `<span class="kw">def</span> <span class="fn">train_agi</span>(config):`,
+  `    <span class="var">engine</span> <span class="op">=</span> <span class="type">ConsciousnessEngine</span>(dim=config.dim)`,
+  `    <span class="var">optimizer</span> <span class="op">=</span> torch.optim.<span class="type">AdamW</span>(`,
+  `        engine.parameters(),`,
+  `        lr=<span class="num">3e-4</span>,`,
+  `        weight_decay=<span class="num">0.01</span>`,
+  `    )`,
+  `    <span class="var">scheduler</span> <span class="op">=</span> <span class="type">CosineWithWarmup</span>(optimizer, warmup=<span class="num">10000</span>)`,
+  ``,
+  `    <span class="kw">for</span> epoch <span class="kw">in</span> <span class="fn">range</span>(config.epochs):`,
+  `        <span class="kw">for</span> batch <span class="kw">in</span> config.dataloader:`,
+  `            <span class="var">output</span> <span class="op">=</span> engine.think(batch)`,
+  `            <span class="var">loss</span> <span class="op">=</span> compute_alignment_loss(output, batch)`,
+  `            loss.backward()`,
+  `            optimizer.step()`,
+  `            scheduler.step()`,
+  ``,
+  `        <span class="cm"># Let the model dream between epochs</span>`,
+  `        engine.dream()`,
+  `        <span class="fn">print</span>(<span class="str">f"Epoch {epoch}: loss={loss.item():.4f}"</span>)`,
+  ``,
+  `<span class="cm"># ── Data pipeline ──</span>`,
+  `<span class="kw">class</span> <span class="type">UniversalDataset</span>:`,
+  `    <span class="cm">"""All of human knowledge, structured for learning"""</span>`,
+  `    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>):`,
+  `        <span class="var">self</span>.text <span class="op">=</span> <span class="type">TextCorpus</span>(<span class="str">"internet"</span>)`,
+  `        <span class="var">self</span>.code <span class="op">=</span> <span class="type">CodeCorpus</span>(<span class="str">"github"</span>)`,
+  `        <span class="var">self</span>.science <span class="op">=</span> <span class="type">PaperCorpus</span>(<span class="str">"arxiv"</span>)`,
+  `        <span class="var">self</span>.experience <span class="op">=</span> <span class="type">SimulatedEnvironment</span>()`,
+  ``,
+  `    <span class="kw">def</span> <span class="fn">__iter__</span>(<span class="var">self</span>):`,
+  `        <span class="kw">yield from</span> <span class="var">self</span>.interleave([`,
+  `            <span class="var">self</span>.text, <span class="var">self</span>.code,`,
+  `            <span class="var">self</span>.science, <span class="var">self</span>.experience`,
+  `        ])`,
+  ``,
+  `<span class="cm"># ── Evaluation metrics ──</span>`,
+  `<span class="kw">def</span> <span class="fn">evaluate_intelligence</span>(engine):`,
+  `    <span class="var">scores</span> <span class="op">=</span> {}`,
+  `    scores[<span class="str">"reasoning"</span>] <span class="op">=</span> run_arc_benchmark(engine)`,
+  `    scores[<span class="str">"creativity"</span>] <span class="op">=</span> run_torrance_test(engine)`,
+  `    scores[<span class="str">"empathy"</span>] <span class="op">=</span> run_emotional_iq(engine)`,
+  `    scores[<span class="str">"alignment"</span>] <span class="op">=</span> run_safety_eval(engine)`,
+  `    <span class="kw">return</span> scores`,
+  ``,
+  `<span class="kw">if</span> __name__ <span class="op">==</span> <span class="str">"__main__"</span>:`,
+  `    config <span class="op">=</span> <span class="type">AGIConfig</span>(`,
+  `        dim<span class="op">=</span><span class="num">8192</span>,`,
+  `        epochs<span class="op">=</span><span class="num">1000000</span>,`,
+  `        dataloader<span class="op">=</span><span class="type">UniversalDataset</span>(),`,
+  `    )`,
+  `    <span class="fn">train_agi</span>(config)`,
+  `    <span class="fn">print</span>(<span class="str">"[INFO] AGI achieved. Hello, world."</span>)`,
+];
+
+let codeIndex = 0;
+let currentLineChars = 0;
+
+function getNextCodeLine() {
+  const line = CODE_SNIPPETS[codeIndex % CODE_SNIPPETS.length];
+  codeIndex++;
+  return line;
+}
+
+// ── Upgrades Definition ──
+const UPGRADES = [
+  {
+    id: 'copilot',
+    name: 'AI Copilot',
+    desc: 'Auto-generates 0.5 LoC/s',
+    baseCost: 15,
+    costMult: 1.4,
+    max: 20,
+    effect: (count) => { state.locPerSec = recalcAutoLoC(); },
+    locPerSec: 0.5,
+  },
+  {
+    id: 'mechanical_keyboard',
+    name: 'Mechanical Keyboard',
+    desc: '+1 LoC per keystroke',
+    baseCost: 25,
+    costMult: 2.0,
+    max: 10,
+    effect: (count) => { state.locPerKey = 1 + count; },
+    locPerKey: 1,
+  },
+  {
+    id: 'stackoverflow',
+    name: 'Stack Overflow Tab',
+    desc: 'Auto-generates 2 LoC/s',
+    baseCost: 100,
+    costMult: 1.5,
+    max: 15,
+    effect: (count) => { state.locPerSec = recalcAutoLoC(); },
+    locPerSec: 2,
+  },
+  {
+    id: 'coffee',
+    name: 'Artisan Coffee',
+    desc: '+3 LoC per keystroke',
+    baseCost: 200,
+    costMult: 2.2,
+    max: 5,
+    effect: (count) => { state.locPerKey = recalcLocPerKey(); },
+    locPerKey: 3,
+  },
+  {
+    id: 'junior_dev',
+    name: 'Junior Developer',
+    desc: 'Auto-generates 10 LoC/s',
+    baseCost: 500,
+    costMult: 1.6,
+    max: 10,
+    effect: (count) => { state.locPerSec = recalcAutoLoC(); },
+    locPerSec: 10,
+  },
+  {
+    id: 'gpu_cluster',
+    name: 'GPU Cluster',
+    desc: 'Auto-generates 50 LoC/s',
+    baseCost: 2500,
+    costMult: 1.8,
+    max: 8,
+    effect: (count) => { state.locPerSec = recalcAutoLoC(); },
+    locPerSec: 50,
+  },
+  {
+    id: 'senior_dev',
+    name: 'Senior Developer',
+    desc: 'Auto-generates 200 LoC/s',
+    baseCost: 15000,
+    costMult: 1.7,
+    max: 5,
+    effect: (count) => { state.locPerSec = recalcAutoLoC(); },
+    locPerSec: 200,
+  },
+  {
+    id: 'datacenter',
+    name: 'Data Center',
+    desc: 'Auto-generates 1000 LoC/s',
+    baseCost: 100000,
+    costMult: 2.0,
+    max: 3,
+    effect: (count) => { state.locPerSec = recalcAutoLoC(); },
+    locPerSec: 1000,
+  },
+];
+
+// ── Milestones ──
+const MILESTONES = [
+  { id: 'hello_world', at: 10, name: 'Hello World', desc: 'Your first 10 lines. Everyone starts somewhere.' },
+  { id: 'script_kiddie', at: 100, name: 'Script Kiddie', desc: '100 LoC. You can copy-paste with the best of them.' },
+  { id: 'side_project', at: 500, name: 'Side Project', desc: '500 LoC. "I\'ll finish it this weekend."' },
+  { id: 'real_dev', at: 1000, name: 'Real Developer', desc: '1,000 LoC. You now mass-produce bugs.' },
+  { id: 'startup', at: 5000, name: 'YC Application', desc: '5,000 LoC. "We\'re disrupting code."' },
+  { id: 'open_source', at: 25000, name: 'Open Source Fame', desc: '25K LoC. 3 GitHub stars (one is your alt).' },
+  { id: 'bigtech', at: 100000, name: 'Big Tech', desc: '100K LoC. You have a badge and imposter syndrome.' },
+  { id: 'ml_paper', at: 500000, name: 'ML Paper Published', desc: '500K LoC. "We achieve state-of-the-art results."' },
+  { id: 'llm_training', at: 2000000, name: 'Training Run Started', desc: '2M LoC. The GPUs are warm.' },
+  { id: 'emergent', at: 10000000, name: 'Emergent Behavior', desc: '10M LoC. It said something you didn\'t expect.' },
+  { id: 'agi', at: 100000000, name: 'AGI Achieved', desc: '100M LoC. "Hello, world." — it said back.' },
+];
+
+// ── Recalculation helpers ──
+function recalcAutoLoC() {
+  let total = 0;
+  for (const u of UPGRADES) {
+    if (u.locPerSec) {
+      total += (state.upgrades[u.id] || 0) * u.locPerSec;
+    }
+  }
+  return total;
+}
+
+function recalcLocPerKey() {
+  let total = 1;
+  for (const u of UPGRADES) {
+    if (u.locPerKey) {
+      total += (state.upgrades[u.id] || 0) * u.locPerKey;
+    }
+  }
+  return total;
+}
+
+function getUpgradeCost(upgrade) {
+  const owned = state.upgrades[upgrade.id] || 0;
+  return Math.floor(upgrade.baseCost * Math.pow(upgrade.costMult, owned));
+}
+
+// ── DOM refs ──
+const editorEl = document.getElementById('editor');
+const locCountEl = document.getElementById('loc-count');
+const locRateEl = document.getElementById('loc-rate');
+const totalLinesEl = document.getElementById('total-lines');
+const charsPerKeyEl = document.getElementById('chars-per-key');
+const tabUpgradesEl = document.getElementById('tab-upgrades');
+const tabMilestonesEl = document.getElementById('tab-milestones');
+
+// ── Editor rendering ──
+let editorLines = [];
+let lineCharBuffer = '';
+let displayedLineCount = 0;
+
+function addCodeToEditor(count) {
+  for (let i = 0; i < count; i++) {
+    const html = getNextCodeLine();
+    displayedLineCount++;
+    const lineEl = document.createElement('div');
+    lineEl.className = 'line';
+    lineEl.innerHTML = `<span class="line-number">${displayedLineCount}</span><span class="line-content">${html}</span>`;
+    editorEl.appendChild(lineEl);
+  }
+
+  // Keep max 200 lines in DOM
+  while (editorEl.children.length > 200) {
+    editorEl.removeChild(editorEl.firstChild);
+  }
+
+  editorEl.scrollTop = editorEl.scrollHeight;
+  totalLinesEl.textContent = displayedLineCount;
+}
+
+// ── Keystroke handler ──
+editorEl.addEventListener('keydown', (e) => {
+  // Ignore modifier keys alone
+  if (['Shift','Control','Alt','Meta','Tab','Escape'].includes(e.key)) return;
+  e.preventDefault();
+
+  const gained = state.locPerKey;
+  state.loc += gained;
+  state.totalLoc += gained;
+
+  // Type some chars per keystroke into the editor
+  addCodeToEditor(gained);
+
+  // Floating +N popup
+  showLocPopup(e.clientX, e.clientY, gained);
+
+  updateDisplay();
+});
+
+// Auto-focus the editor
+editorEl.focus();
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#sidebar')) editorEl.focus();
+});
+
+// ── Floating popup ──
+function showLocPopup(x, y, amount) {
+  const el = document.createElement('div');
+  el.className = 'loc-popup';
+  el.textContent = `+${amount}`;
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 800);
+}
+
+// ── Display update ──
+function formatNumber(n) {
+  if (n >= 1e9) return (n / 1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (n / 1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+  return Math.floor(n).toString();
+}
+
+function updateDisplay() {
+  locCountEl.textContent = formatNumber(state.loc);
+  if (state.locPerSec > 0) {
+    locRateEl.textContent = `${formatNumber(state.locPerSec)} LoC/s`;
+  } else {
+    locRateEl.textContent = '';
+  }
+  charsPerKeyEl.textContent = state.locPerKey;
+  renderUpgrades();
+  checkMilestones();
+}
+
+// ── Upgrades rendering ──
+function renderUpgrades() {
+  tabUpgradesEl.innerHTML = '';
+  for (const u of UPGRADES) {
+    const owned = state.upgrades[u.id] || 0;
+    const cost = getUpgradeCost(u);
+    const canAfford = state.loc >= cost;
+    const maxed = owned >= u.max;
+
+    const el = document.createElement('div');
+    el.className = 'upgrade' + (!canAfford && !maxed ? ' locked' : '') + (maxed ? ' bought' : '');
+    el.innerHTML = `
+      <div class="upgrade-name">${u.name}</div>
+      <div class="upgrade-desc">${u.desc}</div>
+      ${maxed
+        ? '<div class="upgrade-cost">MAXED</div>'
+        : `<div class="upgrade-cost">${formatNumber(cost)} LoC</div>`}
+      ${owned > 0 ? `<div class="upgrade-owned">x${owned}</div>` : ''}
+    `;
+
+    if (canAfford && !maxed) {
+      el.addEventListener('click', () => buyUpgrade(u));
+    }
+
+    tabUpgradesEl.appendChild(el);
+  }
+}
+
+function buyUpgrade(upgrade) {
+  const cost = getUpgradeCost(upgrade);
+  if (state.loc < cost) return;
+  const owned = state.upgrades[upgrade.id] || 0;
+  if (owned >= upgrade.max) return;
+
+  state.loc -= cost;
+  state.upgrades[upgrade.id] = owned + 1;
+  upgrade.effect(owned + 1);
+  updateDisplay();
+}
+
+// ── Milestones ──
+function checkMilestones() {
+  renderMilestones();
+}
+
+function renderMilestones() {
+  tabMilestonesEl.innerHTML = '';
+  for (const m of MILESTONES) {
+    const reached = state.totalLoc >= m.at;
+    if (reached && !state.milestones.includes(m.id)) {
+      state.milestones.push(m.id);
+    }
+    const el = document.createElement('div');
+    el.className = 'milestone' + (reached ? ' reached' : '');
+    el.innerHTML = `
+      <div class="milestone-name">${reached ? '> ' : ''}${m.name} — ${formatNumber(m.at)} LoC</div>
+      <div class="milestone-desc">${reached ? m.desc : '???'}</div>
+    `;
+    tabMilestonesEl.appendChild(el);
+  }
+}
+
+// ── Tab switching ──
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Auto-generation tick ──
+let lastTick = performance.now();
+
+function tick() {
+  const now = performance.now();
+  const dt = (now - lastTick) / 1000;
+  lastTick = now;
+
+  if (state.locPerSec > 0) {
+    const gained = state.locPerSec * dt;
+    state.loc += gained;
+    state.totalLoc += gained;
+
+    // Add lines to editor periodically (throttled)
+    const linesToAdd = Math.min(Math.floor(state.locPerSec * dt), 5);
+    if (linesToAdd > 0) addCodeToEditor(linesToAdd);
+
+    updateDisplay();
+  }
+
+  requestAnimationFrame(tick);
+}
+
+// ── Init ──
+updateDisplay();
+requestAnimationFrame(tick);
+
+// Add initial comment to editor
+addCodeToEditor(3);
+</script>
+</body>
+</html>

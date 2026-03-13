@@ -1,0 +1,164 @@
+{
+  "milestones": [
+    {
+      "id": "hello_world",
+      "name": "Hello World",
+      "description": "Your first 10 lines. Everyone starts somewhere.",
+      "condition": "totalLoc >= 10",
+      "threshold": 10,
+      "metric": "totalLoc"
+    },
+    {
+      "id": "script_kiddie",
+      "name": "Script Kiddie",
+      "description": "100 LoC. You can copy-paste with the best of them.",
+      "condition": "totalLoc >= 100",
+      "threshold": 100,
+      "metric": "totalLoc"
+    },
+    {
+      "id": "first_dollar",
+      "name": "First Dollar",
+      "description": "Your code made money. Don't spend it all in one place.",
+      "condition": "totalCash >= 1",
+      "threshold": 1,
+      "metric": "totalCash"
+    },
+    {
+      "id": "side_project",
+      "name": "Side Project",
+      "description": "500 LoC. \"I'll finish it this weekend.\"",
+      "condition": "totalLoc >= 500",
+      "threshold": 500,
+      "metric": "totalLoc"
+    },
+    {
+      "id": "real_dev",
+      "name": "Real Developer",
+      "description": "1,000 LoC. You now mass-produce bugs professionally.",
+      "condition": "totalLoc >= 1000",
+      "threshold": 1000,
+      "metric": "totalLoc"
+    },
+    {
+      "id": "first_hire",
+      "name": "First Hire",
+      "description": "Someone is writing code for you. Is this what management feels like?",
+      "condition": "ownedDevs >= 1",
+      "threshold": 1,
+      "metric": "ownedDevs"
+    },
+    {
+      "id": "yc_application",
+      "name": "YC Application",
+      "description": "5,000 LoC. \"We're disrupting code.\"",
+      "condition": "totalLoc >= 5000",
+      "threshold": 5000,
+      "metric": "totalLoc"
+    },
+    {
+      "id": "open_source_fame",
+      "name": "Open Source Fame",
+      "description": "25K LoC. 3 GitHub stars (one is your alt).",
+      "condition": "totalLoc >= 25000",
+      "threshold": 25000,
+      "metric": "totalLoc"
+    },
+    {
+      "id": "big_tech",
+      "name": "Big Tech",
+      "description": "100K LoC. You have a badge and imposter syndrome.",
+      "condition": "totalLoc >= 100000",
+      "threshold": 100000,
+      "metric": "totalLoc"
+    },
+    {
+      "id": "first_ai",
+      "name": "First AI Model",
+      "description": "It writes code now. You're not sure if you should be proud or scared.",
+      "condition": "ownedAiModels >= 1",
+      "threshold": 1,
+      "metric": "ownedAiModels"
+    },
+    {
+      "id": "model_collector",
+      "name": "Model Collector",
+      "description": "You own 5 AI models. Your GPU bill is a war crime.",
+      "condition": "ownedAiModels >= 5",
+      "threshold": 5,
+      "metric": "ownedAiModels"
+    },
+    {
+      "id": "agent_unlocked",
+      "name": "Agent Mode",
+      "description": "The models are talking to each other. This is fine.",
+      "condition": "agentSetupActive",
+      "threshold": 1,
+      "metric": "agentSetups"
+    },
+    {
+      "id": "ml_paper",
+      "name": "ML Paper Published",
+      "description": "500K LoC. \"We achieve state-of-the-art results.\"",
+      "condition": "totalLoc >= 500000",
+      "threshold": 500000,
+      "metric": "totalLoc"
+    },
+    {
+      "id": "quality_crisis",
+      "name": "Quality Crisis",
+      "description": "Code quality dropped below 50%. The tech debt is sentient.",
+      "condition": "codeQuality < 50",
+      "threshold": 50,
+      "metric": "codeQuality"
+    },
+    {
+      "id": "quality_snob",
+      "name": "Quality Snob",
+      "description": "Maintained 95%+ quality with 100K+ LoC. You monster.",
+      "condition": "codeQuality >= 95 && totalLoc >= 100000",
+      "threshold": 95,
+      "metric": "codeQuality"
+    },
+    {
+      "id": "llm_training",
+      "name": "Training Run Started",
+      "description": "2M LoC. The GPUs are warm.",
+      "condition": "totalLoc >= 2000000",
+      "threshold": 2000000,
+      "metric": "totalLoc"
+    },
+    {
+      "id": "billion_flops",
+      "name": "Compute Lord",
+      "description": "1 billion FLOPS. Your electricity bill could fund a small country.",
+      "condition": "totalFlops >= 1000000000",
+      "threshold": 1000000000,
+      "metric": "totalFlops"
+    },
+    {
+      "id": "emergent_behavior",
+      "name": "Emergent Behavior",
+      "description": "10M LoC. It said something you didn't expect.",
+      "condition": "totalLoc >= 10000000",
+      "threshold": 10000000,
+      "metric": "totalLoc"
+    },
+    {
+      "id": "the_flippening",
+      "name": "The Flippening",
+      "description": "AI writes more code than you ever did manually. You're optional now.",
+      "condition": "aiTotalLoc > manualTotalLoc",
+      "threshold": 1,
+      "metric": "aiVsManual"
+    },
+    {
+      "id": "agi",
+      "name": "AGI Achieved",
+      "description": "100M LoC. \"Hello, world.\" — it said back.",
+      "condition": "totalLoc >= 100000000",
+      "threshold": 100000000,
+      "metric": "totalLoc"
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "events": [
+    {
+      "id": "production_down",
+      "name": "Production is down!",
+      "description": "FLOPS halved for 30s. Mash keys to fix it faster (each key -1s).",
+      "icon": "🔥",
+      "minTier": "startup",
+      "duration": 30,
+      "effects": [
+        { "type": "flops", "op": "multiply", "value": 0.5 }
+      ],
+      "interaction": {
+        "type": "mash_keys",
+        "reductionPerKey": 1
+      },
+      "weight": 10
+    },
+    {
+      "id": "hackathon",
+      "name": "Hackathon!",
+      "description": "Double LoC production for 20s. Ship it!",
+      "icon": "🏆",
+      "minTier": "freelancing",
+      "duration": 20,
+      "effects": [
+        { "type": "locProduction", "op": "multiply", "value": 2 }
+      ],
+      "weight": 12
+    },
+    {
+      "id": "investor_demo",
+      "name": "Investor Demo",
+      "description": "If LoC/s > threshold: bonus cash. If not: nothing happens (awkward).",
+      "icon": "💼",
+      "minTier": "startup",
+      "duration": 15,
+      "effects": [
+        { "type": "conditionalCash", "threshold": "currentLocPerSec * 0.8", "reward": "currentCash * 0.1" }
+      ],
+      "weight": 8
+    },
+    {
+      "id": "stackoverflow_down",
+      "name": "Stack Overflow is down",
+      "description": "Lose all Stack Overflow bonuses for 15s. How do you even code?",
+      "icon": "📚",
+      "minTier": "freelancing",
+      "duration": 15,
+      "effects": [
+        { "type": "disableUpgrade", "upgradeId": "stackoverflow_premium" }
+      ],
+      "weight": 8
+    },
+    {
+      "id": "github_star",
+      "name": "GitHub Star",
+      "description": "Someone starred your repo! Small cash bonus.",
+      "icon": "⭐",
+      "minTier": "garage",
+      "duration": 0,
+      "effects": [
+        { "type": "instantCash", "op": "add", "value": "currentCash * 0.02" }
+      ],
+      "weight": 15
+    },
+    {
+      "id": "coffee_spill",
+      "name": "Coffee Spill",
+      "description": "You spilled coffee on your keyboard. -50% typing speed for 10s.",
+      "icon": "☕",
+      "minTier": "garage",
+      "duration": 10,
+      "effects": [
+        { "type": "locPerKey", "op": "multiply", "value": 0.5 }
+      ],
+      "weight": 10
+    },
+    {
+      "id": "npm_install",
+      "name": "npm install",
+      "description": "Installing dependencies... FLOPS consumed by node_modules for 20s.",
+      "icon": "📦",
+      "minTier": "freelancing",
+      "duration": 20,
+      "effects": [
+        { "type": "flops", "op": "multiply", "value": 0.3 }
+      ],
+      "weight": 8
+    },
+    {
+      "id": "viral_tweet",
+      "name": "Viral Tweet",
+      "description": "Your hot take went viral. Devs flock to your project. +100% auto-LoC for 15s.",
+      "icon": "🐦",
+      "minTier": "startup",
+      "duration": 15,
+      "effects": [
+        { "type": "autoLoc", "op": "multiply", "value": 2 }
+      ],
+      "weight": 6
+    },
+    {
+      "id": "ai_hallucination",
+      "name": "AI Hallucination",
+      "description": "One of your AI models went rogue. It wrote 10K LoC of nonsense. Quality -10%.",
+      "icon": "🌀",
+      "minTier": "ai_lab",
+      "duration": 0,
+      "effects": [
+        { "type": "instantLoc", "op": "add", "value": 10000 },
+        { "type": "codeQuality", "op": "add", "value": -10 }
+      ],
+      "weight": 8
+    },
+    {
+      "id": "security_audit",
+      "name": "Security Audit",
+      "description": "Auditors found vulnerabilities. Pay 5% of cash or lose 20% quality.",
+      "icon": "🔒",
+      "minTier": "tech_company",
+      "duration": 0,
+      "effects": [
+        {
+          "type": "choice",
+          "options": [
+            { "label": "Pay fine", "effect": { "type": "cash", "op": "multiply", "value": 0.95 } },
+            { "label": "Ignore it", "effect": { "type": "codeQuality", "op": "add", "value": -20 } }
+          ]
+        }
+      ],
+      "weight": 5
+    },
+    {
+      "id": "power_outage",
+      "name": "Power Outage",
+      "description": "Data center went dark. No FLOPS for 15s. Manual typing still works.",
+      "icon": "⚡",
+      "minTier": "tech_company",
+      "duration": 15,
+      "effects": [
+        { "type": "flops", "op": "set", "value": 0 }
+      ],
+      "weight": 4
+    },
+    {
+      "id": "acquihire_offer",
+      "name": "Acqui-hire Offer",
+      "description": "Big Tech wants to buy you out. Take the cash or keep grinding?",
+      "icon": "🤝",
+      "minTier": "startup",
+      "duration": 0,
+      "effects": [
+        {
+          "type": "choice",
+          "options": [
+            { "label": "Sell out", "effect": { "type": "instantCash", "op": "add", "value": "currentCash * 2" } },
+            { "label": "Stay indie", "effect": { "type": "cashMultiplier", "op": "multiply", "value": 1.1, "duration": 120 } }
+          ]
+        }
+      ],
+      "weight": 3
+    }
+  ],
+
+  "eventConfig": {
+    "minIntervalSeconds": 30,
+    "maxIntervalSeconds": 90,
+    "maxConcurrent": 1
+  }
+}

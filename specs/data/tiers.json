@@ -1,0 +1,58 @@
+{
+  "tiers": [
+    {
+      "id": "garage",
+      "index": 0,
+      "name": "The Garage",
+      "tagline": "A keyboard and a dream.",
+      "cashPerLoc": 0.01,
+      "unlockCondition": null,
+      "unlockCash": 0
+    },
+    {
+      "id": "freelancing",
+      "index": 1,
+      "name": "Freelancing",
+      "tagline": "You're selling your code. Clients appear.",
+      "cashPerLoc": 0.05,
+      "unlockCondition": "totalCash >= 100",
+      "unlockCash": 100
+    },
+    {
+      "id": "startup",
+      "index": 2,
+      "name": "Startup",
+      "tagline": "You have a company now. Time to hire.",
+      "cashPerLoc": 0.25,
+      "unlockCondition": "totalCash >= 2000",
+      "unlockCash": 2000
+    },
+    {
+      "id": "tech_company",
+      "index": 3,
+      "name": "Tech Company",
+      "tagline": "The product prints money.",
+      "cashPerLoc": 1.00,
+      "unlockCondition": "totalCash >= 50000",
+      "unlockCash": 50000
+    },
+    {
+      "id": "ai_lab",
+      "index": 4,
+      "name": "AI Lab",
+      "tagline": "The code starts writing itself — but it eats your compute.",
+      "cashPerLoc": 5.00,
+      "unlockCondition": "totalCash >= 5000000",
+      "unlockCash": 5000000
+    },
+    {
+      "id": "agi_race",
+      "index": 5,
+      "name": "AGI Race",
+      "tagline": "You're not writing code anymore. The AI is.",
+      "cashPerLoc": 50.00,
+      "unlockCondition": "totalCash >= 1000000000",
+      "unlockCash": 1000000000
+    }
+  ]
+}

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGI Rush — Design Doc</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0e14;
+    color: #c5c8c6;
+    font-family: -apple-system, 'Segoe UI', sans-serif;
+    line-height: 1.7;
+    padding: 40px 20px;
+  }
+
+  #content {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ── Typography ── */
+  h1 {
+    font-size: 2.2em;
+    color: #58a6ff;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #1e2630;
+  }
+
+  h2 {
+    font-size: 1.5em;
+    color: #c678dd;
+    margin-top: 48px;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #1e2630;
+  }
+
+  h3 {
+    font-size: 1.15em;
+    color: #e5c07b;
+    margin-top: 32px;
+    margin-bottom: 8px;
+  }
+
+  p {
+    margin-bottom: 12px;
+    color: #abb2bf;
+  }
+
+  strong { color: #e06c75; }
+  em { color: #98c379; font-style: italic; }
+
+  a { color: #58a6ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── Lists ── */
+  ul, ol {
+    margin: 8px 0 16px 24px;
+    color: #abb2bf;
+  }
+
+  li { margin-bottom: 4px; }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 0.9em;
+  }
+
+  th {
+    background: #161b22;
+    color: #58a6ff;
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid #1e2630;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 8px 12px;
+    border: 1px solid #1e2630;
+    color: #abb2bf;
+  }
+
+  tr:nth-child(even) td { background: #0d1117; }
+  tr:hover td { background: #161b22; }
+
+  /* ── Code blocks ── */
+  code {
+    font-family: 'Courier New', monospace;
+    background: #161b22;
+    color: #e5c07b;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  pre {
+    background: #161b22;
+    border: 1px solid #1e2630;
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    line-height: 1.5;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+    color: #abb2bf;
+    font-size: 0.85em;
+  }
+
+  /* ── Horizontal rules ── */
+  hr {
+    border: none;
+    border-top: 1px solid #1e2630;
+    margin: 32px 0;
+  }
+
+  /* ── Blockquotes ── */
+  blockquote {
+    border-left: 3px solid #c678dd;
+    padding: 8px 16px;
+    margin: 12px 0;
+    color: #6272a4;
+    background: #0d1117;
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* ── Loading state ── */
+  #loading {
+    text-align: center;
+    padding: 80px 20px;
+    color: #6272a4;
+    font-style: italic;
+  }
+
+  /* ── Source link ── */
+  #source-link {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid #1e2630;
+    font-size: 0.85em;
+    color: #484f58;
+  }
+</style>
+</head>
+<body>
+
+<div id="content">
+  <div id="loading">Loading DESIGN.md...</div>
+</div>
+
+<script>
+// ── Minimal Markdown → HTML renderer ──
+// Handles: h1-h3, bold, italic, code, code blocks, tables, lists, hr, blockquotes, paragraphs
+
+function renderMarkdown(md) {
+  const lines = md.split('\n');
+  let html = '';
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Blank line
+    if (line.trim() === '') { i++; continue; }
+
+    // Code block (```)
+    if (line.trim().startsWith('```')) {
+      let block = '';
+      i++;
+      while (i < lines.length && !lines[i].trim().startsWith('```')) {
+        block += escapeHtml(lines[i]) + '\n';
+        i++;
+      }
+      i++; // skip closing ```
+      html += `<pre><code>${block.trimEnd()}</code></pre>\n`;
+      continue;
+    }
+
+    // Headings
+    if (line.startsWith('### ')) {
+      html += `<h3>${inline(line.slice(4))}</h3>\n`; i++; continue;
+    }
+    if (line.startsWith('## ')) {
+      html += `<h2>${inline(line.slice(3))}</h2>\n`; i++; continue;
+    }
+    if (line.startsWith('# ')) {
+      html += `<h1>${inline(line.slice(2))}</h1>\n`; i++; continue;
+    }
+
+    // Horizontal rule
+    if (/^---+\s*$/.test(line.trim())) {
+      html += '<hr>\n'; i++; continue;
+    }
+
+    // Table
+    if (line.includes('|') && line.trim().startsWith('|')) {
+      let tableLines = [];
+      while (i < lines.length && lines[i].includes('|') && lines[i].trim().startsWith('|')) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+      html += renderTable(tableLines);
+      continue;
+    }
+
+    // Unordered list
+    if (/^\s*[-*] /.test(line)) {
+      let items = [];
+      while (i < lines.length && /^\s*[-*] /.test(lines[i])) {
+        items.push(lines[i].replace(/^\s*[-*] /, ''));
+        i++;
+      }
+      html += '<ul>' + items.map(it => `<li>${inline(it)}</li>`).join('\n') + '</ul>\n';
+      continue;
+    }
+
+    // Blockquote
+    if (line.startsWith('>')) {
+      let block = [];
+      while (i < lines.length && lines[i].startsWith('>')) {
+        block.push(lines[i].replace(/^>\s?/, ''));
+        i++;
+      }
+      html += `<blockquote>${block.map(b => inline(b)).join('<br>')}</blockquote>\n`;
+      continue;
+    }
+
+    // Paragraph
+    let para = [];
+    while (i < lines.length && lines[i].trim() !== '' && !lines[i].startsWith('#') &&
+           !lines[i].startsWith('```') && !lines[i].startsWith('|') &&
+           !/^\s*[-*] /.test(lines[i]) && !/^---+\s*$/.test(lines[i].trim()) &&
+           !lines[i].startsWith('>')) {
+      para.push(lines[i]);
+      i++;
+    }
+    if (para.length) {
+      html += `<p>${inline(para.join(' '))}</p>\n`;
+    }
+  }
+
+  return html;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function inline(text) {
+  // Escape HTML first
+  text = escapeHtml(text);
+  // Inline code (backticks)
+  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // Bold
+  text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // Italic
+  text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  return text;
+}
+
+function renderTable(lines) {
+  // Filter out separator rows (|---|---|)
+  const dataLines = lines.filter(l => !/^\|[\s\-:|]+\|$/.test(l.trim()));
+  if (dataLines.length === 0) return '';
+
+  let html = '<table>';
+
+  // Header
+  const headerCells = parseCells(dataLines[0]);
+  html += '<thead><tr>' + headerCells.map(c => `<th>${inline(c)}</th>`).join('') + '</tr></thead>';
+
+  // Body
+  if (dataLines.length > 1) {
+    html += '<tbody>';
+    for (let r = 1; r < dataLines.length; r++) {
+      const cells = parseCells(dataLines[r]);
+      html += '<tr>' + cells.map(c => `<td>${inline(c)}</td>`).join('') + '</tr>';
+    }
+    html += '</tbody>';
+  }
+
+  html += '</table>';
+  return html;
+}
+
+function parseCells(line) {
+  return line.split('|').slice(1, -1).map(c => c.trim());
+}
+
+// ── Load and render ──
+async function init() {
+  try {
+    const resp = await fetch('DESIGN.md');
+    if (!resp.ok) throw new Error(`Failed to load DESIGN.md (${resp.status})`);
+    const md = await resp.text();
+    const contentEl = document.getElementById('content');
+    contentEl.innerHTML = renderMarkdown(md);
+    contentEl.innerHTML += `
+      <div id="source-link">
+        Rendered from <a href="DESIGN.md">DESIGN.md</a> — edit the markdown, refresh to update
+      </div>
+    `;
+  } catch (e) {
+    document.getElementById('content').innerHTML = `
+      <h1>AGI Rush — Design Doc</h1>
+      <p style="color: #e06c75;">Could not load DESIGN.md: ${escapeHtml(e.message)}</p>
+      <p>Make sure you're serving this from a local server (e.g. <code>python -m http.server</code>),
+      not opening the file directly — fetch() needs HTTP.</p>
+    `;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
