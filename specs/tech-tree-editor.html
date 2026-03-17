@@ -94,6 +94,8 @@ body { font-family: 'Courier New', monospace; background: #0a0e14; color: #c5c8c
   <button onclick="autoLayout()">📐 Auto Layout</button>
   <button class="export-btn" onclick="exportJSON()">Export JSON</button>
   <button onclick="importJSON()">Import JSON</button>
+  <a href="/items" style="font-size:11px;color:#6272a4;text-decoration:none">Items</a>
+  <a href="/feedback" style="font-size:11px;color:#3fb950;text-decoration:none">Feedback</a>
   <button class="danger" onclick="clearAll()">Clear All</button>
   <span id="status" style="color:#6272a4;font-size:11px;margin-left:auto"></span>
 </div>
@@ -792,9 +794,19 @@ function screenToSvg(sx, sy) {
 // ── Pan/Zoom ──
 const canvasWrap = document.getElementById('canvas-wrap');
 
+function isInsideNode(el) {
+  // Walk up SVG DOM to find a .tree-node <g>
+  let node = el;
+  while (node && node !== canvasWrap) {
+    if (node.classList && node.classList.contains('tree-node')) return true;
+    node = node.parentNode;
+  }
+  return false;
+}
+
 canvasWrap.addEventListener('mousedown', e => {
   if (draggingNode) return;
-  if (e.target.closest('.tree-node')) return;
+  if (isInsideNode(e.target)) return;
 
   if (e.shiftKey) {
     // Shift+drag on empty canvas = box select

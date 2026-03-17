@@ -2,8 +2,13 @@ import path from "node:path";
 import { defineConfig } from "@rspack/cli";
 import { HtmlRspackPlugin, type RspackPluginFunction } from "@rspack/core";
 
+const isProd = process.env.NODE_ENV === "production";
+
 export default defineConfig({
 	entry: "./src/main.tsx",
+	output: {
+		publicPath: isProd ? "/incremental-agi-rush/" : "/",
+	},
 	resolve: {
 		extensions: [".ts", ".tsx", ".js", ".jsx"],
 		alias: {

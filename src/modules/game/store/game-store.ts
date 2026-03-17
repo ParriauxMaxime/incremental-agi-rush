@@ -30,6 +30,7 @@ const initialState: GameState = {
 	totalLoc: 0,
 	cash: core.startingCash,
 	totalCash: 0,
+	totalExecutedLoc: 0,
 	flops: core.startingFlops,
 
 	cpuFlops: 0,
@@ -47,14 +48,32 @@ const initialState: GameState = {
 	devCostDiscount: 1,
 	teamCostDiscount: 1,
 	managerCostDiscount: 1,
+	llmCostDiscount: 1,
+	agentCostDiscount: 1,
+	internMaxBonus: 0,
+	teamMaxBonus: 0,
+	managerMaxBonus: 0,
+	llmMaxBonus: 0,
+	agentMaxBonus: 0,
 
 	currentTierIndex: 0,
 	ownedUpgrades: {},
-	ownedTechNodes: {},
+	ownedTechNodes: { computer: 1 },
 	autoTypeEnabled: false,
 	running: true,
 	reachedMilestones: [],
 };
+
+function getEffectiveMax(upgrade: Upgrade, state?: GameState): number {
+	if (!state || !upgrade.costCategory) return upgrade.max;
+	let bonus = 0;
+	if (upgrade.costCategory === "intern") bonus = state.internMaxBonus;
+	if (upgrade.costCategory === "team") bonus = state.teamMaxBonus;
+	if (upgrade.costCategory === "manager") bonus = state.managerMaxBonus;
+	if (upgrade.costCategory === "llm") bonus = state.llmMaxBonus;
+	if (upgrade.costCategory === "agent") bonus = state.agentMaxBonus;
+	return upgrade.max + bonus;
+}
 
 function getUpgradeCost(
 	upgrade: Upgrade,
@@ -71,6 +90,10 @@ function getUpgradeCost(
 			cost = Math.floor(cost * state.teamCostDiscount);
 		if (upgrade.costCategory === "manager")
 			cost = Math.floor(cost * state.managerCostDiscount);
+		if (upgrade.costCategory === "llm")
+			cost = Math.floor(cost * state.llmCostDiscount);
+		if (upgrade.costCategory === "agent")
+			cost = Math.floor(cost * state.agentCostDiscount);
 	}
 	return Math.max(1, cost);
 }
@@ -84,6 +107,8 @@ function recalcDerivedStats(state: GameState): void {
 	let internLoc = 0;
 	let devLoc = 0;
 	let teamLoc = 0;
+	let llmLoc = 0;
+	let agentLoc = 0;
 	let managerCount = 0;
 	let baseFlops = core.startingFlops;
 	let cpuFlops = 0;
@@ -94,12 +119,21 @@ function recalcDerivedStats(state: GameState): void {
 	let internLocMultiplier = 1;
 	let devLocMultiplier = 1;
 	let teamLocMultiplier = 1;
+	let llmLocMultiplier = 1;
+	let agentLocMultiplier = 1;
 	let managerMultiplier = 1;
 	let devSpeedMultiplier = 1;
 	let internCostDiscount = 1;
 	let devCostDiscount = 1;
 	let teamCostDiscount = 1;
 	let managerCostDiscount = 1;
+	let llmCostDiscount = 1;
+	let agentCostDiscount = 1;
+	let internMaxBonus = 0;
+	let teamMaxBonus = 0;
+	let managerMaxBonus = 0;
+	let llmMaxBonus = 0;
+	let agentMaxBonus = 0;
 	let tierIndex = state.currentTierIndex;
 
 	function applyEffect(effect: UpgradeEffect, owned: number) {
@@ -171,6 +205,39 @@ function recalcDerivedStats(state: GameState): void {
 			.with({ type: "managerCostDiscount", op: "multiply" }, () => {
 				managerCostDiscount *= val ** owned;
 			})
+			.with({ type: "llmLoc", op: "add" }, () => {
+				llmLoc += val * owned;
+			})
+			.with({ type: "agentLoc", op: "add" }, () => {
+				agentLoc += val * owned;
+			})
+			.with({ type: "llmLocMultiplier", op: "multiply" }, () => {
+				llmLocMultiplier *= val ** owned;
+			})
+			.with({ type: "agentLocMultiplier", op: "multiply" }, () => {
+				agentLocMultiplier *= val ** owned;
+			})
+			.with({ type: "llmCostDiscount", op: "multiply" }, () => {
+				llmCostDiscount *= val ** owned;
+			})
+			.with({ type: "agentCostDiscount", op: "multiply" }, () => {
+				agentCostDiscount *= val ** owned;
+			})
+			.with({ type: "internMaxBonus", op: "add" }, () => {
+				internMaxBonus += val * owned;
+			})
+			.with({ type: "teamMaxBonus", op: "add" }, () => {
+				teamMaxBonus += val * owned;
+			})
+			.with({ type: "managerMaxBonus", op: "add" }, () => {
+				managerMaxBonus += val * owned;
+			})
+			.with({ type: "llmMaxBonus", op: "add" }, () => {
+				llmMaxBonus += val * owned;
+			})
+			.with({ type: "agentMaxBonus", op: "add" }, () => {
+				agentMaxBonus += val * owned;
+			})
 			.with({ type: "tierUnlock", op: "set" }, () => {
 				tierIndex = Math.max(tierIndex, val);
 			})
@@ -202,13 +269,12 @@ function recalcDerivedStats(state: GameState): void {
 	const managerTeamBonus = 1 + managerCount * 0.5 * managerMultiplier;
 
 	// Combine auto LoC:
-	// interns * their multiplier
-	// + devs * their multiplier * speed
-	// + teams * their multiplier * manager bonus
 	const totalAutoLoc =
 		internLoc * internLocMultiplier +
 		devLoc * devLocMultiplier * devSpeedMultiplier +
-		teamLoc * teamLocMultiplier * managerTeamBonus;
+		teamLoc * teamLocMultiplier * managerTeamBonus +
+		llmLoc * llmLocMultiplier +
+		agentLoc * agentLocMultiplier;
 
 	state.cpuFlops = cpuFlops;
 	state.ramFlops = ramFlops;
@@ -222,6 +288,13 @@ function recalcDerivedStats(state: GameState): void {
 	state.devCostDiscount = devCostDiscount;
 	state.teamCostDiscount = teamCostDiscount;
 	state.managerCostDiscount = managerCostDiscount;
+	state.llmCostDiscount = llmCostDiscount;
+	state.agentCostDiscount = agentCostDiscount;
+	state.internMaxBonus = internMaxBonus;
+	state.teamMaxBonus = teamMaxBonus;
+	state.managerMaxBonus = managerMaxBonus;
+	state.llmMaxBonus = llmMaxBonus;
+	state.agentMaxBonus = agentMaxBonus;
 	state.currentTierIndex = tierIndex;
 }
 
@@ -248,7 +321,7 @@ export const useGameStore = create<GameState & GameActions>()(
 
 			tick: (dt: number) => {
 				set((s) => {
-					let { loc, totalLoc, cash, totalCash } = s;
+					let { loc, totalLoc, cash, totalCash, totalExecutedLoc } = s;
 					let blockQueue = s.blockQueue;
 					const tier = tiers[s.currentTierIndex];
 
@@ -279,6 +352,7 @@ export const useGameStore = create<GameState & GameActions>()(
 							cash += earned;
 							totalCash += earned;
 							loc -= 1;
+							totalExecutedLoc += 1;
 
 							if (!mutated) {
 								blockQueue = blockQueue.slice();
@@ -310,6 +384,7 @@ export const useGameStore = create<GameState & GameActions>()(
 						totalLoc,
 						cash,
 						totalCash,
+						totalExecutedLoc,
 						blockQueue,
 						executionProgress: progress,
 					};
@@ -334,7 +409,7 @@ export const useGameStore = create<GameState & GameActions>()(
 			buyUpgrade: (upgrade: Upgrade) => {
 				const s = get();
 				const owned = s.ownedUpgrades[upgrade.id] ?? 0;
-				if (owned >= upgrade.max) return;
+				if (owned >= getEffectiveMax(upgrade, s)) return;
 
 				const cost = getUpgradeCost(upgrade, owned, s);
 				if (s.cash < cost) return;
@@ -472,4 +547,4 @@ export const useGameStore = create<GameState & GameActions>()(
 	),
 );
 
-export { getTechNodeCost, getUpgradeCost };
+export { getEffectiveMax, getTechNodeCost, getUpgradeCost };

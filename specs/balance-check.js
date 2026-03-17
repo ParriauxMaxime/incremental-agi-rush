@@ -20,18 +20,18 @@ const VERBOSE = process.argv.includes("--verbose");
 
 // ── Thresholds (edit these to adjust tolerance) ──
 const RULES = {
-	agiMinMinutes: 33,
-	agiMaxMinutes: 50,
-	maxWaitSeconds: 300,
+	agiMinMinutes: 18,
+	agiMaxMinutes: 45,
+	maxWaitSeconds: 750,
 	minPurchases: 80,
 	maxPurchases: 500,
 	minTiers: 6,
 	tierMinDuration: {
-		garage: 60,
+		garage: 30,
 		freelancing: 50,
 		startup: 120,
 		tech_company: 120,
-		ai_lab: 300,
+		ai_lab: 60,
 		agi_race: 120,
 	},
 	tierMaxDuration: {
@@ -73,6 +73,17 @@ function simulate(keysPerSec = 6) {
 		devCostDiscount: 1,
 		teamCostDiscount: 1,
 		managerCostDiscount: 1,
+		llmLoc: 0,
+		agentLoc: 0,
+		llmLocMultiplier: 1,
+		agentLocMultiplier: 1,
+		llmCostDiscount: 1,
+		agentCostDiscount: 1,
+		internMaxBonus: 0,
+		teamMaxBonus: 0,
+		managerMaxBonus: 0,
+		llmMaxBonus: 0,
+		agentMaxBonus: 0,
 		codeQuality: 100,
 		currentTier: 0,
 		owned: {},
@@ -88,6 +99,16 @@ function simulate(keysPerSec = 6) {
 		return Math.floor(node.baseCost * Math.pow(node.costMultiplier, owned));
 	}
 
+	function getEffMax(u) {
+		let bonus = 0;
+		if (u.costCategory === 'intern') bonus = sim.internMaxBonus;
+		if (u.costCategory === 'team') bonus = sim.teamMaxBonus;
+		if (u.costCategory === 'manager') bonus = sim.managerMaxBonus;
+		if (u.costCategory === 'llm') bonus = sim.llmMaxBonus;
+		if (u.costCategory === 'agent') bonus = sim.agentMaxBonus;
+		return u.max + bonus;
+	}
+
 	function getCost(u) {
 		const owned = sim.owned[u.id] || 0;
 		let cost = Math.floor(u.baseCost * Math.pow(u.costMultiplier, owned));
@@ -95,6 +116,8 @@ function simulate(keysPerSec = 6) {
 		if (u.costCategory === 'dev') cost = Math.floor(cost * sim.devCostDiscount);
 		if (u.costCategory === 'team') cost = Math.floor(cost * sim.teamCostDiscount);
 		if (u.costCategory === 'manager') cost = Math.floor(cost * sim.managerCostDiscount);
+		if (u.costCategory === 'llm') cost = Math.floor(cost * sim.llmCostDiscount);
+		if (u.costCategory === 'agent') cost = Math.floor(cost * sim.agentCostDiscount);
 		return Math.max(1, cost);
 	}
 
@@ -152,6 +175,21 @@ function simulate(keysPerSec = 6) {
 				sim.teamCostDiscount *= e.value;
 			if (e.type === "managerCostDiscount" && e.op === "multiply")
 				sim.managerCostDiscount *= e.value;
+			if (e.type === "llmLoc" && e.op === "add") sim.llmLoc += e.value;
+			if (e.type === "agentLoc" && e.op === "add") sim.agentLoc += e.value;
+			if (e.type === "llmLocMultiplier" && e.op === "multiply")
+				sim.llmLocMultiplier *= e.value;
+			if (e.type === "agentLocMultiplier" && e.op === "multiply")
+				sim.agentLocMultiplier *= e.value;
+			if (e.type === "llmCostDiscount" && e.op === "multiply")
+				sim.llmCostDiscount *= e.value;
+			if (e.type === "agentCostDiscount" && e.op === "multiply")
+				sim.agentCostDiscount *= e.value;
+			if (e.type === "internMaxBonus" && e.op === "add") sim.internMaxBonus += e.value;
+			if (e.type === "teamMaxBonus" && e.op === "add") sim.teamMaxBonus += e.value;
+			if (e.type === "managerMaxBonus" && e.op === "add") sim.managerMaxBonus += e.value;
+			if (e.type === "llmMaxBonus" && e.op === "add") sim.llmMaxBonus += e.value;
+			if (e.type === "agentMaxBonus" && e.op === "add") sim.agentMaxBonus += e.value;
 			if (e.type === "aiLocMultiplier" && e.op === "multiply")
 				sim.aiLocMultiplier *= e.value;
 			if (e.type === "instantCash" && e.op === "add") {
@@ -172,7 +210,9 @@ function simulate(keysPerSec = 6) {
 		return (
 			sim.internLoc * sim.internLocMultiplier +
 			sim.devLoc * sim.devLocMultiplier * sim.devSpeedMultiplier +
-			sim.teamLoc * sim.teamLocMultiplier * managerTeamBonus
+			sim.teamLoc * sim.teamLocMultiplier * managerTeamBonus +
+			sim.llmLoc * sim.llmLocMultiplier +
+			sim.agentLoc * sim.agentLocMultiplier
 		) * sim.locProductionMultiplier;
 	}
 
@@ -227,12 +267,40 @@ function simulate(keysPerSec = 6) {
 		sim.loc = Math.max(0, sim.loc);
 
 		// ── Research tech nodes (costs LoC or cash depending on node) ──
-		for (let b = 0; b < 3; b++) {
+		for (let b = 0; b < 5; b++) {
 			const availTech = techNodes.filter((n) => {
 				const owned = sim.ownedTech[n.id] || 0;
 				if (owned >= n.max) return false;
 				return n.requires.every((r) => (sim.ownedTech[r] || 0) > 0);
 			});
+
+			// Always buy free nodes and gate nodes immediately
+			const freeNode = availTech.find(n => getTechCost(n) === 0);
+			if (freeNode) {
+				sim.ownedTech[freeNode.id] = (sim.ownedTech[freeNode.id] || 0) + 1;
+				applyEffects(freeNode.effects);
+				purchaseCount++;
+				continue;
+			}
+
+			// Buy gate nodes (no effects) if affordable — they unlock children
+			const gateNode = availTech.find(n => {
+				const cost = getTechCost(n);
+				const useLoc = n.currency === 'loc';
+				const canAfford = useLoc ? sim.loc >= cost : sim.cash >= cost;
+				// Gate = no direct value effects but has children that depend on it
+				const isGate = n.effects.length === 0 || n.effects.every(e => e.type === 'tierUnlock');
+				return canAfford && isGate;
+			});
+			if (gateNode) {
+				const cost = getTechCost(gateNode);
+				if (gateNode.currency === 'loc') sim.loc -= cost;
+				else sim.cash -= cost;
+				sim.ownedTech[gateNode.id] = (sim.ownedTech[gateNode.id] || 0) + 1;
+				applyEffects(gateNode.effects);
+				purchaseCount++;
+				continue;
+			}
 
 			let bestTech = null;
 			let bestTechVal = 0;
@@ -251,11 +319,16 @@ function simulate(keysPerSec = 6) {
 					if (e.type === "locPerKey" && e.op === "add")
 						val += e.value * keysPerSec * cashPerLoc();
 					if (e.type === "locPerKey" && e.op === "multiply")
-						val +=
-							sim.locPerKey * (e.value - 1) * keysPerSec * cashPerLoc();
+						val += sim.locPerKey * (e.value - 1) * keysPerSec * cashPerLoc();
 					if (e.type === "locProductionSpeed" && e.op === "multiply")
-						val += sim.autoLocPerSec * (e.value - 1) * cashPerLoc();
+						val += calcAutoLoc() * (e.value - 1) * cashPerLoc();
 					if (e.type === "autoType") val += 5 * effLocPerKey() * cashPerLoc();
+					if (e.type === "internLocMultiplier" || e.type === "devLocMultiplier" || e.type === "teamLocMultiplier")
+						val += calcAutoLoc() * (e.value - 1) * cashPerLoc();
+					if (e.type === "cashMultiplier")
+						val += (calcAutoLoc() + effLocPerKey() * keysPerSec) * cashPerLoc() * (e.value - 1);
+					if (e.type === "internCostDiscount" || e.type === "devCostDiscount" || e.type === "teamCostDiscount" || e.type === "managerCostDiscount")
+						val += 100; // fixed value — cost reduction is always useful
 				}
 				if (cost > 0 && val / cost > bestTechVal) {
 					bestTechVal = val / cost;
@@ -283,7 +356,7 @@ function simulate(keysPerSec = 6) {
 				return (
 					tier &&
 					tier.index <= sim.currentTier &&
-					(sim.owned[u.id] || 0) < u.max
+					(sim.owned[u.id] || 0) < getEffMax(u)
 				);
 			});
 			const availModels =
@@ -383,20 +456,9 @@ function simulate(keysPerSec = 6) {
 			lastPurchaseTime = t;
 		}
 
-		// ── Tier unlock (manual advance — costs cash) ──
-		while (sim.currentTier < tiers.length - 1) {
-			const next = tiers[sim.currentTier + 1];
-			if (
-				sim.totalLoc >= next.locRequired &&
-				sim.totalCash >= next.cashRequired &&
-				sim.cash >= next.cost
-			) {
-				sim.cash -= next.cost;
-				sim.currentTier++;
-				tierTimes[sim.currentTier] = t;
-			} else {
-				break;
-			}
+		// ── Track tier changes (tiers are unlocked via tech tree tierUnlock effects) ──
+		if (!tierTimes[sim.currentTier]) {
+			tierTimes[sim.currentTier] = t;
 		}
 
 		// ── AGI check ──

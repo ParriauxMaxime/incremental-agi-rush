@@ -3,6 +3,7 @@ export {
 	allMilestones,
 	allTechNodes,
 	allUpgrades,
+	getEffectiveMax,
 	getTechNodeCost,
 	getUpgradeCost,
 	tiers,

@@ -14,10 +14,10 @@ import {
 
 // ── Constants ──
 
-const NODE_W = 140;
-const NODE_H = 48;
+const NODE_W = 172;
+const NODE_H = 58;
 const NODE_RX = 8;
-const ICON_SIZE = 18;
+const ICON_SIZE = 20;
 
 // ── Layout ──
 
@@ -279,20 +279,20 @@ function SvgNode({
 				strokeWidth={1.5}
 			/>
 			<text
-				x={ICON_SIZE + 12}
-				y={NODE_H / 2 - 6}
+				x={ICON_SIZE + 14}
+				y={NODE_H / 2 - 7}
 				fill="#c9d1d9"
-				fontSize={12}
+				fontSize={14}
 				fontWeight="bold"
 				fontFamily="inherit"
 			>
 				{ln.node.name}
 			</text>
 			<text
-				x={ICON_SIZE + 12}
-				y={NODE_H / 2 + 10}
+				x={ICON_SIZE + 14}
+				y={NODE_H / 2 + 11}
 				fill="#6272a4"
-				fontSize={10}
+				fontSize={12}
 				fontFamily="inherit"
 			>
 				{maxed

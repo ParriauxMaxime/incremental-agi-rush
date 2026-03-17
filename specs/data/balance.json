@@ -5,11 +5,11 @@
     "targetSessionMinutes": 40,
     "ticksPerSecond": 10,
     "startingCash": 0,
-    "startingFlops": 5,
+    "startingFlops": 0,
     "startingLocPerKey": 3,
     "manualTypingQuality": 100,
     "agiLocTarget": 200000000,
-    "_note": "5 FLOPS + 3 LoC/key @ 6keys/s = 18 LoC/s produced, 5 executed = $0.50/s at tier 0. Sim-validated: AGI at ~40min for avg player."
+    "_note": "1 FLOP + Computer(+2) = 3 FLOPS total. 3 LoC/key @ 6keys/s = 18 LoC/s produced, 3 executed. Editor fills up fast. First minute is about watching code pile up, then buying auto-type."
   },
 
   "costCurve": {

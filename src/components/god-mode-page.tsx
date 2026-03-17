@@ -228,7 +228,28 @@ export function GodModePage() {
 								"&:hover": { background: "#c678dd", color: "#fff" },
 							}}
 						>
-							Tech Tree Editor (run: node specs/tech-tree-server.js)
+							Tech Tree Editor
+						</a>
+						<a
+							href="http://localhost:3737/items"
+							target="_blank"
+							rel="noreferrer"
+							css={{
+								display: "block",
+								fontFamily: "inherit",
+								fontSize: 11,
+								padding: "6px 12px",
+								marginTop: 6,
+								border: "1px solid #d19a66",
+								borderRadius: 4,
+								background: "#0f0f23",
+								color: "#d19a66",
+								textDecoration: "none",
+								textAlign: "center",
+								"&:hover": { background: "#d19a66", color: "#fff" },
+							}}
+						>
+							Item Pool Editor
 						</a>
 					</div>
 				</div>

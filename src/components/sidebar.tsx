@@ -2,7 +2,6 @@ import { css } from "@emotion/react";
 import { useGameStore } from "@modules/game";
 import { MilestoneList, UpgradeList } from "@modules/upgrade";
 import { useState } from "react";
-import { BottleneckIndicator } from "./bottleneck-indicator";
 import { ResourceBar } from "./resource-bar";
 import { TierProgress } from "./tier-progress";
 
@@ -95,7 +94,6 @@ export function Sidebar() {
 	return (
 		<div css={sidebarStyle} data-sidebar>
 			<ResourceBar />
-			<BottleneckIndicator />
 			<TierProgress />
 			<div css={tabBarStyle} role="tablist">
 				<button

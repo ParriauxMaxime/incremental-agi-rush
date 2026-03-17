@@ -2,61 +2,22 @@
   "upgrades": [
     {
       "id": "intern",
-      "tier": "freelancing",
+      "tier": "startup",
       "name": "Intern",
       "description": "Auto-writes 2 LoC/s",
       "icon": "👶",
       "baseCost": 500,
-      "costMultiplier": 1.15,
-      "max": 9999,
+      "costMultiplier": 1.2,
+      "max": 5,
       "costCategory": "intern",
       "effects": [
-        { "type": "internLoc", "op": "add", "value": 2 }
+        {
+          "type": "internLoc",
+          "op": "add",
+          "value": 2
+        }
       ]
     },
-
-    {
-      "id": "junior_dev",
-      "tier": "startup",
-      "name": "Junior Developer",
-      "description": "Auto-writes 10 LoC/s",
-      "icon": "🧑‍💻",
-      "baseCost": 5000,
-      "costMultiplier": 1.15,
-      "max": 9999,
-      "costCategory": "dev",
-      "effects": [
-        { "type": "devLoc", "op": "add", "value": 10 }
-      ]
-    },
-    {
-      "id": "senior_dev",
-      "tier": "startup",
-      "name": "Senior Developer",
-      "description": "Auto-writes 50 LoC/s",
-      "icon": "👩‍💻",
-      "baseCost": 20000,
-      "costMultiplier": 1.2,
-      "max": 9999,
-      "costCategory": "dev",
-      "effects": [
-        { "type": "devLoc", "op": "add", "value": 50 }
-      ]
-    },
-    {
-      "id": "office_space",
-      "tier": "startup",
-      "name": "Office Space",
-      "description": "All devs +25% speed",
-      "icon": "🏢",
-      "baseCost": 10000,
-      "costMultiplier": 1.0,
-      "max": 1,
-      "effects": [
-        { "type": "devSpeed", "op": "multiply", "value": 1.25 }
-      ]
-    },
-
     {
       "id": "dev_team",
       "tier": "tech_company",
@@ -64,11 +25,15 @@
       "description": "Auto-writes 200 LoC/s",
       "icon": "👥",
       "baseCost": 50000,
-      "costMultiplier": 1.15,
-      "max": 9999,
+      "costMultiplier": 1.2,
+      "max": 3,
       "costCategory": "team",
       "effects": [
-        { "type": "teamLoc", "op": "add", "value": 200 }
+        {
+          "type": "teamLoc",
+          "op": "add",
+          "value": 200
+        }
       ]
     },
     {
@@ -78,11 +43,15 @@
       "description": "Multiplies all team output by +50%",
       "icon": "👔",
       "baseCost": 100000,
-      "costMultiplier": 1.3,
-      "max": 9999,
+      "costMultiplier": 1.4,
+      "max": 2,
       "costCategory": "manager",
       "effects": [
-        { "type": "managerLoc", "op": "add", "value": 1 }
+        {
+          "type": "managerLoc",
+          "op": "add",
+          "value": 1
+        }
       ]
     },
     {
@@ -95,7 +64,11 @@
       "costMultiplier": 1.7,
       "max": 5,
       "effects": [
-        { "type": "flops", "op": "add", "value": 10000 }
+        {
+          "type": "flops",
+          "op": "add",
+          "value": 10000
+        }
       ]
     },
     {
@@ -105,10 +78,14 @@
       "description": "LoC execution yields x2 cash",
       "icon": "📐",
       "baseCost": 100000,
-      "costMultiplier": 2.0,
+      "costMultiplier": 2,
       "max": 3,
       "effects": [
-        { "type": "cashMultiplier", "op": "multiply", "value": 2 }
+        {
+          "type": "cashMultiplier",
+          "op": "multiply",
+          "value": 2
+        }
       ]
     },
     {
@@ -121,7 +98,11 @@
       "costMultiplier": 1.8,
       "max": 3,
       "effects": [
-        { "type": "flops", "op": "add", "value": 100000 }
+        {
+          "type": "flops",
+          "op": "add",
+          "value": 100000
+        }
       ]
     },
     {
@@ -131,24 +112,14 @@
       "description": "Immediate $2M cash injection",
       "icon": "💰",
       "baseCost": 1000000,
-      "costMultiplier": 1.0,
+      "costMultiplier": 1,
       "max": 1,
       "effects": [
-        { "type": "instantCash", "op": "add", "value": 2000000 }
-      ]
-    },
-
-    {
-      "id": "kubernetes_cluster",
-      "tier": "ai_lab",
-      "name": "Kubernetes Cluster",
-      "description": "+1M FLOPS",
-      "icon": "☸️",
-      "baseCost": 5000000,
-      "costMultiplier": 1.5,
-      "max": 5,
-      "effects": [
-        { "type": "flops", "op": "add", "value": 1000000 }
+        {
+          "type": "instantCash",
+          "op": "add",
+          "value": 2000000
+        }
       ]
     },
     {
@@ -161,7 +132,11 @@
       "costMultiplier": 1.6,
       "max": 3,
       "effects": [
-        { "type": "devLoc", "op": "add", "value": 500 }
+        {
+          "type": "teamLoc",
+          "op": "add",
+          "value": 500
+        }
       ]
     },
     {
@@ -171,23 +146,50 @@
       "description": "Immediate $50M cash injection",
       "icon": "💰",
       "baseCost": 20000000,
-      "costMultiplier": 1.0,
+      "costMultiplier": 1,
       "max": 1,
       "effects": [
-        { "type": "instantCash", "op": "add", "value": 50000000 }
+        {
+          "type": "instantCash",
+          "op": "add",
+          "value": 50000000
+        }
       ]
     },
     {
-      "id": "tpu_pod",
+      "id": "llm_instance",
       "tier": "ai_lab",
-      "name": "TPU Pod",
-      "description": "+10M FLOPS",
+      "name": "LLM Instance",
+      "description": "AI writes 1,000 LoC/s",
       "icon": "🧠",
-      "baseCost": 50000000,
-      "costMultiplier": 1.7,
-      "max": 5,
+      "baseCost": 5000000,
+      "costMultiplier": 1.25,
+      "max": 3,
+      "costCategory": "llm",
       "effects": [
-        { "type": "flops", "op": "add", "value": 10000000 }
+        {
+          "type": "llmLoc",
+          "op": "add",
+          "value": 1000
+        }
+      ]
+    },
+    {
+      "id": "ai_agent",
+      "tier": "agi_race",
+      "name": "AI Agent",
+      "description": "Autonomous agent — writes 10,000 LoC/s",
+      "icon": "🤖",
+      "baseCost": 500000000,
+      "costMultiplier": 1.3,
+      "max": 2,
+      "costCategory": "agent",
+      "effects": [
+        {
+          "type": "agentLoc",
+          "op": "add",
+          "value": 10000
+        }
       ]
     },
     {
@@ -200,7 +202,11 @@
       "costMultiplier": 1.5,
       "max": 10,
       "effects": [
-        { "type": "flops", "op": "add", "value": 1000000000 }
+        {
+          "type": "flops",
+          "op": "add",
+          "value": 1000000000
+        }
       ]
     },
     {
@@ -210,10 +216,14 @@
       "description": "You win. Or do you?",
       "icon": "🌀",
       "baseCost": 100000000000,
-      "costMultiplier": 1.0,
+      "costMultiplier": 1,
       "max": 1,
       "effects": [
-        { "type": "singularity", "op": "enable", "value": true }
+        {
+          "type": "singularity",
+          "op": "enable",
+          "value": true
+        }
       ]
     }
   ]

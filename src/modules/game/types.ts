@@ -80,6 +80,7 @@ export interface GameState {
 	totalLoc: number;
 	cash: number;
 	totalCash: number;
+	totalExecutedLoc: number;
 	flops: number;
 
 	// Hardware breakdown (computed from tech tree)
@@ -101,6 +102,14 @@ export interface GameState {
 	devCostDiscount: number;
 	teamCostDiscount: number;
 	managerCostDiscount: number;
+	llmCostDiscount: number;
+	agentCostDiscount: number;
+	// Max bonuses from tech tree
+	internMaxBonus: number;
+	teamMaxBonus: number;
+	managerMaxBonus: number;
+	llmMaxBonus: number;
+	agentMaxBonus: number;
 
 	// Progression
 	currentTierIndex: number;

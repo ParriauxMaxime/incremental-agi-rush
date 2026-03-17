@@ -43,6 +43,10 @@ function dotStyle(type: SimPurchase["type"]) {
 			height: 20,
 			background: "#58a6ff",
 		}))
+		.with(PurchaseTypeEnum.tech, () => ({
+			height: 25,
+			background: "#c678dd",
+		}))
 		.exhaustive();
 }
 

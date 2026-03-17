@@ -25,7 +25,7 @@
       "index": 2,
       "name": "Startup",
       "tagline": "You have a company now. Time to hire.",
-      "cashPerLoc": 1.00,
+      "cashPerLoc": 2.00,
       "locRequired": 5000,
       "cashRequired": 2500,
       "cost": 300

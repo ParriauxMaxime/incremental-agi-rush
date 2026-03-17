@@ -2,6 +2,7 @@ import { css } from "@emotion/react";
 import type { Upgrade } from "@modules/game";
 import {
 	allUpgrades,
+	getEffectiveMax,
 	getUpgradeCost,
 	tiers,
 	useGameStore,
@@ -40,20 +41,21 @@ const maxedStyle = css({
 });
 
 const nameStyle = css({
-	fontSize: 13,
+	fontSize: 14,
 	fontWeight: "bold",
 	color: "#c9d1d9",
 	marginBottom: 4,
 });
 
 const descStyle = css({
-	fontSize: 11,
+	fontSize: 12,
 	color: "#6272a4",
 	marginBottom: 6,
+	lineHeight: 1.4,
 });
 
 const costStyle = css({
-	fontSize: 11,
+	fontSize: 12,
 	color: "#d19a66",
 });
 
@@ -61,7 +63,7 @@ const ownedStyle = css({
 	position: "absolute",
 	top: 12,
 	right: 12,
-	fontSize: 11,
+	fontSize: 12,
 	color: "#3fb950",
 });
 
@@ -72,8 +74,9 @@ function UpgradeCard({ upgrade }: { upgrade: Upgrade }) {
 	const state = useGameStore((s) => s);
 
 	const cost = getUpgradeCost(upgrade, owned, state);
+	const effectiveMax = getEffectiveMax(upgrade, state);
 	const canAfford = cash >= cost;
-	const maxed = owned >= upgrade.max;
+	const maxed = owned >= effectiveMax;
 
 	return (
 		<button
@@ -93,9 +96,9 @@ function UpgradeCard({ upgrade }: { upgrade: Upgrade }) {
 			</div>
 			<div css={descStyle}>{upgrade.description}</div>
 			<div css={costStyle}>{maxed ? "MAXED" : `$${formatNumber(cost)}`}</div>
-			{owned > 0 && (
-				<div css={ownedStyle}>{upgrade.max === 1 ? "✓" : `x${owned}`}</div>
-			)}
+			<div css={ownedStyle}>
+				{upgrade.max === 1 ? (owned > 0 ? "✓" : "") : `${owned}/${upgrade.max}`}
+			</div>
 		</button>
 	);
 }
