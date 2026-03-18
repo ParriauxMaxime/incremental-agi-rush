@@ -12,7 +12,7 @@ export interface Tier {
 export interface UpgradeEffect {
 	type: string;
 	op: "add" | "multiply" | "enable" | "set";
-	value: number | boolean;
+	value: number | boolean | string;
 	doubleInterval?: number;
 }
 
@@ -98,6 +98,7 @@ export interface GameState {
 	autoLocPerSec: number;
 	locProductionMultiplier: number;
 	cashMultiplier: number;
+	freelancerCostDiscount: number;
 	internCostDiscount: number;
 	devCostDiscount: number;
 	teamCostDiscount: number;
@@ -105,11 +106,14 @@ export interface GameState {
 	llmCostDiscount: number;
 	agentCostDiscount: number;
 	// Max bonuses from tech tree
+	freelancerMaxBonus: number;
 	internMaxBonus: number;
 	teamMaxBonus: number;
 	managerMaxBonus: number;
 	llmMaxBonus: number;
 	agentMaxBonus: number;
+	/** Model IDs unlocked via tech tree (modelUnlock effect) */
+	unlockedModels: Record<string, boolean>;
 
 	// Progression
 	currentTierIndex: number;

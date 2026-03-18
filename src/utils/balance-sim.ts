@@ -94,7 +94,7 @@ interface TechNodeData {
 	baseCost: number;
 	costMultiplier: number;
 	currency: string;
-	effects: Array<{ type: string; op: string; value: number | boolean }>;
+	effects: Array<{ type: string; op: string; value: number | boolean | string }>;
 }
 
 interface UpgradeData {
@@ -105,7 +105,7 @@ interface UpgradeData {
 	costMultiplier: number;
 	max: number;
 	costCategory?: string;
-	effects: Array<{ type: string; op: string; value: number | boolean }>;
+	effects: Array<{ type: string; op: string; value: number | boolean | string }>;
 }
 
 const tiers = tiersData.tiers;
@@ -157,6 +157,10 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 		devSpeedMultiplier: 1,
 		cashMultiplier: 1,
 		aiLocMultiplier: 1,
+		freelancerLoc: 0,
+		freelancerLocMultiplier: 1,
+		freelancerCostDiscount: 1,
+		freelancerMaxBonus: 0,
 		internCostDiscount: 1,
 		devCostDiscount: 1,
 		teamCostDiscount: 1,
@@ -188,6 +192,7 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 
 	function getEffMax(u: UpgradeData): number {
 		let bonus = 0;
+		if (u.costCategory === "freelancer") bonus = sim.freelancerMaxBonus;
 		if (u.costCategory === "intern") bonus = sim.internMaxBonus;
 		if (u.costCategory === "team") bonus = sim.teamMaxBonus;
 		if (u.costCategory === "manager") bonus = sim.managerMaxBonus;
@@ -204,6 +209,8 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 	function getCost(u: UpgradeData): number {
 		const owned = sim.owned[u.id] ?? 0;
 		let cost = Math.floor(u.baseCost * u.costMultiplier ** owned);
+		if (u.costCategory === "freelancer")
+			cost = Math.floor(cost * sim.freelancerCostDiscount);
 		if (u.costCategory === "intern")
 			cost = Math.floor(cost * sim.internCostDiscount);
 		if (u.costCategory === "dev") cost = Math.floor(cost * sim.devCostDiscount);
@@ -235,7 +242,7 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 	}
 
 	function applyEffects(
-		effects: Array<{ type: string; op: string; value: number | boolean }>,
+		effects: Array<{ type: string; op: string; value: number | boolean | string }>,
 	): void {
 		for (const e of effects) {
 			const val = e.value as number;
@@ -247,6 +254,14 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 			if (e.type === "ramFlops" && e.op === "add") sim.ramFlops += val;
 			if (e.type === "storageFlops" && e.op === "add") sim.storageFlops += val;
 			if (e.type === "autoLoc" && e.op === "add") sim.devLoc += val;
+			if (e.type === "freelancerLoc" && e.op === "add")
+				sim.freelancerLoc += val;
+			if (e.type === "freelancerLocMultiplier" && e.op === "multiply")
+				sim.freelancerLocMultiplier *= val;
+			if (e.type === "freelancerCostDiscount" && e.op === "multiply")
+				sim.freelancerCostDiscount *= val;
+			if (e.type === "freelancerMaxBonus" && e.op === "add")
+				sim.freelancerMaxBonus += val;
 			if (e.type === "internLoc" && e.op === "add") sim.internLoc += val;
 			if (e.type === "devLoc" && e.op === "add") sim.devLoc += val;
 			if (e.type === "teamLoc" && e.op === "add") sim.teamLoc += val;
@@ -307,7 +322,8 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 	function calcAutoLoc(): number {
 		const managerTeamBonus = 1 + sim.managerCount * 0.5 * sim.managerMultiplier;
 		return (
-			(sim.internLoc * sim.internLocMultiplier +
+			(sim.freelancerLoc * sim.freelancerLocMultiplier +
+				sim.internLoc * sim.internLocMultiplier +
 				sim.devLoc * sim.devLocMultiplier * sim.devSpeedMultiplier +
 				sim.teamLoc * sim.teamLocMultiplier * managerTeamBonus +
 				sim.llmLoc * sim.llmLocMultiplier +
@@ -505,6 +521,7 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 							ev * cfg.keysPerSec * cashPerLoc() * (bottlenecked ? 0.3 : 1);
 					if (
 						e.type === "autoLoc" ||
+						e.type === "freelancerLoc" ||
 						e.type === "internLoc" ||
 						e.type === "devLoc"
 					)
