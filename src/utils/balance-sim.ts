@@ -94,7 +94,11 @@ interface TechNodeData {
 	baseCost: number;
 	costMultiplier: number;
 	currency: string;
-	effects: Array<{ type: string; op: string; value: number | boolean | string }>;
+	effects: Array<{
+		type: string;
+		op: string;
+		value: number | boolean | string;
+	}>;
 }
 
 interface UpgradeData {
@@ -105,7 +109,11 @@ interface UpgradeData {
 	costMultiplier: number;
 	max: number;
 	costCategory?: string;
-	effects: Array<{ type: string; op: string; value: number | boolean | string }>;
+	effects: Array<{
+		type: string;
+		op: string;
+		value: number | boolean | string;
+	}>;
 }
 
 const tiers = tiersData.tiers;
@@ -253,7 +261,11 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 	}
 
 	function applyEffects(
-		effects: Array<{ type: string; op: string; value: number | boolean | string }>,
+		effects: Array<{
+			type: string;
+			op: string;
+			value: number | boolean | string;
+		}>,
 	): void {
 		for (const e of effects) {
 			const val = e.value as number;
