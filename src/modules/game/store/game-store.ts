@@ -551,6 +551,7 @@ export const useGameStore = create<GameState & GameActions>()(
 			reset: () => {
 				set(initialState);
 				localStorage.removeItem("agi-rush-editor");
+				useEventStore.getState().reset();
 			},
 
 			godSet: (overrides: GodModeOverrides) => {
