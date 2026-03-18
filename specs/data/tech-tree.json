@@ -19,8 +19,8 @@
           "value": 3
         }
       ],
-      "x": 580,
-      "y": 400
+      "x": 720,
+      "y": 620
     },
     {
       "id": "auto_type",
@@ -39,8 +39,8 @@
           "value": true
         }
       ],
-      "x": 800,
-      "y": 280
+      "x": 900,
+      "y": 480
     },
     {
       "id": "coffee",
@@ -61,8 +61,8 @@
           "value": 2
         }
       ],
-      "x": 760,
-      "y": 500
+      "x": 900,
+      "y": 720
     },
     {
       "id": "barista",
@@ -83,8 +83,8 @@
           "value": 3
         }
       ],
-      "x": 760,
-      "y": 560
+      "x": 900,
+      "y": 780
     },
     {
       "id": "doppio",
@@ -105,8 +105,8 @@
           "value": 5
         }
       ],
-      "x": 760,
-      "y": 620
+      "x": 900,
+      "y": 840
     },
     {
       "id": "github_actions",
@@ -127,8 +127,8 @@
           "value": 3
         }
       ],
-      "x": 800,
-      "y": 100
+      "x": 1100,
+      "y": 280
     },
     {
       "id": "cloudflare_workers",
@@ -149,8 +149,8 @@
           "value": 4
         }
       ],
-      "x": 800,
-      "y": 180
+      "x": 1100,
+      "y": 360
     },
     {
       "id": "cpu_upgrade",
@@ -180,8 +180,8 @@
         "2MHz → 4MHz",
         "4MHz → 8MHz"
       ],
-      "x": 980,
-      "y": 480
+      "x": 1120,
+      "y": 700
     },
     {
       "id": "ram_upgrade",
@@ -210,8 +210,8 @@
         "2GB → 4GB",
         "4GB → 8GB"
       ],
-      "x": 980,
-      "y": 400
+      "x": 1120,
+      "y": 620
     },
     {
       "id": "storage_upgrade",
@@ -241,8 +241,8 @@
         "320GB → 640GB",
         "640GB → 1TB"
       ],
-      "x": 980,
-      "y": 320
+      "x": 1120,
+      "y": 540
     },
     {
       "id": "tier_freelancing",
@@ -263,8 +263,8 @@
           "value": 1
         }
       ],
-      "x": 600,
-      "y": 200
+      "x": 900,
+      "y": 340
     },
     {
       "id": "intern_teaching",
@@ -285,8 +285,8 @@
           "value": 1.2
         }
       ],
-      "x": 180,
-      "y": -200
+      "x": 360,
+      "y": -80
     },
     {
       "id": "intern_trap",
@@ -307,8 +307,8 @@
           "value": 0.85
         }
       ],
-      "x": 500,
-      "y": -200
+      "x": 680,
+      "y": -80
     },
     {
       "id": "intern_quality",
@@ -329,8 +329,8 @@
           "value": 1.1
         }
       ],
-      "x": 340,
-      "y": -200
+      "x": 520,
+      "y": -80
     },
     {
       "id": "tier_startup",
@@ -351,8 +351,8 @@
           "value": 2
         }
       ],
-      "x": 340,
-      "y": -40
+      "x": 520,
+      "y": 80
     },
     {
       "id": "dev_mentoring",
@@ -373,8 +373,8 @@
           "value": 1.2
         }
       ],
-      "x": -200,
-      "y": 200
+      "x": 20,
+      "y": 280
     },
     {
       "id": "dev_recruiting",
@@ -395,8 +395,8 @@
           "value": 0.85
         }
       ],
-      "x": -200,
-      "y": 260
+      "x": 20,
+      "y": 340
     },
     {
       "id": "dev_quality",
@@ -417,8 +417,8 @@
           "value": 1.15
         }
       ],
-      "x": 140,
-      "y": 20
+      "x": 360,
+      "y": 80
     },
     {
       "id": "computer",
@@ -437,8 +437,8 @@
           "value": 1
         }
       ],
-      "x": 760,
-      "y": 400
+      "x": 900,
+      "y": 620
     },
     {
       "id": "node_24",
@@ -459,8 +459,8 @@
           "value": 1
         }
       ],
-      "x": 340,
-      "y": -120
+      "x": 520,
+      "y": 0
     },
     {
       "id": "tier_tech_company",
@@ -481,8 +481,8 @@
           "value": 3
         }
       ],
-      "x": 60,
-      "y": 220
+      "x": 200,
+      "y": 320
     },
     {
       "id": "teams_gate",
@@ -497,8 +497,8 @@
       "costMultiplier": 1,
       "currency": "cash",
       "effects": [],
-      "x": -120,
-      "y": 360
+      "x": 20,
+      "y": 420
     },
     {
       "id": "team_productivity",
@@ -519,8 +519,8 @@
           "value": 1.25
         }
       ],
-      "x": -240,
-      "y": 440
+      "x": 120,
+      "y": 560
     },
     {
       "id": "team_cost",
@@ -541,8 +541,8 @@
           "value": 0.85
         }
       ],
-      "x": -80,
-      "y": 440
+      "x": 120,
+      "y": 500
     },
     {
       "id": "team_quality",
@@ -563,8 +563,8 @@
           "value": 1.15
         }
       ],
-      "x": -400,
-      "y": 440
+      "x": -40,
+      "y": 560
     },
     {
       "id": "management_gate",
@@ -579,8 +579,8 @@
       "costMultiplier": 1,
       "currency": "cash",
       "effects": [],
-      "x": 180,
-      "y": 340
+      "x": 360,
+      "y": 360
     },
     {
       "id": "manager_efficiency",
@@ -601,8 +601,8 @@
           "value": 1.3
         }
       ],
-      "x": 360,
-      "y": 420
+      "x": 560,
+      "y": 480
     },
     {
       "id": "manager_cost",
@@ -623,8 +623,8 @@
           "value": 0.8
         }
       ],
-      "x": 360,
-      "y": 340
+      "x": 560,
+      "y": 420
     },
     {
       "id": "manager_scope",
@@ -645,8 +645,8 @@
           "value": 1.2
         }
       ],
-      "x": 360,
-      "y": 280
+      "x": 560,
+      "y": 360
     },
     {
       "id": "cloud_infra",
@@ -667,8 +667,8 @@
           "value": 5000
         }
       ],
-      "x": -200,
-      "y": 80
+      "x": 20,
+      "y": 160
     },
     {
       "id": "cdn_network",
@@ -689,8 +689,8 @@
           "value": 20
         }
       ],
-      "x": -200,
-      "y": 140
+      "x": 20,
+      "y": 220
     },
     {
       "id": "tier_ai_lab",
@@ -711,8 +711,8 @@
           "value": 4
         }
       ],
-      "x": 20,
-      "y": 660
+      "x": 280,
+      "y": 680
     },
     {
       "id": "tier_agi_race",
@@ -1007,8 +1007,8 @@
           "value": 10
         }
       ],
-      "x": 160,
-      "y": -80
+      "x": 360,
+      "y": 0
     },
     {
       "id": "team_capacity",
@@ -1029,8 +1029,8 @@
           "value": 5
         }
       ],
-      "x": -180,
-      "y": 480
+      "x": -40,
+      "y": 500
     },
     {
       "id": "manager_capacity",
@@ -1051,8 +1051,8 @@
           "value": 3
         }
       ],
-      "x": 120,
-      "y": 460
+      "x": 360,
+      "y": 440
     },
     {
       "id": "llm_capacity",
@@ -1097,6 +1097,216 @@
       ],
       "x": 280,
       "y": 1140
+    },
+    {
+      "id": "outsourcing",
+      "name": "Outsourcing",
+      "description": "Unlock freelance hiring on Malt.",
+      "icon": "🌍",
+      "requires": [
+        "tier_freelancing"
+      ],
+      "max": 1,
+      "baseCost": 300,
+      "costMultiplier": 1,
+      "currency": "cash",
+      "effects": [],
+      "x": 900,
+      "y": 260
+    },
+    {
+      "id": "freelancer_training",
+      "name": "Onboarding",
+      "description": "+20% freelancer LoC/s per level",
+      "icon": "📖",
+      "requires": [
+        "outsourcing"
+      ],
+      "max": 5,
+      "baseCost": 500,
+      "costMultiplier": 1.5,
+      "currency": "cash",
+      "effects": [
+        {
+          "type": "freelancerLocMultiplier",
+          "op": "multiply",
+          "value": 1.2
+        }
+      ],
+      "x": 740,
+      "y": 140
+    },
+    {
+      "id": "freelancer_cost",
+      "name": "Rate Negotiation",
+      "description": "-15% freelancer cost per level",
+      "icon": "🤝",
+      "requires": [
+        "outsourcing"
+      ],
+      "max": 5,
+      "baseCost": 400,
+      "costMultiplier": 1.4,
+      "currency": "cash",
+      "effects": [
+        {
+          "type": "freelancerCostDiscount",
+          "op": "multiply",
+          "value": 0.85
+        }
+      ],
+      "x": 1060,
+      "y": 140
+    },
+    {
+      "id": "freelancer_capacity",
+      "name": "Talent Pool",
+      "description": "+5 max freelancers per level",
+      "icon": "📇",
+      "requires": [
+        "outsourcing"
+      ],
+      "max": 5,
+      "baseCost": 600,
+      "costMultiplier": 1.5,
+      "currency": "cash",
+      "effects": [
+        {
+          "type": "freelancerMaxBonus",
+          "op": "add",
+          "value": 5
+        }
+      ],
+      "x": 900,
+      "y": 140
+    },
+    {
+      "id": "openai_gpt3",
+      "name": "GPT-3",
+      "description": "Unlock GPT-3 for deployment.",
+      "icon": "🟢",
+      "requires": ["llm_gate"],
+      "max": 1,
+      "baseCost": 500000,
+      "costMultiplier": 1,
+      "currency": "cash",
+      "effects": [
+        { "type": "modelUnlock", "op": "enable", "value": "gpt_3" }
+      ],
+      "x": -340,
+      "y": 780
+    },
+    {
+      "id": "openai_gpt35",
+      "name": "GPT-3.5",
+      "description": "Unlock GPT-3.5 for deployment.",
+      "icon": "🟢",
+      "requires": ["openai_gpt3"],
+      "max": 1,
+      "baseCost": 1500000,
+      "costMultiplier": 1,
+      "currency": "cash",
+      "effects": [
+        { "type": "modelUnlock", "op": "enable", "value": "gpt_35" }
+      ],
+      "x": -440,
+      "y": 860
+    },
+    {
+      "id": "openai_gpt4",
+      "name": "GPT-4",
+      "description": "Unlock GPT-4 for deployment.",
+      "icon": "🟢",
+      "requires": ["openai_gpt35"],
+      "max": 1,
+      "baseCost": 5000000,
+      "costMultiplier": 1,
+      "currency": "cash",
+      "effects": [
+        { "type": "modelUnlock", "op": "enable", "value": "gpt_4" }
+      ],
+      "x": -540,
+      "y": 940
+    },
+    {
+      "id": "openai_gpt41",
+      "name": "GPT-4.1",
+      "description": "Unlock GPT-4.1 for deployment.",
+      "icon": "🟢",
+      "requires": ["openai_gpt4"],
+      "max": 1,
+      "baseCost": 12000000,
+      "costMultiplier": 1,
+      "currency": "cash",
+      "effects": [
+        { "type": "modelUnlock", "op": "enable", "value": "gpt_41" }
+      ],
+      "x": -640,
+      "y": 1020
+    },
+    {
+      "id": "openai_gpt5",
+      "name": "GPT-5",
+      "description": "Unlock GPT-5 for deployment.",
+      "icon": "🟢",
+      "requires": ["openai_gpt4"],
+      "max": 1,
+      "baseCost": 30000000,
+      "costMultiplier": 1,
+      "currency": "cash",
+      "effects": [
+        { "type": "modelUnlock", "op": "enable", "value": "gpt_5" }
+      ],
+      "x": -440,
+      "y": 1020
+    },
+    {
+      "id": "anthropic_haiku",
+      "name": "Claude Haiku",
+      "description": "Unlock Claude Haiku for deployment.",
+      "icon": "🟠",
+      "requires": ["llm_gate"],
+      "max": 1,
+      "baseCost": 800000,
+      "costMultiplier": 1,
+      "currency": "cash",
+      "effects": [
+        { "type": "modelUnlock", "op": "enable", "value": "claude_haiku" }
+      ],
+      "x": 200,
+      "y": 780
+    },
+    {
+      "id": "anthropic_sonnet",
+      "name": "Claude Sonnet",
+      "description": "Unlock Claude Sonnet for deployment.",
+      "icon": "🟠",
+      "requires": ["anthropic_haiku"],
+      "max": 1,
+      "baseCost": 5000000,
+      "costMultiplier": 1,
+      "currency": "cash",
+      "effects": [
+        { "type": "modelUnlock", "op": "enable", "value": "claude_sonnet" }
+      ],
+      "x": 300,
+      "y": 860
+    },
+    {
+      "id": "anthropic_opus",
+      "name": "Claude Opus",
+      "description": "Unlock Claude Opus for deployment.",
+      "icon": "🟠",
+      "requires": ["anthropic_sonnet"],
+      "max": 1,
+      "baseCost": 25000000,
+      "costMultiplier": 1,
+      "currency": "cash",
+      "effects": [
+        { "type": "modelUnlock", "op": "enable", "value": "claude_opus" }
+      ],
+      "x": 400,
+      "y": 940
     }
   ]
 }
