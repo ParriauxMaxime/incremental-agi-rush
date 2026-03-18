@@ -151,4 +151,8 @@ export interface GameActions {
 	godSet: (overrides: GodModeOverrides) => void;
 	/** Reset the entire game state */
 	reset: () => void;
+	/** Force recalculation of derived stats (called when external modifiers change) */
+	recalc: () => void;
+	/** Apply instant cash/loc reward from events */
+	applyEventReward: (cashDelta: number, locDelta: number) => void;
 }

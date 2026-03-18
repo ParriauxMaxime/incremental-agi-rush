@@ -1,8 +1,55 @@
 import aiModelsData from "../../specs/data/ai-models.json";
 import balanceData from "../../specs/data/balance.json";
+import eventsData from "../../specs/data/events.json";
 import techTreeData from "../../specs/data/tech-tree.json";
 import tiersData from "../../specs/data/tiers.json";
 import upgradesData from "../../specs/data/upgrades.json";
+
+// ── Event types ──
+
+interface SimEventEffect {
+	type: string;
+	op?: string;
+	value?: number | string;
+	threshold?: string;
+	reward?: string;
+	upgradeId?: string;
+	options?: Array<{
+		label: string;
+		effect: {
+			type: string;
+			op?: string;
+			value?: number | string;
+			duration?: number;
+		};
+	}>;
+}
+
+interface SimEvent {
+	id: string;
+	name: string;
+	minTier: string;
+	duration: number;
+	effects: SimEventEffect[];
+	interaction?: { type: string; reductionPerKey: number };
+	weight: number;
+}
+
+const simEvents = eventsData.events as SimEvent[];
+const simEventConfig = eventsData.eventConfig;
+
+// ── Seeded PRNG (mulberry32) ──
+
+function createPrng(seed: number): () => number {
+	let s = seed;
+	return () => {
+		s |= 0;
+		s = (s + 0x6d2b79f5) | 0;
+		let t = Math.imul(s ^ (s >>> 15), 1 | s);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
+}
 
 // ── Types ──
 
@@ -194,6 +241,122 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 		autoTypeEnabled: false,
 	};
 
+	// ── Event simulation state ──
+	const prng = createPrng(42);
+	let nextEventSpawn =
+		simEventConfig.minIntervalSeconds +
+		prng() *
+			(simEventConfig.maxIntervalSeconds - simEventConfig.minIntervalSeconds);
+	let activeSimEvent: {
+		id: string;
+		remainingDuration: number;
+		effects: SimEventEffect[];
+	} | null = null;
+
+	// Event modifier accumulators
+	let eventFlopsMultiplier = 1;
+	let eventFlopsOverride: number | null = null;
+	let eventCashMultiplier = 1;
+	let eventLocProductionMultiplier = 1;
+	let eventLocPerKeyMultiplier = 1;
+	let eventAutoLocMultiplier = 1;
+
+	const tierIdToIndex: Record<string, number> = {};
+	for (let i = 0; i < tiers.length; i++) {
+		tierIdToIndex[tiers[i].id] = i;
+	}
+
+	function resolveSimExpression(expr: number | string): number {
+		if (typeof expr === "number") return expr;
+		const locPerSec =
+			effLocPerKey() * cfg.keysPerSec +
+			(sim.autoTypeEnabled ? effLocPerKey() * 5 : 0) +
+			calcAutoLoc();
+		return expr
+			.replace(/currentCash/g, String(sim.cash))
+			.replace(/currentLoc/g, String(sim.loc))
+			.replace(/currentLocPerSec/g, String(locPerSec))
+			.split("*")
+			.map((s) => Number.parseFloat(s.trim()))
+			.reduce((a, b) => a * b, 1);
+	}
+
+	function pickSimEvent(): SimEvent | null {
+		const eligible = simEvents.filter(
+			(e) => (tierIdToIndex[e.minTier] ?? 0) <= sim.currentTier,
+		);
+		if (eligible.length === 0) return null;
+		const totalWeight = eligible.reduce((sum, e) => sum + e.weight, 0);
+		let roll = prng() * totalWeight;
+		for (const e of eligible) {
+			roll -= e.weight;
+			if (roll <= 0) return e;
+		}
+		return eligible[eligible.length - 1];
+	}
+
+	function resetEventModifiers(): void {
+		eventFlopsMultiplier = 1;
+		eventFlopsOverride = null;
+		eventCashMultiplier = 1;
+		eventLocProductionMultiplier = 1;
+		eventLocPerKeyMultiplier = 1;
+		eventAutoLocMultiplier = 1;
+	}
+
+	function applySimEventModifiers(): void {
+		resetEventModifiers();
+		if (!activeSimEvent) return;
+		for (const eff of activeSimEvent.effects) {
+			if (
+				eff.type === "flops" &&
+				eff.op === "multiply" &&
+				typeof eff.value === "number"
+			)
+				eventFlopsMultiplier *= eff.value;
+			if (
+				eff.type === "flops" &&
+				eff.op === "set" &&
+				typeof eff.value === "number"
+			)
+				eventFlopsOverride = eff.value;
+			if (
+				eff.type === "locPerKey" &&
+				eff.op === "multiply" &&
+				typeof eff.value === "number"
+			)
+				eventLocPerKeyMultiplier *= eff.value;
+			if (
+				eff.type === "locProduction" &&
+				eff.op === "multiply" &&
+				typeof eff.value === "number"
+			)
+				eventLocProductionMultiplier *= eff.value;
+			if (
+				eff.type === "autoLoc" &&
+				eff.op === "multiply" &&
+				typeof eff.value === "number"
+			)
+				eventAutoLocMultiplier *= eff.value;
+			if (
+				eff.type === "cashMultiplier" &&
+				eff.op === "multiply" &&
+				typeof eff.value === "number"
+			)
+				eventCashMultiplier *= eff.value;
+			if (
+				eff.type === "codeQuality" &&
+				eff.op === "add" &&
+				typeof eff.value === "number"
+			)
+				sim.codeQuality = Math.max(
+					0,
+					Math.min(100, sim.codeQuality + eff.value),
+				);
+			// disableUpgrade: skip in sim (minor effect, upgrade temporarily disabled)
+		}
+	}
+
 	const techGatedModels: Record<string, string> = {
 		gpt_3: "openai_gpt3",
 		gpt_35: "openai_gpt35",
@@ -244,20 +407,22 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 	}
 
 	function totalFlops(): number {
+		if (eventFlopsOverride !== null) return eventFlopsOverride;
 		const hw = Math.min(sim.cpuFlops, sim.ramFlops) + sim.storageFlops;
-		return sim.flops + hw;
+		return (sim.flops + hw) * eventFlopsMultiplier;
 	}
 
 	function cashPerLoc(): number {
 		return (
 			tiers[sim.currentTier].cashPerLoc *
 			sim.cashMultiplier *
+			eventCashMultiplier *
 			(sim.codeQuality / 100)
 		);
 	}
 
 	function effLocPerKey(): number {
-		return sim.locPerKey * sim.locPerKeyMultiplier;
+		return sim.locPerKey * sim.locPerKeyMultiplier * eventLocPerKeyMultiplier;
 	}
 
 	function applyEffects(
@@ -351,7 +516,9 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 				sim.teamLoc * sim.teamLocMultiplier * managerTeamBonus +
 				sim.llmLoc * sim.llmLocMultiplier +
 				sim.agentLoc * sim.agentLocMultiplier) *
-			sim.locProductionMultiplier
+			sim.locProductionMultiplier *
+			eventAutoLocMultiplier *
+			eventLocProductionMultiplier
 		);
 	}
 
@@ -367,6 +534,143 @@ export function runBalanceSim(config: Partial<SimConfig> = {}): SimResult {
 
 	for (let t = 0; t < maxSeconds; t++) {
 		endTime = t;
+		// ── Event tick ──
+		if (activeSimEvent) {
+			if (
+				activeSimEvent.effects.some(
+					(e) =>
+						e.type !== "choice" &&
+						e.type !== "disableUpgrade" &&
+						e.type !== "codeQuality",
+				)
+			) {
+				// Mash events: reduce duration by keysPerSec * reductionPerKey per second
+				const mashInteraction = simEvents.find(
+					(e) => e.id === activeSimEvent?.id,
+				)?.interaction;
+				if (mashInteraction?.type === "mash_keys") {
+					activeSimEvent.remainingDuration -=
+						cfg.keysPerSec * mashInteraction.reductionPerKey;
+				}
+			}
+			activeSimEvent.remainingDuration -= 1;
+			if (activeSimEvent.remainingDuration <= 0) {
+				activeSimEvent = null;
+				resetEventModifiers();
+			}
+		}
+
+		if (!activeSimEvent && t >= nextEventSpawn) {
+			const picked = pickSimEvent();
+			if (picked) {
+				if (picked.duration === 0) {
+					// Instant event
+					for (const eff of picked.effects) {
+						if (eff.type === "instantCash" && eff.value !== undefined) {
+							const amount = resolveSimExpression(eff.value);
+							sim.cash += amount;
+							sim.totalCash += amount;
+						}
+						if (eff.type === "instantLoc" && eff.value !== undefined) {
+							const amount = resolveSimExpression(eff.value);
+							sim.loc += amount;
+							sim.totalLoc += amount;
+						}
+						if (
+							eff.type === "codeQuality" &&
+							eff.op === "add" &&
+							typeof eff.value === "number"
+						) {
+							sim.codeQuality = Math.max(
+								0,
+								Math.min(100, sim.codeQuality + eff.value),
+							);
+						}
+						if (
+							eff.type === "conditionalCash" &&
+							eff.threshold !== undefined &&
+							eff.reward !== undefined
+						) {
+							const threshold = resolveSimExpression(eff.threshold);
+							const locPerSec =
+								effLocPerKey() * cfg.keysPerSec +
+								(sim.autoTypeEnabled ? effLocPerKey() * 5 : 0) +
+								calcAutoLoc();
+							if (locPerSec >= threshold) {
+								const reward = resolveSimExpression(eff.reward);
+								sim.cash += reward;
+								sim.totalCash += reward;
+							}
+						}
+						if (
+							eff.type === "choice" &&
+							eff.options &&
+							eff.options.length > 0
+						) {
+							// Simplification: always pick first option (safe choice)
+							const chosen = eff.options[0];
+							const chosenEff = chosen.effect;
+							if (
+								chosenEff.type === "cash" &&
+								chosenEff.op === "multiply" &&
+								typeof chosenEff.value === "number"
+							) {
+								sim.cash *= chosenEff.value;
+							}
+							if (
+								chosenEff.type === "instantCash" &&
+								chosenEff.value !== undefined
+							) {
+								const amount = resolveSimExpression(chosenEff.value);
+								sim.cash += amount;
+								sim.totalCash += amount;
+							}
+							if (
+								chosenEff.type === "codeQuality" &&
+								chosenEff.op === "add" &&
+								typeof chosenEff.value === "number"
+							) {
+								sim.codeQuality = Math.max(
+									0,
+									Math.min(100, sim.codeQuality + chosenEff.value),
+								);
+							}
+							// If choice option has a duration, spawn as timed buff
+							if (chosenEff.duration && chosenEff.duration > 0) {
+								activeSimEvent = {
+									id: picked.id,
+									remainingDuration: chosenEff.duration,
+									effects: [
+										{
+											type: chosenEff.type,
+											op: chosenEff.op,
+											value: chosenEff.value,
+										},
+									],
+								};
+							}
+						}
+					}
+				} else {
+					// Duration-based event
+					activeSimEvent = {
+						id: picked.id,
+						remainingDuration: picked.duration,
+						effects: picked.effects,
+					};
+				}
+			}
+			// Schedule next spawn
+			nextEventSpawn =
+				t +
+				simEventConfig.minIntervalSeconds +
+				prng() *
+					(simEventConfig.maxIntervalSeconds -
+						simEventConfig.minIntervalSeconds);
+		}
+
+		applySimEventModifiers();
+
 		const flops = totalFlops();
 
 		// ── Produce LoC ──

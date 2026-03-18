@@ -1,4 +1,5 @@
 import { css, keyframes } from "@emotion/react";
+import { allEvents, useEventStore } from "@modules/event";
 import { useGameStore, useUiStore } from "@modules/game";
 import {
 	memo,
@@ -159,9 +160,25 @@ export function Editor() {
 
 	const { typing, advanceTokens } = useCodeTyping();
 
+	const running = useGameStore((s) => s.running);
+
 	const onKeystroke = useCallback(() => {
 		advanceTokens(locPerKey);
-	}, [advanceTokens, locPerKey]);
+
+		// Check for mash-key event interaction (only while game is running)
+		if (running) {
+			const eventStore = useEventStore.getState();
+			const interactive = eventStore.getActiveInteractiveEvent();
+			if (interactive) {
+				const definition = allEvents.find(
+					(e) => e.id === interactive.definitionId,
+				);
+				if (definition?.interaction?.type === "mash_keys") {
+					eventStore.handleMashKey(interactive.definitionId);
+				}
+			}
+		}
+	}, [advanceTokens, locPerKey, running]);
 
 	useKeyboardInput(editorRef, onKeystroke);
 	useEditorFocus(editorRef);

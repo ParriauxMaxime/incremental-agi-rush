@@ -1,3 +1,4 @@
+import { useEventStore } from "@modules/event";
 import { match } from "ts-pattern";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
@@ -271,10 +272,13 @@ function recalcDerivedStats(state: GameState): void {
 			.otherwise(() => {});
 	}
 
+	const eventMods = useEventStore.getState().getEventModifiers();
+
 	// Apply upgrade effects
 	for (const upgrade of allUpgrades) {
 		const owned = state.ownedUpgrades[upgrade.id] ?? 0;
 		if (owned === 0) continue;
+		if (eventMods.disabledUpgrades.includes(upgrade.id)) continue;
 		for (const effect of upgrade.effects) {
 			applyEffect(effect, owned);
 		}
@@ -288,6 +292,10 @@ function recalcDerivedStats(state: GameState): void {
 			applyEffect(effect, owned);
 		}
 	}
+
+	locPerKey *= eventMods.locPerKeyMultiplier;
+	locProductionMultiplier *= eventMods.locProductionMultiplier;
+	cashMultiplier *= eventMods.cashMultiplier;
 
 	// CPU and RAM bottleneck each other; storage is free
 	const hardwareFlops = Math.min(cpuFlops, ramFlops) + storageFlops;
@@ -308,8 +316,13 @@ function recalcDerivedStats(state: GameState): void {
 	state.ramFlops = ramFlops;
 	state.storageFlops = storageFlops;
 	state.locPerKey = locPerKey;
-	state.autoLocPerSec = totalAutoLoc * locProductionMultiplier;
-	state.flops = baseFlops + hardwareFlops;
+	state.autoLocPerSec =
+		totalAutoLoc * locProductionMultiplier * eventMods.autoLocMultiplier;
+	const computedFlops = baseFlops + hardwareFlops;
+	state.flops =
+		eventMods.flopsOverride !== null
+			? eventMods.flopsOverride
+			: computedFlops * eventMods.flopsMultiplier;
 	state.locProductionMultiplier = locProductionMultiplier;
 	state.cashMultiplier = cashMultiplier;
 	state.freelancerCostDiscount = freelancerCostDiscount;
@@ -538,6 +551,7 @@ export const useGameStore = create<GameState & GameActions>()(
 			reset: () => {
 				set(initialState);
 				localStorage.removeItem("agi-rush-editor");
+				useEventStore.getState().reset();
 			},
 
 			godSet: (overrides: GodModeOverrides) => {
@@ -554,6 +568,23 @@ export const useGameStore = create<GameState & GameActions>()(
 					}
 					return next;
 				});
+			},
+
+			recalc: () => {
+				set((s) => {
+					const next = { ...s };
+					recalcDerivedStats(next);
+					return next;
+				});
+			},
+
+			applyEventReward: (cashDelta: number, locDelta: number) => {
+				set((s) => ({
+					cash: s.cash + cashDelta,
+					totalCash: cashDelta > 0 ? s.totalCash + cashDelta : s.totalCash,
+					loc: s.loc + locDelta,
+					totalLoc: locDelta > 0 ? s.totalLoc + locDelta : s.totalLoc,
+				}));
 			},
 		}),
 		{
