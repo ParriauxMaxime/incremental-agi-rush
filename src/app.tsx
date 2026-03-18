@@ -4,6 +4,7 @@ import { TechTreePage } from "@components/tech-tree-page";
 import { css, Global } from "@emotion/react";
 import type { EditorTheme } from "@modules/editor";
 import { EDITOR_THEMES, Editor, type EditorThemeEnum } from "@modules/editor";
+import { EventToast } from "@modules/event/components/event-toast";
 import { PageEnum, useGameLoop, useGameStore, useUiStore } from "@modules/game";
 import { match } from "ts-pattern";
 
@@ -317,6 +318,7 @@ export function App() {
 				{/* Panel 3: Sidebar */}
 				<Sidebar />
 			</div>
+			<EventToast />
 		</>
 	);
 }

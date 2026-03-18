@@ -1,3 +1,4 @@
+export { EventToast } from "./components/event-toast";
 export { allEvents, eventConfig, TIER_INDEX } from "./data/events";
 export {
 	resolveChoiceEffects,
