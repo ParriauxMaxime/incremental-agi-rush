@@ -18,6 +18,23 @@
       }
     },
     {
+      "id": "claude_haiku",
+      "family": "claude",
+      "name": "Claude",
+      "version": "Haiku",
+      "icon": "🟠",
+      "tier": "ai_lab",
+      "cost": 5000000,
+      "locPerSec": 800,
+      "flopsCost": 400,
+      "codeQuality": 82,
+      "special": {
+        "id": "fast_cheap",
+        "name": "Fast & cheap",
+        "description": "Best FLOPS/LoC ratio in the game"
+      }
+    },
+    {
       "id": "claude_sonnet",
       "family": "claude",
       "name": "Claude",
@@ -28,6 +45,7 @@
       "locPerSec": 5000,
       "flopsCost": 2000,
       "codeQuality": 95,
+      "requires": "claude_haiku",
       "special": {
         "id": "quality_floor",
         "name": "Refuses to write spaghetti",
@@ -55,6 +73,45 @@
       }
     },
     {
+      "id": "gpt_3",
+      "family": "gpt",
+      "name": "GPT",
+      "version": "3",
+      "icon": "🟢",
+      "tier": "ai_lab",
+      "cost": 2000000,
+      "locPerSec": 500,
+      "flopsCost": 800,
+      "codeQuality": 70,
+      "special": {
+        "id": "verbose",
+        "name": "Verbose",
+        "description": "+30% LoC/s but lines are 30% fluff (reduced cash value)",
+        "locBonus": 0.3,
+        "cashPenalty": 0.3
+      }
+    },
+    {
+      "id": "gpt_35",
+      "family": "gpt",
+      "name": "GPT",
+      "version": "3.5",
+      "icon": "🟢",
+      "tier": "ai_lab",
+      "cost": 5000000,
+      "locPerSec": 1500,
+      "flopsCost": 1500,
+      "codeQuality": 78,
+      "requires": "gpt_3",
+      "special": {
+        "id": "chatgpt_moment",
+        "name": "ChatGPT moment",
+        "description": "+10% cash multiplier for 60s on deploy",
+        "timedCashMultiplier": 1.1,
+        "duration": 60
+      }
+    },
+    {
       "id": "gpt_4",
       "family": "gpt",
       "name": "GPT",
@@ -65,12 +122,32 @@
       "locPerSec": 8000,
       "flopsCost": 3000,
       "codeQuality": 85,
+      "requires": "gpt_35",
       "special": {
         "id": "verbose",
         "name": "Verbose",
         "description": "+30% LoC/s but lines are 30% fluff (reduced cash value)",
         "locBonus": 0.3,
         "cashPenalty": 0.3
+      }
+    },
+    {
+      "id": "gpt_41",
+      "family": "gpt",
+      "name": "GPT",
+      "version": "4.1",
+      "icon": "🟢",
+      "tier": "ai_lab",
+      "cost": 50000000,
+      "locPerSec": 10000,
+      "flopsCost": 3500,
+      "codeQuality": 88,
+      "requires": "gpt_4",
+      "special": {
+        "id": "efficient",
+        "name": "Efficient",
+        "description": "20% less FLOPS cost than listed",
+        "flopsCostMultiplier": 0.8
       }
     },
     {
