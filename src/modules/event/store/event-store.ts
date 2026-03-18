@@ -1,6 +1,6 @@
 import { match } from "ts-pattern";
 import { create } from "zustand";
-import { allEvents, eventConfig, TIER_INDEX } from "../data/events";
+import { allEvents, eventConfig } from "../data/events";
 import type {
 	ActiveEvent,
 	EventDefinition,
@@ -8,7 +8,7 @@ import type {
 	EventModifiers,
 	ExpressionContext,
 } from "../types";
-import { DEFAULT_EVENT_MODIFIERS } from "../types";
+import { DEFAULT_EVENT_MODIFIERS, TIER_INDEX } from "../types";
 import { resolveExpression } from "../utils/expression-resolver";
 
 // ---------------------------------------------------------------------------

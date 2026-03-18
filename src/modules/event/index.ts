@@ -1,5 +1,5 @@
 export { EventToast } from "./components/event-toast";
-export { allEvents, eventConfig, TIER_INDEX } from "./data/events";
+export { allEvents, eventConfig } from "./data/events";
 export {
 	resolveChoiceEffects,
 	resolveInstantEffects,
@@ -11,4 +11,4 @@ export type {
 	EventModifiers,
 	ExpressionContext,
 } from "./types";
-export { DEFAULT_EVENT_MODIFIERS } from "./types";
+export { DEFAULT_EVENT_MODIFIERS, TIER_INDEX } from "./types";
