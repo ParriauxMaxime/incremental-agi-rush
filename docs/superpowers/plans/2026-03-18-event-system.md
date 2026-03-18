@@ -36,6 +36,7 @@ export type EventEffectOpEnum =
 export type EventEffect =
 	| { type: "flops" | "locPerKey" | "locProduction" | "autoLoc" | "cashMultiplier"; op: "multiply"; value: number }
 	| { type: "flops"; op: "set"; value: number }
+	| { type: "cash"; op: "multiply"; value: number }
 	| { type: "instantCash"; op: "add"; value: string }
 	| { type: "instantLoc"; op: "add"; value: number }
 	| { type: "codeQuality"; op: "add"; value: number }
@@ -79,6 +80,9 @@ export interface ActiveEvent {
 	chosenOptionIndex?: number;
 	/** true for synthetic events spawned by timed choice effects */
 	synthetic: boolean;
+	/** For synthetic events: parent event ID and chosen option index */
+	parentEventId?: string;
+	parentOptionIndex?: number;
 }
 
 export interface EventModifiers {
@@ -137,7 +141,7 @@ export const TIER_INDEX: Record<TierIdEnum, number> = {
 };
 
 export const allEvents: EventDefinition[] =
-	eventsData.events as unknown as EventDefinition[];
+	eventsData.events as EventDefinition[];
 
 export const eventConfig: EventConfig =
 	eventsData.eventConfig as EventConfig;
@@ -255,7 +259,8 @@ interface EventState {
 	eventLog: string[];
 	/** Most recent toast to display (includes instant events that aren't "active") */
 	toastEvent: { definitionId: string; remainingDuration: number } | null;
-	toastDismissAt: number;
+	/** Remaining seconds until toast auto-dismisses (counts down with dt, pauses when game pauses) */
+	toastDismissCountdown: number;
 }
 
 interface EventActions {
@@ -309,7 +314,7 @@ const initialState: EventState = {
 	nextSpawnAt: randomInterval(),
 	eventLog: [],
 	toastEvent: null,
-	toastDismissAt: 0,
+	toastDismissCountdown: 0,
 };
 
 export const useEventStore = create<EventState & EventActions>()(
@@ -368,14 +373,13 @@ export const useEventStore = create<EventState & EventActions>()(
 
 			// Check toast dismiss
 			let toastEvent = state.toastEvent;
-			let toastDismissAt = state.toastDismissAt;
-			if (
-				toastEvent &&
-				toastDismissAt > 0 &&
-				performance.now() >= toastDismissAt
-			) {
-				toastEvent = null;
-				toastDismissAt = 0;
+			let toastDismissCountdown = state.toastDismissCountdown;
+			if (toastEvent && toastDismissCountdown > 0) {
+				toastDismissCountdown -= dt; // pauses naturally when tick isn't called
+				if (toastDismissCountdown <= 0) {
+					toastEvent = null;
+					toastDismissCountdown = 0;
+				}
 			}
 
 			// Try spawning a new event
@@ -393,7 +397,7 @@ export const useEventStore = create<EventState & EventActions>()(
 						activeEvents,
 						nextSpawnAt: randomInterval(),
 						toastEvent,
-						toastDismissAt,
+						toastDismissCountdown,
 					});
 					// Return the event ID to spawn via a different mechanism
 					// Actually, let's handle it inline since tick needs to be self-contained
@@ -403,6 +407,8 @@ export const useEventStore = create<EventState & EventActions>()(
 					const isChoice = def.effects.some(
 						(e) => e.type === "choice",
 					);
+
+					const CHOICE_TIMEOUT = 60; // seconds — auto-dismiss if player doesn't choose
 
 					if (isInstant) {
 						// Instant events: add to log + show toast briefly
@@ -415,7 +421,7 @@ export const useEventStore = create<EventState & EventActions>()(
 								definitionId: def.id,
 								remainingDuration: 0,
 							},
-							toastDismissAt: performance.now() + 4000,
+							toastDismissCountdown: 4,  // seconds, counts down with dt
 						});
 						// Caller handles instant effects via pendingSpawn
 						return true;
@@ -424,7 +430,7 @@ export const useEventStore = create<EventState & EventActions>()(
 					const newEvent: ActiveEvent = {
 						definitionId: def.id,
 						startedAt: performance.now(),
-						remainingDuration: isChoice ? 999 : def.duration,
+						remainingDuration: isChoice ? CHOICE_TIMEOUT : def.duration,
 						resolved: false,
 						synthetic: false,
 					};
@@ -437,7 +443,7 @@ export const useEventStore = create<EventState & EventActions>()(
 							definitionId: def.id,
 							remainingDuration: newEvent.remainingDuration,
 						},
-						toastDismissAt: 0,
+						toastDismissCountdown: 0,
 					});
 					return true;
 				}
@@ -463,7 +469,7 @@ export const useEventStore = create<EventState & EventActions>()(
 				set({
 					eventLog: [def.id, ...state.eventLog].slice(0, 20),
 					toastEvent: { definitionId: def.id, remainingDuration: 0 },
-					toastDismissAt: performance.now() + 4000,
+					toastDismissCountdown: 4,  // seconds, counts down with dt
 				});
 				return;
 			}
@@ -472,7 +478,7 @@ export const useEventStore = create<EventState & EventActions>()(
 			const newEvent: ActiveEvent = {
 				definitionId: def.id,
 				startedAt: performance.now(),
-				remainingDuration: isChoice ? 999 : def.duration,
+				remainingDuration: isChoice ? CHOICE_TIMEOUT : def.duration,
 				resolved: false,
 				synthetic: false,
 			};
@@ -484,7 +490,7 @@ export const useEventStore = create<EventState & EventActions>()(
 					definitionId: def.id,
 					remainingDuration: newEvent.remainingDuration,
 				},
-				toastDismissAt: 0,
+				toastDismissCountdown: 0,
 			});
 		},
 
@@ -522,6 +528,8 @@ export const useEventStore = create<EventState & EventActions>()(
 					remainingDuration: option.effect.duration,
 					resolved: true,
 					synthetic: true,
+					parentEventId: eventId,
+					parentOptionIndex: optionIndex,
 				};
 				updated.push(syntheticEvent);
 			}
@@ -572,27 +580,21 @@ export const useEventStore = create<EventState & EventActions>()(
 					(e) => e.id === event.definitionId,
 				);
 				if (!def) {
-					// Synthetic event from choice — check parent event
-					const parentId = event.definitionId.replace(
-						/_choice_\d+$/,
-						"",
-					);
+					// Synthetic event from choice — use stored parent info
+					if (event.parentEventId == null || event.parentOptionIndex == null) continue;
 					const parentDef = allEvents.find(
-						(e) => e.id === parentId,
+						(e) => e.id === event.parentEventId,
 					);
 					if (!parentDef) continue;
 
-					const choiceIdx = Number(
-						event.definitionId.match(/_choice_(\d+)$/)?.[1],
-					);
 					const choiceEffect = parentDef.effects.find(
 						(e) => e.type === "choice",
 					);
 					if (
 						choiceEffect?.type === "choice" &&
-						choiceEffect.options[choiceIdx]
+						choiceEffect.options[event.parentOptionIndex]
 					) {
-						const opt = choiceEffect.options[choiceIdx];
+						const opt = choiceEffect.options[event.parentOptionIndex];
 						applyModifier(modifiers, disabledUpgrades, opt.effect);
 					}
 					continue;
@@ -635,21 +637,32 @@ function applyModifier(
 	disabledUpgrades: string[],
 	effect: { type: string; op?: string; value?: number | string; upgradeId?: string },
 ): void {
-	if (effect.type === "flops" && effect.op === "multiply") {
-		modifiers.flopsMultiplier *= effect.value as number;
-	} else if (effect.type === "flops" && effect.op === "set") {
-		modifiers.flopsOverride = effect.value as number;
-	} else if (effect.type === "locPerKey" && effect.op === "multiply") {
-		modifiers.locPerKeyMultiplier *= effect.value as number;
-	} else if (effect.type === "autoLoc" && effect.op === "multiply") {
-		modifiers.autoLocMultiplier *= effect.value as number;
-	} else if (effect.type === "locProduction" && effect.op === "multiply") {
-		modifiers.locProductionMultiplier *= effect.value as number;
-	} else if (effect.type === "cashMultiplier" && effect.op === "multiply") {
-		modifiers.cashMultiplier *= effect.value as number;
-	} else if (effect.type === "disableUpgrade" && effect.upgradeId) {
-		disabledUpgrades.push(effect.upgradeId);
-	}
+	match(effect)
+		.with({ type: "flops", op: "multiply" }, (e) => {
+			modifiers.flopsMultiplier *= e.value as number;
+		})
+		.with({ type: "flops", op: "set" }, (e) => {
+			modifiers.flopsOverride = e.value as number;
+		})
+		.with({ type: "locPerKey", op: "multiply" }, (e) => {
+			modifiers.locPerKeyMultiplier *= e.value as number;
+		})
+		.with({ type: "autoLoc", op: "multiply" }, (e) => {
+			modifiers.autoLocMultiplier *= e.value as number;
+		})
+		.with({ type: "locProduction", op: "multiply" }, (e) => {
+			modifiers.locProductionMultiplier *= e.value as number;
+		})
+		.with({ type: "cashMultiplier", op: "multiply" }, (e) => {
+			modifiers.cashMultiplier *= e.value as number;
+		})
+		.with({ type: "cash", op: "multiply" }, (e) => {
+			modifiers.cashMultiplier *= e.value as number;
+		})
+		.with({ type: "disableUpgrade" }, (e) => {
+			if (e.upgradeId) disabledUpgrades.push(e.upgradeId);
+		})
+		.otherwise(() => {});
 }
 
 /** Resolve instant effects from an event, returns cash/loc deltas */
@@ -822,49 +835,37 @@ To:
 	}
 ```
 
-- [ ] **Step 3: Integrate event tick into game tick**
+- [ ] **Step 3: Add `recalc` and `applyEventReward` actions to game store**
 
-In the `tick` action (inside the `set` callback, at the very start before `let { loc, ... }`), add event ticking. Actually, since the event store is separate and we need to call it from within the set callback but also need it to trigger recalc, we need to handle this carefully.
-
-Modify the `tick` action. Before the existing `set((s) => { ... })` call, add:
-
+In `types.ts`, add to `GameActions`:
 ```typescript
-tick: (dt: number) => {
-	// Tick events first
-	const state = get();
-	const ctx: ExpressionContext = {
-		currentCash: state.cash,
-		currentLoc: state.loc,
-		currentLocPerSec: state.autoLocPerSec,
-	};
-	const eventStore = useEventStore.getState();
-	const eventChanged = eventStore.tick(dt, state.currentTierIndex, state.running);
-
-	// Check if an instant event was spawned (appears in activeEvents or toastEvent)
-	const toastEvent = useEventStore.getState().toastEvent;
-	if (toastEvent) {
-		const def = (await import("@modules/event")).allEvents.find(
-			(e: { id: string }) => e.id === toastEvent.definitionId,
-		);
-		// Actually — avoid dynamic import. Use direct access:
-	}
-
-	// Handle instant effects for newly spawned events
-	if (eventChanged) {
-		const newEventState = useEventStore.getState();
-		// Find the most recent event that just spawned
-		const latestEventId = newEventState.eventLog[0];
-		if (latestEventId) {
-			// We need to import allEvents — already imported via the event module
-			// Apply instant effects if any
-		}
-	}
-
-	set((s) => {
-		// ... existing tick logic unchanged ...
+/** Force recalculation of derived stats (called when external modifiers change) */
+recalc: () => void;
+/** Apply instant cash/loc reward from events (not a cheat — dedicated action) */
+applyEventReward: (cashDelta: number, locDelta: number) => void;
 ```
 
-**Actually, let me simplify this.** The cleanest approach: move event-spawning instant effect resolution into the game loop hook, not the store tick. Here's the revised approach:
+In `game-store.ts`, add these actions:
+```typescript
+recalc: () => {
+	set((s) => {
+		const next = { ...s };
+		recalcDerivedStats(next);
+		return next;
+	});
+},
+
+applyEventReward: (cashDelta: number, locDelta: number) => {
+	set((s) => ({
+		cash: s.cash + cashDelta,
+		totalCash: cashDelta > 0 ? s.totalCash + cashDelta : s.totalCash,
+		loc: s.loc + locDelta,
+		totalLoc: locDelta > 0 ? s.totalLoc + locDelta : s.totalLoc,
+	}));
+},
+```
+
+- [ ] **Step 4: Integrate event tick into game loop**
 
 Modify `src/modules/game/hooks/use-game-loop.ts`:
 
@@ -916,14 +917,7 @@ export function useGameLoop() {
 						ctx,
 					);
 					if (cashDelta !== 0 || locDelta !== 0) {
-						useGameStore.getState().godSet({
-							cash: gameState.cash + cashDelta,
-							loc: gameState.loc + locDelta,
-							totalLoc:
-								locDelta > 0
-									? gameState.totalLoc + locDelta
-									: undefined,
-						});
+						useGameStore.getState().applyEventReward(cashDelta, locDelta);
 					}
 				}
 			}
@@ -934,15 +928,14 @@ export function useGameLoop() {
 
 			// Recalc if events changed
 			if (eventChanged) {
-				useGameStore.setState((s) => {
-					// Trigger recalc by cloning state — recalcDerivedStats is called
-					// via a helper we need to expose
-					return { ...s };
-				});
+				useGameStore.getState().recalc();
 			}
 
 			rafId = requestAnimationFrame(loop);
 		}
+
+		// Reset event log tracking on mount
+		lastEventLogLenRef.current = useEventStore.getState().eventLog.length;
 
 		rafId = requestAnimationFrame(loop);
 		return () => cancelAnimationFrame(rafId);
@@ -950,31 +943,7 @@ export function useGameLoop() {
 }
 ```
 
-Wait — `recalcDerivedStats` is a module-level function, not exported. We need to expose a `recalc` action on the game store. Add to `game-store.ts`:
-
-In the `GameActions` interface in `types.ts`, add:
-```typescript
-/** Force recalculation of derived stats (called when external modifiers change) */
-recalc: () => void;
-```
-
-In `game-store.ts`, add the action:
-```typescript
-recalc: () => {
-	set((s) => {
-		const next = { ...s };
-		recalcDerivedStats(next);
-		return next;
-	});
-},
-```
-
-Then in `use-game-loop.ts`, replace the `setState` recalc call with:
-```typescript
-if (eventChanged) {
-	useGameStore.getState().recalc();
-}
-```
+Note: `lastEventLogLenRef` is initialized from current event log length on mount to avoid stale tracking after game reset.
 
 - [ ] **Step 4: Verify typecheck**
 
@@ -1154,21 +1123,27 @@ const btnCss = css({
 	},
 });
 
-const POSITIVE_EVENTS = new Set([
-	"hackathon",
-	"github_star",
-	"viral_tweet",
-]);
+/** Derive sentiment from effects — no hardcoded event IDs */
+import type { EventDefinition } from "../types";
 
-const CHOICE_EVENTS = new Set([
-	"security_audit",
-	"acquihire_offer",
-	"investor_demo",
-]);
+function getEventSentiment(def: EventDefinition): "positive" | "negative" | "neutral" {
+	const hasChoice = def.effects.some((e) => e.type === "choice");
+	if (hasChoice) return "neutral";
 
-function getToastStyle(eventId: string) {
-	if (POSITIVE_EVENTS.has(eventId)) return positiveCss;
-	if (CHOICE_EVENTS.has(eventId)) return neutralCss;
+	// Positive if multipliers > 1 or instant gains
+	const isPositive = def.effects.every((e) => {
+		if ("op" in e && e.op === "multiply" && "value" in e) return (e.value as number) >= 1;
+		if (e.type === "instantCash" || e.type === "instantLoc") return true;
+		if (e.type === "conditionalCash") return true;
+		return false;
+	});
+	return isPositive ? "positive" : "negative";
+}
+
+function getToastStyle(def: EventDefinition) {
+	const sentiment = getEventSentiment(def);
+	if (sentiment === "positive") return positiveCss;
+	if (sentiment === "neutral") return neutralCss;
 	return negativeCss;
 }
 
@@ -1212,11 +1187,7 @@ export function EventToast() {
 					ctx,
 				);
 				if (cashDelta !== 0 || locDelta !== 0) {
-					const gs = useGameStore.getState();
-					gs.godSet({
-						cash: gs.cash + cashDelta,
-						loc: locDelta !== 0 ? gs.loc + locDelta : undefined,
-					});
+					useGameStore.getState().applyEventReward(cashDelta, locDelta);
 				}
 			}
 		}
@@ -1224,7 +1195,7 @@ export function EventToast() {
 
 	return (
 		<div css={toastContainerCss}>
-			<div css={getToastStyle(def.id)}>
+			<div css={getToastStyle(def)}>
 				<span css={iconCss}>{def.icon}</span>
 				<div css={contentCss}>
 					<div css={nameCss}>{def.name}</div>
@@ -1441,6 +1412,9 @@ Inside `runBalanceSim`, after the existing `sim` object initialization, add:
 				eventLocPerKeyMultiplier *= eff.value as number;
 			if (eff.type === "autoLoc" && eff.op === "multiply")
 				eventAutoLocMultiplier *= eff.value as number;
+			if (eff.type === "codeQuality" && eff.op === "add")
+				sim.codeQuality = Math.max(0, sim.codeQuality + (eff.value as number));
+			// disableUpgrade: sim ignores this (minor effect, not worth complexity)
 		}
 	}
 ```
@@ -1452,9 +1426,10 @@ Inside the main `for` loop, right after `const flops = totalFlops();` and before
 ```typescript
 		// ── Tick events ──
 		if (activeSimEvent) {
-			// Mash events: reduce duration by keysPerSec
-			if (activeSimEvent.id === "production_down") {
-				const mashReduction = cfg.keysPerSec; // keys/sec * reductionPerKey (1)
+			// Mash events: reduce duration by keysPerSec * reductionPerKey
+			const mashDef = simEvents.find((e) => e.id === activeSimEvent?.id);
+			if (mashDef?.interaction?.type === "mash_keys") {
+				const mashReduction = cfg.keysPerSec * mashDef.interaction.reductionPerKey;
 				activeSimEvent.remainingDuration -= mashReduction;
 			}
 			activeSimEvent.remainingDuration -= 1; // 1 second per tick
@@ -1483,6 +1458,9 @@ Inside the main `for` loop, right after `const flops = totalFlops();` and before
 							sim.loc += val;
 							sim.totalLoc += val;
 						}
+						if (eff.type === "codeQuality" && eff.op === "add") {
+							sim.codeQuality = Math.max(0, sim.codeQuality + (eff.value as number));
+						}
 						if (eff.type === "conditionalCash" && eff.threshold && eff.reward) {
 							const threshold = resolveSimExpression(eff.threshold);
 							const currentLps = calcAutoLoc() + effLocPerKey() * cfg.keysPerSec;
@@ -1497,7 +1475,9 @@ Inside the main `for` loop, right after `const flops = totalFlops();` and before
 					// Sim picks optimal choice
 					const choiceEff = ev.effects.find((e) => e.type === "choice");
 					if (choiceEff?.options && choiceEff.options.length > 0) {
-						// Simple heuristic: pick first option (usually the "safe" one)
+						// Simplification: always pick first option (safe/conservative choice)
+					// For security_audit: "Pay fine" (-5% cash) vs "Ignore it" (-20% quality)
+					// For acquihire_offer: "Sell out" (2x cash now) vs "Stay indie" (+10% 120s)
 						const opt = choiceEff.options[0];
 						if (opt.effect.type === "cash" && opt.effect.op === "multiply") {
 							const delta = sim.cash * ((opt.effect.value as number) - 1);
