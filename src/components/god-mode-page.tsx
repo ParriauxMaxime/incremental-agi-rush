@@ -130,6 +130,8 @@ function CheatsPanel() {
 			totalLoc: s.totalLoc,
 			flops: s.flops,
 			currentTierIndex: s.currentTierIndex,
+			flopSlider: s.flopSlider,
+			unlockedModels: s.unlockedModels,
 		})),
 	);
 
@@ -184,6 +186,35 @@ function CheatsPanel() {
 					+1
 				</button>
 			</div>
+			<div css={[headingCss, { marginTop: 12 }]}>AI Models</div>
+			<div css={rowCss}>
+				<span css={labelCss}>Slider</span>
+				<span css={valueCss}>{Math.round(state.flopSlider * 100)}%</span>
+			</div>
+			{["copilot", "claude_haiku", "claude_sonnet"].map((id) => (
+				<div css={rowCss} key={id}>
+					<span css={labelCss}>{id}</span>
+					<span css={valueCss}>
+						{state.unlockedModels[id] ? "\u2713" : "\u2014"}
+					</span>
+					<button
+						css={bumpBtnCss}
+						type="button"
+						onClick={() => {
+							const current = useGameStore.getState();
+							useGameStore.setState({
+								unlockedModels: {
+									...current.unlockedModels,
+									[id]: true,
+								},
+							});
+							useGameStore.getState().recalc();
+						}}
+					>
+						Grant
+					</button>
+				</div>
+			))}
 			<button
 				css={resetBtnCss}
 				type="button"
