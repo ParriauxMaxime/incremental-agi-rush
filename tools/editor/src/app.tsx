@@ -2,6 +2,7 @@ import { css } from "@emotion/react";
 import { match } from "ts-pattern";
 import { Sidebar } from "./components/sidebar";
 import { ToastContainer } from "./components/toast";
+import { UpgradesPage } from "./pages/upgrades/upgrades-page";
 import { PageEnum, useUiStore } from "./store/ui-store";
 
 const containerStyle = css`
@@ -26,7 +27,7 @@ function PageContent() {
 
 	return match(activePage)
 		.with(PageEnum.tech_tree, () => <div css={stubStyle}>Tech Tree coming soon</div>)
-		.with(PageEnum.upgrades, () => <div css={stubStyle}>Upgrades coming soon</div>)
+		.with(PageEnum.upgrades, () => <UpgradesPage />)
 		.with(PageEnum.ai_models, () => <div css={stubStyle}>AI Models coming soon</div>)
 		.with(PageEnum.events, () => <div css={stubStyle}>Events coming soon</div>)
 		.with(PageEnum.milestones, () => (
