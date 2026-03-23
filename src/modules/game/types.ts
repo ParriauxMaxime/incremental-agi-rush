@@ -114,6 +114,12 @@ export interface GameState {
 	agentMaxBonus: number;
 	/** Model IDs unlocked via tech tree (modelUnlock effect) */
 	unlockedModels: Record<string, boolean>;
+	/** FLOPS allocation: 0–1 where 1 = 100% execution, 0 = 100% AI generation */
+	flopSlider: number;
+	/** Accumulator for fractional AI-generated LoC between ticks (not persisted) */
+	aiLocAccumulator: number;
+	/** Whether any AI model is unlocked (derived from unlockedModels) */
+	aiUnlocked: boolean;
 
 	// Progression
 	currentTierIndex: number;
@@ -155,4 +161,6 @@ export interface GameActions {
 	recalc: () => void;
 	/** Apply instant cash/loc reward from events */
 	applyEventReward: (cashDelta: number, locDelta: number) => void;
+	/** Set FLOPS allocation slider (0 = all AI, 1 = all execution) */
+	setFlopSlider: (value: number) => void;
 }
