@@ -19,5 +19,5 @@
 			"@utils/*": ["src/utils/*"]
 		}
 	},
-	"include": ["src", "specs/data"]
+	"include": ["src", "specs/data", "specs/lib"]
 }
