@@ -216,7 +216,7 @@
 		{
 			"id": "storage_upgrade",
 			"name": "Storage",
-			"description": "+1 FLOPS (no bottleneck)",
+			"description": "+2 FLOPS (no bottleneck)",
 			"icon": "💾",
 			"requires": [
 				"computer"
@@ -229,7 +229,7 @@
 				{
 					"type": "storageFlops",
 					"op": "add",
-					"value": 1
+					"value": 2
 				}
 			],
 			"levelLabels": [
@@ -487,7 +487,7 @@
 		{
 			"id": "interns",
 			"name": "Interns",
-			"description": "",
+			"description": "Unlock intern hiring. They're cheap and eager.",
 			"icon": "👶",
 			"requires": [
 				"tier_startup"
@@ -500,7 +500,7 @@
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 1
+					"value": 10
 				}
 			],
 			"x": 520,
@@ -563,7 +563,7 @@
 					"value": 1.25
 				}
 			],
-			"x": 200,
+			"x": 180,
 			"y": 560
 		},
 		{
@@ -585,7 +585,7 @@
 					"value": 0.85
 				}
 			],
-			"x": 200,
+			"x": 180,
 			"y": 500
 		},
 		{
@@ -607,7 +607,7 @@
 					"value": 1.15
 				}
 			],
-			"x": 20,
+			"x": 0,
 			"y": 560
 		},
 		{
@@ -645,7 +645,7 @@
 					"value": 1.3
 				}
 			],
-			"x": 520,
+			"x": 540,
 			"y": 560
 		},
 		{
@@ -667,7 +667,7 @@
 					"value": 0.8
 				}
 			],
-			"x": 520,
+			"x": 540,
 			"y": 500
 		},
 		{
@@ -689,7 +689,7 @@
 					"value": 1.2
 				}
 			],
-			"x": 360,
+			"x": 380,
 			"y": 500
 		},
 		{
@@ -717,7 +717,7 @@
 		{
 			"id": "cdn_network",
 			"name": "CDN Network",
-			"description": "+20 storage FLOPS per level",
+			"description": "+2,000 storage FLOPS per level",
 			"icon": "🌍",
 			"requires": [
 				"tier_tech_company"
@@ -730,7 +730,7 @@
 				{
 					"type": "storageFlops",
 					"op": "add",
-					"value": 20
+					"value": 2000
 				}
 			],
 			"x": 520,
@@ -887,7 +887,7 @@
 		{
 			"id": "fiber_network",
 			"name": "Fiber Network",
-			"description": "+100 storage FLOPS per level",
+			"description": "+100K storage FLOPS per level",
 			"icon": "🔗",
 			"requires": [
 				"tier_ai_lab"
@@ -900,7 +900,7 @@
 				{
 					"type": "storageFlops",
 					"op": "add",
-					"value": 100
+					"value": 100000
 				}
 			],
 			"x": 100,
@@ -963,7 +963,7 @@
 					"value": 0.8
 				}
 			],
-			"x": 980,
+			"x": 1000,
 			"y": 1120
 		},
 		{
@@ -1013,7 +1013,7 @@
 		{
 			"id": "neural_fabric",
 			"name": "Neural Fabric",
-			"description": "+500 storage FLOPS per level",
+			"description": "+10M storage FLOPS per level",
 			"icon": "🕸️",
 			"requires": [
 				"tier_agi_race"
@@ -1026,7 +1026,7 @@
 				{
 					"type": "storageFlops",
 					"op": "add",
-					"value": 500
+					"value": 10000000
 				}
 			],
 			"x": 820,
@@ -1073,7 +1073,7 @@
 					"value": 5
 				}
 			],
-			"x": 20,
+			"x": 0,
 			"y": 500
 		},
 		{
@@ -1095,7 +1095,7 @@
 					"value": 3
 				}
 			],
-			"x": 360,
+			"x": 380,
 			"y": 560
 		},
 		{
