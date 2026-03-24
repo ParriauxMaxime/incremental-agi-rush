@@ -244,19 +244,70 @@
 			]
 		},
 		{
+			"id": "ml_pipeline",
+			"tier": "ai_lab",
+			"name": "ML Pipeline",
+			"description": "x1.5 cash per LoC",
+			"icon": "🔬",
+			"baseCost": 80000000,
+			"costMultiplier": 2,
+			"max": 3,
+			"effects": [
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.5
+				}
+			]
+		},
+		{
+			"id": "inference_cluster",
+			"tier": "ai_lab",
+			"name": "Inference Cluster",
+			"description": "+500K FLOPS",
+			"icon": "⚙️",
+			"baseCost": 60000000,
+			"costMultiplier": 1.8,
+			"max": 5,
+			"effects": [
+				{
+					"type": "flops",
+					"op": "add",
+					"value": 500000
+				}
+			]
+		},
+		{
+			"id": "training_run",
+			"tier": "ai_lab",
+			"name": "Training Run",
+			"description": "x1.3 all LoC production",
+			"icon": "🏋️",
+			"baseCost": 120000000,
+			"costMultiplier": 1.8,
+			"max": 3,
+			"effects": [
+				{
+					"type": "locProductionSpeed",
+					"op": "multiply",
+					"value": 1.3
+				}
+			]
+		},
+		{
 			"id": "series_b",
 			"tier": "ai_lab",
 			"name": "Series B Funding",
-			"description": "Immediate $50M cash injection",
+			"description": "Immediate $200M cash injection",
 			"icon": "💰",
-			"baseCost": 100000000,
+			"baseCost": 200000000,
 			"costMultiplier": 1,
 			"max": 1,
 			"effects": [
 				{
 					"type": "instantCash",
 					"op": "add",
-					"value": 50000000
+					"value": 200000000
 				}
 			]
 		},
@@ -268,7 +319,7 @@
 			"icon": "🤖",
 			"baseCost": 500000000,
 			"costMultiplier": 1.3,
-			"max": 2,
+			"max": 3,
 			"costCategory": "agent",
 			"effects": [
 				{
@@ -286,7 +337,7 @@
 			"icon": "🖲️",
 			"baseCost": 500000000,
 			"costMultiplier": 1.5,
-			"max": 10,
+			"max": 3,
 			"effects": [
 				{
 					"type": "flops",
@@ -301,7 +352,7 @@
 			"name": "The Singularity",
 			"description": "You win. Or do you?",
 			"icon": "🌀",
-			"baseCost": 20000000000,
+			"baseCost": 5000000000,
 			"costMultiplier": 1,
 			"max": 1,
 			"effects": [
