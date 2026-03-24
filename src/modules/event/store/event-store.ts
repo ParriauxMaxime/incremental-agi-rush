@@ -168,12 +168,10 @@ export const useEventStore = create<EventState & EventActions>()(
 		...initialState,
 
 		tick(dt: number, currentTierIndex: number, running: boolean): boolean {
-			if (!running) return false;
-
 			const state = get();
 			let changed = false;
 
-			// Tick down active event durations; remove expired
+			// Tick down active event durations; remove expired (always, even when paused)
 			const updatedEvents: ActiveEvent[] = [];
 			for (const ev of state.activeEvents) {
 				if (ev.resolved || ev.remainingDuration <= 0) {
@@ -190,7 +188,7 @@ export const useEventStore = create<EventState & EventActions>()(
 				}
 			}
 
-			// Tick down toast dismiss countdown
+			// Tick down toast dismiss countdown (always)
 			let { toastEvent, toastDismissCountdown } = state;
 			if (toastEvent !== null) {
 				toastDismissCountdown -= dt;
@@ -201,12 +199,12 @@ export const useEventStore = create<EventState & EventActions>()(
 				changed = true;
 			}
 
-			// Spawn check: only if no non-synthetic active event
+			// Spawn check: only when running and no non-synthetic active event
 			let { nextSpawnAt } = state;
 			let { eventLog } = state;
 			const hasActiveNonSynthetic = updatedEvents.some((ev) => !ev.synthetic);
 
-			if (!hasActiveNonSynthetic && performance.now() >= nextSpawnAt) {
+			if (running && !hasActiveNonSynthetic && performance.now() >= nextSpawnAt) {
 				const def = pickWeightedEvent(currentTierIndex);
 				if (def !== null) {
 					const now = performance.now();
