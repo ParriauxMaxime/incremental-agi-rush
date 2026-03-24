@@ -78,6 +78,7 @@
       "costMultiplier": 1.2,
       "max": 5,
       "costCategory": "intern",
+      "requires": ["node_24"],
       "effects": [
         {
           "type": "internLoc",
