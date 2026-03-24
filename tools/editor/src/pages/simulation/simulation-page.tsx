@@ -27,12 +27,12 @@ const errorCss = css({
 async function fetchSimData(): Promise<SimData> {
 	const [aiModels, balance, events, techTree, tiers, upgrades] =
 		await Promise.all([
-			fetchData<SimData["aiModels"]>("ai-models.json"),
-			fetchData<SimData["balance"]>("balance.json"),
-			fetchData<SimData["events"]>("events.json"),
-			fetchData<SimData["techTree"]>("tech-tree.json"),
-			fetchData<SimData["tiers"]>("tiers.json"),
-			fetchData<SimData["upgrades"]>("upgrades.json"),
+			fetchData<SimData["aiModels"]>("ai-models"),
+			fetchData<SimData["balance"]>("balance"),
+			fetchData<SimData["events"]>("events"),
+			fetchData<SimData["techTree"]>("tech-tree"),
+			fetchData<SimData["tiers"]>("tiers"),
+			fetchData<SimData["upgrades"]>("upgrades"),
 		]);
 	return { aiModels, balance, events, techTree, tiers, upgrades };
 }

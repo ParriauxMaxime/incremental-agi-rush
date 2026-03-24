@@ -21,6 +21,7 @@ const layoutStyle = css`
 	display: flex;
 	flex: 1;
 	min-height: 0;
+	height: calc(100vh - 120px);
 `;
 
 const canvasStyle = css`

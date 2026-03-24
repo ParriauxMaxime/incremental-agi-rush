@@ -22,6 +22,7 @@ const mainStyle = css`
 	flex: 1;
 	padding: 24px;
 	overflow: auto;
+	min-height: 0;
 `;
 
 
