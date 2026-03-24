@@ -50,7 +50,7 @@
       {
         "id": "freelancing",
         "unlockAt": 100,
-        "cashPerLoc": 0.40,
+        "cashPerLoc": 0.30,
         "targetUnlockMinute": 5,
         "expectedPurchases": 12,
         "_note": "5x cash bump. First real acceleration. Mechanical keyboard is the breakthrough."
@@ -58,7 +58,7 @@
       {
         "id": "startup",
         "unlockAt": 2000,
-        "cashPerLoc": 2.00,
+        "cashPerLoc": 1.00,
         "targetUnlockMinute": 12,
         "expectedPurchases": 20,
         "_note": "5x cash bump. Devs start auto-writing. Player can breathe."
@@ -66,7 +66,7 @@
       {
         "id": "tech_company",
         "unlockAt": 50000,
-        "cashPerLoc": 5.00,
+        "cashPerLoc": 2.50,
         "targetUnlockMinute": 20,
         "expectedPurchases": 15,
         "_note": "4x cash bump. Scaling up. Series A is the breakthrough moment."
@@ -74,7 +74,7 @@
       {
         "id": "ai_lab",
         "unlockAt": 5000000,
-        "cashPerLoc": 8.00,
+        "cashPerLoc": 5.00,
         "targetUnlockMinute": 28,
         "expectedPurchases": 20,
         "_note": "5x cash bump. AI arrives. FLOPS slider unlocks. The crunch returns."
@@ -82,7 +82,7 @@
       {
         "id": "agi_race",
         "unlockAt": 1000000000,
-        "cashPerLoc": 15.00,
+        "cashPerLoc": 10.00,
         "targetUnlockMinute": 35,
         "expectedPurchases": 8,
         "_note": "10x cash bump. Final sprint. Numbers go exponential."
@@ -246,9 +246,9 @@
   },
 
   "validation": {
-    "agiMinMinutes": 18,
-    "agiMaxMinutes": 45,
-    "maxWaitSeconds": 300,
+    "agiMinMinutes": 30,
+    "agiMaxMinutes": 55,
+    "maxWaitSeconds": 400,
     "minPurchases": 80,
     "maxPurchases": 500,
     "minTiers": 6,
@@ -262,11 +262,11 @@
     },
     "tierMaxDuration": {
       "garage": 300,
-      "freelancing": 500,
-      "startup": 600,
-      "tech_company": 800,
-      "ai_lab": 600,
-      "agi_race": 720
+      "freelancing": 800,
+      "startup": 900,
+      "tech_company": 900,
+      "ai_lab": 900,
+      "agi_race": 1200
     }
   }
 }
