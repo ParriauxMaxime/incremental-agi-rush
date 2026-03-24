@@ -30,6 +30,8 @@ export interface Upgrade {
 	costCategory?: string;
 	codeQuality?: number;
 	flopsCost?: number | string;
+	/** Tech tree node IDs that must be researched before this upgrade appears */
+	requires?: string[];
 }
 
 export const TechCurrencyEnum = {

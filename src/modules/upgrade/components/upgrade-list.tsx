@@ -105,13 +105,16 @@ function UpgradeCard({ upgrade }: { upgrade: Upgrade }) {
 
 export function UpgradeList() {
 	const currentTierIndex = useGameStore((s) => s.currentTierIndex);
+	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
 
 	const availableTierIds = tiers
 		.filter((t) => t.index <= currentTierIndex)
 		.map((t) => t.id);
 
-	const visibleUpgrades = allUpgrades.filter((u) =>
-		availableTierIds.includes(u.tier),
+	const visibleUpgrades = allUpgrades.filter(
+		(u) =>
+			availableTierIds.includes(u.tier) &&
+			(!u.requires || u.requires.every((id) => (ownedTechNodes[id] ?? 0) > 0)),
 	);
 
 	return (

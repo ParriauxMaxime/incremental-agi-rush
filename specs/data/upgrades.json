@@ -10,6 +10,7 @@
       "costMultiplier": 1.2,
       "max": 3,
       "costCategory": "freelancer",
+      "requires": ["outsourcing"],
       "effects": [
         { "type": "freelancerLoc", "op": "add", "value": 5 }
       ]

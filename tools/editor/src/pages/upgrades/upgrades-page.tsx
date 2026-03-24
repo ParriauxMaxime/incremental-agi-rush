@@ -17,6 +17,7 @@ type Upgrade = {
 	max: number;
 	costCategory?: string;
 	effects: unknown[];
+	requires?: string[];
 };
 
 const TIER_OPTIONS = [
@@ -47,6 +48,12 @@ const columns: Column<Upgrade>[] = [
 		type: "number",
 	},
 	{ key: "max", label: "Max", width: "50px", type: "number" },
+	{
+		key: "requires",
+		label: "Requires (tech nodes)",
+		width: "160px",
+		editable: true,
+	},
 	{ key: "description", label: "Description", editable: true },
 ];
 
@@ -82,6 +89,15 @@ export function UpgradesPage() {
 	const handleRowChange = useCallback(
 		(index: number, row: Upgrade) => {
 			const next = [...upgrades];
+			// Convert comma-separated requires string back to array
+			const req = row.requires as unknown;
+			if (typeof req === "string") {
+				const parsed = (req as string)
+					.split(",")
+					.map((s) => s.trim())
+					.filter(Boolean);
+				row = { ...row, requires: parsed.length > 0 ? parsed : undefined };
+			}
 			next[index] = row;
 			store.update({ upgrades: next });
 		},
