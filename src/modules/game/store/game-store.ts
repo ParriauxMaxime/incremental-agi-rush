@@ -375,18 +375,32 @@ export const useGameStore = create<GameState & GameActions>()(
 					let { loc, totalLoc, cash, totalCash, totalExecutedLoc } = s;
 					let blockQueue = s.blockQueue;
 					const tier = tiers[s.currentTierIndex];
+					let mutated = false;
 
-					// Auto-generate LoC (added as raw number, not blocks — blocks come from editor)
+					// Auto-generate LoC and enqueue as blocks so FLOPS can execute them
 					if (s.autoLocPerSec > 0) {
 						const autoGained = s.autoLocPerSec * dt;
 						loc += autoGained;
 						totalLoc += autoGained;
+
+						// Flush whole lines into the block queue
+						const wholeLines = Math.floor(autoGained);
+						if (wholeLines > 0) {
+							if (!mutated) {
+								blockQueue = blockQueue.slice();
+								mutated = true;
+							}
+							const autoLines = Array.from(
+								{ length: wholeLines },
+								() => '<span class="cm-keyword">auto</span>',
+							);
+							blockQueue.push({ lines: autoLines, loc: wholeLines });
+						}
 					}
 
 					// ── FLOPS allocation ──
 					const aiUnlocked = s.aiUnlocked;
 					const effectiveFlops = aiUnlocked ? s.flops * s.flopSlider : s.flops;
-					let mutated = false;
 
 					// AI generation: produce blocks from AI FLOPS
 					let aiLocAccumulator = s.aiLocAccumulator;
