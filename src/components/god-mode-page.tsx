@@ -242,7 +242,7 @@ export function GodModePage() {
 					>
 						<div css={headingCss}>Tools</div>
 						<a
-							href="http://localhost:3737"
+							href="http://localhost:3738"
 							target="_blank"
 							rel="noreferrer"
 							css={{
@@ -262,7 +262,7 @@ export function GodModePage() {
 							Tech Tree Editor
 						</a>
 						<a
-							href="http://localhost:3737/items"
+							href="http://localhost:3738"
 							target="_blank"
 							rel="noreferrer"
 							css={{

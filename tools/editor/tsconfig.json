@@ -12,12 +12,9 @@
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"noEmit": true,
-		"baseUrl": ".",
 		"paths": {
-			"@modules/*": ["src/modules/*"],
-			"@components/*": ["src/components/*"],
-			"@utils/*": ["src/utils/*"]
+			"@shared/*": ["../../specs/lib/*"]
 		}
 	},
-	"include": ["src", "specs/data", "specs/lib"]
+	"include": ["src/**/*", "../../specs/lib/**/*"]
 }

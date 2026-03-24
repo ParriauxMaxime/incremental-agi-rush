@@ -9,7 +9,7 @@
 		"check": "biome check .",
 		"check:fix": "biome check --fix .",
 		"typecheck": "tsc --noEmit",
-		"tree-editor": "node specs/tech-tree-server.js"
+		"editor": "cd tools/editor && npm run dev"
 	},
 	"keywords": [],
 	"author": "",
