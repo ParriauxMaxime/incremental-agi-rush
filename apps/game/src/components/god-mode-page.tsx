@@ -225,6 +225,29 @@ function CheatsPanel() {
 			>
 				Reset Game
 			</button>
+			<button
+				css={[
+					resetBtnCss,
+					{
+						borderColor: "#d4a574",
+						color: "#d4a574",
+						"&:hover": { background: "#d4a574", color: "#fff" },
+					},
+				]}
+				type="button"
+				onClick={() => {
+					const current = useGameStore.getState();
+					useGameStore.setState({
+						ownedUpgrades: {
+							...current.ownedUpgrades,
+							the_singularity: 1,
+						},
+					});
+					useGameStore.getState().recalc();
+				}}
+			>
+				Trigger Singularity
+			</button>
 		</div>
 	);
 }
