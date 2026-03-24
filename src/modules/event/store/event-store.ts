@@ -185,6 +185,7 @@ export const useEventStore = create<EventState & EventActions>()(
 					// Expired without resolution — just drop it
 				} else {
 					updatedEvents.push({ ...ev, remainingDuration: newRemaining });
+					changed = true;
 				}
 			}
 
