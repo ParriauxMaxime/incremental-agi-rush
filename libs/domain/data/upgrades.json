@@ -10,9 +10,7 @@
 			"costMultiplier": 1.2,
 			"max": 3,
 			"costCategory": "freelancer",
-			"requires": [
-				"outsourcing"
-			],
+			"requires": ["outsourcing"],
 			"effects": [
 				{
 					"type": "freelancerLoc",
@@ -82,9 +80,7 @@
 			"costMultiplier": 1.2,
 			"max": 10,
 			"costCategory": "intern",
-			"requires": [
-				"interns"
-			],
+			"requires": ["interns"],
 			"effects": [
 				{
 					"type": "internLoc",
@@ -110,9 +106,7 @@
 					"value": 200
 				}
 			],
-			"requires": [
-				"teams_gate"
-			]
+			"requires": ["teams_gate"]
 		},
 		{
 			"id": "manager",
@@ -131,9 +125,7 @@
 					"value": 1
 				}
 			],
-			"requires": [
-				"management_gate"
-			]
+			"requires": ["management_gate"]
 		},
 		{
 			"id": "gpu_cluster",
@@ -260,7 +252,7 @@
 			"name": "AI Agent",
 			"description": "Autonomous agent — writes 100,000 LoC/s",
 			"icon": "🤖",
-			"baseCost": 5000000000,
+			"baseCost": 50000000000,
 			"costMultiplier": 2,
 			"max": 5,
 			"costCategory": "agent",
@@ -295,7 +287,7 @@
 			"name": "The Singularity",
 			"description": "You win. Or do you?",
 			"icon": "🌀",
-			"baseCost": 100000000000000,
+			"baseCost": 500000000000000,
 			"costMultiplier": 1,
 			"max": 1,
 			"effects": [

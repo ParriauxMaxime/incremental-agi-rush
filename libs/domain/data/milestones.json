@@ -1,100 +1,100 @@
 {
-  "milestones": [
-    {
-      "id": "hello_world",
-      "name": "Hello World",
-      "description": "Your first 10 lines. Everyone starts somewhere.",
-      "condition": "totalLoc >= 10",
-      "threshold": 10,
-      "metric": "totalLoc"
-    },
-    {
-      "id": "script_kiddie",
-      "name": "Script Kiddie",
-      "description": "100 LoC. You can copy-paste with the best of them.",
-      "condition": "totalLoc >= 100",
-      "threshold": 100,
-      "metric": "totalLoc"
-    },
-    {
-      "id": "first_dollar",
-      "name": "First Dollar",
-      "description": "Your code made money. Don't spend it all in one place.",
-      "condition": "totalCash >= 1",
-      "threshold": 1,
-      "metric": "totalCash"
-    },
-    {
-      "id": "side_project",
-      "name": "Side Project",
-      "description": "500 LoC. \"I'll finish it this weekend.\"",
-      "condition": "totalLoc >= 500",
-      "threshold": 500,
-      "metric": "totalLoc"
-    },
-    {
-      "id": "real_dev",
-      "name": "Real Developer",
-      "description": "1,000 LoC. You now mass-produce bugs professionally.",
-      "condition": "totalLoc >= 1000",
-      "threshold": 1000,
-      "metric": "totalLoc"
-    },
-    {
-      "id": "yc_application",
-      "name": "YC Application",
-      "description": "5,000 LoC. \"We're disrupting code.\"",
-      "condition": "totalLoc >= 5000",
-      "threshold": 5000,
-      "metric": "totalLoc"
-    },
-    {
-      "id": "open_source_fame",
-      "name": "Open Source Fame",
-      "description": "25K LoC. 3 GitHub stars (one is your alt).",
-      "condition": "totalLoc >= 25000",
-      "threshold": 25000,
-      "metric": "totalLoc"
-    },
-    {
-      "id": "big_tech",
-      "name": "Big Tech",
-      "description": "100K LoC. You have a badge and imposter syndrome.",
-      "condition": "totalLoc >= 100000",
-      "threshold": 100000,
-      "metric": "totalLoc"
-    },
-    {
-      "id": "ml_paper",
-      "name": "ML Paper Published",
-      "description": "500K LoC. \"We achieve state-of-the-art results.\"",
-      "condition": "totalLoc >= 500000",
-      "threshold": 500000,
-      "metric": "totalLoc"
-    },
-    {
-      "id": "llm_training",
-      "name": "Training Run Started",
-      "description": "2M LoC. The GPUs are warm.",
-      "condition": "totalLoc >= 2000000",
-      "threshold": 2000000,
-      "metric": "totalLoc"
-    },
-    {
-      "id": "emergent_behavior",
-      "name": "Emergent Behavior",
-      "description": "10M LoC. It said something you didn't expect.",
-      "condition": "totalLoc >= 10000000",
-      "threshold": 10000000,
-      "metric": "totalLoc"
-    },
-    {
-      "id": "agi",
-      "name": "AGI Achieved",
-      "description": "200M LoC. \"Hello, world.\" — it said back.",
-      "condition": "totalLoc >= 200000000",
-      "threshold": 200000000,
-      "metric": "totalLoc"
-    }
-  ]
+	"milestones": [
+		{
+			"id": "hello_world",
+			"name": "Hello World",
+			"description": "Your first 10 lines. Everyone starts somewhere.",
+			"condition": "totalLoc >= 10",
+			"threshold": 10,
+			"metric": "totalLoc"
+		},
+		{
+			"id": "script_kiddie",
+			"name": "Script Kiddie",
+			"description": "100 LoC. You can copy-paste with the best of them.",
+			"condition": "totalLoc >= 100",
+			"threshold": 100,
+			"metric": "totalLoc"
+		},
+		{
+			"id": "first_dollar",
+			"name": "First Dollar",
+			"description": "Your code made money. Don't spend it all in one place.",
+			"condition": "totalCash >= 1",
+			"threshold": 1,
+			"metric": "totalCash"
+		},
+		{
+			"id": "side_project",
+			"name": "Side Project",
+			"description": "500 LoC. \"I'll finish it this weekend.\"",
+			"condition": "totalLoc >= 500",
+			"threshold": 500,
+			"metric": "totalLoc"
+		},
+		{
+			"id": "real_dev",
+			"name": "Real Developer",
+			"description": "1,000 LoC. You now mass-produce bugs professionally.",
+			"condition": "totalLoc >= 1000",
+			"threshold": 1000,
+			"metric": "totalLoc"
+		},
+		{
+			"id": "yc_application",
+			"name": "YC Application",
+			"description": "5,000 LoC. \"We're disrupting code.\"",
+			"condition": "totalLoc >= 5000",
+			"threshold": 5000,
+			"metric": "totalLoc"
+		},
+		{
+			"id": "open_source_fame",
+			"name": "Open Source Fame",
+			"description": "25K LoC. 3 GitHub stars (one is your alt).",
+			"condition": "totalLoc >= 25000",
+			"threshold": 25000,
+			"metric": "totalLoc"
+		},
+		{
+			"id": "big_tech",
+			"name": "Big Tech",
+			"description": "100K LoC. You have a badge and imposter syndrome.",
+			"condition": "totalLoc >= 100000",
+			"threshold": 100000,
+			"metric": "totalLoc"
+		},
+		{
+			"id": "ml_paper",
+			"name": "ML Paper Published",
+			"description": "500K LoC. \"We achieve state-of-the-art results.\"",
+			"condition": "totalLoc >= 500000",
+			"threshold": 500000,
+			"metric": "totalLoc"
+		},
+		{
+			"id": "llm_training",
+			"name": "Training Run Started",
+			"description": "2M LoC. The GPUs are warm.",
+			"condition": "totalLoc >= 2000000",
+			"threshold": 2000000,
+			"metric": "totalLoc"
+		},
+		{
+			"id": "emergent_behavior",
+			"name": "Emergent Behavior",
+			"description": "10M LoC. It said something you didn't expect.",
+			"condition": "totalLoc >= 10000000",
+			"threshold": 10000000,
+			"metric": "totalLoc"
+		},
+		{
+			"id": "agi",
+			"name": "AGI Achieved",
+			"description": "200M LoC. \"Hello, world.\" — it said back.",
+			"condition": "totalLoc >= 200000000",
+			"threshold": 200000000,
+			"metric": "totalLoc"
+		}
+	]
 }

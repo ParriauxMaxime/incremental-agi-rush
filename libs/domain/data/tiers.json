@@ -1,64 +1,64 @@
 {
-  "tiers": [
-    {
-      "id": "garage",
-      "index": 0,
-      "name": "The Garage",
-      "tagline": "A keyboard and a dream.",
-      "cashPerLoc": 0.10,
-      "locRequired": 0,
-      "cashRequired": 0,
-      "cost": 0
-    },
-    {
-      "id": "freelancing",
-      "index": 1,
-      "name": "Freelancing",
-      "tagline": "You're selling your code. Clients appear.",
-      "cashPerLoc": 0.25,
-      "locRequired": 800,
-      "cashRequired": 500,
-      "cost": 80
-    },
-    {
-      "id": "startup",
-      "index": 2,
-      "name": "Startup",
-      "tagline": "You have a company now. Time to hire.",
-      "cashPerLoc": 0.80,
-      "locRequired": 5000,
-      "cashRequired": 2500,
-      "cost": 2000
-    },
-    {
-      "id": "tech_company",
-      "index": 3,
-      "name": "Tech Company",
-      "tagline": "The product prints money.",
-      "cashPerLoc": 5.00,
-      "locRequired": 40000,
-      "cashRequired": 60000,
-      "cost": 200000
-    },
-    {
-      "id": "ai_lab",
-      "index": 4,
-      "name": "AI Lab",
-      "tagline": "The code starts writing itself — but it eats your compute.",
-      "cashPerLoc": 10.00,
-      "locRequired": 500000,
-      "cashRequired": 5000000,
-      "cost": 20000000
-    },
-    {
-      "id": "agi_race",
-      "index": 5,
-      "name": "AGI Race",
-      "tagline": "You're not writing code anymore. The AI is.",
-      "cashPerLoc": 50.00,
-      "locRequired": 10000000,
-      "cashRequired": 2000000000,
-      "cost": 10000000000
-    }
-  ]
+	"tiers": [
+		{
+			"id": "garage",
+			"index": 0,
+			"name": "The Garage",
+			"tagline": "A keyboard and a dream.",
+			"cashPerLoc": 0.1,
+			"locRequired": 0,
+			"cashRequired": 0,
+			"cost": 0
+		},
+		{
+			"id": "freelancing",
+			"index": 1,
+			"name": "Freelancing",
+			"tagline": "You're selling your code. Clients appear.",
+			"cashPerLoc": 0.25,
+			"locRequired": 800,
+			"cashRequired": 500,
+			"cost": 80
+		},
+		{
+			"id": "startup",
+			"index": 2,
+			"name": "Startup",
+			"tagline": "You have a company now. Time to hire.",
+			"cashPerLoc": 0.8,
+			"locRequired": 5000,
+			"cashRequired": 2500,
+			"cost": 2000
+		},
+		{
+			"id": "tech_company",
+			"index": 3,
+			"name": "Tech Company",
+			"tagline": "The product prints money.",
+			"cashPerLoc": 5.0,
+			"locRequired": 40000,
+			"cashRequired": 60000,
+			"cost": 200000
+		},
+		{
+			"id": "ai_lab",
+			"index": 4,
+			"name": "AI Lab",
+			"tagline": "The code starts writing itself — but it eats your compute.",
+			"cashPerLoc": 10.0,
+			"locRequired": 500000,
+			"cashRequired": 5000000,
+			"cost": 20000000
+		},
+		{
+			"id": "agi_race",
+			"index": 5,
+			"name": "AGI Race",
+			"tagline": "You're not writing code anymore. The AI is.",
+			"cashPerLoc": 50.0,
+			"locRequired": 10000000,
+			"cashRequired": 2000000000,
+			"cost": 10000000000
+		}
+	]
 }

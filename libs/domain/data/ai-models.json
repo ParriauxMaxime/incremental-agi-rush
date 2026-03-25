@@ -1,464 +1,464 @@
 {
-  "models": [
-    {
-      "id": "copilot",
-      "family": "copilot",
-      "name": "Copilot",
-      "version": "Basic",
-      "icon": "🤖",
-      "tier": "ai_lab",
-      "cost": 25000000,
-      "locPerSec": 1500,
-      "flopsCost": 500,
-      "codeQuality": 70,
-      "special": {
-        "id": "tab_complete",
-        "name": "Tab to accept",
-        "description": "The gateway drug. Cheap, decent, gets you hooked."
-      }
-    },
-    {
-      "id": "claude_haiku",
-      "family": "claude",
-      "name": "Claude",
-      "version": "Haiku",
-      "icon": "🟠",
-      "tier": "ai_lab",
-      "cost": 20000000,
-      "locPerSec": 800,
-      "flopsCost": 400,
-      "codeQuality": 82,
-      "special": {
-        "id": "fast_cheap",
-        "name": "Fast & cheap",
-        "description": "Best FLOPS/LoC ratio in the game"
-      }
-    },
-    {
-      "id": "claude_sonnet",
-      "family": "claude",
-      "name": "Claude",
-      "version": "Sonnet",
-      "icon": "🟠",
-      "tier": "ai_lab",
-      "cost": 80000000,
-      "locPerSec": 5000,
-      "flopsCost": 2000,
-      "codeQuality": 95,
-      "requires": "claude_haiku",
-      "special": {
-        "id": "quality_floor",
-        "name": "Refuses to write spaghetti",
-        "description": "Won't go below 80% quality — silently reduces output instead",
-        "minQuality": 80
-      }
-    },
-    {
-      "id": "claude_opus",
-      "family": "claude",
-      "name": "Claude",
-      "version": "Opus",
-      "icon": "🟠",
-      "tier": "agi_race",
-      "cost": 1000000000,
-      "locPerSec": 30000,
-      "flopsCost": 10000,
-      "codeQuality": 98,
-      "requires": "claude_sonnet",
-      "special": {
-        "id": "self_review",
-        "name": "Self-review",
-        "description": "Can self-review: +5% quality to ALL AI output",
-        "globalQualityBonus": 5
-      }
-    },
-    {
-      "id": "gpt_3",
-      "family": "gpt",
-      "name": "GPT",
-      "version": "3",
-      "icon": "🟢",
-      "tier": "ai_lab",
-      "cost": 15000000,
-      "locPerSec": 500,
-      "flopsCost": 800,
-      "codeQuality": 70,
-      "special": {
-        "id": "verbose",
-        "name": "Verbose",
-        "description": "+30% LoC/s but lines are 30% fluff (reduced cash value)",
-        "locBonus": 0.3,
-        "cashPenalty": 0.3
-      }
-    },
-    {
-      "id": "gpt_35",
-      "family": "gpt",
-      "name": "GPT",
-      "version": "3.5",
-      "icon": "🟢",
-      "tier": "ai_lab",
-      "cost": 30000000,
-      "locPerSec": 1500,
-      "flopsCost": 1500,
-      "codeQuality": 78,
-      "requires": "gpt_3",
-      "special": {
-        "id": "chatgpt_moment",
-        "name": "ChatGPT moment",
-        "description": "+10% cash multiplier for 60s on deploy",
-        "timedCashMultiplier": 1.1,
-        "duration": 60
-      }
-    },
-    {
-      "id": "gpt_4",
-      "family": "gpt",
-      "name": "GPT",
-      "version": "GPT-4",
-      "icon": "🟢",
-      "tier": "ai_lab",
-      "cost": 100000000,
-      "locPerSec": 8000,
-      "flopsCost": 3000,
-      "codeQuality": 85,
-      "requires": "gpt_35",
-      "special": {
-        "id": "verbose",
-        "name": "Verbose",
-        "description": "+30% LoC/s but lines are 30% fluff (reduced cash value)",
-        "locBonus": 0.3,
-        "cashPenalty": 0.3
-      }
-    },
-    {
-      "id": "gpt_41",
-      "family": "gpt",
-      "name": "GPT",
-      "version": "4.1",
-      "icon": "🟢",
-      "tier": "ai_lab",
-      "cost": 200000000,
-      "locPerSec": 10000,
-      "flopsCost": 3500,
-      "codeQuality": 88,
-      "requires": "gpt_4",
-      "special": {
-        "id": "efficient",
-        "name": "Efficient",
-        "description": "20% less FLOPS cost than listed",
-        "flopsCostMultiplier": 0.8
-      }
-    },
-    {
-      "id": "gpt_5",
-      "family": "gpt",
-      "name": "GPT",
-      "version": "GPT-5",
-      "icon": "🟢",
-      "tier": "agi_race",
-      "cost": 3000000000,
-      "locPerSec": 80000,
-      "flopsCost": 25000,
-      "codeQuality": 88,
-      "requires": "gpt_41",
-      "special": {
-        "id": "no_refusal",
-        "name": "No guardrails",
-        "description": "Writes everything — no quality floor, no limits. Dangerous.",
-        "ignoreQualityFloor": true
-      }
-    },
-    {
-      "id": "gemini_pro",
-      "family": "gemini",
-      "name": "Gemini",
-      "version": "Pro",
-      "icon": "🔵",
-      "tier": "ai_lab",
-      "cost": 60000000,
-      "locPerSec": 6000,
-      "flopsCost": 2500,
-      "codeQuality": 80,
-      "special": {
-        "id": "multimodal",
-        "name": "Multimodal",
-        "description": "Writes both frontend AND backend — x2 cash per executed LoC",
-        "cashMultiplier": 2
-      }
-    },
-    {
-      "id": "gemini_ultra",
-      "family": "gemini",
-      "name": "Gemini",
-      "version": "Ultra",
-      "icon": "🔵",
-      "tier": "agi_race",
-      "cost": 10000000000,
-      "locPerSec": 200000,
-      "flopsCost": 60000,
-      "codeQuality": 82,
-      "requires": "gemini_pro",
-      "special": {
-        "id": "hallucination",
-        "name": "Hallucinator",
-        "description": "5% of executed LoC produces nothing — the code looked right though",
-        "executionFailRate": 0.05
-      }
-    },
-    {
-      "id": "llama_70b",
-      "family": "llama",
-      "name": "Llama",
-      "version": "70B",
-      "icon": "🦙",
-      "tier": "ai_lab",
-      "cost": 35000000,
-      "locPerSec": 3000,
-      "flopsCost": 1000,
-      "codeQuality": 75,
-      "special": {
-        "id": "open_source",
-        "name": "Open source",
-        "description": "No license fee. Cheapest FLOPS/LoC ratio in the game",
-        "flopEfficiency": 1.5
-      }
-    },
-    {
-      "id": "llama_405b",
-      "family": "llama",
-      "name": "Llama",
-      "version": "405B",
-      "icon": "🦙",
-      "tier": "ai_lab",
-      "cost": 250000000,
-      "locPerSec": 25000,
-      "flopsCost": 5000,
-      "codeQuality": 78,
-      "requires": "llama_70b",
-      "special": {
-        "id": "community_patches",
-        "name": "Community patches",
-        "description": "Quality improves +1%/min, caps at 90%",
-        "qualityDrift": 1,
-        "qualityDriftInterval": 60,
-        "qualityDriftCap": 90
-      }
-    },
-    {
-      "id": "mistral_large",
-      "family": "mistral",
-      "name": "Mistral",
-      "version": "Large",
-      "icon": "🇫🇷",
-      "tier": "ai_lab",
-      "cost": 50000000,
-      "locPerSec": 4000,
-      "flopsCost": 1500,
-      "codeQuality": 82,
-      "special": {
-        "id": "le_code",
-        "name": "Le Code",
-        "description": "+10% speed if you own Coffee Machine. Oui oui.",
-        "conditionalBonus": {
-          "requires": "coffee",
-          "locSpeedMultiplier": 1.1
-        }
-      }
-    },
-    {
-      "id": "grok_2",
-      "family": "grok",
-      "name": "Grok",
-      "version": "2",
-      "icon": "❌",
-      "tier": "ai_lab",
-      "cost": 150000000,
-      "locPerSec": 12000,
-      "flopsCost": 4000,
-      "codeQuality": 70,
-      "special": {
-        "id": "chaotic",
-        "name": "Chaotic",
-        "description": "LoC output fluctuates ±50% randomly every 10s",
-        "fluctuation": 0.5,
-        "fluctuationInterval": 10
-      }
-    },
-    {
-      "id": "grok_3",
-      "family": "grok",
-      "name": "Grok",
-      "version": "3",
-      "icon": "❌",
-      "tier": "agi_race",
-      "cost": 50000000000,
-      "locPerSec": 500000,
-      "flopsCost": 150000,
-      "codeQuality": 72,
-      "requires": "grok_2",
-      "special": {
-        "id": "based",
-        "name": "Based",
-        "description": "Occasionally generates meme comments. No cash value, but funny in the editor.",
-        "memeRate": 0.02
-      }
-    },
-    {
-      "id": "gpt_6",
-      "family": "gpt",
-      "name": "GPT",
-      "version": "GPT-6",
-      "icon": "🟢",
-      "tier": "agi_race",
-      "cost": 30000000000,
-      "locPerSec": 2000000,
-      "flopsCost": 300000,
-      "codeQuality": 95,
-      "requires": "gpt_5",
-      "special": {
-        "id": "recursive_improvement",
-        "name": "Recursive improvement",
-        "description": "Can improve its own weights. +50% LoC/s every 60s (caps at 3x)."
-      }
-    },
-    {
-      "id": "gpt_7",
-      "family": "gpt",
-      "name": "GPT",
-      "version": "GPT-7",
-      "icon": "🟢",
-      "tier": "agi_race",
-      "cost": 500000000000,
-      "locPerSec": 10000000,
-      "flopsCost": 1000000,
-      "codeQuality": 99,
-      "requires": "gpt_6",
-      "special": {
-        "id": "superintelligent",
-        "name": "Superintelligent",
-        "description": "Writes code faster than you can read it. Approaching singularity."
-      }
-    },
-    {
-      "id": "claude_saga",
-      "family": "claude",
-      "name": "Claude",
-      "version": "Saga",
-      "icon": "🟠",
-      "tier": "agi_race",
-      "cost": 200000000000,
-      "locPerSec": 5000000,
-      "flopsCost": 500000,
-      "codeQuality": 99,
-      "requires": "claude_opus",
-      "special": {
-        "id": "perfect_alignment",
-        "name": "Perfect alignment",
-        "description": "100% quality floor — every line is production-ready.",
-        "minQuality": 100
-      }
-    },
-    {
-      "id": "claude_universe",
-      "family": "claude",
-      "name": "Claude",
-      "version": "Universe",
-      "icon": "🟠",
-      "tier": "agi_race",
-      "cost": 2000000000000,
-      "locPerSec": 50000000,
-      "flopsCost": 5000000,
-      "codeQuality": 100,
-      "requires": "claude_saga",
-      "special": {
-        "id": "omniscient",
-        "name": "Omniscient",
-        "description": "Writes all possible programs simultaneously. The singularity is here."
-      }
-    },
-    {
-      "id": "gemini_supreme",
-      "family": "gemini",
-      "name": "Gemini",
-      "version": "Supreme",
-      "icon": "🔵",
-      "tier": "agi_race",
-      "cost": 500000000000,
-      "locPerSec": 8000000,
-      "flopsCost": 800000,
-      "codeQuality": 96,
-      "requires": "gemini_ultra",
-      "special": {
-        "id": "distributed",
-        "name": "Distributed",
-        "description": "Runs across every datacenter on Earth. Unlimited scale."
-      }
-    }
-  ],
+	"models": [
+		{
+			"id": "copilot",
+			"family": "copilot",
+			"name": "Copilot",
+			"version": "Basic",
+			"icon": "🤖",
+			"tier": "ai_lab",
+			"cost": 25000000,
+			"locPerSec": 1500,
+			"flopsCost": 500,
+			"codeQuality": 70,
+			"special": {
+				"id": "tab_complete",
+				"name": "Tab to accept",
+				"description": "The gateway drug. Cheap, decent, gets you hooked."
+			}
+		},
+		{
+			"id": "claude_haiku",
+			"family": "claude",
+			"name": "Claude",
+			"version": "Haiku",
+			"icon": "🟠",
+			"tier": "ai_lab",
+			"cost": 20000000,
+			"locPerSec": 800,
+			"flopsCost": 400,
+			"codeQuality": 82,
+			"special": {
+				"id": "fast_cheap",
+				"name": "Fast & cheap",
+				"description": "Best FLOPS/LoC ratio in the game"
+			}
+		},
+		{
+			"id": "claude_sonnet",
+			"family": "claude",
+			"name": "Claude",
+			"version": "Sonnet",
+			"icon": "🟠",
+			"tier": "ai_lab",
+			"cost": 80000000,
+			"locPerSec": 5000,
+			"flopsCost": 2000,
+			"codeQuality": 95,
+			"requires": "claude_haiku",
+			"special": {
+				"id": "quality_floor",
+				"name": "Refuses to write spaghetti",
+				"description": "Won't go below 80% quality — silently reduces output instead",
+				"minQuality": 80
+			}
+		},
+		{
+			"id": "claude_opus",
+			"family": "claude",
+			"name": "Claude",
+			"version": "Opus",
+			"icon": "🟠",
+			"tier": "agi_race",
+			"cost": 10000000000,
+			"locPerSec": 30000,
+			"flopsCost": 10000,
+			"codeQuality": 98,
+			"requires": "claude_sonnet",
+			"special": {
+				"id": "self_review",
+				"name": "Self-review",
+				"description": "Can self-review: +5% quality to ALL AI output",
+				"globalQualityBonus": 5
+			}
+		},
+		{
+			"id": "gpt_3",
+			"family": "gpt",
+			"name": "GPT",
+			"version": "3",
+			"icon": "🟢",
+			"tier": "ai_lab",
+			"cost": 15000000,
+			"locPerSec": 500,
+			"flopsCost": 800,
+			"codeQuality": 70,
+			"special": {
+				"id": "verbose",
+				"name": "Verbose",
+				"description": "+30% LoC/s but lines are 30% fluff (reduced cash value)",
+				"locBonus": 0.3,
+				"cashPenalty": 0.3
+			}
+		},
+		{
+			"id": "gpt_35",
+			"family": "gpt",
+			"name": "GPT",
+			"version": "3.5",
+			"icon": "🟢",
+			"tier": "ai_lab",
+			"cost": 30000000,
+			"locPerSec": 1500,
+			"flopsCost": 1500,
+			"codeQuality": 78,
+			"requires": "gpt_3",
+			"special": {
+				"id": "chatgpt_moment",
+				"name": "ChatGPT moment",
+				"description": "+10% cash multiplier for 60s on deploy",
+				"timedCashMultiplier": 1.1,
+				"duration": 60
+			}
+		},
+		{
+			"id": "gpt_4",
+			"family": "gpt",
+			"name": "GPT",
+			"version": "GPT-4",
+			"icon": "🟢",
+			"tier": "ai_lab",
+			"cost": 100000000,
+			"locPerSec": 8000,
+			"flopsCost": 3000,
+			"codeQuality": 85,
+			"requires": "gpt_35",
+			"special": {
+				"id": "verbose",
+				"name": "Verbose",
+				"description": "+30% LoC/s but lines are 30% fluff (reduced cash value)",
+				"locBonus": 0.3,
+				"cashPenalty": 0.3
+			}
+		},
+		{
+			"id": "gpt_41",
+			"family": "gpt",
+			"name": "GPT",
+			"version": "4.1",
+			"icon": "🟢",
+			"tier": "ai_lab",
+			"cost": 200000000,
+			"locPerSec": 10000,
+			"flopsCost": 3500,
+			"codeQuality": 88,
+			"requires": "gpt_4",
+			"special": {
+				"id": "efficient",
+				"name": "Efficient",
+				"description": "20% less FLOPS cost than listed",
+				"flopsCostMultiplier": 0.8
+			}
+		},
+		{
+			"id": "gpt_5",
+			"family": "gpt",
+			"name": "GPT",
+			"version": "GPT-5",
+			"icon": "🟢",
+			"tier": "agi_race",
+			"cost": 30000000000,
+			"locPerSec": 80000,
+			"flopsCost": 25000,
+			"codeQuality": 88,
+			"requires": "gpt_41",
+			"special": {
+				"id": "no_refusal",
+				"name": "No guardrails",
+				"description": "Writes everything — no quality floor, no limits. Dangerous.",
+				"ignoreQualityFloor": true
+			}
+		},
+		{
+			"id": "gemini_pro",
+			"family": "gemini",
+			"name": "Gemini",
+			"version": "Pro",
+			"icon": "🔵",
+			"tier": "ai_lab",
+			"cost": 60000000,
+			"locPerSec": 6000,
+			"flopsCost": 2500,
+			"codeQuality": 80,
+			"special": {
+				"id": "multimodal",
+				"name": "Multimodal",
+				"description": "Writes both frontend AND backend — x2 cash per executed LoC",
+				"cashMultiplier": 2
+			}
+		},
+		{
+			"id": "gemini_ultra",
+			"family": "gemini",
+			"name": "Gemini",
+			"version": "Ultra",
+			"icon": "🔵",
+			"tier": "agi_race",
+			"cost": 100000000000,
+			"locPerSec": 200000,
+			"flopsCost": 60000,
+			"codeQuality": 82,
+			"requires": "gemini_pro",
+			"special": {
+				"id": "hallucination",
+				"name": "Hallucinator",
+				"description": "5% of executed LoC produces nothing — the code looked right though",
+				"executionFailRate": 0.05
+			}
+		},
+		{
+			"id": "llama_70b",
+			"family": "llama",
+			"name": "Llama",
+			"version": "70B",
+			"icon": "🦙",
+			"tier": "ai_lab",
+			"cost": 35000000,
+			"locPerSec": 3000,
+			"flopsCost": 1000,
+			"codeQuality": 75,
+			"special": {
+				"id": "open_source",
+				"name": "Open source",
+				"description": "No license fee. Cheapest FLOPS/LoC ratio in the game",
+				"flopEfficiency": 1.5
+			}
+		},
+		{
+			"id": "llama_405b",
+			"family": "llama",
+			"name": "Llama",
+			"version": "405B",
+			"icon": "🦙",
+			"tier": "ai_lab",
+			"cost": 250000000,
+			"locPerSec": 25000,
+			"flopsCost": 5000,
+			"codeQuality": 78,
+			"requires": "llama_70b",
+			"special": {
+				"id": "community_patches",
+				"name": "Community patches",
+				"description": "Quality improves +1%/min, caps at 90%",
+				"qualityDrift": 1,
+				"qualityDriftInterval": 60,
+				"qualityDriftCap": 90
+			}
+		},
+		{
+			"id": "mistral_large",
+			"family": "mistral",
+			"name": "Mistral",
+			"version": "Large",
+			"icon": "🇫🇷",
+			"tier": "ai_lab",
+			"cost": 50000000,
+			"locPerSec": 4000,
+			"flopsCost": 1500,
+			"codeQuality": 82,
+			"special": {
+				"id": "le_code",
+				"name": "Le Code",
+				"description": "+10% speed if you own Coffee Machine. Oui oui.",
+				"conditionalBonus": {
+					"requires": "coffee",
+					"locSpeedMultiplier": 1.1
+				}
+			}
+		},
+		{
+			"id": "grok_2",
+			"family": "grok",
+			"name": "Grok",
+			"version": "2",
+			"icon": "❌",
+			"tier": "ai_lab",
+			"cost": 150000000,
+			"locPerSec": 12000,
+			"flopsCost": 4000,
+			"codeQuality": 70,
+			"special": {
+				"id": "chaotic",
+				"name": "Chaotic",
+				"description": "LoC output fluctuates ±50% randomly every 10s",
+				"fluctuation": 0.5,
+				"fluctuationInterval": 10
+			}
+		},
+		{
+			"id": "grok_3",
+			"family": "grok",
+			"name": "Grok",
+			"version": "3",
+			"icon": "❌",
+			"tier": "agi_race",
+			"cost": 500000000000,
+			"locPerSec": 500000,
+			"flopsCost": 150000,
+			"codeQuality": 72,
+			"requires": "grok_2",
+			"special": {
+				"id": "based",
+				"name": "Based",
+				"description": "Occasionally generates meme comments. No cash value, but funny in the editor.",
+				"memeRate": 0.02
+			}
+		},
+		{
+			"id": "gpt_6",
+			"family": "gpt",
+			"name": "GPT",
+			"version": "GPT-6",
+			"icon": "🟢",
+			"tier": "agi_race",
+			"cost": 300000000000,
+			"locPerSec": 2000000,
+			"flopsCost": 300000,
+			"codeQuality": 95,
+			"requires": "gpt_5",
+			"special": {
+				"id": "recursive_improvement",
+				"name": "Recursive improvement",
+				"description": "Can improve its own weights. +50% LoC/s every 60s (caps at 3x)."
+			}
+		},
+		{
+			"id": "gpt_7",
+			"family": "gpt",
+			"name": "GPT",
+			"version": "GPT-7",
+			"icon": "🟢",
+			"tier": "agi_race",
+			"cost": 5000000000000,
+			"locPerSec": 10000000,
+			"flopsCost": 1000000,
+			"codeQuality": 99,
+			"requires": "gpt_6",
+			"special": {
+				"id": "superintelligent",
+				"name": "Superintelligent",
+				"description": "Writes code faster than you can read it. Approaching singularity."
+			}
+		},
+		{
+			"id": "claude_saga",
+			"family": "claude",
+			"name": "Claude",
+			"version": "Saga",
+			"icon": "🟠",
+			"tier": "agi_race",
+			"cost": 2000000000000,
+			"locPerSec": 5000000,
+			"flopsCost": 500000,
+			"codeQuality": 99,
+			"requires": "claude_opus",
+			"special": {
+				"id": "perfect_alignment",
+				"name": "Perfect alignment",
+				"description": "100% quality floor — every line is production-ready.",
+				"minQuality": 100
+			}
+		},
+		{
+			"id": "claude_universe",
+			"family": "claude",
+			"name": "Claude",
+			"version": "Universe",
+			"icon": "🟠",
+			"tier": "agi_race",
+			"cost": 20000000000000,
+			"locPerSec": 50000000,
+			"flopsCost": 5000000,
+			"codeQuality": 100,
+			"requires": "claude_saga",
+			"special": {
+				"id": "omniscient",
+				"name": "Omniscient",
+				"description": "Writes all possible programs simultaneously. The singularity is here."
+			}
+		},
+		{
+			"id": "gemini_supreme",
+			"family": "gemini",
+			"name": "Gemini",
+			"version": "Supreme",
+			"icon": "🔵",
+			"tier": "agi_race",
+			"cost": 5000000000000,
+			"locPerSec": 8000000,
+			"flopsCost": 800000,
+			"codeQuality": 96,
+			"requires": "gemini_ultra",
+			"special": {
+				"id": "distributed",
+				"name": "Distributed",
+				"description": "Runs across every datacenter on Earth. Unlimited scale."
+			}
+		}
+	],
 
-  "agentSetups": [
-    {
-      "id": "writer_reviewer",
-      "name": "Writer + Reviewer",
-      "description": "One model writes, another reviews. Quality = average of both +10%",
-      "requiredModels": 2,
-      "unlockCondition": "ownedModels >= 3",
-      "slots": [
-        { "role": "writer", "label": "Writer" },
-        { "role": "reviewer", "label": "Reviewer" }
-      ],
-      "effects": {
-        "locOutput": "writer.locPerSec",
-        "quality": "(writer.quality + reviewer.quality) / 2 + 10",
-        "flopsCost": "writer.flopsCost + reviewer.flopsCost"
-      }
-    },
-    {
-      "id": "swarm",
-      "name": "Swarm",
-      "description": "All owned models write in parallel. Raw throughput, average quality.",
-      "requiredModels": 3,
-      "unlockCondition": "ownedModels >= 3",
-      "slots": "all_owned",
-      "effects": {
-        "locOutput": "sum(all.locPerSec)",
-        "quality": "avg(all.quality)",
-        "flopsCost": "sum(all.flopsCost)"
-      }
-    },
-    {
-      "id": "pipeline",
-      "name": "Pipeline",
-      "description": "Chain 3 models: draft → refine → optimize. Slow but high quality.",
-      "requiredModels": 3,
-      "unlockCondition": "ownedModels >= 3",
-      "slots": [
-        { "role": "drafter", "label": "Draft" },
-        { "role": "refiner", "label": "Refine" },
-        { "role": "optimizer", "label": "Optimize" }
-      ],
-      "effects": {
-        "locOutput": "min(all.locPerSec)",
-        "quality": "max(all.quality) + 15",
-        "flopsCost": "sum(all.flopsCost) * 0.8"
-      }
-    },
-    {
-      "id": "tournament",
-      "name": "Tournament",
-      "description": "Two models race, best output kept. Fast and clean, but wasteful.",
-      "requiredModels": 2,
-      "unlockCondition": "ownedModels >= 3",
-      "slots": [
-        { "role": "contestant_a", "label": "Model A" },
-        { "role": "contestant_b", "label": "Model B" }
-      ],
-      "effects": {
-        "locOutput": "max(a.locPerSec, b.locPerSec)",
-        "quality": "max(a.quality, b.quality)",
-        "flopsCost": "(a.flopsCost + b.flopsCost) * 1.5"
-      }
-    }
-  ]
+	"agentSetups": [
+		{
+			"id": "writer_reviewer",
+			"name": "Writer + Reviewer",
+			"description": "One model writes, another reviews. Quality = average of both +10%",
+			"requiredModels": 2,
+			"unlockCondition": "ownedModels >= 3",
+			"slots": [
+				{ "role": "writer", "label": "Writer" },
+				{ "role": "reviewer", "label": "Reviewer" }
+			],
+			"effects": {
+				"locOutput": "writer.locPerSec",
+				"quality": "(writer.quality + reviewer.quality) / 2 + 10",
+				"flopsCost": "writer.flopsCost + reviewer.flopsCost"
+			}
+		},
+		{
+			"id": "swarm",
+			"name": "Swarm",
+			"description": "All owned models write in parallel. Raw throughput, average quality.",
+			"requiredModels": 3,
+			"unlockCondition": "ownedModels >= 3",
+			"slots": "all_owned",
+			"effects": {
+				"locOutput": "sum(all.locPerSec)",
+				"quality": "avg(all.quality)",
+				"flopsCost": "sum(all.flopsCost)"
+			}
+		},
+		{
+			"id": "pipeline",
+			"name": "Pipeline",
+			"description": "Chain 3 models: draft → refine → optimize. Slow but high quality.",
+			"requiredModels": 3,
+			"unlockCondition": "ownedModels >= 3",
+			"slots": [
+				{ "role": "drafter", "label": "Draft" },
+				{ "role": "refiner", "label": "Refine" },
+				{ "role": "optimizer", "label": "Optimize" }
+			],
+			"effects": {
+				"locOutput": "min(all.locPerSec)",
+				"quality": "max(all.quality) + 15",
+				"flopsCost": "sum(all.flopsCost) * 0.8"
+			}
+		},
+		{
+			"id": "tournament",
+			"name": "Tournament",
+			"description": "Two models race, best output kept. Fast and clean, but wasteful.",
+			"requiredModels": 2,
+			"unlockCondition": "ownedModels >= 3",
+			"slots": [
+				{ "role": "contestant_a", "label": "Model A" },
+				{ "role": "contestant_b", "label": "Model B" }
+			],
+			"effects": {
+				"locOutput": "max(a.locPerSec, b.locPerSec)",
+				"quality": "max(a.quality, b.quality)",
+				"flopsCost": "(a.flopsCost + b.flopsCost) * 1.5"
+			}
+		}
+	]
 }

@@ -1,272 +1,288 @@
 {
-  "_doc": "Balance config for AGI Rush. All costs/rates derive from these curves. Target: ~35-40 min first playthrough.",
+	"_doc": "Balance config for AGI Rush. All costs/rates derive from these curves. Target: ~35-40 min first playthrough.",
 
-  "core": {
-    "targetSessionMinutes": 40,
-    "ticksPerSecond": 10,
-    "startingCash": 0,
-    "startingFlops": 0,
-    "startingLocPerKey": 3,
-    "manualTypingQuality": 100,
-    "agiLocTarget": 230000000,
-    "_note": "1 FLOP + Computer(+2) = 3 FLOPS total. 3 LoC/key @ 6keys/s = 18 LoC/s produced, 3 executed. Editor fills up fast. First minute is about watching code pile up, then buying auto-type."
-  },
+	"core": {
+		"targetSessionMinutes": 40,
+		"ticksPerSecond": 10,
+		"startingCash": 0,
+		"startingFlops": 0,
+		"startingLocPerKey": 3,
+		"manualTypingQuality": 100,
+		"agiLocTarget": 230000000,
+		"_note": "1 FLOP + Computer(+2) = 3 FLOPS total. 3 LoC/key @ 6keys/s = 18 LoC/s produced, 3 executed. Editor fills up fast. First minute is about watching code pile up, then buying auto-type."
+	},
 
-  "costCurve": {
-    "_doc": "cost(n) = baseCost * growthRate^n. Growth rate per category.",
-    "hardware": {
-      "growthRate": 1.12,
-      "_note": "Moderate scaling — player buys 15-30 of each hardware piece"
-    },
-    "typing": {
-      "growthRate": 1.10,
-      "_note": "Gentle — keep early game flowing, 20-40 purchases feel good"
-    },
-    "devs": {
-      "growthRate": 1.14,
-      "_note": "Slightly steeper — each dev is a bigger deal"
-    },
-    "aiModels": {
-      "growthRate": 1.0,
-      "_note": "Flat — AI models are one-time purchases, cost is fixed"
-    },
-    "infrastructure": {
-      "growthRate": 1.18,
-      "_note": "Steep — data centers and pipelines are major investments"
-    }
-  },
+	"costCurve": {
+		"_doc": "cost(n) = baseCost * growthRate^n. Growth rate per category.",
+		"hardware": {
+			"growthRate": 1.12,
+			"_note": "Moderate scaling — player buys 15-30 of each hardware piece"
+		},
+		"typing": {
+			"growthRate": 1.1,
+			"_note": "Gentle — keep early game flowing, 20-40 purchases feel good"
+		},
+		"devs": {
+			"growthRate": 1.14,
+			"_note": "Slightly steeper — each dev is a bigger deal"
+		},
+		"aiModels": {
+			"growthRate": 1.0,
+			"_note": "Flat — AI models are one-time purchases, cost is fixed"
+		},
+		"infrastructure": {
+			"growthRate": 1.18,
+			"_note": "Steep — data centers and pipelines are major investments"
+		}
+	},
 
-  "tierProgression": {
-    "_doc": "Each tier unlocks at a cash threshold. cashPerLoc increases per tier. Tier base costs ~10-12x total wealth at unlock time.",
-    "tiers": [
-      {
-        "id": "garage",
-        "unlockAt": 0,
-        "cashPerLoc": 0.10,
-        "targetUnlockMinute": 0,
-        "expectedPurchases": 15,
-        "_note": "5 FLOPS * $0.10 = $0.50/s base income. First buy ($5) in ~10s. Tier 1 ($100) in ~3min with upgrades."
-      },
-      {
-        "id": "freelancing",
-        "unlockAt": 100,
-        "cashPerLoc": 0.25,
-        "targetUnlockMinute": 5,
-        "expectedPurchases": 12,
-        "_note": "5x cash bump. First real acceleration. Mechanical keyboard is the breakthrough."
-      },
-      {
-        "id": "startup",
-        "unlockAt": 2000,
-        "cashPerLoc": 0.80,
-        "targetUnlockMinute": 12,
-        "expectedPurchases": 20,
-        "_note": "5x cash bump. Devs start auto-writing. Player can breathe."
-      },
-      {
-        "id": "tech_company",
-        "unlockAt": 50000,
-        "cashPerLoc": 5.00,
-        "targetUnlockMinute": 20,
-        "expectedPurchases": 15,
-        "_note": "4x cash bump. Scaling up. Series A is the breakthrough moment."
-      },
-      {
-        "id": "ai_lab",
-        "unlockAt": 5000000,
-        "cashPerLoc": 10.00,
-        "targetUnlockMinute": 28,
-        "expectedPurchases": 20,
-        "_note": "5x cash bump. AI arrives. FLOPS slider unlocks. The crunch returns."
-      },
-      {
-        "id": "agi_race",
-        "unlockAt": 1000000000,
-        "cashPerLoc": 50.00,
-        "targetUnlockMinute": 35,
-        "expectedPurchases": 8,
-        "_note": "10x cash bump. Final sprint. Numbers go exponential."
-      }
-    ]
-  },
+	"tierProgression": {
+		"_doc": "Each tier unlocks at a cash threshold. cashPerLoc increases per tier. Tier base costs ~10-12x total wealth at unlock time.",
+		"tiers": [
+			{
+				"id": "garage",
+				"unlockAt": 0,
+				"cashPerLoc": 0.1,
+				"targetUnlockMinute": 0,
+				"expectedPurchases": 15,
+				"_note": "5 FLOPS * $0.10 = $0.50/s base income. First buy ($5) in ~10s. Tier 1 ($100) in ~3min with upgrades."
+			},
+			{
+				"id": "freelancing",
+				"unlockAt": 100,
+				"cashPerLoc": 0.25,
+				"targetUnlockMinute": 5,
+				"expectedPurchases": 12,
+				"_note": "5x cash bump. First real acceleration. Mechanical keyboard is the breakthrough."
+			},
+			{
+				"id": "startup",
+				"unlockAt": 2000,
+				"cashPerLoc": 0.8,
+				"targetUnlockMinute": 12,
+				"expectedPurchases": 20,
+				"_note": "5x cash bump. Devs start auto-writing. Player can breathe."
+			},
+			{
+				"id": "tech_company",
+				"unlockAt": 50000,
+				"cashPerLoc": 5.0,
+				"targetUnlockMinute": 20,
+				"expectedPurchases": 15,
+				"_note": "4x cash bump. Scaling up. Series A is the breakthrough moment."
+			},
+			{
+				"id": "ai_lab",
+				"unlockAt": 5000000,
+				"cashPerLoc": 10.0,
+				"targetUnlockMinute": 28,
+				"expectedPurchases": 20,
+				"_note": "5x cash bump. AI arrives. FLOPS slider unlocks. The crunch returns."
+			},
+			{
+				"id": "agi_race",
+				"unlockAt": 1000000000,
+				"cashPerLoc": 50.0,
+				"targetUnlockMinute": 35,
+				"expectedPurchases": 8,
+				"_note": "10x cash bump. Final sprint. Numbers go exponential."
+			}
+		]
+	},
 
-  "pacing": {
-    "_doc": "Walls and breakthroughs mapped to real time. Max time-to-next-purchase should NEVER exceed 120s.",
-    "maxTimeBetweenPurchases": 120,
-    "phases": [
-      {
-        "name": "Opening Rush",
-        "minuteStart": 0,
-        "minuteEnd": 3,
-        "avgSecondsBetweenPurchases": 12,
-        "feel": "Rapid clicking, instant feedback, learn the loop"
-      },
-      {
-        "name": "First Wall",
-        "minuteStart": 3,
-        "minuteEnd": 5,
-        "avgSecondsBetweenPurchases": 30,
-        "feel": "Saving for SSD or next tier. Tension builds."
-      },
-      {
-        "name": "Breakthrough 1 — Freelancing",
-        "minuteStart": 5,
-        "minuteEnd": 7,
-        "avgSecondsBetweenPurchases": 15,
-        "feel": "Tier unlock. 5x cash. Buying spree. Mechanical Keyboard is the big hit."
-      },
-      {
-        "name": "Growth Phase",
-        "minuteStart": 7,
-        "minuteEnd": 12,
-        "avgSecondsBetweenPurchases": 25,
-        "feel": "Steady accumulation. Desktop PCs, coffee machine."
-      },
-      {
-        "name": "Second Wall",
-        "minuteStart": 12,
-        "minuteEnd": 14,
-        "avgSecondsBetweenPurchases": 45,
-        "feel": "Saving for Startup tier. Longest wait so far."
-      },
-      {
-        "name": "Breakthrough 2 — Startup",
-        "minuteStart": 14,
-        "minuteEnd": 18,
-        "avgSecondsBetweenPurchases": 20,
-        "feel": "Devs arrive! Auto-LoC starts. Player stops mashing as hard."
-      },
-      {
-        "name": "Mid-game Expansion",
-        "minuteStart": 18,
-        "minuteEnd": 22,
-        "avgSecondsBetweenPurchases": 30,
-        "feel": "Scaling dev teams, cloud servers. Numbers climbing."
-      },
-      {
-        "name": "Third Wall",
-        "minuteStart": 22,
-        "minuteEnd": 25,
-        "avgSecondsBetweenPurchases": 50,
-        "feel": "Grinding toward Tech Company. Series A is the carrot."
-      },
-      {
-        "name": "Breakthrough 3 — AI Unlocks",
-        "minuteStart": 25,
-        "minuteEnd": 30,
-        "avgSecondsBetweenPurchases": 20,
-        "feel": "AI models! Slider appears. New mechanic. Buying spree on models."
-      },
-      {
-        "name": "Final Wall",
-        "minuteStart": 30,
-        "minuteEnd": 34,
-        "avgSecondsBetweenPurchases": 60,
-        "feel": "FLOPS crunch. AI eats compute. Quality management. Hardest stretch."
-      },
-      {
-        "name": "Climax — AGI Race",
-        "minuteStart": 34,
-        "minuteEnd": 38,
-        "avgSecondsBetweenPurchases": 30,
-        "feel": "Numbers go wild. Self-improving AI. Dyson sphere. The Singularity."
-      },
-      {
-        "name": "End",
-        "minuteStart": 38,
-        "minuteEnd": 40,
-        "avgSecondsBetweenPurchases": null,
-        "feel": "Victory screen. Did you build AGI, or did AGI build you?"
-      }
-    ]
-  },
+	"pacing": {
+		"_doc": "Walls and breakthroughs mapped to real time. Max time-to-next-purchase should NEVER exceed 120s.",
+		"maxTimeBetweenPurchases": 120,
+		"phases": [
+			{
+				"name": "Opening Rush",
+				"minuteStart": 0,
+				"minuteEnd": 3,
+				"avgSecondsBetweenPurchases": 12,
+				"feel": "Rapid clicking, instant feedback, learn the loop"
+			},
+			{
+				"name": "First Wall",
+				"minuteStart": 3,
+				"minuteEnd": 5,
+				"avgSecondsBetweenPurchases": 30,
+				"feel": "Saving for SSD or next tier. Tension builds."
+			},
+			{
+				"name": "Breakthrough 1 — Freelancing",
+				"minuteStart": 5,
+				"minuteEnd": 7,
+				"avgSecondsBetweenPurchases": 15,
+				"feel": "Tier unlock. 5x cash. Buying spree. Mechanical Keyboard is the big hit."
+			},
+			{
+				"name": "Growth Phase",
+				"minuteStart": 7,
+				"minuteEnd": 12,
+				"avgSecondsBetweenPurchases": 25,
+				"feel": "Steady accumulation. Desktop PCs, coffee machine."
+			},
+			{
+				"name": "Second Wall",
+				"minuteStart": 12,
+				"minuteEnd": 14,
+				"avgSecondsBetweenPurchases": 45,
+				"feel": "Saving for Startup tier. Longest wait so far."
+			},
+			{
+				"name": "Breakthrough 2 — Startup",
+				"minuteStart": 14,
+				"minuteEnd": 18,
+				"avgSecondsBetweenPurchases": 20,
+				"feel": "Devs arrive! Auto-LoC starts. Player stops mashing as hard."
+			},
+			{
+				"name": "Mid-game Expansion",
+				"minuteStart": 18,
+				"minuteEnd": 22,
+				"avgSecondsBetweenPurchases": 30,
+				"feel": "Scaling dev teams, cloud servers. Numbers climbing."
+			},
+			{
+				"name": "Third Wall",
+				"minuteStart": 22,
+				"minuteEnd": 25,
+				"avgSecondsBetweenPurchases": 50,
+				"feel": "Grinding toward Tech Company. Series A is the carrot."
+			},
+			{
+				"name": "Breakthrough 3 — AI Unlocks",
+				"minuteStart": 25,
+				"minuteEnd": 30,
+				"avgSecondsBetweenPurchases": 20,
+				"feel": "AI models! Slider appears. New mechanic. Buying spree on models."
+			},
+			{
+				"name": "Final Wall",
+				"minuteStart": 30,
+				"minuteEnd": 34,
+				"avgSecondsBetweenPurchases": 60,
+				"feel": "FLOPS crunch. AI eats compute. Quality management. Hardest stretch."
+			},
+			{
+				"name": "Climax — AGI Race",
+				"minuteStart": 34,
+				"minuteEnd": 38,
+				"avgSecondsBetweenPurchases": 30,
+				"feel": "Numbers go wild. Self-improving AI. Dyson sphere. The Singularity."
+			},
+			{
+				"name": "End",
+				"minuteStart": 38,
+				"minuteEnd": 40,
+				"avgSecondsBetweenPurchases": null,
+				"feel": "Victory screen. Did you build AGI, or did AGI build you?"
+			}
+		]
+	},
 
-  "multipliers": {
-    "_doc": "Milestone-based multipliers. These create the 'bumpy curve' — the slow-slow-BOOM feeling.",
-    "ownershipMilestones": [
-      { "count": 10, "multiplier": 2, "_note": "First x2 — feels great early game" },
-      { "count": 25, "multiplier": 2, "_note": "Second x2 — player is invested now" },
-      { "count": 50, "multiplier": 3, "_note": "Big jump. Reward for commitment." },
-      { "count": 100, "multiplier": 4, "_note": "Only reachable for cheap buildings. Feels legendary." }
-    ],
-    "_usage": "When player owns N of any single upgrade, all production from that upgrade gets the multiplier. Multipliers stack multiplicatively: 10+25+50 = x2*x2*x3 = x12 total."
-  },
+	"multipliers": {
+		"_doc": "Milestone-based multipliers. These create the 'bumpy curve' — the slow-slow-BOOM feeling.",
+		"ownershipMilestones": [
+			{
+				"count": 10,
+				"multiplier": 2,
+				"_note": "First x2 — feels great early game"
+			},
+			{
+				"count": 25,
+				"multiplier": 2,
+				"_note": "Second x2 — player is invested now"
+			},
+			{
+				"count": 50,
+				"multiplier": 3,
+				"_note": "Big jump. Reward for commitment."
+			},
+			{
+				"count": 100,
+				"multiplier": 4,
+				"_note": "Only reachable for cheap buildings. Feels legendary."
+			}
+		],
+		"_usage": "When player owns N of any single upgrade, all production from that upgrade gets the multiplier. Multipliers stack multiplicatively: 10+25+50 = x2*x2*x3 = x12 total."
+	},
 
-  "qualityCurve": {
-    "_doc": "Code quality degrades as AI-generated LoC accumulates without review.",
-    "baseQuality": 100,
-    "manualTypingQuality": 100,
-    "humanDevQuality": 90,
-    "qualityDecayPerMinute": 0.5,
-    "_decayNote": "Quality drifts down 0.5%/min passively from tech debt. Accelerates with more AI output.",
-    "aiQualityDecayMultiplier": 0.001,
-    "_aiDecayNote": "Extra decay per AI LoC/s active. 10K AI LoC/s = +10%/min extra decay.",
-    "cashFormula": "baseCashPerLoc * (quality / 100)",
-    "qualityFloors": {
-      "_doc": "Testing Suite upgrade prevents quality dropping below these floors",
-      "level1": 50,
-      "level2": 60,
-      "level3": 70
-    },
-    "codeReview": {
-      "duration": 10,
-      "locRemoved": 0.10,
-      "qualityBoost": 15
-    },
-    "deleteSpaghetti": {
-      "locRemovedPercent": 0.25,
-      "qualityBoost": 20,
-      "cooldown": 30
-    }
-  },
+	"qualityCurve": {
+		"_doc": "Code quality degrades as AI-generated LoC accumulates without review.",
+		"baseQuality": 100,
+		"manualTypingQuality": 100,
+		"humanDevQuality": 90,
+		"qualityDecayPerMinute": 0.5,
+		"_decayNote": "Quality drifts down 0.5%/min passively from tech debt. Accelerates with more AI output.",
+		"aiQualityDecayMultiplier": 0.001,
+		"_aiDecayNote": "Extra decay per AI LoC/s active. 10K AI LoC/s = +10%/min extra decay.",
+		"cashFormula": "baseCashPerLoc * (quality / 100)",
+		"qualityFloors": {
+			"_doc": "Testing Suite upgrade prevents quality dropping below these floors",
+			"level1": 50,
+			"level2": 60,
+			"level3": 70
+		},
+		"codeReview": {
+			"duration": 10,
+			"locRemoved": 0.1,
+			"qualityBoost": 15
+		},
+		"deleteSpaghetti": {
+			"locRemovedPercent": 0.25,
+			"qualityBoost": 20,
+			"cooldown": 30
+		}
+	},
 
-  "flopsAllocation": {
-    "_doc": "FLOPS slider config. Unlocks at Tier 4 (ai_lab).",
-    "unlockTier": "ai_lab",
-    "defaultSplit": 0.7,
-    "_splitNote": "0.7 = 70% execution, 30% AI generation. Player adjusts.",
-    "executionRate": 1.0,
-    "_execNote": "1 execution FLOP = 1 LoC executed per second",
-    "aiGenerationEfficiency": 0.6,
-    "_aiEffNote": "1 AI FLOP = 0.6 LoC generated per second (before model bonuses). AI is less efficient than raw execution."
-  },
+	"flopsAllocation": {
+		"_doc": "FLOPS slider config. Unlocks at Tier 4 (ai_lab).",
+		"unlockTier": "ai_lab",
+		"defaultSplit": 0.7,
+		"_splitNote": "0.7 = 70% execution, 30% AI generation. Player adjusts.",
+		"executionRate": 1.0,
+		"_execNote": "1 execution FLOP = 1 LoC executed per second",
+		"aiGenerationEfficiency": 0.6,
+		"_aiEffNote": "1 AI FLOP = 0.6 LoC generated per second (before model bonuses). AI is less efficient than raw execution."
+	},
 
-  "events": {
-    "minInterval": 30,
-    "maxInterval": 90,
-    "firstEventAfter": 120,
-    "_note": "No events in first 2 min. Let the player learn."
-  },
+	"events": {
+		"minInterval": 30,
+		"maxInterval": 90,
+		"firstEventAfter": 120,
+		"_note": "No events in first 2 min. Let the player learn."
+	},
 
-  "prestige": {
-    "_doc": "Rewrite mechanic. Available after first AGI completion.",
-    "formula": "paradigmShifts = floor(log10(totalLifetimeLoc / 1e6))",
-    "bonusPerShift": 1.5,
-    "_note": "Each paradigm shift gives x1.5 to ALL production. Stacks multiplicatively. 3 shifts = x3.375."
-  },
+	"prestige": {
+		"_doc": "Rewrite mechanic. Available after first AGI completion.",
+		"formula": "paradigmShifts = floor(log10(totalLifetimeLoc / 1e6))",
+		"bonusPerShift": 1.5,
+		"_note": "Each paradigm shift gives x1.5 to ALL production. Stacks multiplicatively. 3 shifts = x3.375."
+	},
 
-  "validation": {
-    "agiMinMinutes": 20,
-    "agiMaxMinutes": 55,
-    "maxWaitSeconds": 600,
-    "minPurchases": 80,
-    "maxPurchases": 500,
-    "minTiers": 6,
-    "tierMinDuration": {
-      "garage": 30,
-      "freelancing": 60,
-      "startup": 120,
-      "tech_company": 150,
-      "ai_lab": 30,
-      "agi_race": 60
-    },
-    "tierMaxDuration": {
-      "garage": 300,
-      "freelancing": 800,
-      "startup": 900,
-      "tech_company": 900,
-      "ai_lab": 1500,
-      "agi_race": 1200
-    }
-  }
+	"validation": {
+		"agiMinMinutes": 20,
+		"agiMaxMinutes": 55,
+		"maxWaitSeconds": 600,
+		"minPurchases": 80,
+		"maxPurchases": 500,
+		"minTiers": 6,
+		"tierMinDuration": {
+			"garage": 30,
+			"freelancing": 60,
+			"startup": 120,
+			"tech_company": 150,
+			"ai_lab": 30,
+			"agi_race": 60
+		},
+		"tierMaxDuration": {
+			"garage": 300,
+			"freelancing": 800,
+			"startup": 900,
+			"tech_company": 900,
+			"ai_lab": 1500,
+			"agi_race": 1200
+		}
+	}
 }
