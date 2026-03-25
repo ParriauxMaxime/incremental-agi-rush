@@ -39,8 +39,8 @@
 					"value": true
 				}
 			],
-			"x": 900,
-			"y": 540
+			"x": 720,
+			"y": 620
 		},
 		{
 			"id": "coffee",
@@ -84,7 +84,7 @@
 				}
 			],
 			"x": 900,
-			"y": 760
+			"y": 780
 		},
 		{
 			"id": "doppio",
@@ -106,7 +106,7 @@
 				}
 			],
 			"x": 900,
-			"y": 820
+			"y": 860
 		},
 		{
 			"id": "github_actions",
@@ -128,7 +128,7 @@
 				}
 			],
 			"x": 900,
-			"y": 340
+			"y": 500
 		},
 		{
 			"id": "cloudflare_workers",
@@ -211,7 +211,7 @@
 				"4GB → 8GB"
 			],
 			"x": 1060,
-			"y": 760
+			"y": 780
 		},
 		{
 			"id": "storage_upgrade",
@@ -242,7 +242,7 @@
 				"640GB → 1TB"
 			],
 			"x": 1060,
-			"y": 820
+			"y": 860
 		},
 		{
 			"id": "tier_freelancing",
@@ -285,8 +285,8 @@
 					"value": 1.2
 				}
 			],
-			"x": 240,
-			"y": -40
+			"x": 160,
+			"y": 40
 		},
 		{
 			"id": "intern_trap",
@@ -307,8 +307,8 @@
 					"value": 0.85
 				}
 			],
-			"x": 580,
-			"y": -40
+			"x": 480,
+			"y": 40
 		},
 		{
 			"id": "intern_quality",
@@ -373,8 +373,8 @@
 					"value": 30
 				}
 			],
-			"x": 520,
-			"y": 40
+			"x": 500,
+			"y": 120
 		},
 		{
 			"id": "cloud_server",
@@ -395,8 +395,8 @@
 					"value": 100
 				}
 			],
-			"x": 520,
-			"y": 120
+			"x": 500,
+			"y": 200
 		},
 		{
 			"id": "dev_mentoring",
@@ -417,8 +417,8 @@
 					"value": 1.2
 				}
 			],
-			"x": -80,
-			"y": 400
+			"x": -60,
+			"y": 300
 		},
 		{
 			"id": "dev_recruiting",
@@ -439,8 +439,8 @@
 					"value": 0.85
 				}
 			],
-			"x": -80,
-			"y": 340
+			"x": -60,
+			"y": 380
 		},
 		{
 			"id": "dev_quality",
@@ -541,8 +541,8 @@
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": -20,
-			"y": 500
+			"x": -40,
+			"y": 520
 		},
 		{
 			"id": "team_productivity",
@@ -564,7 +564,7 @@
 				}
 			],
 			"x": 60,
-			"y": 660
+			"y": 680
 		},
 		{
 			"id": "team_cost",
@@ -586,7 +586,7 @@
 				}
 			],
 			"x": 60,
-			"y": 580
+			"y": 600
 		},
 		{
 			"id": "team_quality",
@@ -608,7 +608,7 @@
 				}
 			],
 			"x": -120,
-			"y": 660
+			"y": 680
 		},
 		{
 			"id": "management_gate",
@@ -623,8 +623,8 @@
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": 320,
-			"y": 500
+			"x": 340,
+			"y": 520
 		},
 		{
 			"id": "manager_efficiency",
@@ -645,8 +645,8 @@
 					"value": 1.3
 				}
 			],
-			"x": 400,
-			"y": 660
+			"x": 420,
+			"y": 680
 		},
 		{
 			"id": "manager_cost",
@@ -667,8 +667,8 @@
 					"value": 0.8
 				}
 			],
-			"x": 400,
-			"y": 580
+			"x": 420,
+			"y": 600
 		},
 		{
 			"id": "manager_scope",
@@ -689,8 +689,8 @@
 					"value": 1.2
 				}
 			],
-			"x": 240,
-			"y": 580
+			"x": 260,
+			"y": 600
 		},
 		{
 			"id": "cloud_infra",
@@ -711,8 +711,8 @@
 					"value": 1000
 				}
 			],
-			"x": 300,
-			"y": 340
+			"x": 320,
+			"y": 300
 		},
 		{
 			"id": "cdn_network",
@@ -734,7 +734,7 @@
 				}
 			],
 			"x": 320,
-			"y": 420
+			"y": 380
 		},
 		{
 			"id": "tier_ai_lab",
@@ -777,8 +777,8 @@
 					"value": 5
 				}
 			],
-			"x": 900,
-			"y": 1060
+			"x": 940,
+			"y": 1100
 		},
 		{
 			"id": "llm_gate",
@@ -815,8 +815,8 @@
 					"value": 1.2
 				}
 			],
-			"x": -460,
-			"y": 820
+			"x": 540,
+			"y": 1260
 		},
 		{
 			"id": "llm_cost",
@@ -837,8 +837,8 @@
 					"value": 0.85
 				}
 			],
-			"x": -460,
-			"y": 760
+			"x": 380,
+			"y": 1340
 		},
 		{
 			"id": "llm_quality",
@@ -859,8 +859,8 @@
 					"value": 1.15
 				}
 			],
-			"x": -460,
-			"y": 880
+			"x": 380,
+			"y": 1260
 		},
 		{
 			"id": "gpu_farm",
@@ -919,8 +919,8 @@
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": 900,
-			"y": 1140
+			"x": 940,
+			"y": 1180
 		},
 		{
 			"id": "agent_autonomy",
@@ -941,8 +941,8 @@
 					"value": 1.5
 				}
 			],
-			"x": 740,
-			"y": 1220
+			"x": 840,
+			"y": 1340
 		},
 		{
 			"id": "agent_cost",
@@ -963,8 +963,8 @@
 					"value": 0.8
 				}
 			],
-			"x": 1240,
-			"y": 1220
+			"x": 1040,
+			"y": 1340
 		},
 		{
 			"id": "agent_alignment",
@@ -985,8 +985,8 @@
 					"value": 1.5
 				}
 			],
-			"x": 1060,
-			"y": 1220
+			"x": 1020,
+			"y": 1260
 		},
 		{
 			"id": "quantum_compute",
@@ -1008,7 +1008,7 @@
 				}
 			],
 			"x": 740,
-			"y": 1140
+			"y": 1100
 		},
 		{
 			"id": "neural_fabric",
@@ -1029,8 +1029,8 @@
 					"value": 10000000
 				}
 			],
-			"x": 1060,
-			"y": 1140
+			"x": 1140,
+			"y": 1100
 		},
 		{
 			"id": "intern_capacity",
@@ -1051,7 +1051,7 @@
 					"value": 5
 				}
 			],
-			"x": 80,
+			"x": 240,
 			"y": -40
 		},
 		{
@@ -1074,7 +1074,7 @@
 				}
 			],
 			"x": -120,
-			"y": 580
+			"y": 600
 		},
 		{
 			"id": "manager_capacity",
@@ -1095,8 +1095,8 @@
 					"value": 3
 				}
 			],
-			"x": 240,
-			"y": 660
+			"x": 260,
+			"y": 680
 		},
 		{
 			"id": "llm_capacity",
@@ -1117,8 +1117,8 @@
 					"value": 5
 				}
 			],
-			"x": -460,
-			"y": 700
+			"x": 540,
+			"y": 1340
 		},
 		{
 			"id": "agent_capacity",
@@ -1139,8 +1139,8 @@
 					"value": 3
 				}
 			],
-			"x": 900,
-			"y": 1220
+			"x": 860,
+			"y": 1260
 		},
 		{
 			"id": "outsourcing",
@@ -1156,7 +1156,7 @@
 			"currency": "cash",
 			"effects": [],
 			"x": 900,
-			"y": 260
+			"y": 320
 		},
 		{
 			"id": "freelancer_training",
@@ -1178,7 +1178,7 @@
 				}
 			],
 			"x": 740,
-			"y": 180
+			"y": 240
 		},
 		{
 			"id": "freelancer_cost",
@@ -1200,7 +1200,7 @@
 				}
 			],
 			"x": 1060,
-			"y": 180
+			"y": 240
 		},
 		{
 			"id": "freelancer_capacity",
@@ -1222,7 +1222,7 @@
 				}
 			],
 			"x": 900,
-			"y": 180
+			"y": 240
 		},
 		{
 			"id": "openai_gpt3",
@@ -1241,6 +1241,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "gpt_3"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
 			"x": -200,
@@ -1263,6 +1268,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "gpt_35"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
 			"x": -200,
@@ -1285,6 +1295,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "gpt_4"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
 			"x": -200,
@@ -1307,6 +1322,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "gpt_41"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
 			"x": -120,
@@ -1321,7 +1341,7 @@
 				"openai_gpt4"
 			],
 			"max": 1,
-			"baseCost": 5000000000,
+			"baseCost": 2000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1329,6 +1349,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "gpt_5"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.05
 				}
 			],
 			"x": -280,
@@ -1351,6 +1376,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "claude_haiku"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
 			"x": -40,
@@ -1373,6 +1403,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "claude_sonnet"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
 			"x": -40,
@@ -1387,7 +1422,7 @@
 				"anthropic_sonnet"
 			],
 			"max": 1,
-			"baseCost": 2000000000,
+			"baseCost": 500000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1395,6 +1430,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "claude_opus"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.05
 				}
 			],
 			"x": -40,
@@ -1417,10 +1457,15 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "copilot"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
-			"x": -240,
-			"y": 800
+			"x": -520,
+			"y": 1060
 		},
 		{
 			"id": "google_gemini_pro",
@@ -1439,9 +1484,14 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "gemini_pro"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
-			"x": 440,
+			"x": 120,
 			"y": 1060
 		},
 		{
@@ -1461,9 +1511,14 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "gemini_ultra"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.05
 				}
 			],
-			"x": 440,
+			"x": 120,
 			"y": 1140
 		},
 		{
@@ -1483,6 +1538,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "llama_70b"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
 			"x": -360,
@@ -1505,6 +1565,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "llama_405b"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
 			"x": -360,
@@ -1527,9 +1592,14 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "mistral_large"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
-			"x": 120,
+			"x": 440,
 			"y": 1060
 		},
 		{
@@ -1549,6 +1619,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "grok_2"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.02
 				}
 			],
 			"x": 280,
@@ -1563,7 +1638,7 @@
 				"xai_grok2"
 			],
 			"max": 1,
-			"baseCost": 10000000000,
+			"baseCost": 25000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1571,6 +1646,11 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "grok_3"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.05
 				}
 			],
 			"x": 280,
@@ -1585,7 +1665,7 @@
 				"openai_gpt5"
 			],
 			"max": 1,
-			"baseCost": 10000000000,
+			"baseCost": 15000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1593,10 +1673,15 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "gpt_6"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.08
 				}
 			],
-			"x": 60,
-			"y": 1200
+			"x": -280,
+			"y": 1380
 		},
 		{
 			"id": "openai_gpt7",
@@ -1607,7 +1692,7 @@
 				"openai_gpt6"
 			],
 			"max": 1,
-			"baseCost": 100000000000,
+			"baseCost": 250000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1615,10 +1700,15 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "gpt_7"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.15
 				}
 			],
-			"x": 60,
-			"y": 1320
+			"x": -280,
+			"y": 1460
 		},
 		{
 			"id": "anthropic_saga",
@@ -1629,7 +1719,7 @@
 				"anthropic_opus"
 			],
 			"max": 1,
-			"baseCost": 20000000000,
+			"baseCost": 100000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1637,10 +1727,15 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "claude_saga"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.08
 				}
 			],
-			"x": 200,
-			"y": 1200
+			"x": -40,
+			"y": 1380
 		},
 		{
 			"id": "anthropic_universe",
@@ -1651,7 +1746,7 @@
 				"anthropic_saga"
 			],
 			"max": 1,
-			"baseCost": 500000000000,
+			"baseCost": 1000000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1659,10 +1754,15 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "claude_universe"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.2
 				}
 			],
-			"x": 200,
-			"y": 1320
+			"x": -40,
+			"y": 1460
 		},
 		{
 			"id": "google_gemini_supreme",
@@ -1673,7 +1773,7 @@
 				"google_gemini_ultra"
 			],
 			"max": 1,
-			"baseCost": 50000000000,
+			"baseCost": 250000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1681,10 +1781,15 @@
 					"type": "modelUnlock",
 					"op": "enable",
 					"value": "gemini_supreme"
+				},
+				{
+					"type": "cashMultiplier",
+					"op": "multiply",
+					"value": 1.1
 				}
 			],
-			"x": 340,
-			"y": 1200
+			"x": 120,
+			"y": 1380
 		}
 	]
 }

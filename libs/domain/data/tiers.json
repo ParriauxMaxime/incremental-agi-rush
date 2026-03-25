@@ -55,7 +55,7 @@
       "index": 5,
       "name": "AGI Race",
       "tagline": "You're not writing code anymore. The AI is.",
-      "cashPerLoc": 10.00,
+      "cashPerLoc": 50.00,
       "locRequired": 10000000,
       "cashRequired": 2000000000,
       "cost": 10000000000

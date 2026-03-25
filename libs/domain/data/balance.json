@@ -82,7 +82,7 @@
       {
         "id": "agi_race",
         "unlockAt": 1000000000,
-        "cashPerLoc": 10.00,
+        "cashPerLoc": 50.00,
         "targetUnlockMinute": 35,
         "expectedPurchases": 8,
         "_note": "10x cash bump. Final sprint. Numbers go exponential."
