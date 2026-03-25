@@ -659,6 +659,8 @@ export function runBalanceSim(
 				recalcSimStats();
 				applyInstantEffects(freeNode.effects);
 				purchaseCount++;
+				const isTier = freeNode.effects.some((e) => e.type === "tierUnlock");
+				purchases.push({ time: t, type: isTier ? PurchaseTypeEnum.tier : PurchaseTypeEnum.tech, name: freeNode.name });
 				continue;
 			}
 
@@ -679,6 +681,8 @@ export function runBalanceSim(
 				recalcSimStats();
 				applyInstantEffects(gateNode.effects);
 				purchaseCount++;
+				const isTier = gateNode.effects.some((e) => e.type === "tierUnlock");
+				purchases.push({ time: t, type: isTier ? PurchaseTypeEnum.tier : PurchaseTypeEnum.tech, name: gateNode.name });
 				continue;
 			}
 
@@ -746,6 +750,12 @@ export function runBalanceSim(
 			recalcSimStats();
 			applyInstantEffects(bestTech.node.effects);
 			purchaseCount++;
+			const isModelUnlock = bestTech.node.effects.some((e) => e.type === "modelUnlock");
+			purchases.push({
+				time: t,
+				type: isModelUnlock ? PurchaseTypeEnum.ai : PurchaseTypeEnum.tech,
+				name: bestTech.node.name,
+			});
 		}
 
 		// ── Buy items ──
