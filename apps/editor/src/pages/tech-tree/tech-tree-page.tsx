@@ -1,20 +1,15 @@
 import { css } from "@emotion/react";
-import {
-	Background,
-	Controls,
-	MiniMap,
-	ReactFlow,
-} from "@xyflow/react";
+import { Background, Controls, MiniMap, ReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import {
+	type TechTreeNode as TechNode,
+	TechNodeComponent,
+	useTechTreeFlow,
+} from "@agi-rush/design-system";
 import Dagre from "@dagrejs/dagre";
 import { useCallback, useMemo, useState } from "react";
 import { PageWrapper } from "../../components/shared/page-wrapper";
 import { useTechTreeStore } from "../../store/data-store";
-import {
-	TechNodeComponent,
-	type TechTreeNode as TechNode,
-	useTechTreeFlow,
-} from "@agi-rush/design-system";
 import { NodeInspector } from "./node-inspector";
 
 const nodeTypes = { techNode: TechNodeComponent };
@@ -113,7 +108,8 @@ export function TechTreePage() {
 
 	const allNodeIds = useMemo(() => nodes.map((n) => n.id), [nodes]);
 	const selectedNode = useMemo(
-		() => (selectedId ? nodes.find((n) => n.id === selectedId) ?? null : null),
+		() =>
+			selectedId ? (nodes.find((n) => n.id === selectedId) ?? null) : null,
 		[selectedId, nodes],
 	);
 

@@ -1,11 +1,5 @@
 import { css } from "@emotion/react";
-import {
-	Background,
-
-	type Edge,
-	type Node,
-	ReactFlow,
-} from "@xyflow/react";
+import { Background, type Edge, type Node, ReactFlow } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { NodeStateEnum, TechNodeComponent } from "@agi-rush/design-system";
 import type { TechNode } from "@modules/game";
@@ -208,10 +202,19 @@ export function TechTreePage() {
 	const flowNodes = useMemo(() => {
 		const now = Date.now();
 		const ownedChanged = prevOwned.current !== ownedTechNodes;
-		if (ownedChanged || now - lastBuild.current > 500 || cachedNodes.current.length === 0) {
+		if (
+			ownedChanged ||
+			now - lastBuild.current > 500 ||
+			cachedNodes.current.length === 0
+		) {
 			prevOwned.current = ownedTechNodes;
 			lastBuild.current = now;
-			cachedNodes.current = buildFlowNodes(allTechNodes, ownedTechNodes, loc, cash);
+			cachedNodes.current = buildFlowNodes(
+				allTechNodes,
+				ownedTechNodes,
+				loc,
+				cash,
+			);
 		}
 		return cachedNodes.current;
 	}, [ownedTechNodes, loc, cash]);
@@ -308,7 +311,7 @@ export function TechTreePage() {
 				minZoom={1}
 				maxZoom={1}
 				translateExtent={translateExtent}
-			proOptions={{ hideAttribution: true }}
+				proOptions={{ hideAttribution: true }}
 			>
 				<Background gap={20} color="#1e2630" />
 			</ReactFlow>

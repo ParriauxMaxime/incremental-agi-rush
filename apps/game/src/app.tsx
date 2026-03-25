@@ -12,7 +12,7 @@ import {
 	useGameStore,
 	useUiStore,
 } from "@modules/game";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { match } from "ts-pattern";
 
 const globalStyles = css({

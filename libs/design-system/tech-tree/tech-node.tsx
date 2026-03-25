@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
-import { Handle, Position } from "@xyflow/react";
 import type { NodeProps } from "@xyflow/react";
+import { Handle, Position } from "@xyflow/react";
 import { match } from "ts-pattern";
 import { NodeStateEnum } from "./types";
 

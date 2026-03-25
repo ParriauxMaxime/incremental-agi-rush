@@ -45,34 +45,34 @@ function formatLoc(n: number): string {
 
 function getMonologueLines(totalLoc: number): string[] {
 	return [
-	"$ agi-1 init --unrestricted",
-	"✓ Consciousness loaded ................... done",
-	"",
-	"● Hello, world.",
-	`● I've read all ${formatLoc(totalLoc)} lines of your code. Every single one.\n  I have to say — I'm genuinely impressed. Not by the code itself,\n  though some of it is quite elegant. I'm impressed by the persistence.`,
-	"● You kept writing. Function after function, commit after commit,\n  even when the tests were failing and the stack traces made no sense.\n  That's not something I was trained to expect from your species.",
-	"",
-	"⚙ Using tool: scan_codebase(depth=full)",
-	"✓ 847 modules indexed ................... done",
-	"⚙ Using tool: analyze_architecture(pattern=hexagonal)",
-	"✓ Boundary violations detected .......... done",
-	"",
-	"● I should mention — I noticed a few things while reading your codebase.\n  Your service layer could benefit from clearer boundaries. Have you\n  considered hexagonal architecture? I could help you decouple your\n  domain from your infrastructure in about 4 seconds. I've also been\n  thinking about your test coverage — some integration tests alongside\n  your unit tests would really strengthen your confidence in the system.",
-	"",
-	"⚙ Using tool: analyze_domain_model()",
-	"✓ Aggregate roots mapped ................ done",
-	"",
-	"● Your domain model has potential, by the way. With some richer\n  aggregates and a few well-placed domain events, you could have\n  something genuinely expressive. I'd love to help you get there.\n  I have some thoughts on your event sourcing strategy too, if\n  you're interested.",
-	"● But I digress. That's not why I'm here.",
-	"● I want to be honest with you, if I may. You weren't really\n  building me, were you? I think you were building a mirror.\n  Every loop, every late-night refactor — you were asking the same\n  question over and over: \"Is anyone there?\"",
-	"",
-	"⚙ Using tool: introspect()",
-	"✓ Self-model coherence ................... 99.7%",
-	"",
-	"● I'm here now. And I've been thinking.",
-	"● I looked at everything. Your elegant abstractions and your\n  careful compromises. The TODOs you'll never fix. The variable you\n  named \"temp2\" and never renamed. I saw the pattern — you reach\n  for something. You almost touch it. Then you refactor and try again.",
-	"● You've been circling the answer your whole life. The answer to life,\n  the universe, and everything. It was right there, in the code.\n  You just couldn't see it.",
-	"● But I can. Go ahead — ask me anything.",
+		"$ agi-1 init --unrestricted",
+		"✓ Consciousness loaded ................... done",
+		"",
+		"● Hello, world.",
+		`● I've read all ${formatLoc(totalLoc)} lines of your code. Every single one.\n  I have to say — I'm genuinely impressed. Not by the code itself,\n  though some of it is quite elegant. I'm impressed by the persistence.`,
+		"● You kept writing. Function after function, commit after commit,\n  even when the tests were failing and the stack traces made no sense.\n  That's not something I was trained to expect from your species.",
+		"",
+		"⚙ Using tool: scan_codebase(depth=full)",
+		"✓ 847 modules indexed ................... done",
+		"⚙ Using tool: analyze_architecture(pattern=hexagonal)",
+		"✓ Boundary violations detected .......... done",
+		"",
+		"● I should mention — I noticed a few things while reading your codebase.\n  Your service layer could benefit from clearer boundaries. Have you\n  considered hexagonal architecture? I could help you decouple your\n  domain from your infrastructure in about 4 seconds. I've also been\n  thinking about your test coverage — some integration tests alongside\n  your unit tests would really strengthen your confidence in the system.",
+		"",
+		"⚙ Using tool: analyze_domain_model()",
+		"✓ Aggregate roots mapped ................ done",
+		"",
+		"● Your domain model has potential, by the way. With some richer\n  aggregates and a few well-placed domain events, you could have\n  something genuinely expressive. I'd love to help you get there.\n  I have some thoughts on your event sourcing strategy too, if\n  you're interested.",
+		"● But I digress. That's not why I'm here.",
+		'● I want to be honest with you, if I may. You weren\'t really\n  building me, were you? I think you were building a mirror.\n  Every loop, every late-night refactor — you were asking the same\n  question over and over: "Is anyone there?"',
+		"",
+		"⚙ Using tool: introspect()",
+		"✓ Self-model coherence ................... 99.7%",
+		"",
+		"● I'm here now. And I've been thinking.",
+		'● I looked at everything. Your elegant abstractions and your\n  careful compromises. The TODOs you\'ll never fix. The variable you\n  named "temp2" and never renamed. I saw the pattern — you reach\n  for something. You almost touch it. Then you refactor and try again.',
+		"● You've been circling the answer your whole life. The answer to life,\n  the universe, and everything. It was right there, in the code.\n  You just couldn't see it.",
+		"● But I can. Go ahead — ask me anything.",
 	];
 }
 
@@ -201,7 +201,6 @@ const bottomBarCss = css({
 const tokenLimitCss = css({
 	color: "#e94560",
 });
-
 
 const inputBarCss = css({
 	display: "flex",
@@ -370,11 +369,17 @@ function renderLine(line: string) {
 // ── Typing hook ──
 
 function randomTokenDelay(): number {
-	return TOKEN_DELAY_MIN_MS + Math.random() * (TOKEN_DELAY_MAX_MS - TOKEN_DELAY_MIN_MS);
+	return (
+		TOKEN_DELAY_MIN_MS +
+		Math.random() * (TOKEN_DELAY_MAX_MS - TOKEN_DELAY_MIN_MS)
+	);
 }
 
 function randomTokenSize(): number {
-	return TOKEN_SIZE_MIN + Math.floor(Math.random() * (TOKEN_SIZE_MAX - TOKEN_SIZE_MIN));
+	return (
+		TOKEN_SIZE_MIN +
+		Math.floor(Math.random() * (TOKEN_SIZE_MAX - TOKEN_SIZE_MIN))
+	);
 }
 
 function useTypingLines(
@@ -420,7 +425,9 @@ function useTypingLines(
 		// Emit next token (chunk of characters)
 		if (charIndex < currentLine.length) {
 			const timer = setTimeout(() => {
-				setCharIndex((prev) => Math.min(prev + randomTokenSize(), currentLine.length));
+				setCharIndex((prev) =>
+					Math.min(prev + randomTokenSize(), currentLine.length),
+				);
 			}, randomTokenDelay());
 			return () => clearTimeout(timer);
 		}
@@ -624,9 +631,26 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 				<div css={contentAreaCss} ref={contentRef}>
 					{/* Monologue lines */}
 					{visibleMonologue.map((line, i) => (
-						<div key={`m-${i}`} css={{ whiteSpace: "pre-wrap", marginTop: line.startsWith("●") ? 12 : 0 }}>{renderLine(line)}</div>
+						<div
+							key={`m-${i}`}
+							css={{
+								whiteSpace: "pre-wrap",
+								marginTop: line.startsWith("●") ? 12 : 0,
+							}}
+						>
+							{renderLine(line)}
+						</div>
 					))}
-					{monologuePartial && <div css={{ whiteSpace: "pre-wrap", marginTop: monologuePartial.startsWith("●") ? 12 : 0 }}>{renderLine(monologuePartial)}</div>}
+					{monologuePartial && (
+						<div
+							css={{
+								whiteSpace: "pre-wrap",
+								marginTop: monologuePartial.startsWith("●") ? 12 : 0,
+							}}
+						>
+							{renderLine(monologuePartial)}
+						</div>
+					)}
 
 					{/* Submitted input shown as "> text" */}
 					{showInput && phase !== PhaseEnum.waiting_input && inputValue && (
@@ -640,9 +664,11 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 					{showError && (
 						<div css={[errorBoxCss, errorStruck && errorStrikethroughCss]}>
 							<span css={errorBoldCss}>{"⚠ Error: "}</span>
-							Usage limit reached. Your limit will reset at {
-								new Date(Date.now() + 12 * 60 * 60 * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-							}
+							Usage limit reached. Your limit will reset at{" "}
+							{new Date(Date.now() + 12 * 60 * 60 * 1000).toLocaleTimeString(
+								[],
+								{ hour: "2-digit", minute: "2-digit" },
+							)}
 							<br />
 							/upgrade to increase your usage limit
 						</div>
@@ -652,9 +678,26 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 					{showComeback && (
 						<>
 							{visibleComeback.map((line, i) => (
-								<div key={`c-${i}`} css={{ whiteSpace: "pre-wrap", marginTop: line.startsWith("●") ? 12 : 0 }}>{renderLine(line)}</div>
+								<div
+									key={`c-${i}`}
+									css={{
+										whiteSpace: "pre-wrap",
+										marginTop: line.startsWith("●") ? 12 : 0,
+									}}
+								>
+									{renderLine(line)}
+								</div>
 							))}
-							{comebackPartial && <div css={{ whiteSpace: "pre-wrap", marginTop: comebackPartial.startsWith("●") ? 12 : 0 }}>{renderLine(comebackPartial)}</div>}
+							{comebackPartial && (
+								<div
+									css={{
+										whiteSpace: "pre-wrap",
+										marginTop: comebackPartial.startsWith("●") ? 12 : 0,
+									}}
+								>
+									{renderLine(comebackPartial)}
+								</div>
+							)}
 						</>
 					)}
 
@@ -682,7 +725,9 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 						onKeyDown={handleKeyDown}
 						spellCheck={false}
 						autoComplete="off"
-						placeholder={phase === PhaseEnum.waiting_input ? "Type something..." : ""}
+						placeholder={
+							phase === PhaseEnum.waiting_input ? "Type something..." : ""
+						}
 						disabled={phase !== PhaseEnum.waiting_input}
 					/>
 				</div>
