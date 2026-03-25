@@ -925,7 +925,7 @@
 		{
 			"id": "agent_autonomy",
 			"name": "Self-Improvement",
-			"description": "x2 agent output per level",
+			"description": "x1.5 agent output per level",
 			"icon": "♾️",
 			"requires": [
 				"agent_gate"
@@ -938,7 +938,7 @@
 				{
 					"type": "agentLocMultiplier",
 					"op": "multiply",
-					"value": 2
+					"value": 1.5
 				}
 			],
 			"x": 500,
@@ -1233,7 +1233,7 @@
 				"llm_gate"
 			],
 			"max": 1,
-			"baseCost": 500000,
+			"baseCost": 5000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1255,7 +1255,7 @@
 				"openai_gpt3"
 			],
 			"max": 1,
-			"baseCost": 1500000,
+			"baseCost": 12000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1277,7 +1277,7 @@
 				"openai_gpt35"
 			],
 			"max": 1,
-			"baseCost": 5000000,
+			"baseCost": 30000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1299,7 +1299,7 @@
 				"openai_gpt4"
 			],
 			"max": 1,
-			"baseCost": 12000000,
+			"baseCost": 80000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1321,7 +1321,7 @@
 				"openai_gpt4"
 			],
 			"max": 1,
-			"baseCost": 30000000,
+			"baseCost": 5000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1331,7 +1331,7 @@
 					"value": "gpt_5"
 				}
 			],
-			"x": -100,
+			"x": -80,
 			"y": 1120
 		},
 		{
@@ -1343,7 +1343,7 @@
 				"llm_gate"
 			],
 			"max": 1,
-			"baseCost": 800000,
+			"baseCost": 8000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1365,7 +1365,7 @@
 				"anthropic_haiku"
 			],
 			"max": 1,
-			"baseCost": 5000000,
+			"baseCost": 30000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1387,7 +1387,7 @@
 				"anthropic_sonnet"
 			],
 			"max": 1,
-			"baseCost": 25000000,
+			"baseCost": 2000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1399,6 +1399,182 @@
 			],
 			"x": 260,
 			"y": 1040
+		},
+		{
+			"id": "github_copilot",
+			"name": "GitHub Copilot",
+			"description": "Unlock Copilot for deployment.",
+			"icon": "🤖",
+			"requires": [
+				"llm_gate"
+			],
+			"max": 1,
+			"baseCost": 5000000,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "modelUnlock",
+					"op": "enable",
+					"value": "copilot"
+				}
+			],
+			"x": -80,
+			"y": 840
+		},
+		{
+			"id": "google_gemini_pro",
+			"name": "Gemini Pro",
+			"description": "Unlock Gemini Pro for deployment.",
+			"icon": "🔵",
+			"requires": [
+				"llm_gate"
+			],
+			"max": 1,
+			"baseCost": 15000000,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "modelUnlock",
+					"op": "enable",
+					"value": "gemini_pro"
+				}
+			],
+			"x": -240,
+			"y": 820
+		},
+		{
+			"id": "google_gemini_ultra",
+			"name": "Gemini Ultra",
+			"description": "Unlock Gemini Ultra for deployment.",
+			"icon": "🔵",
+			"requires": [
+				"google_gemini_pro"
+			],
+			"max": 1,
+			"baseCost": 5000000000,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "modelUnlock",
+					"op": "enable",
+					"value": "gemini_ultra"
+				}
+			],
+			"x": -240,
+			"y": 880
+		},
+		{
+			"id": "meta_llama_70b",
+			"name": "Llama 70B",
+			"description": "Unlock Llama 70B for deployment.",
+			"icon": "🦙",
+			"requires": [
+				"llm_gate"
+			],
+			"max": 1,
+			"baseCost": 8000000,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "modelUnlock",
+					"op": "enable",
+					"value": "llama_70b"
+				}
+			],
+			"x": -80,
+			"y": 920
+		},
+		{
+			"id": "meta_llama_405b",
+			"name": "Llama 405B",
+			"description": "Unlock Llama 405B for deployment.",
+			"icon": "🦙",
+			"requires": [
+				"meta_llama_70b"
+			],
+			"max": 1,
+			"baseCost": 50000000,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "modelUnlock",
+					"op": "enable",
+					"value": "llama_405b"
+				}
+			],
+			"x": -80,
+			"y": 1000
+		},
+		{
+			"id": "mistral_unlock",
+			"name": "Mistral Large",
+			"description": "Unlock Mistral Large for deployment.",
+			"icon": "🇫🇷",
+			"requires": [
+				"llm_gate"
+			],
+			"max": 1,
+			"baseCost": 10000000,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "modelUnlock",
+					"op": "enable",
+					"value": "mistral_large"
+				}
+			],
+			"x": -240,
+			"y": 960
+		},
+		{
+			"id": "xai_grok2",
+			"name": "Grok 2",
+			"description": "Unlock Grok 2 for deployment.",
+			"icon": "❌",
+			"requires": [
+				"llm_gate"
+			],
+			"max": 1,
+			"baseCost": 20000000,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "modelUnlock",
+					"op": "enable",
+					"value": "grok_2"
+				}
+			],
+			"x": -400,
+			"y": 820
+		},
+		{
+			"id": "xai_grok3",
+			"name": "Grok 3",
+			"description": "Unlock Grok 3 for deployment.",
+			"icon": "❌",
+			"requires": [
+				"xai_grok2"
+			],
+			"max": 1,
+			"baseCost": 10000000000,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "modelUnlock",
+					"op": "enable",
+					"value": "grok_3"
+				}
+			],
+			"x": -400,
+			"y": 880
 		}
 	]
 }
