@@ -6,6 +6,7 @@ import type { TechNode } from "@modules/game";
 import { allTechNodes, getTechNodeCost, useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { useIsMobile } from "../hooks/use-is-mobile";
 
 // ── Node types ──
 
@@ -187,6 +188,7 @@ function NodePopover({ node, x, y }: PopoverProps) {
 // ── Main component ──
 
 export function TechTreePage() {
+	const isMobile = useIsMobile();
 	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
 	const loc = useGameStore((s) => s.loc);
 	const cash = useGameStore((s) => s.cash);
@@ -253,7 +255,7 @@ export function TechTreePage() {
 	const leaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
 	const handleNodeClick = useCallback(
-		(_e: React.MouseEvent, node: Node) => {
+		(e: React.MouseEvent, node: Node) => {
 			const techNode = allTechNodes.find((n) => n.id === node.id);
 			if (!techNode) return;
 			const owned = ownedTechNodes[techNode.id] ?? 0;
@@ -264,9 +266,18 @@ export function TechTreePage() {
 
 			if (!maxed && canAfford) {
 				researchNode(techNode);
+				if (isMobile) setHovered(null);
+			} else if (isMobile && containerRef.current) {
+				// On mobile, show popover on tap for non-affordable nodes
+				const containerRect = containerRef.current.getBoundingClientRect();
+				setHovered({
+					node: techNode,
+					x: e.clientX - containerRect.left + 12,
+					y: e.clientY - containerRect.top,
+				});
 			}
 		},
-		[ownedTechNodes, loc, cash, researchNode],
+		[ownedTechNodes, loc, cash, researchNode, isMobile],
 	);
 
 	const handleNodeMouseEnter = useCallback(
@@ -298,8 +309,9 @@ export function TechTreePage() {
 				edges={flowEdges}
 				nodeTypes={nodeTypes}
 				onNodeClick={handleNodeClick}
-				onNodeMouseEnter={handleNodeMouseEnter}
-				onNodeMouseLeave={handleNodeMouseLeave}
+				onNodeMouseEnter={isMobile ? undefined : handleNodeMouseEnter}
+				onNodeMouseLeave={isMobile ? undefined : handleNodeMouseLeave}
+				onPaneClick={isMobile ? () => setHovered(null) : undefined}
 				fitView
 				nodesDraggable={false}
 				nodesConnectable={false}

@@ -1,4 +1,5 @@
 import { GodModePage } from "@components/god-mode-page";
+import { MobileShell } from "@components/mobile-shell";
 import { Sidebar } from "@components/sidebar";
 import { TechTreePage } from "@components/tech-tree-page";
 import { css, Global, keyframes } from "@emotion/react";
@@ -14,6 +15,7 @@ import {
 } from "@modules/game";
 import { useEffect, useRef } from "react";
 import { match } from "ts-pattern";
+import { useIsMobile } from "./hooks/use-is-mobile";
 
 const globalStyles = css({
 	"*": {
@@ -297,12 +299,11 @@ function SettingsPage() {
 
 export function App() {
 	useGameLoop();
+	const isMobile = useIsMobile();
 	const page = useUiStore((s) => s.page);
 	const setPage = useUiStore((s) => s.setPage);
 	const singularity = useGameStore((s) => s.singularity);
 	const shellRef = useRef<HTMLDivElement>(null);
-	// Was singularity off when App first mounted? If yes, any future
-	// singularity=true means the player just triggered it → animate.
 	const singularityOnMount = useRef(useGameStore.getState().singularity);
 	const singularityAnimate = singularity && !singularityOnMount.current;
 
@@ -315,6 +316,17 @@ export function App() {
 			el.style.animation = "";
 		}
 	}, [singularityAnimate]);
+
+	if (isMobile) {
+		return (
+			<>
+				<Global styles={globalStyles} />
+				<MobileShell />
+				<EventToast />
+				{singularity && <SingularitySequence animate={singularityAnimate} />}
+			</>
+		);
+	}
 
 	return (
 		<>
