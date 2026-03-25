@@ -1,3 +1,12 @@
+export const NodeStateEnum = {
+	locked: "locked",
+	visible: "visible",
+	affordable: "affordable",
+	owned: "owned",
+} as const;
+
+export type NodeStateEnum = (typeof NodeStateEnum)[keyof typeof NodeStateEnum];
+
 export type TechNodeEffect = {
 	type: string;
 	op: string;

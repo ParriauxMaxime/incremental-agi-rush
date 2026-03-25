@@ -2,69 +2,111 @@ import { css } from "@emotion/react";
 import { Handle, Position } from "@xyflow/react";
 import type { NodeProps } from "@xyflow/react";
 import { match } from "ts-pattern";
+import { NodeStateEnum } from "./types";
 
-const TierColorEnum = {
-	garage: "#6272a4",
-	freelancing: "#8be9fd",
-	startup: "#3fb950",
-	tech_company: "#d19a66",
-	ai_lab: "#c678dd",
-	agi_race: "#e94560",
-} as const;
-
-type TierKey = keyof typeof TierColorEnum;
-
-function getTierColor(currency: string): string {
+function getCurrencyColor(currency: string): string {
 	return match(currency)
-		.with("cash", () => TierColorEnum.garage)
-		.with("loc", () => TierColorEnum.freelancing)
-		.with("flops", () => TierColorEnum.ai_lab)
+		.with("cash", () => "#6272a4")
+		.with("loc", () => "#8be9fd")
+		.with("flops", () => "#c678dd")
 		.otherwise(() => "#8892b0");
 }
 
-const nodeStyle = (borderColor: string, selected: boolean) => css`
-	background: #16213e;
-	border: 2px solid ${selected ? "#ffffff" : borderColor};
-	border-radius: 8px;
-	padding: 8px 12px;
-	min-width: 140px;
-	cursor: grab;
-`;
+function getStateStyle(
+	state: NodeStateEnum | undefined,
+	currency: string,
+	selected: boolean,
+): { borderColor: string; opacity: number; cursor: string } {
+	if (!state) {
+		// Editor mode — border by currency, full opacity
+		return {
+			borderColor: selected ? "#ffffff" : getCurrencyColor(currency),
+			opacity: 1,
+			cursor: "grab",
+		};
+	}
+	return match(state)
+		.with(NodeStateEnum.locked, () => ({
+			borderColor: "#1e2630",
+			opacity: 0.4,
+			cursor: "default",
+		}))
+		.with(NodeStateEnum.visible, () => ({
+			borderColor: "#1e2630",
+			opacity: 0.6,
+			cursor: "default",
+		}))
+		.with(NodeStateEnum.affordable, () => ({
+			borderColor: "#58a6ff",
+			opacity: 1,
+			cursor: "pointer",
+		}))
+		.with(NodeStateEnum.owned, () => ({
+			borderColor: "#3fb950",
+			opacity: 0.8,
+			cursor: "default",
+		}))
+		.exhaustive();
+}
 
-const rowStyle = css`
-	display: flex;
-	align-items: center;
-	gap: 6px;
-`;
+function getSubtitle(node: Record<string, unknown>): string {
+	const state = node.state as NodeStateEnum | undefined;
+	const owned = node.owned as number | undefined;
+	const max = node.max as number | undefined;
 
-const nameStyle = css`
-	color: #ccd6f6;
-	font-size: 13px;
-	font-weight: 600;
-	white-space: nowrap;
-`;
+	if (state && owned !== undefined && max !== undefined) {
+		if (owned >= max) return max === 1 ? "Researched" : `${owned}/${max}`;
+		return `${owned}/${max}`;
+	}
+	// Editor mode — show base cost
+	const currency = (node.currency as string) ?? "cash";
+	return `${node.baseCost as number} ${currency}`;
+}
 
-const costStyle = css`
-	color: #8892b0;
-	font-size: 11px;
-	margin-top: 2px;
-`;
+const rowStyle = css({
+	display: "flex",
+	alignItems: "center",
+	gap: 6,
+});
+
+const nameStyle = css({
+	color: "#ccd6f6",
+	fontSize: 13,
+	fontWeight: 600,
+	whiteSpace: "nowrap",
+});
+
+const subtitleStyle = css({
+	color: "#8892b0",
+	fontSize: 11,
+	marginTop: 2,
+});
 
 export function TechNodeComponent({ data, selected }: NodeProps) {
 	const node = data as Record<string, unknown>;
 	const currency = (node.currency as string) ?? "cash";
-	const borderColor = getTierColor(currency);
+	const state = node.state as NodeStateEnum | undefined;
+	const style = getStateStyle(state, currency, selected ?? false);
 
 	return (
-		<div css={nodeStyle(borderColor, selected ?? false)}>
+		<div
+			css={css({
+				background: "#16213e",
+				border: `2px solid ${style.borderColor}`,
+				borderRadius: 8,
+				padding: "8px 12px",
+				minWidth: 140,
+				cursor: style.cursor,
+				opacity: style.opacity,
+				transition: "opacity 0.2s, border-color 0.2s",
+			})}
+		>
 			<Handle type="target" position={Position.Top} />
 			<div css={rowStyle}>
 				<span>{node.icon as string}</span>
 				<span css={nameStyle}>{node.name as string}</span>
 			</div>
-			<div css={costStyle}>
-				{node.baseCost as number} {currency}
-			</div>
+			<div css={subtitleStyle}>{getSubtitle(node)}</div>
 			<Handle type="source" position={Position.Bottom} />
 		</div>
 	);
