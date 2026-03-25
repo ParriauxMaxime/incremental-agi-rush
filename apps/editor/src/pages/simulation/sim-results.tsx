@@ -149,7 +149,7 @@ export function SimResults({ result }: SimResultsProps) {
 			<CashChart snapshots={result.snapshots} />
 
 			<div css={sectionTitleCss}>Tier Timeline</div>
-			<TierTimeline tierTimes={result.tierTimes} endTime={result.endTime} />
+			<TierTimeline tierTimes={result.tierTimes} endTime={result.endTime} purchases={result.purchases} />
 		</div>
 	);
 }

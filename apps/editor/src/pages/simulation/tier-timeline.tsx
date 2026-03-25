@@ -1,11 +1,18 @@
+import type { SimPurchase } from "@agi-rush/engine";
 import { css } from "@emotion/react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const containerCss = css({
 	background: "#161b22",
 	border: "1px solid #1e2630",
 	borderRadius: 6,
 	padding: 16,
+});
+
+const purchaseRowCss = css({
+	position: "relative",
+	height: 24,
+	marginBottom: 4,
 });
 
 const barContainerCss = css({
@@ -21,12 +28,27 @@ const legendCss = css({
 	gap: 16,
 	fontSize: 11,
 	color: "#6272a4",
+	flexWrap: "wrap",
 });
 
 const legendItemCss = css({
 	display: "flex",
 	alignItems: "center",
 	gap: 4,
+});
+
+const tooltipCss = css({
+	position: "absolute",
+	bottom: "100%",
+	transform: "translateX(-50%)",
+	background: "#2a2a4a",
+	color: "#e0e0e0",
+	fontSize: 10,
+	padding: "3px 6px",
+	borderRadius: 3,
+	whiteSpace: "nowrap",
+	pointerEvents: "none",
+	zIndex: 10,
 });
 
 const TIER_COLORS = [
@@ -38,12 +60,22 @@ const TIER_COLORS = [
 	"#56b6c2",
 ];
 
+const PURCHASE_COLORS: Record<string, string> = {
+	upgrade: "#3fb950",
+	tech: "#58a6ff",
+	tier: "#e5c07b",
+	ai: "#c678dd",
+};
+
 interface TierTimelineProps {
 	tierTimes: Record<number, number>;
 	endTime: number;
+	purchases?: SimPurchase[];
 }
 
-export function TierTimeline({ tierTimes, endTime }: TierTimelineProps) {
+export function TierTimeline({ tierTimes, endTime, purchases }: TierTimelineProps) {
+	const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
 	const segments = useMemo(() => {
 		const entries = Object.entries(tierTimes)
 			.map(([k, v]) => ({ tier: Number(k), time: v }))
@@ -64,6 +96,38 @@ export function TierTimeline({ tierTimes, endTime }: TierTimelineProps) {
 
 	return (
 		<div css={containerCss}>
+			{purchases && purchases.length > 0 && (
+				<div css={purchaseRowCss}>
+					{purchases.map((p, i) => {
+						const left = (p.time / endTime) * 100;
+						const color = PURCHASE_COLORS[p.type] ?? "#888";
+						return (
+							<div
+								key={i}
+								onMouseEnter={() => setHoveredIdx(i)}
+								onMouseLeave={() => setHoveredIdx(null)}
+								css={css({
+									position: "absolute",
+									left: `${left}%`,
+									bottom: 0,
+									width: 2,
+									height: 12,
+									background: color,
+									opacity: 0.7,
+									cursor: "default",
+									"&:hover": { opacity: 1, height: 18 },
+								})}
+							>
+								{hoveredIdx === i && (
+									<div css={tooltipCss}>
+										{p.name} ({Math.round(p.time)}s)
+									</div>
+								)}
+							</div>
+						);
+					})}
+				</div>
+			)}
 			<div css={barContainerCss}>
 				{segments.map((s) => (
 					<div
@@ -99,6 +163,23 @@ export function TierTimeline({ tierTimes, endTime }: TierTimelineProps) {
 						Tier {s.tier}: {Math.round(s.duration)}s
 					</div>
 				))}
+				{purchases && (
+					<>
+						<div css={css({ width: 1, background: "#2a2a4a", margin: "0 4px" })} />
+						{Object.entries(PURCHASE_COLORS).map(([type, color]) => (
+							<div key={type} css={legendItemCss}>
+								<div
+									css={css({
+										width: 2,
+										height: 10,
+										background: color,
+									})}
+								/>
+								{type}
+							</div>
+						))}
+					</>
+				)}
 			</div>
 		</div>
 	);
