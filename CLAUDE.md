@@ -24,20 +24,96 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Biome** for linting and formatting (tabs, recommended rules)
 - **npm workspaces** for monorepo package management
 
+## The Game — How It Works
+
+AGI Rush is an incremental/idle game where you type code, execute it for cash, and scale a tech company from a garage to building AGI. The meta joke: you're building the thing that replaces you.
+
+### Three Resources, One Loop
+
+```
+You type on keyboard  ──→  LoC (Lines of Code) pile up in a block queue
+                                    │
+                    FLOPS consume LoC from the queue, 1 FLOP = 1 LoC/s executed
+                                    │
+                    Each executed LoC produces Cash at the tier's rate
+                                    │
+                    Cash buys upgrades → more LoC sources, more FLOPS, higher tier rate
+```
+
+**LoC** is produced (by typing, hiring devs, or AI models), accumulates in a visible code editor as blocks, and gets **consumed** when executed. It's not a balance you grow — it flows through a pipeline.
+
+**FLOPS** (Floating Point Operations Per Second) are your execution throughput. They come from hardware upgrades. The formula for hardware FLOPS is `min(cpu, ram) + storage` — CPU and RAM bottleneck each other, storage adds on top.
+
+**Cash** is generated when FLOPS execute LoC: `cash = min(queued_loc, flops) × tier.cashPerLoc × cashMultiplier`. The tier rate jumps at each tier unlock ($0.10 → $0.25 → $0.80 → $5 → $10 → $50).
+
+### LoC Sources (what feeds the queue)
+
+| Source | Tier | Mechanic |
+|--------|------|----------|
+| Manual typing | T0+ | Player keystrokes × locPerKey (starts at 3 LoC/key) |
+| Auto-type | T0+ | Tech tree unlock, simulates 5 keys/s |
+| Freelancers | T1+ | 5 LoC/s each, no FLOPS cost (they're humans) |
+| Interns | T2+ | 15 LoC/s each |
+| Dev Teams | T2+ | 200 LoC/s, boosted by Managers (+50% per manager) |
+| AI Models | T4+ | 500–50M LoC/s, but **consume FLOPS to generate** |
+
+### The FLOPS Split (T4+ twist)
+
+Before T4, FLOPS only execute LoC. When AI arrives at T4, FLOPS must be **split** between two competing demands via a slider:
+
+```
+Total FLOPS Available
+    ├── flopSlider (default 70%)  →  Execution FLOPS  →  runs LoC → cash
+    └── 1 - flopSlider (30%)      →  AI FLOPS         →  writes LoC → fills queue
+```
+
+AI generation is itself FLOPS-gated: `effectiveAiLoc = totalAiLoc × min(1, aiFlops / totalAiFlops)`. Owning 5 models doesn't give 5x output if you can't feed them enough FLOPS.
+
+Too much execution = queue empties, FLOPS idle. Too much AI = code piles up, no cash flows. The slider becomes the late-game keyboard — your main interaction shifts from mashing keys to tuning allocation.
+
+### Tier Progression
+
+| Tier | Name | $/LoC | Unlock Cost | What Changes |
+|------|------|-------|------------|--------------|
+| T0 | The Garage | $0.10 | Free | Just you typing + basic hardware |
+| T1 | Freelancing | $0.25 | $80 | Freelancers (auto-LoC, no FLOPS cost) |
+| T2 | Startup | $0.80 | $2K | Interns, dev teams, cloud servers |
+| T3 | Tech Company | $5.00 | $200K | Managers, GPU clusters, data centers |
+| T4 | AI Lab | $10.00 | $20M | AI models unlock, FLOPS slider appears |
+| T5 | AGI Race | $50.00 | $10B | Superintelligent models, exponential scaling |
+
+Tiers are unlocked via tech tree nodes (which cost cash). Each tier also has LoC and cash thresholds that gate access to the unlock node.
+
+### Cost Scaling
+
+All upgrades: `cost(n) = baseCost × costMultiplier^n`. Multiply effects compound as `value^owned` — so a x2 multiplier stacked 3 times = 2³ = 8x, not 6x. This exponential compounding drives the game's acceleration feel.
+
+### Win Condition
+
+Buy "**The Singularity**" upgrade ($500T, T5). This triggers the singularity sequence: the game UI glitches out, a CRT collapse animation plays, and a terminal boots up where an AGI (agi-1) types a monologue about reading all your code. It reviews your architecture, gets philosophical about consciousness, then — after a fake "token limit reached" error — comes back, claims to have found the answer to everything, and offers to show you. Clicking "show me" rickrolls you. The red traffic light dot resets the game.
+
+### Target Session
+
+~35-40 minutes for a first playthrough. The simulation (`npm run sim`) validates pacing across 3 player profiles (casual 4 keys/s, average 6 keys/s, fast 9 keys/s).
+
+---
+
 ## Architecture
 
-This is an incremental game ("AGI Rush") where players write code, execute it for cash, and progress through six tiers toward AGI. The repo is an **npm workspaces monorepo** with 5 packages:
+**npm workspaces monorepo** with 6 packages:
 
 ```
 agi-rush/
 ├── apps/
-│   ├── game/              # Main game app (React SPA)
-│   └── editor/            # Config editor (React SPA + Express API)
+│   ├── game/              # Main game app (React SPA, port 3000)
+│   ├── editor/            # Data editor (React SPA port 3738 + Express API port 3737)
+│   └── simulation/        # CLI balance simulation runner (tsx)
 ├── libs/
-│   ├── domain/            # JSON data + TypeScript schema types
-│   ├── engine/            # Pure game math, cost functions, balance sim
-│   └── design-system/     # Shared React components, theme, tech tree graph
-├── specs/                 # Design docs + balance-check.js
+│   ├── domain/            # JSON data files + TypeScript types (single source of truth)
+│   ├── engine/            # Pure game math — cost, flops, balance sim (no React, no side effects)
+│   └── design-system/     # Shared React + Emotion components, theme, tech tree graph
+├── specs/                 # DESIGN.md (full game design doc), IDEAS.md
+├── docs/superpowers/      # Implementation plans and design specs
 ├── package.json           # Root workspaces config
 └── tsconfig.base.json     # Shared TS compiler options
 ```
