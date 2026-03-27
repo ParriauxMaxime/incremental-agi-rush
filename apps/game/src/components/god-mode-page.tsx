@@ -27,6 +27,32 @@ const stdBumps = [1_000, 1_000_000, 1_000_000_000, 1_000_000_000_000];
 
 // ── Collapsible section ──
 
+const GOD_MODE_STORAGE_KEY = "flopsed-godmode-sections";
+
+function readSectionState(id: string, defaultOpen: boolean): boolean {
+	try {
+		const raw = localStorage.getItem(GOD_MODE_STORAGE_KEY);
+		if (raw) {
+			const parsed = JSON.parse(raw);
+			if (id in parsed) return parsed[id] as boolean;
+		}
+	} catch {
+		// ignore
+	}
+	return defaultOpen;
+}
+
+function writeSectionState(id: string, open: boolean) {
+	try {
+		const raw = localStorage.getItem(GOD_MODE_STORAGE_KEY);
+		const parsed = raw ? JSON.parse(raw) : {};
+		parsed[id] = open;
+		localStorage.setItem(GOD_MODE_STORAGE_KEY, JSON.stringify(parsed));
+	} catch {
+		// ignore
+	}
+}
+
 function Section({
 	title,
 	defaultOpen = true,
@@ -37,7 +63,13 @@ function Section({
 	children: React.ReactNode;
 }) {
 	const theme = useIdeTheme();
-	const [open, setOpen] = useState(defaultOpen);
+	const [open, setOpen] = useState(() => readSectionState(title, defaultOpen));
+
+	const toggle = () => {
+		const next = !open;
+		setOpen(next);
+		writeSectionState(title, next);
+	};
 
 	return (
 		<div css={{ borderBottom: `1px solid ${theme.border}` }}>
@@ -59,7 +91,7 @@ function Section({
 					textAlign: "left",
 					"&:hover": { background: theme.hoverBg },
 				}}
-				onClick={() => setOpen(!open)}
+				onClick={toggle}
 			>
 				<span css={{ fontSize: 10, width: 12 }}>{open ? "▾" : "▸"}</span>
 				{title}
