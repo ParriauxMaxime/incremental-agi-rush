@@ -557,7 +557,16 @@ export function App() {
 							onToggleSplit={toggleSplit}
 						/>
 						{splitEnabled && (
-							<TabbedPane activePage={rightPage} onSetPage={setRightPage} />
+							<>
+								<div
+									css={{
+										width: 1,
+										background: theme.border,
+										flexShrink: 0,
+									}}
+								/>
+								<TabbedPane activePage={rightPage} onSetPage={setRightPage} />
+							</>
 						)}
 
 						{!statsPanelUnlocked || statsPanelCollapsed ? (

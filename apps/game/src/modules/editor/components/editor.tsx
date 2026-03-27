@@ -37,7 +37,7 @@ const statusBarStyle = css({
 // Static layout styles (no colors — those come from the theme)
 const editorLayoutCss = css({
 	flex: 1,
-	overflowY: "auto",
+	overflowY: "scroll",
 	fontSize: 13,
 	lineHeight: 1.6,
 	cursor: "text",
@@ -285,7 +285,16 @@ export function Editor() {
 	prevQueueLen.current = blockQueue.length;
 
 	// ── Compute visible window ──
-	const contentHeight = totalLines * LINE_HEIGHT;
+	// Use a high-water mark so the scrollbar doesn't shrink on every consumed block
+	const rawContentHeight = totalLines * LINE_HEIGHT;
+	const highWaterRef = useRef(rawContentHeight);
+	if (rawContentHeight > highWaterRef.current) {
+		highWaterRef.current = rawContentHeight;
+	} else if (rawContentHeight < highWaterRef.current * 0.5) {
+		// Reset when content drops significantly (e.g. after big execution burst)
+		highWaterRef.current = rawContentHeight;
+	}
+	const contentHeight = Math.max(rawContentHeight, highWaterRef.current);
 	const startIdx = Math.max(0, Math.floor(scrollTop / LINE_HEIGHT) - OVERSCAN);
 	const visibleCount = Math.ceil(viewportHeight / LINE_HEIGHT) + OVERSCAN * 2;
 	const endIdx = Math.min(totalLines, startIdx + visibleCount);
