@@ -66,33 +66,33 @@ export function AnalyticsDashboard() {
 			rows.push({
 				name: "Freelancers",
 				locPerSec: freelancerLocPerSec,
-				color: theme.success,
+				color: theme.locColor,
 				count: ownedUpgrades.malt_freelancer,
 			});
 		if ((ownedUpgrades.intern ?? 0) > 0)
 			rows.push({
 				name: "Interns",
 				locPerSec: internLocPerSec,
-				color: theme.accent,
+				color: theme.locColor,
 				count: ownedUpgrades.intern,
 			});
 		if ((ownedUpgrades.dev_team ?? 0) > 0)
 			rows.push({
 				name: "Dev Teams",
 				locPerSec: teamLocPerSec,
-				color: theme.keyword,
+				color: theme.locColor,
 				count: ownedUpgrades.dev_team,
 			});
 		if (devLocPerSec > 0 && (ownedUpgrades.dev_team ?? 0) === 0)
 			rows.push({
 				name: "Devs",
 				locPerSec: devLocPerSec,
-				color: theme.accent,
+				color: theme.locColor,
 			});
 		rows.push({
 			name: "You",
 			locPerSec: locPerKey * 6,
-			color: theme.keyword,
+			color: theme.locColor,
 		});
 		return rows;
 	}, [
@@ -160,7 +160,7 @@ export function AnalyticsDashboard() {
 			</div>
 
 			<div css={sectionCss}>
-				<div css={[sectionLabelCss, { color: theme.success }]}>Human</div>
+				<div css={[sectionLabelCss, { color: theme.locColor }]}>Human</div>
 				{humanSources.map((s) => (
 					<div css={rowCss} key={s.name}>
 						<span

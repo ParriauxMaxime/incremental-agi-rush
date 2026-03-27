@@ -42,6 +42,10 @@ export interface EditorTheme {
 	textMuted: string;
 	accent: string;
 	success: string;
+	// Resource colors (consistent across all UI)
+	cashColor: string;
+	locColor: string;
+	flopsColor: string;
 }
 
 export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
@@ -74,6 +78,9 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		textMuted: "#858585",
 		accent: "#528bff",
 		success: "#4ec9b0",
+		cashColor: "#e5c07b",
+		locColor: "#61afef",
+		flopsColor: "#c678dd",
 	},
 	[EditorThemeEnum.monokai]: {
 		name: "Monokai",
@@ -104,6 +111,9 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		textMuted: "#75715e",
 		accent: "#66d9ef",
 		success: "#a6e22e",
+		cashColor: "#e5c07b",
+		locColor: "#61afef",
+		flopsColor: "#c678dd",
 	},
 	[EditorThemeEnum.github_dark]: {
 		name: "GitHub Dark",
@@ -134,6 +144,9 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		textMuted: "#8b949e",
 		accent: "#58a6ff",
 		success: "#3fb950",
+		cashColor: "#e5c07b",
+		locColor: "#61afef",
+		flopsColor: "#c678dd",
 	},
 	[EditorThemeEnum.github_light]: {
 		name: "GitHub Light",
@@ -164,6 +177,9 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		textMuted: "#6e7781",
 		accent: "#0969da",
 		success: "#1a7f37",
+		cashColor: "#e5c07b",
+		locColor: "#61afef",
+		flopsColor: "#c678dd",
 	},
 	[EditorThemeEnum.solarized_dark]: {
 		name: "Solarized Dark",
@@ -194,6 +210,9 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		textMuted: "#586e75",
 		accent: "#268bd2",
 		success: "#859900",
+		cashColor: "#e5c07b",
+		locColor: "#61afef",
+		flopsColor: "#c678dd",
 	},
 	[EditorThemeEnum.solarized_light]: {
 		name: "Solarized Light",
@@ -224,6 +243,9 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		textMuted: "#93a1a1",
 		accent: "#268bd2",
 		success: "#859900",
+		cashColor: "#e5c07b",
+		locColor: "#61afef",
+		flopsColor: "#c678dd",
 	},
 	[EditorThemeEnum.dracula]: {
 		name: "Dracula",
@@ -254,6 +276,9 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		textMuted: "#6272a4",
 		accent: "#bd93f9",
 		success: "#50fa7b",
+		cashColor: "#e5c07b",
+		locColor: "#61afef",
+		flopsColor: "#c678dd",
 	},
 	[EditorThemeEnum.nord]: {
 		name: "Nord",
@@ -284,5 +309,8 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		textMuted: "#616e88",
 		accent: "#88c0d0",
 		success: "#a3be8c",
+		cashColor: "#e5c07b",
+		locColor: "#61afef",
+		flopsColor: "#c678dd",
 	},
 };

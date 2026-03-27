@@ -147,9 +147,7 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 	const ownedUpgrades = useGameStore((s) => s.ownedUpgrades);
 	const theme = useIdeTheme();
 
-	const locRate = useRatePerSec(totalLoc);
 	const cashRate = useRatePerSec(totalCash);
-	const execRate = useRatePerSec(totalExecutedLoc);
 
 	const tier = tiers[currentTierIndex];
 	const cashPerLoc = tier?.cashPerLoc ?? 0.1;
@@ -446,48 +444,42 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 
 					<div css={statRowCss}>
 						<div css={statLabelCss}>
-							<span style={{ color: theme.accent }}>◇</span> LoC
-						</div>
-						<div>
-							<div css={statValueCss}>
-								<RollingNumber value={formatNumber(loc)} color={theme.accent} />
-							</div>
-							<div css={statRateCss}>
-								{locRate > 0.1 ? `+${formatNumber(locRate)}/s` : ""}
-							</div>
-						</div>
-					</div>
-
-					<div css={statRowCss}>
-						<div css={statLabelCss}>
-							<span style={{ color: "#d4a574" }}>$</span> Cash
+							<span style={{ color: theme.cashColor }}>$</span> Cash
 						</div>
 						<div>
 							<div css={statValueCss}>
 								<RollingNumber
 									value={`$${formatNumber(cash, true)}`}
-									color="#d4a574"
+									color={theme.cashColor}
 								/>
-							</div>
-							<div css={statRateCss}>
-								{cashRate > 0.1 ? `+$${formatNumber(cashRate, true)}/s` : ""}
 							</div>
 						</div>
 					</div>
 
 					<div css={statRowCss}>
 						<div css={statLabelCss}>
-							<span style={{ color: theme.accent }}>⚡</span> FLOPS
+							<span style={{ color: theme.locColor }}>◇</span> LoC
+						</div>
+						<div>
+							<div css={statValueCss}>
+								<RollingNumber
+									value={formatNumber(loc)}
+									color={theme.locColor}
+								/>
+							</div>
+						</div>
+					</div>
+
+					<div css={statRowCss}>
+						<div css={statLabelCss}>
+							<span style={{ color: theme.flopsColor }}>⚡</span> FLOPS
 						</div>
 						<div>
 							<div css={statValueCss}>
 								<RollingNumber
 									value={formatNumber(flops)}
-									color={theme.accent}
+									color={theme.flopsColor}
 								/>
-							</div>
-							<div css={statRateCss}>
-								{execRate > 0.1 ? `${formatNumber(execRate)} exec/s` : ""}
 							</div>
 						</div>
 					</div>

@@ -1,7 +1,6 @@
 import { css } from "@emotion/react";
 import { tiers, useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
-import { useEffect, useRef, useState } from "react";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 
 const barCss = css({
@@ -34,41 +33,12 @@ const statCss = css({
 	fontVariantNumeric: "tabular-nums",
 });
 
-const rateCss = css({
-	opacity: 0.7,
-	fontSize: 11,
-});
-
-function useRatePerSec(value: number): number {
-	const valueRef = useRef(value);
-	valueRef.current = value;
-	const prevRef = useRef(value);
-	const [rate, setRate] = useState(0);
-
-	useEffect(() => {
-		const id = setInterval(() => {
-			setRate(Math.max(0, valueRef.current - prevRef.current));
-			prevRef.current = valueRef.current;
-		}, 1000);
-		return () => clearInterval(id);
-	}, []);
-
-	return rate;
-}
-
 export function StatusBar() {
 	const cash = useGameStore((s) => s.cash);
 	const loc = useGameStore((s) => s.loc);
-	const totalLoc = useGameStore((s) => s.totalLoc);
-	const totalCash = useGameStore((s) => s.totalCash);
-	const totalExecutedLoc = useGameStore((s) => s.totalExecutedLoc);
 	const flops = useGameStore((s) => s.flops);
 	const currentTierIndex = useGameStore((s) => s.currentTierIndex);
 	const theme = useIdeTheme();
-
-	const locRate = useRatePerSec(totalLoc);
-	const cashRate = useRatePerSec(totalCash);
-	const execRate = useRatePerSec(totalExecutedLoc);
 
 	const tier = tiers[currentTierIndex];
 
@@ -82,24 +52,9 @@ export function StatusBar() {
 		>
 			<div css={leftCss}>
 				<span css={statCss}>⚡ {tier?.name ?? "—"}</span>
-				<span css={statCss}>
-					${formatNumber(cash, true)}
-					{cashRate > 0.1 && (
-						<span css={rateCss}> (+${formatNumber(cashRate, true)}/s)</span>
-					)}
-				</span>
-				<span css={statCss}>
-					◇ {formatNumber(loc)} LoC
-					{locRate > 0.1 && (
-						<span css={rateCss}> (+{formatNumber(locRate)}/s)</span>
-					)}
-				</span>
-				<span css={statCss}>
-					⚡ {formatNumber(flops)} FLOPS
-					{execRate > 0.1 && (
-						<span css={rateCss}> ({formatNumber(execRate)} exec/s)</span>
-					)}
-				</span>
+				<span css={statCss}>${formatNumber(cash, true)}</span>
+				<span css={statCss}>◇ {formatNumber(loc)} LoC</span>
+				<span css={statCss}>⚡ {formatNumber(flops)} FLOPS</span>
 			</div>
 			<div css={rightCss}>
 				<span>${tier?.cashPerLoc ?? 0}/loc</span>

@@ -115,14 +115,14 @@ function formatEffect(
 	if (effect.op === "enable" && effect.type === "singularity")
 		return { text: "🌀 AGI", color: "#e94560" };
 	if (effect.type === "instantCash")
-		return { text: `+$${formatNumber(val)}`, color: theme.success };
+		return { text: `+$${formatNumber(val)}`, color: theme.cashColor };
 	if (effect.type === "llmHostSlot")
-		return { text: `+${val} AI slot`, color: theme.number };
+		return { text: `+${val} AI slot`, color: theme.flopsColor };
 	if (effect.type === "managerLoc")
-		return { text: "+50% teams", color: theme.keyword };
+		return { text: "+50% teams", color: theme.locColor };
 
 	if (effect.op === "multiply")
-		return { text: `×${val}`, color: theme.keyword };
+		return { text: `×${val}`, color: theme.cashColor };
 
 	const locTypes = [
 		"freelancerLoc",
@@ -133,11 +133,11 @@ function formatEffect(
 		"agentLoc",
 	];
 	if (locTypes.includes(effect.type))
-		return { text: `+${formatNumber(val)} loc/s`, color: theme.accent };
+		return { text: `+${formatNumber(val)} loc/s`, color: theme.locColor };
 
 	const flopTypes = ["flops", "cpuFlops", "ramFlops", "storageFlops"];
 	if (flopTypes.includes(effect.type))
-		return { text: `+${formatNumber(val)} flops`, color: theme.type };
+		return { text: `+${formatNumber(val)} flops`, color: theme.flopsColor };
 
 	return { text: effect.type, color: theme.textMuted };
 }
@@ -198,33 +198,48 @@ function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
 			role="button"
 			tabIndex={0}
 		>
-			<div css={itemRow1Css}>
-				<span>{upgrade.icon}</span>
-				<span css={itemNameCss} style={{ color: nameColor }}>
-					{upgrade.name}
-				</span>
+			<div css={{ display: "flex", gap: 6 }}>
+				{/* Left: icon + name + effect */}
+				<div css={{ flex: 1, minWidth: 0 }}>
+					<div css={itemRow1Css}>
+						<span>{upgrade.icon}</span>
+						<span css={itemNameCss} style={{ color: nameColor }}>
+							{upgrade.name}
+						</span>
+						<span
+							css={itemCountCss}
+							style={{ color: maxed ? theme.success : theme.lineNumbers }}
+						>
+							{effectiveMax === 1
+								? owned > 0
+									? "✓"
+									: ""
+								: `${owned}/${effectiveMax}`}
+						</span>
+					</div>
+					{effect && (
+						<div css={itemRow2Css}>
+							<span css={effectCss} style={{ color: effect.color }}>
+								{effect.text}
+							</span>
+						</div>
+					)}
+				</div>
+				{/* Right: price badge, full height */}
 				<span
-					css={itemCountCss}
-					style={{ color: maxed ? theme.success : theme.lineNumbers }}
-				>
-					{effectiveMax === 1
-						? owned > 0
-							? "✓"
-							: ""
-						: `${owned}/${effectiveMax}`}
-				</span>
-			</div>
-			<div css={itemRow2Css}>
-				{effect && (
-					<span css={effectCss} style={{ color: effect.color }}>
-						{effect.text}
-					</span>
-				)}
-				<span
-					css={priceBadgeCss}
+					css={{
+						display: "flex",
+						alignItems: "center",
+						padding: "0 8px",
+						borderRadius: 3,
+						fontSize: 11,
+						fontWeight: 600,
+						flexShrink: 0,
+						fontVariantNumeric: "tabular-nums",
+					}}
 					style={{
-						background: maxed ? theme.activeBg : theme.hoverBg,
-						color: maxed ? theme.success : theme.number,
+						background: maxed ? theme.activeBg : `${theme.cashColor}18`,
+						color: maxed ? theme.success : theme.cashColor,
 					}}
 				>
 					{maxed ? "MAXED" : `$${formatNumber(cost)}`}
