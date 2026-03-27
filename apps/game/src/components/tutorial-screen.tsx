@@ -1,52 +1,54 @@
-import { css, keyframes } from "@emotion/react";
+import { css } from "@emotion/react";
 import { useGameStore, useUiStore } from "@modules/game";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 
 // ── Tip definitions ──
 
 interface TipDef {
 	id: string;
-	title: string;
 	lines: string[];
-	duration: number; // auto-dismiss in seconds
 }
 
 const tips: TipDef[] = [
 	{
 		id: "welcome",
-		title: "$ init agi-rush",
-		duration: 8,
 		lines: [
-			"A garage. A keyboard. A dream.",
-			"Type. Every keystroke writes code. Code is money (eventually).",
+			"$ init agi-rush",
+			"✓ Loading garage environment...",
+			"",
+			"A keyboard. A dream. Type to write code.",
+			"Every keystroke = Lines of Code.",
 		],
 	},
 	{
 		id: "tech_tree_intro",
-		title: "$ cat tech-tree.svg",
-		duration: 10,
 		lines: [
-			"The tech tree just appeared →",
-			"Spend cash and LoC to research upgrades. Start with the basics.",
+			"$ open tech-tree.svg",
+			"✓ Tech tree loaded →",
+			"",
+			"Research upgrades here. Spend cash and LoC.",
+			"Start with the basics. Work your way up.",
 		],
 	},
 	{
 		id: "sidebar_intro",
-		title: "$ ls upgrades/",
-		duration: 10,
 		lines: [
-			"← File explorer unlocked.",
-			"Buy upgrades here. More FLOPS = more execution. More devs = more code.",
+			"$ ls upgrades/",
+			"✓ File explorer unlocked ←",
+			"",
+			"Browse and buy upgrades by tier.",
+			"More FLOPS = faster execution. More devs = more code.",
 		],
 	},
 	{
 		id: "execution_intro",
-		title: "$ ./execute.sh",
-		duration: 10,
 		lines: [
-			"Your code piles up. FLOPS burn through it. Each line executed = cash.",
+			"$ cat README.md",
+			"",
 			"  type → queue → execute → $$$",
+			"",
+			"Code piles up. FLOPS burn through it. Cash flows.",
 		],
 	},
 ];
@@ -70,29 +72,24 @@ const triggers: Array<{ id: string; test: (s: GameState) => boolean }> = [
 	},
 ];
 
-// ── Watcher hook ──
+// ── Watcher hook — pushes lines to terminal log ──
 
 export function useTutorialTriggers() {
-	const cooldownRef = useRef(false);
-
 	useEffect(() => {
-		const unsubUi = useUiStore.subscribe((cur, prev) => {
-			if (prev.activeTip !== null && cur.activeTip === null) {
-				cooldownRef.current = true;
-				setTimeout(() => {
-					cooldownRef.current = false;
-				}, 3000);
-			}
-		});
-
 		const unsub = useGameStore.subscribe((state) => {
-			if (cooldownRef.current) return;
 			const uiState = useUiStore.getState();
-			if (uiState.activeTip !== null) return;
 			for (const trigger of triggers) {
 				if (uiState.seenTips.includes(trigger.id)) continue;
 				if (trigger.test(state)) {
 					uiState.showTip(trigger.id);
+					const tip = tipMap.get(trigger.id);
+					if (tip) {
+						for (const line of tip.lines) {
+							uiState.pushTerminalLine(line);
+						}
+						// Blank line after each tip block
+						uiState.pushTerminalLine("");
+					}
 					// Auto-open split when tech tree tip triggers
 					if (trigger.id === "tech_tree_intro" && !uiState.splitEnabled) {
 						uiState.toggleSplit();
@@ -103,61 +100,62 @@ export function useTutorialTriggers() {
 		});
 
 		// Initial check for welcome
-		const { seenTips, activeTip, showTip } = useUiStore.getState();
-		if (!seenTips.includes("welcome") && activeTip === null) {
-			showTip("welcome");
+		const uiState = useUiStore.getState();
+		if (!uiState.seenTips.includes("welcome")) {
+			uiState.showTip("welcome");
+			const tip = tipMap.get("welcome");
+			if (tip) {
+				for (const line of tip.lines) {
+					uiState.pushTerminalLine(line);
+				}
+				uiState.pushTerminalLine("");
+			}
 		}
 
-		return () => {
-			unsub();
-			unsubUi();
-		};
+		return () => unsub();
 	}, []);
 }
 
-// ── Countdown button animation ──
+// ── Keyboard shortcuts hook ──
 
-function countdownBorder(duration: number, color: string) {
-	const anim = keyframes({
-		from: {
-			backgroundSize: "100% 2px, 2px 100%, 100% 2px, 2px 100%",
-		},
-		to: {
-			backgroundSize: "0% 2px, 2px 0%, 0% 2px, 2px 0%",
-		},
-	});
+export function useKeyboardShortcuts() {
+	useEffect(() => {
+		function onKey(e: KeyboardEvent) {
+			// Only trigger with Ctrl held, and not when typing in an input
+			if (!e.ctrlKey) return;
+			const tag = (e.target as HTMLElement).tagName;
+			if (tag === "INPUT" || tag === "TEXTAREA") return;
 
-	return css({
-		position: "relative",
-		fontSize: 12,
-		padding: "5px 16px",
-		borderRadius: 3,
-		cursor: "pointer",
-		fontFamily: "inherit",
-		transition: "background 0.15s, color 0.15s",
-		border: "1px solid transparent",
-		background: "transparent",
-		// Animated border using gradients
-		backgroundImage: `
-			linear-gradient(${color}, ${color}),
-			linear-gradient(${color}, ${color}),
-			linear-gradient(${color}, ${color}),
-			linear-gradient(${color}, ${color})
-		`,
-		backgroundPosition: "top left, top right, bottom right, bottom left",
-		backgroundRepeat: "no-repeat",
-		backgroundSize: "100% 2px, 2px 100%, 100% 2px, 2px 100%",
-		animation: `${anim} ${duration}s linear forwards`,
-	});
+			const ui = useUiStore.getState();
+			switch (e.key) {
+				case "t":
+					e.preventDefault();
+					ui.toggleTerminal();
+					break;
+				case "b":
+					e.preventDefault();
+					ui.toggleSidebar();
+					break;
+				case "s":
+					e.preventDefault();
+					ui.toggleStatsPanel();
+					break;
+			}
+		}
+		window.addEventListener("keydown", onKey);
+		return () => window.removeEventListener("keydown", onKey);
+	}, []);
 }
 
-// ── Styles ──
+// ── Terminal panel component ──
 
 const panelCss = css({
 	display: "flex",
 	flexDirection: "column",
 	flexShrink: 0,
 	overflow: "hidden",
+	maxHeight: "30%",
+	minHeight: 80,
 });
 
 const tabBarCss = css({
@@ -181,53 +179,40 @@ const tabCss = css({
 	cursor: "pointer",
 });
 
-const contentCss = css({
-	padding: "12px 20px",
-	fontSize: 14,
-	lineHeight: 1.8,
+const logCss = css({
+	flex: 1,
+	overflowY: "auto",
+	padding: "8px 16px",
+	fontFamily: "'Courier New', monospace",
+	fontSize: 13,
+	lineHeight: 1.7,
+	"&::-webkit-scrollbar": { width: 6 },
+	"&::-webkit-scrollbar-track": { background: "transparent" },
 });
 
-// ── Component ──
+const shortcutHintCss = css({
+	fontSize: 10,
+	opacity: 0.5,
+	marginLeft: 6,
+});
 
 export function TutorialTip() {
-	const activeTip = useUiStore((s) => s.activeTip);
-	const dismiss = useUiStore((s) => s.dismissTip);
+	const terminalOpen = useUiStore((s) => s.terminalOpen);
+	const terminalLog = useUiStore((s) => s.terminalLog);
+	const toggleTerminal = useUiStore((s) => s.toggleTerminal);
 	const theme = useIdeTheme();
-	const tip = activeTip ? tipMap.get(activeTip) : null;
-	const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+	const logRef = useRef<HTMLDivElement>(null);
+	const prevLogLen = useRef(terminalLog.length);
 
-	const handleDismiss = useCallback(() => {
-		if (timerRef.current) clearTimeout(timerRef.current);
-		dismiss();
-	}, [dismiss]);
-
-	// Auto-dismiss timer
+	// Auto-scroll when new lines added
 	useEffect(() => {
-		if (!tip) return;
-		timerRef.current = setTimeout(() => {
-			dismiss();
-		}, tip.duration * 1000);
-		return () => {
-			if (timerRef.current) clearTimeout(timerRef.current);
-		};
-	}, [tip, dismiss]);
-
-	// Dismiss on Escape
-	useEffect(() => {
-		if (!activeTip) return;
-		function onKey(e: KeyboardEvent) {
-			if (e.key === "Escape") {
-				e.preventDefault();
-				handleDismiss();
-			}
+		if (terminalLog.length > prevLogLen.current && logRef.current) {
+			logRef.current.scrollTop = logRef.current.scrollHeight;
 		}
-		window.addEventListener("keydown", onKey);
-		return () => window.removeEventListener("keydown", onKey);
-	}, [activeTip, handleDismiss]);
+		prevLogLen.current = terminalLog.length;
+	}, [terminalLog.length]);
 
-	if (!tip) return null;
-
-	const btnCss = countdownBorder(tip.duration, theme.success);
+	if (!terminalOpen || terminalLog.length === 0) return null;
 
 	return (
 		<div css={panelCss} style={{ borderTop: `1px solid ${theme.border}` }}>
@@ -241,11 +226,12 @@ export function TutorialTip() {
 				<span
 					css={tabCss}
 					style={{
-						color: theme.success,
-						borderBottom: `1px solid ${theme.success}`,
+						color: theme.foreground,
+						borderBottom: `1px solid ${theme.foreground}`,
 					}}
 				>
-					Tutorial
+					Terminal
+					<span css={shortcutHintCss}>Ctrl+T</span>
 				</span>
 				<button
 					type="button"
@@ -258,61 +244,37 @@ export function TutorialTip() {
 							"&:hover": { color: theme.foreground },
 						},
 					]}
-					onClick={handleDismiss}
-					title="Dismiss"
+					onClick={toggleTerminal}
+					title="Close terminal (Ctrl+T)"
 				>
 					×
 				</button>
 			</div>
 			<div
-				css={contentCss}
-				style={{ background: theme.panelBg, color: theme.foreground }}
+				ref={logRef}
+				css={logCss}
+				style={{
+					background: theme.panelBg,
+					color: theme.textMuted,
+				}}
 			>
-				<div
-					css={{
-						fontSize: 15,
-						fontWeight: 600,
-						color: theme.success,
-						marginBottom: 8,
-						fontFamily: "'Courier New', monospace",
-					}}
-				>
-					{tip.title}
-				</div>
-				{tip.lines.map((line, i) => (
+				{terminalLog.map((line, i) => (
 					<div
 						key={i}
 						style={{
-							color: line.startsWith("  ") ? theme.foreground : theme.textMuted,
+							color: line.startsWith("$")
+								? theme.success
+								: line.startsWith("✓")
+									? theme.accent
+									: line.startsWith("  ")
+										? theme.foreground
+										: theme.textMuted,
+							minHeight: line === "" ? "0.8em" : undefined,
 						}}
 					>
 						{line || "\u00A0"}
 					</div>
 				))}
-				<div
-					css={{
-						marginTop: 10,
-						display: "flex",
-						justifyContent: "flex-end",
-					}}
-				>
-					<button
-						type="button"
-						css={btnCss}
-						style={{ color: theme.success }}
-						onClick={handleDismiss}
-						onMouseEnter={(e) => {
-							e.currentTarget.style.background = theme.success;
-							e.currentTarget.style.color = theme.background;
-						}}
-						onMouseLeave={(e) => {
-							e.currentTarget.style.background = "transparent";
-							e.currentTarget.style.color = theme.success;
-						}}
-					>
-						got it
-					</button>
-				</div>
 			</div>
 		</div>
 	);

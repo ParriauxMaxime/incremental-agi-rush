@@ -126,7 +126,7 @@ const resourceFields: FieldConfig[] = [
 function CheatsPanel() {
 	const godSet = useGameStore((s) => s.godSet);
 	const reset = useGameStore((s) => s.reset);
-	const resetTips = useUiStore((s) => s.resetTips);
+	const resetAll = useUiStore((s) => s.resetAll);
 	const state = useGameStore(
 		useShallow((s) => ({
 			cash: s.cash,
@@ -227,7 +227,7 @@ function CheatsPanel() {
 				type="button"
 				onClick={() => {
 					reset();
-					resetTips();
+					resetAll();
 					window.location.reload();
 				}}
 			>

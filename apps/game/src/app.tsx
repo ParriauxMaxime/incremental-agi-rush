@@ -5,7 +5,11 @@ import { SidebarTree } from "@components/sidebar-tree";
 import { StatsPanel } from "@components/stats-panel";
 import { StatusBar } from "@components/status-bar";
 import { TechTreePage } from "@components/tech-tree-page";
-import { TutorialTip, useTutorialTriggers } from "@components/tutorial-screen";
+import {
+	TutorialTip,
+	useKeyboardShortcuts,
+	useTutorialTriggers,
+} from "@components/tutorial-screen";
 import { css, Global, keyframes } from "@emotion/react";
 import type { EditorTheme } from "@modules/editor";
 import { EDITOR_THEMES, type EditorThemeEnum } from "@modules/editor";
@@ -414,6 +418,7 @@ function TabbedPane({
 export function App() {
 	useGameLoop();
 	useTutorialTriggers();
+	useKeyboardShortcuts();
 	const isMobile = useIsMobile();
 	const page = useUiStore((s) => s.page);
 	const setPage = useUiStore((s) => s.setPage);

@@ -36,7 +36,8 @@ interface UiState {
 	rightPage: PageEnum;
 	editorTheme: EditorThemeEnum;
 	seenTips: string[];
-	activeTip: string | null;
+	terminalLog: string[];
+	terminalOpen: boolean;
 	techTreeViewport: TechTreeViewport;
 	uiZoom: number;
 	sidebarCollapsed: boolean;
@@ -46,11 +47,12 @@ interface UiState {
 	toggleSplit: () => void;
 	toggleSidebar: () => void;
 	toggleStatsPanel: () => void;
+	toggleTerminal: () => void;
 	setEditorTheme: (theme: EditorThemeEnum) => void;
 	setUiZoom: (size: number) => void;
 	showTip: (id: string) => void;
-	dismissTip: () => void;
-	resetTips: () => void;
+	pushTerminalLine: (line: string) => void;
+	resetAll: () => void;
 	setTechTreeViewport: (viewport: TechTreeViewport) => void;
 }
 
@@ -62,7 +64,8 @@ export const useUiStore = create<UiState>()(
 			rightPage: PageEnum.tech_tree,
 			editorTheme: EditorThemeEnum.one_dark,
 			seenTips: [],
-			activeTip: null,
+			terminalLog: [],
+			terminalOpen: false,
 			techTreeViewport: {
 				x: -850,
 				y: -200,
@@ -78,19 +81,26 @@ export const useUiStore = create<UiState>()(
 				set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
 			toggleStatsPanel: () =>
 				set((s) => ({ statsPanelCollapsed: !s.statsPanelCollapsed })),
+			toggleTerminal: () => set((s) => ({ terminalOpen: !s.terminalOpen })),
 			setEditorTheme: (editorTheme) => set({ editorTheme }),
 			setUiZoom: (value) => set({ uiZoom: Math.min(150, Math.max(75, value)) }),
 			setTechTreeViewport: (viewport) => set({ techTreeViewport: viewport }),
 			showTip: (id) => {
-				const { seenTips, activeTip } = get();
-				if (seenTips.includes(id) || activeTip !== null) return;
-				set({ activeTip: id, seenTips: [...seenTips, id] });
+				const { seenTips } = get();
+				if (seenTips.includes(id)) return;
+				set({ seenTips: [...seenTips, id] });
 			},
-			dismissTip: () => set({ activeTip: null }),
-			resetTips: () => {
+			pushTerminalLine: (line) => {
+				set((s) => ({
+					terminalLog: [...s.terminalLog, line],
+					terminalOpen: true,
+				}));
+			},
+			resetAll: () => {
 				set({
 					seenTips: [],
-					activeTip: null,
+					terminalLog: [],
+					terminalOpen: false,
 					page: PageEnum.game,
 					splitEnabled: false,
 					rightPage: PageEnum.tech_tree,
@@ -103,7 +113,6 @@ export const useUiStore = create<UiState>()(
 					},
 					uiZoom: 100,
 				});
-				// Remove persisted state so reload picks up fresh defaults
 				localStorage.removeItem("agi-rush-ui");
 			},
 		}),
@@ -119,6 +128,7 @@ export const useUiStore = create<UiState>()(
 				editorTheme: state.editorTheme,
 				uiZoom: state.uiZoom,
 				seenTips: state.seenTips,
+				terminalLog: state.terminalLog,
 			}),
 		},
 	),
