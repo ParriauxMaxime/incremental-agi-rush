@@ -33,6 +33,30 @@ const tips: TipDef[] = [
 			"Passive upgrades, hardware, and new hires live here.",
 		],
 	},
+	{
+		id: "sidebar_intro",
+		title: "The Shop",
+		duration: 12,
+		lines: [
+			"← The sidebar just unlocked.",
+			"Browse upgrades organized by tier.",
+			"Buy hardware for more FLOPS, hire devs for more LoC.",
+			"The faster cash flows, the bigger upgrades you can afford.",
+		],
+	},
+	{
+		id: "execution_intro",
+		title: "Execution",
+		duration: 12,
+		lines: [
+			"Your code piles up in a queue as you type.",
+			"FLOPS execute queued LoC — each executed line earns cash.",
+			"",
+			"  type → LoC queue → FLOPS execute → $$$",
+			"",
+			"The stats panel on the right shows your production in real-time.",
+		],
+	},
 ];
 
 const tipMap = new Map(tips.map((t) => [t.id, t]));
@@ -44,6 +68,14 @@ type GameState = ReturnType<typeof useGameStore.getState>;
 const triggers: Array<{ id: string; test: (s: GameState) => boolean }> = [
 	{ id: "welcome", test: () => true },
 	{ id: "tech_tree_intro", test: (s) => s.totalLoc >= 15 },
+	{
+		id: "sidebar_intro",
+		test: (s) => (s.ownedTechNodes.unlock_sidebar ?? 0) > 0,
+	},
+	{
+		id: "execution_intro",
+		test: (s) => (s.ownedTechNodes.unlock_stats_panel ?? 0) > 0,
+	},
 ];
 
 // ── Watcher hook ──
