@@ -5,4 +5,5 @@ export interface Milestone {
 	condition: string;
 	threshold: number;
 	metric: string;
+	cashBonus?: number;
 }

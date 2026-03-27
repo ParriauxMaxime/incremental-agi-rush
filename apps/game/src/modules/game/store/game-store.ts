@@ -486,11 +486,13 @@ export const useGameStore = create<GameState & GameActions>()(
 					loc += autoProduced;
 					totalLoc += autoProduced;
 
-					// AI production: models consume FLOPS from the total pool
+					// AI production: models consume FLOPS from the AI budget (slider)
 					const aiUnlocked = s.aiUnlocked;
 					let aiFlopsCost = 0;
 					let aiProduced = 0;
 					if (aiUnlocked && s.running) {
+						// flopSlider = % allocated to execution, rest goes to AI
+						const aiFlopsBudget = s.flops * (1 - s.flopSlider);
 						let totalAiLoc = 0;
 						let totalAiFlops = 0;
 						const activeModels = aiModels
@@ -502,8 +504,8 @@ export const useGameStore = create<GameState & GameActions>()(
 							totalAiFlops += model.flopsCost;
 						}
 						if (totalAiFlops > 0) {
-							// AI gets what it needs, capped by available FLOPS
-							aiFlopsCost = Math.min(totalAiFlops, s.flops);
+							// AI gets what it needs, capped by its budget
+							aiFlopsCost = Math.min(totalAiFlops, aiFlopsBudget);
 							const aiEfficiency = aiFlopsCost / totalAiFlops;
 							aiProduced = totalAiLoc * aiEfficiency * dt;
 						}
@@ -511,8 +513,8 @@ export const useGameStore = create<GameState & GameActions>()(
 					loc += aiProduced;
 					totalLoc += aiProduced;
 
-					// ── 2. Execution: remaining FLOPS after AI ──
-					const execFlops = Math.max(0, s.flops - aiFlopsCost);
+					// ── 2. Execution: FLOPS allocated to execution (slider) ──
+					const execFlops = aiUnlocked ? s.flops * s.flopSlider : s.flops;
 					let manualExecAccum = s.manualExecAccum;
 					let execCapacity: number;
 					if (s.autoExecuteEnabled && s.running) {
@@ -563,6 +565,17 @@ export const useGameStore = create<GameState & GameActions>()(
 					}
 					if (newMilestones.length > 0) {
 						next.reachedMilestones = [...s.reachedMilestones, ...newMilestones];
+						// Award cash bonuses and show toasts for new milestones
+						for (const mid of newMilestones) {
+							const m = allMilestones.find((ms) => ms.id === mid);
+							if (m?.cashBonus) {
+								next.cash = (next.cash ?? cash) + m.cashBonus;
+								next.totalCash = (next.totalCash ?? totalCash) + m.cashBonus;
+								useEventStore
+									.getState()
+									.showMilestoneToast(m.name, m.description, m.cashBonus);
+							}
+						}
 					}
 
 					return next;

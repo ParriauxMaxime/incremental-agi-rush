@@ -17,15 +17,15 @@
 					"value": 3
 				}
 			],
-			"x": 960,
-			"y": 700
+			"x": 940,
+			"y": 940
 		},
 		{
 			"id": "auto_type",
 			"name": "Auto-Type",
 			"description": "Code writes itself. Toggle in settings.",
 			"icon": "🤖",
-			"requires": [],
+			"requires": ["computer"],
 			"max": 1,
 			"baseCost": 50,
 			"costMultiplier": 1,
@@ -37,8 +37,8 @@
 					"value": true
 				}
 			],
-			"x": 960,
-			"y": 560
+			"x": 940,
+			"y": 580
 		},
 		{
 			"id": "auto_execute",
@@ -57,8 +57,8 @@
 					"value": true
 				}
 			],
-			"x": 880,
-			"y": 380
+			"x": 940,
+			"y": 460
 		},
 		{
 			"id": "coffee",
@@ -77,8 +77,8 @@
 					"value": 2
 				}
 			],
-			"x": 1254,
-			"y": 694
+			"x": 1240,
+			"y": 700
 		},
 		{
 			"id": "barista",
@@ -97,8 +97,8 @@
 					"value": 3
 				}
 			],
-			"x": 1254,
-			"y": 822
+			"x": 1240,
+			"y": 820
 		},
 		{
 			"id": "doppio",
@@ -117,8 +117,8 @@
 					"value": 5
 				}
 			],
-			"x": 1254,
-			"y": 950
+			"x": 1240,
+			"y": 940
 		},
 		{
 			"id": "github_actions",
@@ -186,8 +186,8 @@
 				"2MHz → 4MHz",
 				"4MHz → 8MHz"
 			],
-			"x": 1510,
-			"y": 694
+			"x": 1520,
+			"y": 700
 		},
 		{
 			"id": "ram_upgrade",
@@ -214,8 +214,8 @@
 				"2GB → 4GB",
 				"4GB → 8GB"
 			],
-			"x": 1510,
-			"y": 822
+			"x": 1520,
+			"y": 820
 		},
 		{
 			"id": "storage_upgrade",
@@ -243,8 +243,8 @@
 				"320GB → 640GB",
 				"640GB → 1TB"
 			],
-			"x": 1510,
-			"y": 950
+			"x": 1520,
+			"y": 940
 		},
 		{
 			"id": "tier_freelancing",
@@ -463,8 +463,36 @@
 					"value": 1
 				}
 			],
-			"x": 1254,
-			"y": 566
+			"x": 1240,
+			"y": 580
+		},
+		{
+			"id": "unlock_sidebar",
+			"name": "File Explorer",
+			"description": "Unlock the sidebar to browse upgrades and milestones.",
+			"icon": "📁",
+			"requires": ["computer"],
+			"max": 1,
+			"baseCost": 5,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [],
+			"x": 940,
+			"y": 820
+		},
+		{
+			"id": "unlock_stats_panel",
+			"name": "Stats Monitor",
+			"description": "Unlock the stats panel to track resources in real-time.",
+			"icon": "📊",
+			"requires": ["computer"],
+			"max": 1,
+			"baseCost": 5,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [],
+			"x": 940,
+			"y": 700
 		},
 		{
 			"id": "interns",

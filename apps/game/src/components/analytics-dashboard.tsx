@@ -2,23 +2,7 @@ import { css } from "@emotion/react";
 import { type AiModelData, aiModels, useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { useMemo } from "react";
-
-const wrapperCss = css({
-	display: "flex",
-	flexDirection: "column",
-	background: "#0a0e14",
-	overflow: "hidden",
-});
-
-const headerCss = css({
-	padding: "4px 12px",
-	background: "#161b22",
-	borderBottom: "1px solid #1e2630",
-	fontSize: 12,
-	color: "#8b949e",
-	display: "flex",
-	justifyContent: "space-between",
-});
+import { useIdeTheme } from "../hooks/use-ide-theme";
 
 const sectionCss = css({
 	padding: "6px 10px",
@@ -41,24 +25,6 @@ const rowCss = css({
 	height: 22,
 });
 
-const nameCss = css({
-	fontSize: 12,
-	color: "#8b949e",
-	minWidth: 70,
-	whiteSpace: "nowrap",
-	overflow: "hidden",
-	textOverflow: "ellipsis",
-});
-
-const barTrackCss = css({
-	flex: 1,
-	height: 5,
-	background: "#1e2630",
-	borderRadius: 3,
-	overflow: "hidden",
-	minWidth: 40,
-});
-
 const barFillCss = css({
 	height: "100%",
 	borderRadius: 3,
@@ -72,21 +38,6 @@ const valueCss = css({
 	fontVariantNumeric: "tabular-nums",
 });
 
-const footerCss = css({
-	padding: "4px 10px",
-	borderTop: "1px solid #1e2630",
-	display: "flex",
-	justifyContent: "space-between",
-	fontSize: 11,
-	color: "#484f58",
-});
-
-const dividerCss = css({
-	height: 1,
-	background: "#1e2630",
-	margin: "0 10px",
-});
-
 interface SourceRow {
 	name: string;
 	locPerSec: number;
@@ -95,6 +46,8 @@ interface SourceRow {
 }
 
 export function AnalyticsDashboard() {
+	const theme = useIdeTheme();
+
 	const freelancerLocPerSec = useGameStore((s) => s.freelancerLocPerSec);
 	const internLocPerSec = useGameStore((s) => s.internLocPerSec);
 	const devLocPerSec = useGameStore((s) => s.devLocPerSec);
@@ -113,33 +66,33 @@ export function AnalyticsDashboard() {
 			rows.push({
 				name: "Freelancers",
 				locPerSec: freelancerLocPerSec,
-				color: "#3fb950",
+				color: theme.success,
 				count: ownedUpgrades.malt_freelancer,
 			});
 		if ((ownedUpgrades.intern ?? 0) > 0)
 			rows.push({
 				name: "Interns",
 				locPerSec: internLocPerSec,
-				color: "#58a6ff",
+				color: theme.accent,
 				count: ownedUpgrades.intern,
 			});
 		if ((ownedUpgrades.dev_team ?? 0) > 0)
 			rows.push({
 				name: "Dev Teams",
 				locPerSec: teamLocPerSec,
-				color: "#d2a8ff",
+				color: theme.keyword,
 				count: ownedUpgrades.dev_team,
 			});
 		if (devLocPerSec > 0 && (ownedUpgrades.dev_team ?? 0) === 0)
 			rows.push({
 				name: "Devs",
 				locPerSec: devLocPerSec,
-				color: "#79c0ff",
+				color: theme.accent,
 			});
 		rows.push({
 			name: "You",
 			locPerSec: locPerKey * 6,
-			color: "#c084fc",
+			color: theme.keyword,
 		});
 		return rows;
 	}, [
@@ -149,6 +102,7 @@ export function AnalyticsDashboard() {
 		devLocPerSec,
 		teamLocPerSec,
 		locPerKey,
+		theme,
 	]);
 
 	const aiSources = useMemo((): SourceRow[] => {
@@ -159,12 +113,12 @@ export function AnalyticsDashboard() {
 				rows.push({
 					name: `${model.name} ${model.version}`,
 					locPerSec: model.locPerSec,
-					color: modelColor(model),
+					color: modelColor(model, theme.textMuted),
 				});
 			}
 		}
 		return rows;
-	}, [aiUnlocked, unlockedModels]);
+	}, [aiUnlocked, unlockedModels, theme]);
 
 	const maxLoc = useMemo(() => {
 		const all = [...humanSources, ...aiSources];
@@ -176,25 +130,64 @@ export function AnalyticsDashboard() {
 		flops > 0 && totalLoc > 0 ? Math.min(1, flops / totalLoc) : 1;
 
 	return (
-		<div css={wrapperCss}>
-			<div css={headerCss}>
+		<div
+			css={css({
+				display: "flex",
+				flexDirection: "column",
+				background: theme.background,
+				overflow: "hidden",
+			})}
+		>
+			<div
+				css={css({
+					padding: "4px 12px",
+					background: theme.tabBarBg,
+					borderBottom: `1px solid ${theme.border}`,
+					fontSize: 12,
+					color: theme.textMuted,
+					display: "flex",
+					justifyContent: "space-between",
+				})}
+			>
 				<span>analytics.live</span>
-				<span style={{ color: execRatio < 0.5 ? "#e94560" : "#484f58" }}>
+				<span
+					style={{
+						color: execRatio < 0.5 ? "#e94560" : theme.lineNumbers,
+					}}
+				>
 					exec {Math.round(execRatio * 100)}%
 				</span>
 			</div>
 
 			<div css={sectionCss}>
-				<div css={[sectionLabelCss, { color: "#3fb950" }]}>Human</div>
+				<div css={[sectionLabelCss, { color: theme.success }]}>Human</div>
 				{humanSources.map((s) => (
 					<div css={rowCss} key={s.name}>
-						<span css={nameCss}>
+						<span
+							css={css({
+								fontSize: 12,
+								color: theme.textMuted,
+								minWidth: 70,
+								whiteSpace: "nowrap",
+								overflow: "hidden",
+								textOverflow: "ellipsis",
+							})}
+						>
 							{s.name}
 							{s.count !== undefined && (
-								<span style={{ color: "#484f58" }}> x{s.count}</span>
+								<span style={{ color: theme.lineNumbers }}> x{s.count}</span>
 							)}
 						</span>
-						<div css={barTrackCss}>
+						<div
+							css={css({
+								flex: 1,
+								height: 5,
+								background: theme.border,
+								borderRadius: 3,
+								overflow: "hidden",
+								minWidth: 40,
+							})}
+						>
 							<div
 								css={barFillCss}
 								style={{
@@ -209,8 +202,19 @@ export function AnalyticsDashboard() {
 					</div>
 				))}
 				{managerBonus > 1 && (
-					<div css={[rowCss, { fontSize: 9, color: "#484f58" }]}>
-						<span css={nameCss}>Managers</span>
+					<div css={[rowCss, { fontSize: 9, color: theme.lineNumbers }]}>
+						<span
+							css={css({
+								fontSize: 12,
+								color: theme.textMuted,
+								minWidth: 70,
+								whiteSpace: "nowrap",
+								overflow: "hidden",
+								textOverflow: "ellipsis",
+							})}
+						>
+							Managers
+						</span>
 						<span>+{Math.round((managerBonus - 1) * 100)}% team output</span>
 					</div>
 				)}
@@ -218,13 +222,41 @@ export function AnalyticsDashboard() {
 
 			{aiSources.length > 0 && (
 				<>
-					<div css={dividerCss} />
+					<div
+						css={css({
+							height: 1,
+							background: theme.border,
+							margin: "0 10px",
+						})}
+					/>
 					<div css={sectionCss}>
-						<div css={[sectionLabelCss, { color: "#d4a574" }]}>AI Models</div>
+						<div css={[sectionLabelCss, { color: theme.number }]}>
+							AI Models
+						</div>
 						{aiSources.map((s) => (
 							<div css={rowCss} key={s.name}>
-								<span css={nameCss}>{s.name}</span>
-								<div css={barTrackCss}>
+								<span
+									css={css({
+										fontSize: 12,
+										color: theme.textMuted,
+										minWidth: 70,
+										whiteSpace: "nowrap",
+										overflow: "hidden",
+										textOverflow: "ellipsis",
+									})}
+								>
+									{s.name}
+								</span>
+								<div
+									css={css({
+										flex: 1,
+										height: 5,
+										background: theme.border,
+										borderRadius: 3,
+										overflow: "hidden",
+										minWidth: 40,
+									})}
+								>
 									<div
 										css={barFillCss}
 										style={{
@@ -242,7 +274,16 @@ export function AnalyticsDashboard() {
 				</>
 			)}
 
-			<div css={footerCss}>
+			<div
+				css={css({
+					padding: "4px 10px",
+					borderTop: `1px solid ${theme.border}`,
+					display: "flex",
+					justifyContent: "space-between",
+					fontSize: 11,
+					color: theme.lineNumbers,
+				})}
+			>
 				<span>Total: {formatNumber(totalLoc)}/s</span>
 				<span>FLOPS: {formatNumber(flops)}</span>
 			</div>
@@ -250,7 +291,7 @@ export function AnalyticsDashboard() {
 	);
 }
 
-function modelColor(model: AiModelData): string {
+function modelColor(model: AiModelData, fallback: string): string {
 	const colors: Record<string, string> = {
 		claude: "#d4a574",
 		gpt: "#74b9ff",
@@ -260,5 +301,5 @@ function modelColor(model: AiModelData): string {
 		grok: "#e17055",
 		copilot: "#6c5ce7",
 	};
-	return colors[model.family] ?? "#8b949e";
+	return colors[model.family] ?? fallback;
 }

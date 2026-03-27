@@ -1,7 +1,7 @@
 import type { Upgrade, UpgradeEffect } from "@agi-rush/domain";
 import { css } from "@emotion/react";
+import type { EditorTheme } from "@modules/editor";
 import {
-	aiModels,
 	allMilestones,
 	allUpgrades,
 	getEffectiveMax,
@@ -15,7 +15,7 @@ import { formatNumber } from "@utils/format";
 import { useState } from "react";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 
-// ── Styles ──
+// ── Styles (layout-only, no colors) ──
 
 const sidebarCss = css({
 	display: "flex",
@@ -26,25 +26,23 @@ const sidebarCss = css({
 	flexShrink: 0,
 });
 
-const scrollCss = css({
+const scrollBaseCss = css({
 	flex: 1,
 	overflowY: "auto",
 	padding: "4px 0",
 	"&::-webkit-scrollbar": { width: 6 },
 	"&::-webkit-scrollbar-track": { background: "transparent" },
-	"&::-webkit-scrollbar-thumb": { background: "#1e2630", borderRadius: 3 },
 });
 
-const sectionHeaderCss = css({
+const sectionHeaderBaseCss = css({
 	fontSize: 11,
 	textTransform: "uppercase",
 	letterSpacing: 0.5,
-	color: "#8b949e",
 	padding: "8px 12px 4px",
 	userSelect: "none",
 });
 
-const folderRowCss = css({
+const folderRowBaseCss = css({
 	display: "flex",
 	alignItems: "center",
 	gap: 4,
@@ -52,31 +50,14 @@ const folderRowCss = css({
 	fontSize: 13,
 	cursor: "pointer",
 	userSelect: "none",
-	"&:hover": { background: "#141920" },
 });
 
-const itemCss = css({
+const itemBaseCss = css({
 	margin: "1px 8px 1px 20px",
 	padding: "4px 6px",
 	borderRadius: 4,
-	background: "#141920",
-	border: "1px solid #1e2630",
 	cursor: "pointer",
 	transition: "border-color 0.15s",
-	"&:hover": { borderColor: "#58a6ff" },
-});
-
-const itemLockedCss = css({
-	opacity: 0.4,
-	cursor: "default",
-	"&:hover": { borderColor: "#1e2630" },
-});
-
-const itemMaxedCss = css({
-	borderColor: "#3fb950",
-	opacity: 0.5,
-	cursor: "default",
-	"&:hover": { borderColor: "#3fb950" },
 });
 
 const itemRow1Css = css({
@@ -124,64 +105,24 @@ const milestoneCss = css({
 	lineHeight: 1.8,
 });
 
-const execWrapperCss = css({
-	padding: "8px 8px",
-	borderTop: "1px solid #1e2630",
-	flexShrink: 0,
-});
-
-const execBtnCss = css({
-	width: "100%",
-	padding: "8px 0",
-	fontSize: 12,
-	fontWeight: "bold",
-	fontFamily: "inherit",
-	textTransform: "uppercase",
-	letterSpacing: 1,
-	border: "1px solid #7ee787",
-	borderRadius: 4,
-	cursor: "pointer",
-	transition: "all 0.1s",
-	background: "transparent",
-	color: "#7ee787",
-	"&:hover": { background: "#7ee787", color: "#0d1117" },
-	"&:active": { transform: "scale(0.97)" },
-	"&:disabled": {
-		opacity: 0.3,
-		cursor: "default",
-		"&:hover": { background: "transparent", color: "#7ee787" },
-	},
-});
-
-const autoExecLabelCss = css({
-	width: "100%",
-	padding: "8px 0",
-	fontSize: 12,
-	fontWeight: "bold",
-	fontFamily: "inherit",
-	textTransform: "uppercase",
-	letterSpacing: 1,
-	textAlign: "center",
-	color: "#3fb950",
-	border: "1px solid #238636",
-	borderRadius: 4,
-	background: "rgba(35, 134, 54, 0.1)",
-});
-
 // ── Effect summary ──
 
-function formatEffect(effect: UpgradeEffect): { text: string; color: string } {
+function formatEffect(
+	effect: UpgradeEffect,
+	theme: EditorTheme,
+): { text: string; color: string } {
 	const val = effect.value as number;
 	if (effect.op === "enable" && effect.type === "singularity")
 		return { text: "🌀 AGI", color: "#e94560" };
 	if (effect.type === "instantCash")
-		return { text: `+$${formatNumber(val)}`, color: "#3fb950" };
+		return { text: `+$${formatNumber(val)}`, color: theme.success };
 	if (effect.type === "llmHostSlot")
-		return { text: `+${val} AI slot`, color: "#d4a574" };
+		return { text: `+${val} AI slot`, color: theme.number };
 	if (effect.type === "managerLoc")
-		return { text: "+50% teams", color: "#c084fc" };
+		return { text: "+50% teams", color: theme.keyword };
 
-	if (effect.op === "multiply") return { text: `×${val}`, color: "#c084fc" };
+	if (effect.op === "multiply")
+		return { text: `×${val}`, color: theme.keyword };
 
 	const locTypes = [
 		"freelancerLoc",
@@ -192,13 +133,13 @@ function formatEffect(effect: UpgradeEffect): { text: string; color: string } {
 		"agentLoc",
 	];
 	if (locTypes.includes(effect.type))
-		return { text: `+${formatNumber(val)} loc/s`, color: "#58a6ff" };
+		return { text: `+${formatNumber(val)} loc/s`, color: theme.accent };
 
 	const flopTypes = ["flops", "cpuFlops", "ramFlops", "storageFlops"];
 	if (flopTypes.includes(effect.type))
-		return { text: `+${formatNumber(val)} flops`, color: "#fbbf24" };
+		return { text: `+${formatNumber(val)} flops`, color: theme.type };
 
-	return { text: effect.type, color: "#8b949e" };
+	return { text: effect.type, color: theme.textMuted };
 }
 
 // ── Upgrade item ──
@@ -208,23 +149,46 @@ function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
 	const owned = useGameStore((s) => s.ownedUpgrades[upgrade.id] ?? 0);
 	const buyUpgrade = useGameStore((s) => s.buyUpgrade);
 	const state = useGameStore((s) => s);
+	const theme = useIdeTheme();
 
 	const cost = getUpgradeCost(upgrade, owned, state);
 	const effectiveMax = getEffectiveMax(upgrade, state);
 	const canAfford = cash >= cost;
 	const maxed = owned >= effectiveMax;
 
-	const effect = upgrade.effects[0] ? formatEffect(upgrade.effects[0]) : null;
+	const effect = upgrade.effects[0]
+		? formatEffect(upgrade.effects[0], theme)
+		: null;
 
-	const nameColor = canAfford || maxed ? "#c9d1d9" : "#6272a4";
+	const nameColor = canAfford || maxed ? theme.foreground : theme.textMuted;
 
 	return (
 		<div
-			css={[
-				itemCss,
-				!canAfford && !maxed && itemLockedCss,
-				maxed && itemMaxedCss,
-			]}
+			css={[itemBaseCss]}
+			style={{
+				background: theme.hoverBg,
+				border: `1px solid ${maxed ? theme.success : theme.border}`,
+				opacity: !canAfford && !maxed ? 0.4 : maxed ? 0.5 : undefined,
+				cursor:
+					!canAfford && !maxed ? "default" : maxed ? "default" : "pointer",
+			}}
+			onMouseEnter={(e) => {
+				if (!maxed && (canAfford || (!canAfford && !maxed))) {
+					const target = e.currentTarget;
+					if (maxed) {
+						target.style.borderColor = theme.success;
+					} else if (!canAfford) {
+						target.style.borderColor = theme.border;
+					} else {
+						target.style.borderColor = theme.accent;
+					}
+				}
+			}}
+			onMouseLeave={(e) => {
+				e.currentTarget.style.borderColor = maxed
+					? theme.success
+					: theme.border;
+			}}
 			onClick={() => {
 				if (canAfford && !maxed) buyUpgrade(upgrade);
 			}}
@@ -241,7 +205,7 @@ function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
 				</span>
 				<span
 					css={itemCountCss}
-					style={{ color: maxed ? "#3fb950" : "#484f58" }}
+					style={{ color: maxed ? theme.success : theme.lineNumbers }}
 				>
 					{effectiveMax === 1
 						? owned > 0
@@ -259,8 +223,8 @@ function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
 				<span
 					css={priceBadgeCss}
 					style={{
-						background: maxed ? "#1a3a2a" : "#2a2a1a",
-						color: maxed ? "#3fb950" : "#d19a66",
+						background: maxed ? theme.activeBg : theme.hoverBg,
+						color: maxed ? theme.success : theme.number,
 					}}
 				>
 					{maxed ? "MAXED" : `$${formatNumber(cost)}`}
@@ -272,43 +236,30 @@ function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
 
 // ── Main sidebar ──
 
-const pageFilenames: Record<PageEnum, string> = {
-	[PageEnum.game]: "agi.py",
-	[PageEnum.tech_tree]: "tech_tree.svg",
-	[PageEnum.settings]: "settings.json",
-	[PageEnum.god_mode]: "godmode.ts",
-};
+const pageFiles: Array<{ page: PageEnum; filename: string; dotColor: string }> =
+	[
+		{ page: PageEnum.game, filename: "agi.py", dotColor: "#519aba" },
+		{
+			page: PageEnum.tech_tree,
+			filename: "tech_tree.svg",
+			dotColor: "#f1c542",
+		},
+		{ page: PageEnum.settings, filename: "settings.json", dotColor: "#cbcb41" },
+		{ page: PageEnum.god_mode, filename: "godmode.ts", dotColor: "#519aba" },
+	];
 
-export function SidebarTree() {
+export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 	const page = useUiStore((s) => s.page);
+	const setPage = useUiStore((s) => s.setPage);
 	const currentTierIndex = useGameStore((s) => s.currentTierIndex);
 	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
 	const reachedMilestones = useGameStore((s) => s.reachedMilestones);
-	const loc = useGameStore((s) => s.loc);
-	const flops = useGameStore((s) => s.flops);
-	const cashMultiplier = useGameStore((s) => s.cashMultiplier);
-	const aiUnlocked = useGameStore((s) => s.aiUnlocked);
-	const unlockedModels = useGameStore((s) => s.unlockedModels);
-	const autoExec = useGameStore((s) => s.autoExecuteEnabled);
-	const executeManual = useGameStore((s) => s.executeManual);
 	const theme = useIdeTheme();
 	const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-	const [milestonesOpen, setMilestonesOpen] = useState(true);
+	const [milestonesOpen, setMilestonesOpen] = useState(false);
 
 	const toggle = (id: string) =>
 		setCollapsed((prev) => ({ ...prev, [id]: !prev[id] }));
-
-	const tier = tiers[currentTierIndex];
-	const cashPerLoc = tier?.cashPerLoc ?? 0.1;
-	let aiFlopsCost = 0;
-	if (aiUnlocked) {
-		for (const model of aiModels) {
-			if (unlockedModels[model.id]) aiFlopsCost += model.flopsCost;
-		}
-	}
-	const execFlops = Math.max(0, flops - Math.min(aiFlopsCost, flops));
-	const execLoc = Math.min(Math.floor(execFlops), Math.floor(loc));
-	const earnPerExec = execLoc * cashPerLoc * cashMultiplier;
 
 	return (
 		<div
@@ -326,45 +277,103 @@ export function SidebarTree() {
 					textTransform: "uppercase",
 					letterSpacing: 0.5,
 					color: theme.textMuted,
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "space-between",
 				}}
 			>
 				Explorer
-			</div>
-			<div css={scrollCss}>
-				{/* Open Editors */}
-				<div css={sectionHeaderCss} style={{ color: theme.textMuted }}>
-					▾ Open Editors
-				</div>
-				<div
-					css={{
-						padding: "2px 8px 2px 28px",
-						display: "flex",
-						alignItems: "center",
-						gap: 6,
-						fontSize: 13,
-						height: 22,
-						background: theme.activeBg,
-						color: theme.foreground,
-					}}
-				>
-					<span
+				{onCollapse && (
+					<button
+						type="button"
+						onClick={onCollapse}
+						title="Hide sidebar"
 						css={{
-							width: 6,
-							height: 6,
-							borderRadius: "50%",
-							background: "#519aba",
-							flexShrink: 0,
+							background: "none",
+							border: "none",
+							cursor: "pointer",
+							color: theme.textMuted,
+							padding: 2,
+							display: "flex",
+							alignItems: "center",
+							"&:hover": { color: theme.foreground },
 						}}
-					/>
-					{pageFilenames[page]}
+					>
+						<svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+							<path
+								d="M11 4L7 8l4 4"
+								stroke="currentColor"
+								strokeWidth="1.5"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							/>
+						</svg>
+					</button>
+				)}
+			</div>
+			<div
+				css={scrollBaseCss}
+				style={
+					{
+						"--scroll-thumb": theme.border,
+					} as React.CSSProperties
+				}
+				className="sidebar-scroll"
+			>
+				<style>
+					{`.sidebar-scroll::-webkit-scrollbar-thumb { background: ${theme.border}; border-radius: 3px; }`}
+				</style>
+				{/* Open Editors */}
+				<div css={sectionHeaderBaseCss} style={{ color: theme.textMuted }}>
+					&#9662; Open Editors
 				</div>
+				{pageFiles.map((f) => {
+					const active = f.page === page;
+					return (
+						<div
+							key={f.page}
+							css={{
+								padding: "2px 8px 2px 28px",
+								display: "flex",
+								alignItems: "center",
+								gap: 6,
+								fontSize: 13,
+								height: 22,
+								cursor: "pointer",
+								background: active ? theme.activeBg : "transparent",
+								color: active ? theme.foreground : theme.textMuted,
+								"&:hover": {
+									background: theme.activeBg,
+									color: theme.foreground,
+								},
+							}}
+							onClick={() => setPage(f.page)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") setPage(f.page);
+							}}
+							role="button"
+							tabIndex={0}
+						>
+							<span
+								css={{
+									width: 6,
+									height: 6,
+									borderRadius: "50%",
+									background: f.dotColor,
+									flexShrink: 0,
+								}}
+							/>
+							{f.filename}
+						</div>
+					);
+				})}
 
 				{/* Upgrades */}
 				<div
-					css={sectionHeaderCss}
+					css={sectionHeaderBaseCss}
 					style={{ color: theme.textMuted, marginTop: 8 }}
 				>
-					▾ Upgrades
+					&#9662; Upgrades
 				</div>
 				{tiers
 					.filter((tier) => tier.index <= currentTierIndex)
@@ -380,8 +389,16 @@ export function SidebarTree() {
 						return (
 							<div key={tier.id}>
 								<div
-									css={folderRowCss}
-									style={{ color: theme.foreground }}
+									css={folderRowBaseCss}
+									style={{
+										color: theme.foreground,
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.background = theme.hoverBg;
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.background = "transparent";
+									}}
 									onClick={() => toggle(tier.id)}
 									onKeyDown={(e) => {
 										if (e.key === "Enter") toggle(tier.id);
@@ -405,7 +422,7 @@ export function SidebarTree() {
 
 				{/* Milestones section */}
 				<div
-					css={[sectionHeaderCss, { cursor: "pointer" }]}
+					css={[sectionHeaderBaseCss, { cursor: "pointer" }]}
 					style={{ color: theme.textMuted, marginTop: 12 }}
 					onClick={() => setMilestonesOpen(!milestonesOpen)}
 					onKeyDown={(e) => {
@@ -423,29 +440,14 @@ export function SidebarTree() {
 							<div
 								key={m.id}
 								css={milestoneCss}
-								style={{ color: reached ? "#3fb950" : "#484f58" }}
+								style={{
+									color: reached ? theme.success : theme.lineNumbers,
+								}}
 							>
 								{reached ? "✓" : "○"} {m.name} — {formatNumber(m.threshold)}
 							</div>
 						);
 					})}
-			</div>
-
-			{/* Execute button at bottom */}
-			<div css={execWrapperCss}>
-				{autoExec ? (
-					<div css={autoExecLabelCss}>⚡ Auto-Execute</div>
-				) : (
-					<button
-						type="button"
-						css={execBtnCss}
-						onClick={executeManual}
-						disabled={execLoc <= 0}
-					>
-						⚡ Execute {formatNumber(execLoc)} → $
-						{formatNumber(earnPerExec, true)}
-					</button>
-				)}
 			</div>
 		</div>
 	);

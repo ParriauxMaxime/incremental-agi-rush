@@ -2,6 +2,7 @@ import type { EventEffect } from "@agi-rush/domain";
 import { events as allEvents } from "@agi-rush/domain";
 import { css, keyframes } from "@emotion/react";
 import { useGameStore } from "@modules/game";
+import { formatNumber } from "@utils/format";
 import { resolveChoiceEffects, useEventStore } from "../store/event-store";
 
 // ---------------------------------------------------------------------------
@@ -132,9 +133,51 @@ function choiceBtnCss(sentiment: "positive" | "negative" | "neutral") {
 // Component
 // ---------------------------------------------------------------------------
 
+const milestoneToastCss = css({
+	background: "#252526",
+	border: "1px solid #454545",
+	borderLeft: "3px solid #3fb950",
+	borderRadius: 3,
+	padding: "10px 14px",
+	display: "flex",
+	alignItems: "flex-start",
+	gap: 10,
+	boxShadow: "0 4px 16px rgba(0,0,0,0.5)",
+	fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
+	color: "#cccccc",
+	fontSize: 13,
+	marginBottom: 8,
+});
+
+const milestoneBonusCss = css({
+	fontSize: 12,
+	color: "#3fb950",
+	fontWeight: "bold",
+	marginTop: 4,
+});
+
+function MilestoneToastCard() {
+	const milestoneToast = useEventStore((s) => s.milestoneToast);
+	if (!milestoneToast) return null;
+
+	return (
+		<div css={milestoneToastCss}>
+			<div css={iconCss}>🏆</div>
+			<div css={contentCss}>
+				<div css={nameCss}>{milestoneToast.name}</div>
+				<div css={descCss}>{milestoneToast.description}</div>
+				<div css={milestoneBonusCss}>
+					+${formatNumber(milestoneToast.cashBonus)} bonus
+				</div>
+			</div>
+		</div>
+	);
+}
+
 export function EventToast() {
 	const activeEvents = useEventStore((s) => s.activeEvents);
 	const toastEvent = useEventStore((s) => s.toastEvent);
+	const milestoneToast = useEventStore((s) => s.milestoneToast);
 	const handleChoice = useEventStore((s) => s.handleChoice);
 	const cash = useGameStore((s) => s.cash);
 	const loc = useGameStore((s) => s.loc);
@@ -149,16 +192,9 @@ export function EventToast() {
 	const fallbackId = toastEvent?.definitionId ?? null;
 	const displayId = displayActiveId ?? fallbackId;
 
-	if (displayId === null) return null;
+	if (displayId === null && !milestoneToast) return null;
 
-	const def = allEvents.find((e) => e.id === displayId);
-	if (!def) return null;
-
-	const sentiment = deriveSentiment(def.effects);
-	const choiceEffect = def.effects.find((e) => e.type === "choice");
-	const isChoice = choiceEffect !== undefined && choiceEffect.type === "choice";
-	const remainingDuration = activeDisplayEvent?.remainingDuration ?? 0;
-	const hasDuration = remainingDuration > 0;
+	const def = displayId ? allEvents.find((e) => e.id === displayId) : null;
 
 	const ctx = {
 		currentCash: cash,
@@ -168,37 +204,51 @@ export function EventToast() {
 
 	return (
 		<div css={toastWrapperCss}>
-			<div css={toastBodyCss(sentiment)}>
-				<div css={iconCss}>{def.icon}</div>
-				<div css={contentCss}>
-					<div css={nameCss}>{def.name}</div>
-					<div css={descCss}>{def.description}</div>
-					{isChoice && choiceEffect.type === "choice" && (
-						<div css={choiceRowCss}>
-							{choiceEffect.options.map((opt, i) => (
-								<button
-									key={opt.label}
-									type="button"
-									css={choiceBtnCss(sentiment)}
-									onClick={() => {
-										const { cashDelta, locDelta } = resolveChoiceEffects(
-											opt.effect,
-											ctx,
-										);
-										handleChoice(displayId, i, ctx);
-										applyEventReward(cashDelta, locDelta);
-									}}
-								>
-									{opt.label}
-								</button>
-							))}
+			<MilestoneToastCard />
+			{def &&
+				displayId &&
+				(() => {
+					const sentiment = deriveSentiment(def.effects);
+					const choiceEffect = def.effects.find((e) => e.type === "choice");
+					const isChoice =
+						choiceEffect !== undefined && choiceEffect.type === "choice";
+					const remainingDuration = activeDisplayEvent?.remainingDuration ?? 0;
+					const hasDuration = remainingDuration > 0;
+
+					return (
+						<div css={toastBodyCss(sentiment)}>
+							<div css={iconCss}>{def.icon}</div>
+							<div css={contentCss}>
+								<div css={nameCss}>{def.name}</div>
+								<div css={descCss}>{def.description}</div>
+								{isChoice && choiceEffect.type === "choice" && (
+									<div css={choiceRowCss}>
+										{choiceEffect.options.map((opt, i) => (
+											<button
+												key={opt.label}
+												type="button"
+												css={choiceBtnCss(sentiment)}
+												onClick={() => {
+													const { cashDelta, locDelta } = resolveChoiceEffects(
+														opt.effect,
+														ctx,
+													);
+													handleChoice(displayId, i, ctx);
+													applyEventReward(cashDelta, locDelta);
+												}}
+											>
+												{opt.label}
+											</button>
+										))}
+									</div>
+								)}
+							</div>
+							{hasDuration && !isChoice && (
+								<div css={timerCss}>{Math.ceil(remainingDuration)}s</div>
+							)}
 						</div>
-					)}
-				</div>
-				{hasDuration && !isChoice && (
-					<div css={timerCss}>{Math.ceil(remainingDuration)}s</div>
-				)}
-			</div>
+					);
+				})()}
 		</div>
 	);
 }

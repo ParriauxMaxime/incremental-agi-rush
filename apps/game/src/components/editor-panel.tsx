@@ -1,9 +1,7 @@
 import { css } from "@emotion/react";
 import { Editor } from "@modules/editor";
 import { useGameStore } from "@modules/game";
-import { useState } from "react";
 import { useIdeTheme } from "../hooks/use-ide-theme";
-import { AnalyticsDashboard } from "./analytics-dashboard";
 import { CliPrompt } from "./cli-prompt";
 
 const wrapperCss = css({
@@ -45,11 +43,9 @@ const bottomTabCss = css({
 	fontSize: 12,
 	textTransform: "uppercase",
 	letterSpacing: 0.5,
-	cursor: "pointer",
 	border: "none",
 	background: "none",
 	fontFamily: "inherit",
-	transition: "color 0.15s",
 });
 
 const bottomContentCss = css({
@@ -59,34 +55,18 @@ const bottomContentCss = css({
 	flexDirection: "column",
 });
 
-const BottomTabEnum = {
-	analytics: "analytics",
-	prompt: "prompt",
-} as const;
-
-type BottomTabEnum = (typeof BottomTabEnum)[keyof typeof BottomTabEnum];
-
 export function EditorPanel() {
-	const tierIndex = useGameStore((s) => s.currentTierIndex);
-	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
 	const aiUnlocked = useGameStore((s) => s.aiUnlocked);
 	const theme = useIdeTheme();
-	const [bottomTab, setBottomTab] = useState<BottomTabEnum>(
-		BottomTabEnum.analytics,
-	);
-
-	const showBottomPanel = autoLocPerSec > 0 || tierIndex >= 2;
-	const showPromptTab = aiUnlocked;
 
 	return (
 		<div css={wrapperCss} data-tutorial="editor">
-			{/* Main editor area (always visible) */}
 			<div css={editorAreaCss}>
 				<Editor />
 			</div>
 
-			{/* Bottom panel (VS Code terminal-style, appears at T2+) */}
-			{showBottomPanel && (
+			{/* Terminal panel (appears when AI unlocked) */}
+			{aiUnlocked && (
 				<div
 					css={bottomPanelCss}
 					style={{ borderTop: `1px solid ${theme.border}` }}
@@ -98,48 +78,18 @@ export function EditorPanel() {
 							borderBottom: `1px solid ${theme.border}`,
 						}}
 					>
-						<button
-							type="button"
+						<span
 							css={bottomTabCss}
 							style={{
-								color:
-									bottomTab === BottomTabEnum.analytics
-										? theme.foreground
-										: theme.textMuted,
-								borderBottom:
-									bottomTab === BottomTabEnum.analytics
-										? `1px solid ${theme.foreground}`
-										: "1px solid transparent",
+								color: theme.foreground,
+								borderBottom: `1px solid ${theme.foreground}`,
 							}}
-							onClick={() => setBottomTab(BottomTabEnum.analytics)}
 						>
-							Analytics
-						</button>
-						{showPromptTab && (
-							<button
-								type="button"
-								css={bottomTabCss}
-								style={{
-									color:
-										bottomTab === BottomTabEnum.prompt
-											? theme.foreground
-											: theme.textMuted,
-									borderBottom:
-										bottomTab === BottomTabEnum.prompt
-											? `1px solid ${theme.foreground}`
-											: "1px solid transparent",
-								}}
-								onClick={() => setBottomTab(BottomTabEnum.prompt)}
-							>
-								Terminal
-							</button>
-						)}
+							Terminal
+						</span>
 					</div>
 					<div css={bottomContentCss} style={{ background: theme.panelBg }}>
-						{bottomTab === BottomTabEnum.analytics && <AnalyticsDashboard />}
-						{bottomTab === BottomTabEnum.prompt && showPromptTab && (
-							<CliPrompt />
-						)}
+						<CliPrompt />
 					</div>
 				</div>
 			)}

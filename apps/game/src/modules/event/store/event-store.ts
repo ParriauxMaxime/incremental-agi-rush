@@ -129,12 +129,20 @@ export function resolveChoiceEffects(
 // Store types
 // ---------------------------------------------------------------------------
 
+interface MilestoneToast {
+	name: string;
+	description: string;
+	cashBonus: number;
+}
+
 interface EventState {
 	activeEvents: ActiveEvent[];
 	nextSpawnAt: number;
 	eventLog: string[];
 	toastEvent: { definitionId: string; remainingDuration: number } | null;
 	toastDismissCountdown: number;
+	milestoneToast: MilestoneToast | null;
+	milestoneDismissCountdown: number;
 }
 
 interface EventActions {
@@ -148,6 +156,11 @@ interface EventActions {
 	handleMashKey(eventId: string): void;
 	getEventModifiers(): EventModifiers;
 	getActiveInteractiveEvent(): ActiveEvent | null;
+	showMilestoneToast(
+		name: string,
+		description: string,
+		cashBonus: number,
+	): void;
 	reset(): void;
 }
 
@@ -161,6 +174,8 @@ const initialState: EventState = {
 	eventLog: [],
 	toastEvent: null,
 	toastDismissCountdown: 0,
+	milestoneToast: null,
+	milestoneDismissCountdown: 0,
 };
 
 // ---------------------------------------------------------------------------
@@ -200,6 +215,17 @@ export const useEventStore = create<EventState & EventActions>()(
 				if (toastDismissCountdown <= 0) {
 					toastEvent = null;
 					toastDismissCountdown = 0;
+				}
+				changed = true;
+			}
+
+			// Tick down milestone toast
+			let { milestoneToast, milestoneDismissCountdown } = state;
+			if (milestoneToast !== null) {
+				milestoneDismissCountdown -= dt;
+				if (milestoneDismissCountdown <= 0) {
+					milestoneToast = null;
+					milestoneDismissCountdown = 0;
 				}
 				changed = true;
 			}
@@ -264,6 +290,8 @@ export const useEventStore = create<EventState & EventActions>()(
 					eventLog,
 					toastEvent,
 					toastDismissCountdown,
+					milestoneToast,
+					milestoneDismissCountdown,
 				});
 			}
 
@@ -450,6 +478,17 @@ export const useEventStore = create<EventState & EventActions>()(
 				if (hasInteraction) return ev;
 			}
 			return null;
+		},
+
+		showMilestoneToast(
+			name: string,
+			description: string,
+			cashBonus: number,
+		): void {
+			set({
+				milestoneToast: { name, description, cashBonus },
+				milestoneDismissCountdown: 5,
+			});
 		},
 
 		reset(): void {

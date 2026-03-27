@@ -289,7 +289,9 @@ export function Editor() {
 	}
 
 	// ── Compute visible window ──
-	const totalHeight = totalLines * LINE_HEIGHT;
+	const contentHeight = totalLines * LINE_HEIGHT;
+	const totalHeight = Math.max(contentHeight, viewportHeight);
+	const topOffset = totalHeight - contentHeight;
 	const startIdx = Math.max(0, Math.floor(scrollTop / LINE_HEIGHT) - OVERSCAN);
 	const visibleCount = Math.ceil(viewportHeight / LINE_HEIGHT) + OVERSCAN * 2;
 	const endIdx = Math.min(totalLines, startIdx + visibleCount);
@@ -314,7 +316,7 @@ export function Editor() {
 			>
 				<div style={{ height: totalHeight, position: "relative" }}>
 					{flatLines.length === 0 && (
-						<div css={hintCss} style={{ color: theme.comment }}>
+						<div css={hintCss} style={{ color: theme.comment, top: topOffset }}>
 							<span
 								css={lineNumberLayoutCss}
 								style={{ color: theme.lineNumbers }}
@@ -329,7 +331,7 @@ export function Editor() {
 					<div
 						style={{
 							position: "absolute",
-							top: startIdx * LINE_HEIGHT,
+							top: topOffset + startIdx * LINE_HEIGHT,
 							left: 0,
 							right: 0,
 						}}

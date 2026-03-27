@@ -3,6 +3,7 @@ import type { GodModeOverrides } from "@modules/game";
 import { tiers, useGameStore, useUiStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { useShallow } from "zustand/shallow";
+import { useIdeTheme } from "../hooks/use-ide-theme";
 import { ResourceBar } from "./resource-bar";
 import { SimPanel } from "./sim";
 
@@ -34,7 +35,6 @@ const simColumnCss = css({
 	flex: 1,
 	padding: 16,
 	overflowY: "auto",
-	borderLeft: "1px solid #1e2630",
 });
 
 const headingCss = css({
@@ -67,9 +67,9 @@ const valueCss = css({
 });
 
 const bumpBtnCss = css({
-	background: "#0f0f23",
+	background: "transparent",
 	color: "#e94560",
-	border: "1px solid #333",
+	border: "1px solid currentColor",
 	padding: "3px 8px",
 	cursor: "pointer",
 	fontFamily: "monospace",
@@ -84,7 +84,7 @@ const bumpBtnCss = css({
 });
 
 const resetBtnCss = css({
-	background: "#0f0f23",
+	background: "transparent",
 	color: "#e94560",
 	border: "1px solid #e94560",
 	padding: "6px 12px",
@@ -100,7 +100,9 @@ const resetBtnCss = css({
 });
 
 function formatShort(n: number): string {
-	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+	if (n >= 1_000_000_000_000) return `${(n / 1_000_000_000_000).toFixed(0)}T`;
+	if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(0)}B`;
+	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(0)}M`;
 	if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
 	return n.toString();
 }
@@ -111,12 +113,14 @@ interface FieldConfig {
 	bumps: number[];
 }
 
+const stdBumps = [1_000, 1_000_000, 1_000_000_000, 1_000_000_000_000];
+
 const resourceFields: FieldConfig[] = [
-	{ key: "cash", label: "Cash", bumps: [100, 1_000, 10_000, 100_000] },
-	{ key: "totalCash", label: "Tot. Cash", bumps: [1_000, 10_000, 100_000] },
-	{ key: "loc", label: "LoC", bumps: [100, 1_000, 10_000] },
-	{ key: "totalLoc", label: "Tot. LoC", bumps: [1_000, 10_000, 100_000] },
-	{ key: "flops", label: "FLOPS", bumps: [10, 100, 1_000] },
+	{ key: "cash", label: "Cash", bumps: stdBumps },
+	{ key: "totalCash", label: "Tot. Cash", bumps: stdBumps },
+	{ key: "loc", label: "LoC", bumps: stdBumps },
+	{ key: "totalLoc", label: "Tot. LoC", bumps: stdBumps },
+	{ key: "flops", label: "FLOPS", bumps: [100, 1_000, 10_000, 100_000] },
 ];
 
 function CheatsPanel() {
@@ -137,7 +141,9 @@ function CheatsPanel() {
 	);
 
 	const bump = (key: keyof GodModeOverrides, amount: number) => {
-		godSet({ [key]: (state[key] ?? 0) + amount });
+		const current = useGameStore.getState();
+		const val = (current[key] ?? 0) as number;
+		godSet({ [key]: val + amount });
 	};
 
 	return (
@@ -255,15 +261,23 @@ function CheatsPanel() {
 }
 
 export function GodModePage() {
+	const theme = useIdeTheme();
 	return (
-		<div css={pageCss}>
+		<div
+			css={pageCss}
+			style={{ background: theme.background, color: theme.foreground }}
+		>
 			<ResourceBar />
 			<div css={contentCss}>
 				<div css={cheatColumnCss}>
 					<div css={headingCss}>Cheats</div>
 					<CheatsPanel />
 					<div
-						css={{ marginTop: 12, borderTop: "1px solid #333", paddingTop: 12 }}
+						css={{
+							marginTop: 12,
+							borderTop: "1px solid currentColor",
+							paddingTop: 12,
+						}}
 					>
 						<div css={headingCss}>Tools</div>
 						<a
@@ -277,7 +291,7 @@ export function GodModePage() {
 								padding: "6px 12px",
 								border: "1px solid #c678dd",
 								borderRadius: 4,
-								background: "#0f0f23",
+								background: "transparent",
 								color: "#c678dd",
 								textDecoration: "none",
 								textAlign: "center",
@@ -298,7 +312,7 @@ export function GodModePage() {
 								marginTop: 6,
 								border: "1px solid #d19a66",
 								borderRadius: 4,
-								background: "#0f0f23",
+								background: "transparent",
 								color: "#d19a66",
 								textDecoration: "none",
 								textAlign: "center",
@@ -309,7 +323,10 @@ export function GodModePage() {
 						</a>
 					</div>
 				</div>
-				<div css={simColumnCss}>
+				<div
+					css={simColumnCss}
+					style={{ borderLeft: `1px solid ${theme.border}` }}
+				>
 					<div css={headingCss}>Balance Simulation</div>
 					<SimPanel autoRun />
 				</div>

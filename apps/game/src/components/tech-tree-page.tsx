@@ -9,9 +9,15 @@ import {
 	TechNodeComponent,
 } from "@agi-rush/design-system";
 import type { TechNode } from "@modules/game";
-import { allTechNodes, getTechNodeCost, useGameStore } from "@modules/game";
+import {
+	allTechNodes,
+	getTechNodeCost,
+	useGameStore,
+	useUiStore,
+} from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { useIdeTheme } from "../hooks/use-ide-theme";
 import { useIsMobile } from "../hooks/use-is-mobile";
 
 // ── Node types ──
@@ -80,6 +86,7 @@ function getHandlePair(
 function buildFlowEdges(
 	techNodes: TechNode[],
 	ownedTechNodes: Record<string, number>,
+	borderColor: string,
 ): Edge[] {
 	const nodeMap = new Map(techNodes.map((n) => [n.id, n]));
 	const edges: Edge[] = [];
@@ -100,7 +107,7 @@ function buildFlowEdges(
 				sourceHandle,
 				targetHandle,
 				type: "smoothstep",
-				style: { stroke: "#1e2630", strokeWidth: 2, opacity: 0.6 },
+				style: { stroke: borderColor, strokeWidth: 2, opacity: 0.6 },
 			});
 		}
 	}
@@ -109,11 +116,9 @@ function buildFlowEdges(
 
 // ── Styles ──
 
-const containerCss = css({
+const containerBaseCss = css({
 	flex: 1,
 	position: "relative",
-	background: "#0d1117",
-	".react-flow__background": { background: "#0d1117 !important" },
 	".react-flow__handle": {
 		width: 0,
 		height: 0,
@@ -122,38 +127,6 @@ const containerCss = css({
 		border: "none",
 		background: "transparent",
 	},
-});
-
-const popoverCss = css({
-	position: "absolute",
-	zIndex: 10,
-	pointerEvents: "none",
-	background: "#161b22",
-	border: "1px solid #1e2630",
-	borderRadius: 8,
-	padding: 12,
-	minWidth: 220,
-	maxWidth: 280,
-	boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
-});
-
-const popoverNameCss = css({
-	fontSize: 14,
-	fontWeight: "bold",
-	color: "#c9d1d9",
-	marginBottom: 4,
-});
-
-const popoverDescCss = css({
-	fontSize: 12,
-	color: "#6272a4",
-	marginBottom: 8,
-});
-
-const popoverDetailCss = css({
-	fontSize: 11,
-	color: "#8b949e",
-	marginBottom: 2,
 });
 
 // ── Popover ──
@@ -165,6 +138,7 @@ interface PopoverProps {
 }
 
 function NodePopover({ node, x, y }: PopoverProps) {
+	const theme = useIdeTheme();
 	const loc = useGameStore((s) => s.loc);
 	const cash = useGameStore((s) => s.cash);
 	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
@@ -177,31 +151,63 @@ function NodePopover({ node, x, y }: PopoverProps) {
 	const canAfford = useLoc ? loc >= cost : cash >= cost;
 	const levelLabel = node.levelLabels?.[owned];
 
+	const popoverStyle = css({
+		position: "absolute",
+		zIndex: 10,
+		pointerEvents: "none",
+		background: theme.panelBg,
+		border: `1px solid ${theme.border}`,
+		borderRadius: 8,
+		padding: 12,
+		minWidth: 220,
+		maxWidth: 280,
+		boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+	});
+
+	const popoverNameStyle = css({
+		fontSize: 14,
+		fontWeight: "bold",
+		color: theme.foreground,
+		marginBottom: 4,
+	});
+
+	const popoverDescStyle = css({
+		fontSize: 12,
+		color: theme.textMuted,
+		marginBottom: 8,
+	});
+
+	const popoverDetailStyle = css({
+		fontSize: 11,
+		color: theme.textMuted,
+		marginBottom: 2,
+	});
+
 	return (
-		<div css={popoverCss} style={{ left: x, top: y }}>
-			<div css={popoverNameCss}>
+		<div css={popoverStyle} style={{ left: x, top: y }}>
+			<div css={popoverNameStyle}>
 				{node.icon} {node.name}
 			</div>
-			<div css={popoverDescCss}>{node.description}</div>
+			<div css={popoverDescStyle}>{node.description}</div>
 			{node.effects.length > 0 && (
-				<div css={popoverDetailCss}>
+				<div css={popoverDetailStyle}>
 					{node.effects.map((e) => formatEffect(e)).join(", ")}
 				</div>
 			)}
-			{levelLabel && !maxed && <div css={popoverDetailCss}>{levelLabel}</div>}
+			{levelLabel && !maxed && <div css={popoverDetailStyle}>{levelLabel}</div>}
 			{node.max > 1 && (
-				<div css={popoverDetailCss}>
+				<div css={popoverDetailStyle}>
 					Level {owned}/{node.max}
 				</div>
 			)}
 			{!maxed && (
-				<div css={popoverDetailCss}>
+				<div css={popoverDetailStyle}>
 					Cost:{" "}
 					{useLoc ? `${formatNumber(cost)} LoC` : `$${formatNumber(cost)}`}
 				</div>
 			)}
 			{!prereqsMet && !maxed && (
-				<div css={[popoverDetailCss, { color: "#e94560" }]}>
+				<div css={[popoverDetailStyle, { color: "#e94560" }]}>
 					Requires:{" "}
 					{node.requires
 						.filter((id) => (ownedTechNodes[id] ?? 0) === 0)
@@ -210,12 +216,12 @@ function NodePopover({ node, x, y }: PopoverProps) {
 				</div>
 			)}
 			{maxed && (
-				<div css={{ fontSize: 12, color: "#3fb950", fontWeight: "bold" }}>
+				<div css={{ fontSize: 12, color: theme.success, fontWeight: "bold" }}>
 					{node.max === 1 ? "Researched" : "Maxed"}
 				</div>
 			)}
 			{!maxed && prereqsMet && canAfford && (
-				<div css={{ fontSize: 11, color: "#58a6ff", marginTop: 4 }}>
+				<div css={{ fontSize: 11, color: theme.accent, marginTop: 4 }}>
 					Click to research
 				</div>
 			)}
@@ -225,7 +231,9 @@ function NodePopover({ node, x, y }: PopoverProps) {
 				</div>
 			)}
 			{!maxed && !prereqsMet && (
-				<div css={{ fontSize: 11, color: "#484f58", marginTop: 4 }}>Locked</div>
+				<div css={{ fontSize: 11, color: theme.lineNumbers, marginTop: 4 }}>
+					Locked
+				</div>
 			)}
 		</div>
 	);
@@ -234,11 +242,14 @@ function NodePopover({ node, x, y }: PopoverProps) {
 // ── Main component ──
 
 export function TechTreePage() {
+	const theme = useIdeTheme();
 	const isMobile = useIsMobile();
 	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
 	const loc = useGameStore((s) => s.loc);
 	const cash = useGameStore((s) => s.cash);
 	const researchNode = useGameStore((s) => s.researchNode);
+	const techTreeViewport = useUiStore((s) => s.techTreeViewport);
+	const setTechTreeViewport = useUiStore((s) => s.setTechTreeViewport);
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	// Throttle node rebuilds to avoid React Flow DOM churn on every game tick.
@@ -268,8 +279,8 @@ export function TechTreePage() {
 	}, [ownedTechNodes, loc, cash]);
 
 	const flowEdges = useMemo(
-		() => buildFlowEdges(allTechNodes, ownedTechNodes),
-		[ownedTechNodes],
+		() => buildFlowEdges(allTechNodes, ownedTechNodes, theme.border),
+		[ownedTechNodes, theme.border],
 	);
 
 	// Compute pan bounds from all node positions (not just visible ones)
@@ -348,8 +359,13 @@ export function TechTreePage() {
 		leaveTimer.current = setTimeout(() => setHovered(null), 100);
 	}, []);
 
+	const containerDynamicCss = css({
+		background: theme.background,
+		".react-flow__background": { background: `${theme.background} !important` },
+	});
+
 	return (
-		<div ref={containerRef} css={containerCss}>
+		<div ref={containerRef} css={[containerBaseCss, containerDynamicCss]}>
 			<ReactFlow
 				nodes={flowNodes}
 				edges={flowEdges}
@@ -358,11 +374,8 @@ export function TechTreePage() {
 				onNodeMouseEnter={isMobile ? undefined : handleNodeMouseEnter}
 				onNodeMouseLeave={isMobile ? undefined : handleNodeMouseLeave}
 				onPaneClick={isMobile ? () => setHovered(null) : undefined}
-				defaultViewport={{
-					x: -(1254 - 300) * 2,
-					y: -(566 - 200) * 2,
-					zoom: 2,
-				}}
+				defaultViewport={techTreeViewport}
+				onViewportChange={setTechTreeViewport}
 				nodesDraggable={false}
 				nodesConnectable={false}
 				elementsSelectable={false}
@@ -375,7 +388,7 @@ export function TechTreePage() {
 				translateExtent={translateExtent}
 				proOptions={{ hideAttribution: true }}
 			>
-				<Background gap={20} color="#1e2630" />
+				<Background gap={20} color={theme.border} />
 			</ReactFlow>
 
 			{hovered && (

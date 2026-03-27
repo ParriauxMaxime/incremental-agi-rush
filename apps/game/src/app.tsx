@@ -2,6 +2,7 @@ import { EditorPanel } from "@components/editor-panel";
 import { GodModePage } from "@components/god-mode-page";
 import { MobileShell } from "@components/mobile-shell";
 import { SidebarTree } from "@components/sidebar-tree";
+import { StatsPanel } from "@components/stats-panel";
 import { StatusBar } from "@components/status-bar";
 import { TechTreePage } from "@components/tech-tree-page";
 import { TutorialTip, useTutorialTriggers } from "@components/tutorial-screen";
@@ -124,10 +125,6 @@ const themeCardCss = css({
 	"&:hover": { filter: "brightness(1.1)" },
 });
 
-const themeCardActiveCss = css({
-	borderColor: "#58a6ff",
-});
-
 const themeNameCss = css({
 	fontSize: 11,
 	fontWeight: "bold",
@@ -175,25 +172,29 @@ const themeEntries = Object.entries(EDITOR_THEMES) as Array<
 >;
 
 function SettingsPage() {
-	const autoTypeUnlocked = useGameStore(
-		(s) => (s.ownedTechNodes.auto_type ?? 0) > 0,
-	);
-	const autoTypeEnabled = useGameStore((s) => s.autoTypeEnabled);
-	const toggleAutoType = useGameStore((s) => s.toggleAutoType);
-	const reset = useGameStore((s) => s.reset);
-	const resetTips = useUiStore((s) => s.resetTips);
 	const editorTheme = useUiStore((s) => s.editorTheme);
 	const setEditorTheme = useUiStore((s) => s.setEditorTheme);
+	const uiZoom = useUiStore((s) => s.uiZoom);
+	const setUiZoom = useUiStore((s) => s.setUiZoom);
+	const theme = useIdeTheme();
 
 	return (
-		<div css={settingsPageCss}>
+		<div
+			css={settingsPageCss}
+			style={{ background: theme.panelBg, color: theme.foreground }}
+		>
 			<div css={settingsSectionCss}>
-				<div css={settingsHeadingCss}>{"// Editor Theme"}</div>
+				<div css={settingsHeadingCss} style={{ color: theme.accent }}>
+					{"// Editor Theme"}
+				</div>
 				<div css={themeGridCss}>
 					{themeEntries.map(([id, theme]) => (
 						<div
 							key={id}
-							css={[themeCardCss, editorTheme === id && themeCardActiveCss]}
+							css={[
+								themeCardCss,
+								editorTheme === id && { borderColor: theme.accent },
+							]}
 							style={{ background: theme.background }}
 							onClick={() => setEditorTheme(id)}
 							onKeyDown={(e) => {
@@ -208,49 +209,203 @@ function SettingsPage() {
 				</div>
 			</div>
 			<div css={settingsSectionCss}>
-				<div css={settingsHeadingCss}>{"// Gameplay"}</div>
-				{autoTypeUnlocked && (
-					<label css={settingsRowCss}>
-						<input
-							type="checkbox"
-							checked={autoTypeEnabled}
-							onChange={toggleAutoType}
-							style={{ accentColor: "#58a6ff" }}
-						/>
-						{'"autoType":'} {autoTypeEnabled ? "true" : "false"}
-					</label>
-				)}
-				{!autoTypeUnlocked && (
-					<div css={[settingsRowCss, { color: "#484f58" }]}>
-						{"// Auto-type locked — research it in tech_tree.svg"}
-					</div>
+				<div css={settingsHeadingCss} style={{ color: theme.accent }}>
+					{"// UI Zoom"}
+				</div>
+				<div
+					css={[
+						settingsRowCss,
+						{ gap: 6, flexWrap: "wrap", color: theme.foreground },
+					]}
+				>
+					{[75, 80, 90, 100, 110, 125, 150].map((v) => (
+						<button
+							key={v}
+							type="button"
+							css={{
+								fontFamily: "inherit",
+								fontSize: 12,
+								padding: "4px 10px",
+								borderRadius: 4,
+								cursor: "pointer",
+								border:
+									uiZoom === v
+										? `1px solid ${theme.accent}`
+										: `1px solid ${theme.border}`,
+								background:
+									uiZoom === v ? `${theme.accent}22` : theme.background,
+								color: uiZoom === v ? theme.accent : theme.foreground,
+								"&:hover": { borderColor: theme.accent },
+							}}
+							onClick={() => setUiZoom(v)}
+						>
+							{v}%
+						</button>
+					))}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// ── Collapsed sidebar strip ──
+
+const collapsedStripCss = css({
+	display: "flex",
+	alignItems: "flex-start",
+	justifyContent: "center",
+	paddingTop: 10,
+	width: 28,
+	flexShrink: 0,
+	cursor: "pointer",
+	border: "none",
+	fontFamily: "inherit",
+	color: "#8b949e",
+	transition: "color 0.15s",
+	alignSelf: "stretch",
+	"&:hover": { color: "#c9d1d9" },
+});
+
+// ── Tabbed pane (reusable for split view) ──
+
+const splitBtnCss = css({
+	marginLeft: "auto",
+	padding: "0 10px",
+	display: "flex",
+	alignItems: "center",
+	border: "none",
+	background: "none",
+	cursor: "pointer",
+	fontFamily: "inherit",
+	fontSize: 14,
+	transition: "color 0.15s",
+});
+
+function PageContent({ page }: { page: PageEnum }) {
+	return match(page)
+		.with(PageEnum.game, () => <EditorPanel />)
+		.with(PageEnum.tech_tree, () => <TechTreePage />)
+		.with(PageEnum.settings, () => <SettingsPage />)
+		.with(PageEnum.god_mode, () => <GodModePage />)
+		.exhaustive();
+}
+
+function SplitIcon({ active }: { active?: boolean }) {
+	return (
+		<svg
+			width="16"
+			height="16"
+			viewBox="0 0 16 16"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<rect
+				x="1.5"
+				y="2.5"
+				width="13"
+				height="11"
+				rx="1"
+				stroke="currentColor"
+				strokeWidth="1.2"
+			/>
+			<line
+				x1="8"
+				y1="3"
+				x2="8"
+				y2="13"
+				stroke="currentColor"
+				strokeWidth="1.2"
+				strokeOpacity={active ? 1 : 0.6}
+			/>
+		</svg>
+	);
+}
+
+function TabbedPane({
+	activePage,
+	onSetPage,
+	showSplitBtn,
+	splitActive,
+	onToggleSplit,
+}: {
+	activePage: PageEnum;
+	onSetPage: (page: PageEnum) => void;
+	showSplitBtn?: boolean;
+	splitActive?: boolean;
+	onToggleSplit?: () => void;
+}) {
+	const theme = useIdeTheme();
+
+	return (
+		<div css={[panelCss, { flex: 1 }]}>
+			<div
+				css={{
+					display: "flex",
+					background: theme.tabBarBg,
+					borderBottom: `1px solid ${theme.border}`,
+					flexShrink: 0,
+					height: 35,
+				}}
+			>
+				{middleTabs.map((t) => {
+					const active = t.page === activePage;
+					return (
+						<button
+							key={t.page}
+							type="button"
+							css={{
+								padding: "0 16px",
+								display: "flex",
+								alignItems: "center",
+								gap: 8,
+								fontSize: 13,
+								color: active ? theme.foreground : theme.textMuted,
+								background: active ? theme.tabActiveBg : theme.tabInactiveBg,
+								border: "none",
+								borderRight: `1px solid ${theme.border}`,
+								borderBottom: active
+									? `1px solid ${theme.tabActiveBg}`
+									: "none",
+								marginBottom: active ? -1 : 0,
+								cursor: "pointer",
+								fontFamily: "inherit",
+								whiteSpace: "nowrap",
+								transition: "all 0.15s",
+								"&:hover": {
+									color: theme.foreground,
+								},
+							}}
+							onClick={() => onSetPage(t.page)}
+						>
+							<span
+								css={{
+									width: 6,
+									height: 6,
+									borderRadius: "50%",
+									background: active ? "#519aba" : "transparent",
+									flexShrink: 0,
+								}}
+							/>
+							{t.filename}
+						</button>
+					);
+				})}
+				{showSplitBtn && onToggleSplit && (
+					<button
+						type="button"
+						css={splitBtnCss}
+						style={{
+							color: splitActive ? "#58a6ff" : theme.textMuted,
+						}}
+						onClick={onToggleSplit}
+						title={splitActive ? "Close split" : "Split editor"}
+					>
+						<SplitIcon active={splitActive} />
+					</button>
 				)}
 			</div>
-			<div css={settingsSectionCss}>
-				<div css={[settingsHeadingCss, { color: "#e94560" }]}>
-					{"// Danger Zone"}
-				</div>
-				<button
-					type="button"
-					css={{
-						fontFamily: "inherit",
-						fontSize: 12,
-						padding: "6px 12px",
-						background: "#0d1117",
-						color: "#e94560",
-						border: "1px solid #e94560",
-						borderRadius: 4,
-						cursor: "pointer",
-						"&:hover": { background: "#e94560", color: "#fff" },
-					}}
-					onClick={() => {
-						reset();
-						resetTips();
-						window.location.reload();
-					}}
-				>
-					{'"resetGame": true'}
-				</button>
+			<div css={contentCss}>
+				<PageContent page={activePage} />
 			</div>
 		</div>
 	);
@@ -262,11 +417,43 @@ export function App() {
 	const isMobile = useIsMobile();
 	const page = useUiStore((s) => s.page);
 	const setPage = useUiStore((s) => s.setPage);
+	const splitEnabled = useUiStore((s) => s.splitEnabled);
+	const rightPage = useUiStore((s) => s.rightPage);
+	const setRightPage = useUiStore((s) => s.setRightPage);
+	const toggleSplit = useUiStore((s) => s.toggleSplit);
+	const uiZoom = useUiStore((s) => s.uiZoom);
+	const sidebarCollapsed = useUiStore((s) => s.sidebarCollapsed);
+	const toggleSidebar = useUiStore((s) => s.toggleSidebar);
+	const statsPanelCollapsed = useUiStore((s) => s.statsPanelCollapsed);
+	const toggleStatsPanel = useUiStore((s) => s.toggleStatsPanel);
+	const sidebarUnlocked = useGameStore(
+		(s) => (s.ownedTechNodes.unlock_sidebar ?? 0) > 0,
+	);
+	const statsPanelUnlocked = useGameStore(
+		(s) => (s.ownedTechNodes.unlock_stats_panel ?? 0) > 0,
+	);
 	const singularity = useGameStore((s) => s.singularity);
 	const theme = useIdeTheme();
 	const shellRef = useRef<HTMLDivElement>(null);
 	const singularityOnMount = useRef(useGameStore.getState().singularity);
 	const singularityAnimate = singularity && !singularityOnMount.current;
+
+	// Auto-expand panels when unlocked for the first time
+	const prevSidebarUnlocked = useRef(sidebarUnlocked);
+	useEffect(() => {
+		if (sidebarUnlocked && !prevSidebarUnlocked.current) {
+			prevSidebarUnlocked.current = true;
+			useUiStore.getState().toggleSidebar();
+		}
+	}, [sidebarUnlocked]);
+
+	const prevStatsPanelUnlocked = useRef(statsPanelUnlocked);
+	useEffect(() => {
+		if (statsPanelUnlocked && !prevStatsPanelUnlocked.current) {
+			prevStatsPanelUnlocked.current = true;
+			useUiStore.getState().toggleStatsPanel();
+		}
+	}, [statsPanelUnlocked]);
 
 	// Force-trigger the CRT animation
 	useEffect(() => {
@@ -299,10 +486,12 @@ export function App() {
 					{
 						display: "flex",
 						flexDirection: "column",
-						height: "100vh",
+						height: `${10000 / uiZoom}vh`,
+						width: `${10000 / uiZoom}vw`,
 						overflow: "hidden",
 						background: theme.background,
 						color: theme.foreground,
+						zoom: uiZoom / 100,
 						fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
 					},
 					singularity && singularityAnimate && shellCollapseCss,
@@ -310,74 +499,91 @@ export function App() {
 			>
 				{/* Main area: sidebar + tabbed content */}
 				<div css={{ display: "flex", flex: 1, overflow: "hidden" }}>
-					<SidebarTree />
-
-					{/* Tabbed main area */}
-					<div css={[panelCss, { flex: 1 }]}>
-						<div
-							css={{
-								display: "flex",
-								background: theme.tabBarBg,
-								borderBottom: `1px solid ${theme.border}`,
-								flexShrink: 0,
-								height: 35,
+					{!sidebarUnlocked || sidebarCollapsed ? (
+						<button
+							type="button"
+							css={collapsedStripCss}
+							style={{
+								borderRight: `1px solid ${theme.border}`,
+								background: theme.sidebarBg,
+								opacity: sidebarUnlocked ? 1 : 0.3,
+								cursor: sidebarUnlocked ? "pointer" : "default",
 							}}
+							onClick={sidebarUnlocked ? toggleSidebar : undefined}
+							title={sidebarUnlocked ? "Show sidebar" : "Unlock in tech tree"}
 						>
-							{middleTabs.map((t) => {
-								const active = t.page === page;
-								return (
-									<button
-										key={t.page}
-										type="button"
-										css={{
-											padding: "0 16px",
-											display: "flex",
-											alignItems: "center",
-											gap: 8,
-											fontSize: 13,
-											color: active ? theme.foreground : theme.textMuted,
-											background: active
-												? theme.tabActiveBg
-												: theme.tabInactiveBg,
-											border: "none",
-											borderRight: `1px solid ${theme.border}`,
-											borderBottom: active
-												? `1px solid ${theme.tabActiveBg}`
-												: "none",
-											marginBottom: active ? -1 : 0,
-											cursor: "pointer",
-											fontFamily: "inherit",
-											whiteSpace: "nowrap",
-											transition: "all 0.15s",
-											"&:hover": {
-												color: theme.foreground,
-											},
-										}}
-										onClick={() => setPage(t.page)}
-									>
-										<span
-											css={{
-												width: 6,
-												height: 6,
-												borderRadius: "50%",
-												background: active ? "#519aba" : "transparent",
-												flexShrink: 0,
-											}}
-										/>
-										{t.filename}
-									</button>
-								);
-							})}
-						</div>
-						<div css={contentCss}>
-							{match(page)
-								.with(PageEnum.game, () => <EditorPanel />)
-								.with(PageEnum.tech_tree, () => <TechTreePage />)
-								.with(PageEnum.settings, () => <SettingsPage />)
-								.with(PageEnum.god_mode, () => <GodModePage />)
-								.exhaustive()}
-						</div>
-					</div>
+							<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+								<rect
+									x="1.5"
+									y="2.5"
+									width="13"
+									height="11"
+									rx="1"
+									stroke="currentColor"
+									strokeWidth="1.2"
+								/>
+								<line
+									x1="5"
+									y1="3"
+									x2="5"
+									y2="13"
+									stroke="currentColor"
+									strokeWidth="1.2"
+								/>
+							</svg>
+						</button>
+					) : (
+						<SidebarTree onCollapse={toggleSidebar} />
+					)}
+
+					{/* Tabbed pane(s) */}
+					<TabbedPane
+						activePage={page}
+						onSetPage={setPage}
+						showSplitBtn
+						splitActive={splitEnabled}
+						onToggleSplit={toggleSplit}
+					/>
+					{splitEnabled && (
+						<TabbedPane activePage={rightPage} onSetPage={setRightPage} />
+					)}
+
+					{!statsPanelUnlocked || statsPanelCollapsed ? (
+						<button
+							type="button"
+							css={collapsedStripCss}
+							style={{
+								borderLeft: `1px solid ${theme.border}`,
+								background: theme.sidebarBg,
+								opacity: statsPanelUnlocked ? 1 : 0.3,
+								cursor: statsPanelUnlocked ? "pointer" : "default",
+							}}
+							onClick={statsPanelUnlocked ? toggleStatsPanel : undefined}
+							title={statsPanelUnlocked ? "Show stats" : "Unlock in tech tree"}
+						>
+							<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+								<rect
+									x="1.5"
+									y="2.5"
+									width="13"
+									height="11"
+									rx="1"
+									stroke="currentColor"
+									strokeWidth="1.2"
+								/>
+								<line
+									x1="11"
+									y1="3"
+									x2="11"
+									y2="13"
+									stroke="currentColor"
+									strokeWidth="1.2"
+								/>
+							</svg>
+						</button>
+					) : (
+						<StatsPanel onCollapse={toggleStatsPanel} />
+					)}
 				</div>
 
 				{/* Status bar */}
