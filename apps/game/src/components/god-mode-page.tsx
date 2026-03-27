@@ -172,39 +172,80 @@ export function GodModePage() {
 			</div>
 
 			<Section title="Resources">
-				{resourceRows.map((r) => (
-					<div
-						key={r.key}
-						css={{
-							display: "flex",
-							alignItems: "center",
-							gap: 8,
-							marginBottom: 6,
-						}}
-					>
-						<span css={{ width: 80, color: theme.textMuted }}>{r.label}</span>
-						<span
+				<div css={{ display: "flex", flexDirection: "column", gap: 8 }}>
+					{resourceRows.map((r) => (
+						<div
+							key={r.key}
 							css={{
-								width: 90,
-								textAlign: "right",
-								fontVariantNumeric: "tabular-nums",
-								fontWeight: 600,
+								display: "flex",
+								alignItems: "center",
+								gap: 12,
+								padding: "8px 12px",
+								borderRadius: 6,
+								border: `1px solid ${theme.border}`,
+								background: `${r.color}08`,
 							}}
-							style={{ color: r.color }}
 						>
-							{formatNumber(state[r.key] ?? 0)}
-						</span>
-						<div css={{ display: "flex", gap: 4 }}>
-							{r.bumps.map((amt) => (
-								<BumpBtn
-									key={amt}
-									label={`+${formatShort(amt)}`}
-									onClick={() => bump(r.key, amt)}
-								/>
-							))}
+							<div css={{ flex: "0 0 80px" }}>
+								<div
+									css={{
+										fontSize: 11,
+										color: theme.textMuted,
+										marginBottom: 2,
+									}}
+								>
+									{r.label}
+								</div>
+								<div
+									css={{
+										fontSize: 20,
+										fontWeight: 700,
+										fontVariantNumeric: "tabular-nums",
+										letterSpacing: -0.5,
+									}}
+									style={{ color: r.color }}
+								>
+									{formatNumber(state[r.key] ?? 0)}
+								</div>
+							</div>
+							<div
+								css={{
+									display: "flex",
+									gap: 4,
+									flexWrap: "wrap",
+									marginLeft: "auto",
+								}}
+							>
+								{r.bumps.map((amt) => (
+									<button
+										key={amt}
+										type="button"
+										css={{
+											background: "none",
+											border: `1px solid ${r.color}44`,
+											borderRadius: 3,
+											color: r.color,
+											padding: "4px 10px",
+											fontSize: 11,
+											fontFamily: "inherit",
+											cursor: "pointer",
+											fontWeight: 600,
+											transition: "all 0.15s",
+											"&:hover": {
+												background: r.color,
+												color: theme.background,
+												borderColor: r.color,
+											},
+										}}
+										onClick={() => bump(r.key, amt)}
+									>
+										+{formatShort(amt)}
+									</button>
+								))}
+							</div>
 						</div>
-					</div>
-				))}
+					))}
+				</div>
 			</Section>
 
 			<Section title="Tier">
