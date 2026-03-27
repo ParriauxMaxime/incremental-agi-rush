@@ -473,7 +473,7 @@
 			"icon": "📁",
 			"requires": ["computer"],
 			"max": 1,
-			"baseCost": 5,
+			"baseCost": 20,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
