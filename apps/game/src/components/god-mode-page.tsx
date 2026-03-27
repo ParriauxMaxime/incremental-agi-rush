@@ -3,6 +3,7 @@ import type { GodModeOverrides } from "@modules/game";
 import {
 	allTechNodes,
 	allUpgrades,
+	getEffectiveMax,
 	tiers,
 	useGameStore,
 	useUiStore,
@@ -459,7 +460,7 @@ export function GodModePage() {
 							};
 							for (const u of allUpgrades) {
 								if (u.id === "the_singularity") continue;
-								upgrades[u.id] = u.max;
+								upgrades[u.id] = getEffectiveMax(u, current);
 							}
 							useGameStore.setState({ ownedUpgrades: upgrades });
 							recalc();
