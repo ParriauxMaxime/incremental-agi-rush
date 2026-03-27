@@ -10,7 +10,7 @@
 			"cost": 25000000,
 			"locPerSec": 1500,
 			"flopsCost": 800000,
-			"tokenCost": 80000,
+			"tokenCost": 150,
 			"codeQuality": 70,
 			"special": {
 				"id": "tab_complete",
@@ -28,7 +28,7 @@
 			"cost": 20000000,
 			"locPerSec": 800,
 			"flopsCost": 500000,
-			"tokenCost": 50000,
+			"tokenCost": 80,
 			"codeQuality": 82,
 			"special": {
 				"id": "fast_cheap",
@@ -46,7 +46,7 @@
 			"cost": 80000000,
 			"locPerSec": 5000,
 			"flopsCost": 2500000,
-			"tokenCost": 250000,
+			"tokenCost": 500,
 			"codeQuality": 95,
 			"requires": "claude_haiku",
 			"special": {
@@ -66,7 +66,7 @@
 			"cost": 10000000000,
 			"locPerSec": 30000,
 			"flopsCost": 10000000,
-			"tokenCost": 1000000,
+			"tokenCost": 3000,
 			"codeQuality": 98,
 			"requires": "claude_sonnet",
 			"special": {
@@ -86,7 +86,7 @@
 			"cost": 15000000,
 			"locPerSec": 500,
 			"flopsCost": 400000,
-			"tokenCost": 40000,
+			"tokenCost": 50,
 			"codeQuality": 70,
 			"special": {
 				"id": "verbose",
@@ -106,7 +106,7 @@
 			"cost": 30000000,
 			"locPerSec": 1500,
 			"flopsCost": 1000000,
-			"tokenCost": 100000,
+			"tokenCost": 150,
 			"codeQuality": 78,
 			"requires": "gpt_3",
 			"special": {
@@ -127,7 +127,7 @@
 			"cost": 100000000,
 			"locPerSec": 8000,
 			"flopsCost": 2000000,
-			"tokenCost": 200000,
+			"tokenCost": 800,
 			"codeQuality": 85,
 			"requires": "gpt_35",
 			"special": {
@@ -148,7 +148,7 @@
 			"cost": 200000000,
 			"locPerSec": 10000,
 			"flopsCost": 2500000,
-			"tokenCost": 250000,
+			"tokenCost": 1000,
 			"codeQuality": 88,
 			"requires": "gpt_4",
 			"special": {
@@ -168,7 +168,7 @@
 			"cost": 30000000000,
 			"locPerSec": 80000,
 			"flopsCost": 20000000,
-			"tokenCost": 2000000,
+			"tokenCost": 8000,
 			"codeQuality": 88,
 			"requires": "gpt_41",
 			"special": {
@@ -188,7 +188,7 @@
 			"cost": 60000000,
 			"locPerSec": 6000,
 			"flopsCost": 1500000,
-			"tokenCost": 150000,
+			"tokenCost": 600,
 			"codeQuality": 80,
 			"special": {
 				"id": "multimodal",
@@ -207,7 +207,7 @@
 			"cost": 100000000000,
 			"locPerSec": 200000,
 			"flopsCost": 30000000,
-			"tokenCost": 3000000,
+			"tokenCost": 20000,
 			"codeQuality": 82,
 			"requires": "gemini_pro",
 			"special": {
@@ -227,7 +227,7 @@
 			"cost": 35000000,
 			"locPerSec": 3000,
 			"flopsCost": 600000,
-			"tokenCost": 60000,
+			"tokenCost": 300,
 			"codeQuality": 75,
 			"special": {
 				"id": "open_source",
@@ -246,7 +246,7 @@
 			"cost": 250000000,
 			"locPerSec": 25000,
 			"flopsCost": 4000000,
-			"tokenCost": 400000,
+			"tokenCost": 2500,
 			"codeQuality": 78,
 			"requires": "llama_70b",
 			"special": {
@@ -268,7 +268,7 @@
 			"cost": 50000000,
 			"locPerSec": 4000,
 			"flopsCost": 1000000,
-			"tokenCost": 100000,
+			"tokenCost": 400,
 			"codeQuality": 82,
 			"special": {
 				"id": "le_code",
@@ -290,7 +290,7 @@
 			"cost": 150000000,
 			"locPerSec": 12000,
 			"flopsCost": 3000000,
-			"tokenCost": 300000,
+			"tokenCost": 1200,
 			"codeQuality": 70,
 			"special": {
 				"id": "chaotic",
@@ -310,7 +310,7 @@
 			"cost": 500000000000,
 			"locPerSec": 500000,
 			"flopsCost": 50000000,
-			"tokenCost": 5000000,
+			"tokenCost": 50000,
 			"codeQuality": 72,
 			"requires": "grok_2",
 			"special": {
@@ -330,7 +330,7 @@
 			"cost": 300000000000,
 			"locPerSec": 2000000,
 			"flopsCost": 100000000,
-			"tokenCost": 10000000,
+			"tokenCost": 200000,
 			"codeQuality": 95,
 			"requires": "gpt_5",
 			"special": {
@@ -349,7 +349,7 @@
 			"cost": 5000000000000,
 			"locPerSec": 10000000,
 			"flopsCost": 500000000,
-			"tokenCost": 50000000,
+			"tokenCost": 1000000,
 			"codeQuality": 99,
 			"requires": "gpt_6",
 			"special": {
@@ -368,7 +368,7 @@
 			"cost": 2000000000000,
 			"locPerSec": 5000000,
 			"flopsCost": 250000000,
-			"tokenCost": 25000000,
+			"tokenCost": 500000,
 			"codeQuality": 99,
 			"requires": "claude_opus",
 			"special": {
@@ -388,7 +388,7 @@
 			"cost": 20000000000000,
 			"locPerSec": 50000000,
 			"flopsCost": 2000000000,
-			"tokenCost": 200000000,
+			"tokenCost": 5000000,
 			"codeQuality": 100,
 			"requires": "claude_saga",
 			"special": {
@@ -407,7 +407,7 @@
 			"cost": 5000000000000,
 			"locPerSec": 8000000,
 			"flopsCost": 400000000,
-			"tokenCost": 40000000,
+			"tokenCost": 800000,
 			"codeQuality": 96,
 			"requires": "gemini_ultra",
 			"special": {
@@ -417,7 +417,6 @@
 			}
 		}
 	],
-
 	"agentSetups": [
 		{
 			"id": "writer_reviewer",
@@ -426,8 +425,14 @@
 			"requiredModels": 2,
 			"unlockCondition": "ownedModels >= 3",
 			"slots": [
-				{ "role": "writer", "label": "Writer" },
-				{ "role": "reviewer", "label": "Reviewer" }
+				{
+					"role": "writer",
+					"label": "Writer"
+				},
+				{
+					"role": "reviewer",
+					"label": "Reviewer"
+				}
 			],
 			"effects": {
 				"locOutput": "writer.locPerSec",
@@ -455,9 +460,18 @@
 			"requiredModels": 3,
 			"unlockCondition": "ownedModels >= 3",
 			"slots": [
-				{ "role": "drafter", "label": "Draft" },
-				{ "role": "refiner", "label": "Refine" },
-				{ "role": "optimizer", "label": "Optimize" }
+				{
+					"role": "drafter",
+					"label": "Draft"
+				},
+				{
+					"role": "refiner",
+					"label": "Refine"
+				},
+				{
+					"role": "optimizer",
+					"label": "Optimize"
+				}
 			],
 			"effects": {
 				"locOutput": "min(all.locPerSec)",
@@ -472,8 +486,14 @@
 			"requiredModels": 2,
 			"unlockCondition": "ownedModels >= 3",
 			"slots": [
-				{ "role": "contestant_a", "label": "Model A" },
-				{ "role": "contestant_b", "label": "Model B" }
+				{
+					"role": "contestant_a",
+					"label": "Model A"
+				},
+				{
+					"role": "contestant_b",
+					"label": "Model B"
+				}
 			],
 			"effects": {
 				"locOutput": "max(a.locPerSec, b.locPerSec)",

@@ -763,7 +763,7 @@
 			"icon": "🌀",
 			"requires": ["tier_ai_lab"],
 			"max": 1,
-			"baseCost": 10000000000,
+			"baseCost": 50000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [

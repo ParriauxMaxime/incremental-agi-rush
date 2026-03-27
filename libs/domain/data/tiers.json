@@ -45,7 +45,7 @@
 			"index": 4,
 			"name": "AI Lab",
 			"tagline": "The code starts writing itself — but it eats your compute.",
-			"cashPerLoc": 6.0,
+			"cashPerLoc": 10.0,
 			"locRequired": 500000,
 			"cashRequired": 5000000,
 			"cost": 20000000
@@ -56,9 +56,9 @@
 			"name": "AGI Race",
 			"tagline": "You're not writing code anymore. The AI is.",
 			"cashPerLoc": 15.0,
-			"locRequired": 10000000,
-			"cashRequired": 2000000000,
-			"cost": 10000000000
+			"locRequired": 5000000,
+			"cashRequired": 50000000,
+			"cost": 50000000
 		}
 	]
 }

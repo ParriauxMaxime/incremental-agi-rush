@@ -635,10 +635,9 @@ export function runBalanceSim(
 		const manualLoc = effLocPerKey() * cfg.keysPerSec;
 		const autoTypeLoc = sim.autoTypeEnabled ? effLocPerKey() * 5 : 0;
 		const autoLoc = calcAutoLoc();
-		sim.loc += manualLoc + autoTypeLoc + autoLoc;
-		sim.totalLoc += manualLoc + autoTypeLoc + autoLoc;
+		const humanOutput = manualLoc + autoTypeLoc + autoLoc;
 
-		// ── AI + execution ──
+		// ── AI + token split + execution ──
 		let aiLoc = 0;
 		let aiFlopsCost = 0;
 		if (sim.aiUnlocked) {
@@ -646,30 +645,48 @@ export function runBalanceSim(
 				.filter((m) => sim.ownedModels[m.id])
 				.sort((a, b) => b.locPerSec - a.locPerSec)
 				.slice(0, sim.llmHostSlots);
-			// Per-model FLOPS gating: each model independently capped
+
+			// Token split: humans produce tokens for AI, surplus → direct LoC
+			let totalTokenDemand = 0;
+			for (const m of activeModels) {
+				totalTokenDemand += m.tokenCost;
+			}
+			const tokensProduced = Math.min(humanOutput, totalTokenDemand);
+			const directLoc = humanOutput - tokensProduced;
+			const tokenEfficiency =
+				totalTokenDemand > 0 ? tokensProduced / totalTokenDemand : 0;
+
+			// AI LoC (gated by tokens AND FLOPS)
 			let remainingFlops = flops;
 			for (const m of activeModels) {
 				const modelFlops = Math.min(m.flopsCost, remainingFlops);
 				aiFlopsCost += modelFlops;
 				remainingFlops -= modelFlops;
 				const ratio = m.flopsCost > 0 ? modelFlops / m.flopsCost : 0;
-				aiLoc += m.locPerSec * sim.aiLocMultiplier * Math.min(1, ratio);
+				aiLoc +=
+					m.locPerSec *
+					sim.aiLocMultiplier *
+					tokenEfficiency *
+					Math.min(1, ratio);
 			}
-			if (aiLoc > 0) {
-				sim.loc += aiLoc;
-				sim.totalLoc += aiLoc;
-			}
+
+			sim.loc += directLoc + aiLoc;
+			sim.totalLoc += directLoc + aiLoc;
 			const execFlops = Math.max(0, flops - aiFlopsCost);
 			const executed = Math.min(sim.loc, execFlops);
 			sim.cash += executed * cashPerLoc();
 			sim.totalCash += executed * cashPerLoc();
 			sim.loc -= executed;
 		} else if (sim.autoExecuteEnabled) {
+			sim.loc += humanOutput;
+			sim.totalLoc += humanOutput;
 			const executed = Math.min(sim.loc, flops);
 			sim.cash += executed * cashPerLoc();
 			sim.totalCash += executed * cashPerLoc();
 			sim.loc -= executed;
 		} else {
+			sim.loc += humanOutput;
+			sim.totalLoc += humanOutput;
 			// Manual execute: player clicks ~every 1.5-3s depending on skill
 			// Each click executes (flops) LoC, same as game's executeManual()
 			const clickInterval = 3 - cfg.skill * 1.5; // casual=2.1s, avg=1.8s, fast=1.58s
