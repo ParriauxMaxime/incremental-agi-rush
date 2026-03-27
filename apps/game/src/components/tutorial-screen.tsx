@@ -1,4 +1,4 @@
-import { css } from "@emotion/react";
+import { css, keyframes } from "@emotion/react";
 import { useGameStore, useUiStore } from "@modules/game";
 import { useCallback, useEffect, useRef } from "react";
 import { useIdeTheme } from "../hooks/use-ide-theme";
@@ -9,12 +9,14 @@ interface TipDef {
 	id: string;
 	title: string;
 	lines: string[];
+	duration: number; // auto-dismiss in seconds
 }
 
 const tips: TipDef[] = [
 	{
 		id: "welcome",
 		title: "Start typing.",
+		duration: 8,
 		lines: [
 			"You're in a garage with a laptop.",
 			"Mash your keyboard to write code.",
@@ -24,6 +26,7 @@ const tips: TipDef[] = [
 	{
 		id: "tech_tree_intro",
 		title: "The Tech Tree",
+		duration: 10,
 		lines: [
 			"The tech tree just opened on the right →",
 			"Research upgrades to boost your output.",
@@ -88,7 +91,43 @@ export function useTutorialTriggers() {
 	}, []);
 }
 
-// ── Bottom panel tutorial component ──
+// ── Countdown button animation ──
+
+function countdownBorder(duration: number, color: string) {
+	const anim = keyframes({
+		from: {
+			backgroundSize: "100% 2px, 2px 100%, 100% 2px, 2px 100%",
+		},
+		to: {
+			backgroundSize: "0% 2px, 2px 0%, 0% 2px, 2px 0%",
+		},
+	});
+
+	return css({
+		position: "relative",
+		fontSize: 12,
+		padding: "5px 16px",
+		borderRadius: 3,
+		cursor: "pointer",
+		fontFamily: "inherit",
+		transition: "background 0.15s, color 0.15s",
+		border: "1px solid transparent",
+		background: "transparent",
+		// Animated border using gradients
+		backgroundImage: `
+			linear-gradient(${color}, ${color}),
+			linear-gradient(${color}, ${color}),
+			linear-gradient(${color}, ${color}),
+			linear-gradient(${color}, ${color})
+		`,
+		backgroundPosition: "top left, top right, bottom right, bottom left",
+		backgroundRepeat: "no-repeat",
+		backgroundSize: "100% 2px, 2px 100%, 100% 2px, 2px 100%",
+		animation: `${anim} ${duration}s linear forwards`,
+	});
+}
+
+// ── Styles ──
 
 const panelCss = css({
 	display: "flex",
@@ -124,28 +163,32 @@ const contentCss = css({
 	lineHeight: 1.7,
 });
 
-const dismissBtnCss = css({
-	fontSize: 12,
-	padding: "4px 14px",
-	border: "1px solid currentColor",
-	borderRadius: 3,
-	cursor: "pointer",
-	background: "transparent",
-	fontFamily: "inherit",
-	transition: "all 0.15s",
-});
+// ── Component ──
 
 export function TutorialTip() {
 	const activeTip = useUiStore((s) => s.activeTip);
 	const dismiss = useUiStore((s) => s.dismissTip);
 	const theme = useIdeTheme();
 	const tip = activeTip ? tipMap.get(activeTip) : null;
+	const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
 	const handleDismiss = useCallback(() => {
+		if (timerRef.current) clearTimeout(timerRef.current);
 		dismiss();
 	}, [dismiss]);
 
-	// Dismiss on Enter/Escape
+	// Auto-dismiss timer
+	useEffect(() => {
+		if (!tip) return;
+		timerRef.current = setTimeout(() => {
+			dismiss();
+		}, tip.duration * 1000);
+		return () => {
+			if (timerRef.current) clearTimeout(timerRef.current);
+		};
+	}, [tip, dismiss]);
+
+	// Dismiss on Escape
 	useEffect(() => {
 		if (!activeTip) return;
 		function onKey(e: KeyboardEvent) {
@@ -159,6 +202,8 @@ export function TutorialTip() {
 	}, [activeTip, handleDismiss]);
 
 	if (!tip) return null;
+
+	const btnCss = countdownBorder(tip.duration, theme.success);
 
 	return (
 		<div css={panelCss} style={{ borderTop: `1px solid ${theme.border}` }}>
@@ -220,11 +265,15 @@ export function TutorialTip() {
 					</div>
 				))}
 				<div
-					css={{ marginTop: 10, display: "flex", justifyContent: "flex-end" }}
+					css={{
+						marginTop: 10,
+						display: "flex",
+						justifyContent: "flex-end",
+					}}
 				>
 					<button
 						type="button"
-						css={dismissBtnCss}
+						css={btnCss}
 						style={{ color: theme.success }}
 						onClick={handleDismiss}
 						onMouseEnter={(e) => {
