@@ -21,9 +21,8 @@ interface TipDef {
 const tips: TipDef[] = [
 	{
 		id: "welcome",
-		anchor: "editor",
+		anchor: null,
 		title: "Start typing.",
-		placement: "right",
 		lines: [
 			"You're in a garage with a laptop.",
 			"Mash your keyboard to write code.",
@@ -33,9 +32,8 @@ const tips: TipDef[] = [
 	},
 	{
 		id: "loc_explain",
-		anchor: "loc",
+		anchor: null,
 		title: "Lines of Code",
-		placement: "bottom",
 		lines: [
 			"This counter tracks your LoC.",
 			"Code piles up in a queue, waiting to be executed.",
@@ -45,9 +43,8 @@ const tips: TipDef[] = [
 	},
 	{
 		id: "execute_explain",
-		anchor: "execute",
+		anchor: null,
 		title: "Execute!",
-		placement: "bottom",
 		lines: [
 			"Hit this button to run your code.",
 			"Each click uses your FLOPS to execute LoC.",
@@ -60,9 +57,8 @@ const tips: TipDef[] = [
 	},
 	{
 		id: "cash_explain",
-		anchor: "cash",
+		anchor: null,
 		title: "Cash",
-		placement: "bottom",
 		lines: [
 			"Money flows when you execute code.",
 			"",
@@ -73,9 +69,8 @@ const tips: TipDef[] = [
 	},
 	{
 		id: "shop_explain",
-		anchor: "shop",
+		anchor: null,
 		title: "The Shop",
-		placement: "left",
 		lines: [
 			"Spend cash on upgrades.",
 			"",
@@ -395,12 +390,12 @@ export function TutorialTip() {
 
 	return (
 		<>
-			{/* SVG overlay with spotlight cutout */}
-			<svg css={overlayBaseCss} onClick={handleDismiss}>
-				<defs>
-					<mask id="spotlight-mask">
-						<rect width="100%" height="100%" fill="white" />
-						{hasAnchor && (
+			{/* SVG overlay with spotlight cutout (only when anchored) */}
+			{hasAnchor ? (
+				<svg css={overlayBaseCss} onClick={handleDismiss}>
+					<defs>
+						<mask id="spotlight-mask">
+							<rect width="100%" height="100%" fill="white" />
 							<rect
 								x={anchorRect.left - spotlightPadding}
 								y={anchorRect.top - spotlightPadding}
@@ -409,16 +404,21 @@ export function TutorialTip() {
 								rx={8}
 								fill="black"
 							/>
-						)}
-					</mask>
-				</defs>
-				<rect
-					width="100%"
-					height="100%"
-					fill="rgba(0, 0, 0, 0.75)"
-					mask="url(#spotlight-mask)"
+						</mask>
+					</defs>
+					<rect
+						width="100%"
+						height="100%"
+						fill="rgba(0, 0, 0, 0.75)"
+						mask="url(#spotlight-mask)"
+					/>
+				</svg>
+			) : (
+				<div
+					css={[overlayBaseCss, { background: "rgba(0, 0, 0, 0.5)" }]}
+					onClick={handleDismiss}
 				/>
-			</svg>
+			)}
 
 			{/* Spotlight border glow */}
 			{hasAnchor && (

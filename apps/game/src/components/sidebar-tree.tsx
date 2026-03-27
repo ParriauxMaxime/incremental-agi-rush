@@ -6,8 +6,10 @@ import {
 	allUpgrades,
 	getEffectiveMax,
 	getUpgradeCost,
+	PageEnum,
 	tiers,
 	useGameStore,
+	useUiStore,
 } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { useState } from "react";
@@ -270,7 +272,15 @@ function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
 
 // ── Main sidebar ──
 
+const pageFilenames: Record<PageEnum, string> = {
+	[PageEnum.game]: "agi.py",
+	[PageEnum.tech_tree]: "tech_tree.svg",
+	[PageEnum.settings]: "settings.json",
+	[PageEnum.god_mode]: "godmode.ts",
+};
+
 export function SidebarTree() {
+	const page = useUiStore((s) => s.page);
 	const currentTierIndex = useGameStore((s) => s.currentTierIndex);
 	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
 	const reachedMilestones = useGameStore((s) => s.reachedMilestones);
@@ -346,7 +356,7 @@ export function SidebarTree() {
 							flexShrink: 0,
 						}}
 					/>
-					agi.py
+					{pageFilenames[page]}
 				</div>
 
 				{/* Upgrades */}

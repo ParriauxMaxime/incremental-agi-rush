@@ -355,6 +355,15 @@ export function App() {
 										}}
 										onClick={() => setPage(t.page)}
 									>
+										<span
+											css={{
+												width: 6,
+												height: 6,
+												borderRadius: "50%",
+												background: active ? "#519aba" : "transparent",
+												flexShrink: 0,
+											}}
+										/>
 										{t.filename}
 									</button>
 								);
