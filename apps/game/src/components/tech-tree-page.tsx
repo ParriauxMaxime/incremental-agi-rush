@@ -66,19 +66,17 @@ function getHandlePair(
 	source: TechNode,
 	target: TechNode,
 ): { sourceHandle: string; targetHandle: string } {
-	const sx = (source.x ?? 0) + TECH_NODE_WIDTH / 2;
-	const sy = (source.y ?? 0) + TECH_NODE_HEIGHT / 2;
-	const tx = (target.x ?? 0) + TECH_NODE_WIDTH / 2;
-	const ty = (target.y ?? 0) + TECH_NODE_HEIGHT / 2;
-	const dx = tx - sx;
-	const dy = ty - sy;
+	const sy = source.y ?? 0;
+	const ty = target.y ?? 0;
 
-	if (Math.abs(dy) >= Math.abs(dx)) {
-		return dy >= 0
-			? { sourceHandle: "bottom", targetHandle: "top" }
-			: { sourceHandle: "top", targetHandle: "bottom" };
-	}
-	return dx >= 0
+	// Tree flows top-to-bottom: source is the prerequisite (higher up)
+	if (ty > sy) return { sourceHandle: "bottom", targetHandle: "top" };
+	if (ty < sy) return { sourceHandle: "top", targetHandle: "bottom" };
+
+	// Same row — use horizontal
+	const sx = source.x ?? 0;
+	const tx = target.x ?? 0;
+	return tx >= sx
 		? { sourceHandle: "right", targetHandle: "left" }
 		: { sourceHandle: "left", targetHandle: "right" };
 }
@@ -107,7 +105,11 @@ function buildFlowEdges(
 				sourceHandle,
 				targetHandle,
 				type: "smoothstep",
-				style: { stroke: borderColor, strokeWidth: 2, opacity: 0.6 },
+				style: {
+					stroke: borderColor,
+					strokeWidth: 1.5,
+					opacity: 0.5,
+				},
 			});
 		}
 	}
@@ -279,8 +281,8 @@ export function TechTreePage() {
 	}, [ownedTechNodes, loc, cash]);
 
 	const flowEdges = useMemo(
-		() => buildFlowEdges(allTechNodes, ownedTechNodes, theme.border),
-		[ownedTechNodes, theme.border],
+		() => buildFlowEdges(allTechNodes, ownedTechNodes, theme.textMuted),
+		[ownedTechNodes, theme.textMuted],
 	);
 
 	// Compute pan bounds from all node positions (not just visible ones)
