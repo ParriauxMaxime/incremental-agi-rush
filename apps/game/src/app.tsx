@@ -85,95 +85,50 @@ const middleTabs: TabDef[] = [
 
 // ── Settings page (inline) ──
 
-const settingsPageCss = css({
-	flex: 1,
-	padding: 24,
-	overflowY: "auto",
-	fontSize: 13,
-	background: "#141920",
-});
-
-const settingsSectionCss = css({
-	marginBottom: 24,
-});
-
-const settingsHeadingCss = css({
-	fontSize: 14,
-	color: "#58a6ff",
-	fontWeight: "bold",
-	marginBottom: 8,
-});
-
-const settingsRowCss = css({
-	display: "flex",
-	alignItems: "center",
-	gap: 8,
-	padding: "6px 0",
-	color: "#c9d1d9",
-	fontSize: 12,
-});
-
-const themeGridCss = css({
-	display: "grid",
-	gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-	gap: 8,
-	marginTop: 8,
-});
-
-const themeCardCss = css({
-	padding: 10,
-	borderRadius: 6,
-	border: "2px solid transparent",
-	cursor: "pointer",
-	transition: "all 0.15s",
-	"&:hover": { filter: "brightness(1.1)" },
-});
-
-const themeNameCss = css({
-	fontSize: 11,
-	fontWeight: "bold",
-	marginBottom: 6,
-});
-
-const themeSwatchRowCss = css({
-	display: "flex",
-	gap: 3,
-});
-
-const themeSwatchCss = css({
-	width: 14,
-	height: 14,
-	borderRadius: 2,
-});
-
-function ThemePreview({ theme, label }: { theme: EditorTheme; label: string }) {
-	const swatches = [
-		theme.keyword,
-		theme.function,
-		theme.string,
-		theme.number,
-		theme.type,
-		theme.variable,
-		theme.operator,
-		theme.comment,
-	];
-	return (
-		<>
-			<div css={themeNameCss} style={{ color: theme.foreground }}>
-				{label}
-			</div>
-			<div css={themeSwatchRowCss}>
-				{swatches.map((color) => (
-					<div key={color} css={themeSwatchCss} style={{ background: color }} />
-				))}
-			</div>
-		</>
-	);
-}
+// ── Settings page (VS Code style) ──
 
 const themeEntries = Object.entries(EDITOR_THEMES) as Array<
 	[EditorThemeEnum, EditorTheme]
 >;
+
+function SettingItem({
+	category,
+	name,
+	description,
+	children,
+}: {
+	category: string;
+	name: string;
+	description: string;
+	children: React.ReactNode;
+}) {
+	const theme = useIdeTheme();
+	return (
+		<div
+			css={{
+				padding: "14px 20px",
+				borderLeft: `2px solid transparent`,
+				"&:hover": { borderLeftColor: theme.accent },
+			}}
+		>
+			<div css={{ fontSize: 14, marginBottom: 4 }}>
+				<span style={{ color: theme.textMuted }}>{category}: </span>
+				<span style={{ fontWeight: 600 }}>{name}</span>
+			</div>
+			<div
+				css={{
+					fontSize: 13,
+					color: theme.textMuted,
+					marginBottom: 10,
+					lineHeight: 1.5,
+				}}
+			>
+				{description}
+			</div>
+			{children}
+		</div>
+	);
+}
 
 function SettingsPage() {
 	const editorTheme = useUiStore((s) => s.editorTheme);
@@ -184,70 +139,116 @@ function SettingsPage() {
 
 	return (
 		<div
-			css={settingsPageCss}
-			style={{ background: theme.panelBg, color: theme.foreground }}
+			css={{
+				flex: 1,
+				overflowY: "auto",
+				fontSize: 13,
+				"&::-webkit-scrollbar": { width: 6 },
+				"&::-webkit-scrollbar-track": { background: "transparent" },
+				"&::-webkit-scrollbar-thumb": {
+					background: theme.scrollThumb,
+					borderRadius: 3,
+				},
+			}}
+			style={{ background: theme.background, color: theme.foreground }}
 		>
-			<div css={settingsSectionCss}>
-				<div css={settingsHeadingCss} style={{ color: theme.accent }}>
-					{"// Editor Theme"}
-				</div>
-				<div css={themeGridCss}>
-					{themeEntries.map(([id, theme]) => (
+			<div
+				css={{
+					padding: "16px 20px",
+					fontSize: 24,
+					fontWeight: 300,
+				}}
+			>
+				Settings
+			</div>
+
+			<SettingItem
+				category="Appearance"
+				name="Color Theme"
+				description="Specifies the color theme used in the IDE."
+			>
+				<select
+					css={{
+						fontFamily: "inherit",
+						fontSize: 13,
+						padding: "4px 8px",
+						borderRadius: 3,
+						border: `1px solid ${theme.border}`,
+						background: theme.hoverBg,
+						color: theme.foreground,
+						width: 260,
+						cursor: "pointer",
+						outline: "none",
+						"&:focus": { borderColor: theme.accent },
+					}}
+					value={editorTheme}
+					onChange={(e) => setEditorTheme(e.target.value as EditorThemeEnum)}
+				>
+					{themeEntries.map(([id, t]) => (
+						<option key={id} value={id}>
+							{t.name}
+						</option>
+					))}
+				</select>
+				<div
+					css={{
+						display: "flex",
+						gap: 4,
+						marginTop: 8,
+					}}
+				>
+					{[
+						theme.keyword,
+						theme.function,
+						theme.string,
+						theme.number,
+						theme.type,
+						theme.variable,
+						theme.operator,
+						theme.comment,
+					].map((color) => (
 						<div
-							key={id}
-							css={[
-								themeCardCss,
-								editorTheme === id && { borderColor: theme.accent },
-							]}
-							style={{ background: theme.background }}
-							onClick={() => setEditorTheme(id)}
-							onKeyDown={(e) => {
-								if (e.key === "Enter") setEditorTheme(id);
+							key={color}
+							css={{
+								width: 16,
+								height: 16,
+								borderRadius: 2,
+								background: color,
 							}}
-							role="button"
-							tabIndex={0}
-						>
-							<ThemePreview theme={theme} label={theme.name} />
-						</div>
+						/>
 					))}
 				</div>
-			</div>
-			<div css={settingsSectionCss}>
-				<div css={settingsHeadingCss} style={{ color: theme.accent }}>
-					{"// UI Zoom"}
-				</div>
-				<div
-					css={[
-						settingsRowCss,
-						{ gap: 6, flexWrap: "wrap", color: theme.foreground },
-					]}
+			</SettingItem>
+
+			<SettingItem
+				category="Window"
+				name="Zoom Level"
+				description="Adjust the zoom level of the IDE. Restart may be needed."
+			>
+				<select
+					css={{
+						fontFamily: "inherit",
+						fontSize: 13,
+						padding: "4px 8px",
+						borderRadius: 3,
+						border: `1px solid ${theme.border}`,
+						background: theme.hoverBg,
+						color: theme.foreground,
+						width: 120,
+						cursor: "pointer",
+						outline: "none",
+						"&:focus": { borderColor: theme.accent },
+					}}
+					value={uiZoom}
+					onChange={(e) => setUiZoom(Number(e.target.value))}
 				>
 					{[75, 80, 90, 100, 110, 125, 150].map((v) => (
-						<button
-							key={v}
-							type="button"
-							css={{
-								fontFamily: "inherit",
-								fontSize: 12,
-								padding: "4px 10px",
-								borderRadius: 4,
-								cursor: "pointer",
-								border:
-									uiZoom === v
-										? `1px solid ${theme.accent}`
-										: `1px solid ${theme.border}`,
-								background:
-									uiZoom === v ? `${theme.accent}22` : theme.background,
-								color: uiZoom === v ? theme.accent : theme.foreground,
-								"&:hover": { borderColor: theme.accent },
-							}}
-							onClick={() => setUiZoom(v)}
-						>
+						<option key={v} value={v}>
 							{v}%
-						</button>
+						</option>
 					))}
-				</div>
-			</div>
+				</select>
+			</SettingItem>
 		</div>
 	);
 }

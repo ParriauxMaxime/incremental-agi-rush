@@ -129,6 +129,7 @@ export const useUiStore = create<UiState>()(
 				uiZoom: state.uiZoom,
 				seenTips: state.seenTips,
 				terminalLog: state.terminalLog,
+				terminalOpen: state.terminalOpen,
 			}),
 		},
 	),
