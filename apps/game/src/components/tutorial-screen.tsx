@@ -15,46 +15,38 @@ interface TipDef {
 const tips: TipDef[] = [
 	{
 		id: "welcome",
-		title: "Start typing.",
+		title: "$ init agi-rush",
 		duration: 8,
 		lines: [
-			"You're in a garage with a laptop.",
-			"Mash your keyboard to write code.",
-			"Every keystroke produces Lines of Code.",
+			"A garage. A keyboard. A dream.",
+			"Type. Every keystroke writes code. Code is money (eventually).",
 		],
 	},
 	{
 		id: "tech_tree_intro",
-		title: "The Tech Tree",
+		title: "$ cat tech-tree.svg",
 		duration: 10,
 		lines: [
-			"The tech tree just opened on the right →",
-			"Research upgrades to boost your output.",
-			"Passive upgrades, hardware, and new hires live here.",
+			"The tech tree just appeared →",
+			"Spend cash and LoC to research upgrades. Start with the basics.",
 		],
 	},
 	{
 		id: "sidebar_intro",
-		title: "The Shop",
-		duration: 12,
+		title: "$ ls upgrades/",
+		duration: 10,
 		lines: [
-			"← The sidebar just unlocked.",
-			"Browse upgrades organized by tier.",
-			"Buy hardware for more FLOPS, hire devs for more LoC.",
-			"The faster cash flows, the bigger upgrades you can afford.",
+			"← File explorer unlocked.",
+			"Buy upgrades here. More FLOPS = more execution. More devs = more code.",
 		],
 	},
 	{
 		id: "execution_intro",
-		title: "Execution",
-		duration: 12,
+		title: "$ ./execute.sh",
+		duration: 10,
 		lines: [
-			"Your code piles up in a queue as you type.",
-			"FLOPS execute queued LoC — each executed line earns cash.",
-			"",
-			"  type → LoC queue → FLOPS execute → $$$",
-			"",
-			"The stats panel on the right shows your production in real-time.",
+			"Your code piles up. FLOPS burn through it. Each line executed = cash.",
+			"  type → queue → execute → $$$",
 		],
 	},
 ];
@@ -190,9 +182,9 @@ const tabCss = css({
 });
 
 const contentCss = css({
-	padding: "10px 16px",
-	fontSize: 13,
-	lineHeight: 1.7,
+	padding: "12px 20px",
+	fontSize: 14,
+	lineHeight: 1.8,
 });
 
 // ── Component ──
@@ -278,10 +270,11 @@ export function TutorialTip() {
 			>
 				<div
 					css={{
-						fontSize: 14,
+						fontSize: 15,
 						fontWeight: 600,
 						color: theme.success,
-						marginBottom: 6,
+						marginBottom: 8,
+						fontFamily: "'Courier New', monospace",
 					}}
 				>
 					{tip.title}

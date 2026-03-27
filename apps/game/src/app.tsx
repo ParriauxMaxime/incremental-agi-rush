@@ -5,7 +5,7 @@ import { SidebarTree } from "@components/sidebar-tree";
 import { StatsPanel } from "@components/stats-panel";
 import { StatusBar } from "@components/status-bar";
 import { TechTreePage } from "@components/tech-tree-page";
-import { useTutorialTriggers } from "@components/tutorial-screen";
+import { TutorialTip, useTutorialTriggers } from "@components/tutorial-screen";
 import { css, Global, keyframes } from "@emotion/react";
 import type { EditorTheme } from "@modules/editor";
 import { EDITOR_THEMES, type EditorThemeEnum } from "@modules/editor";
@@ -496,93 +496,105 @@ export function App() {
 					singularity && singularityAnimate && shellCollapseCss,
 				]}
 			>
-				{/* Main area: sidebar + tabbed content */}
-				<div css={{ display: "flex", flex: 1, overflow: "hidden" }}>
-					{!sidebarUnlocked || sidebarCollapsed ? (
-						<button
-							type="button"
-							css={collapsedStripCss}
-							style={{
-								borderRight: `1px solid ${theme.border}`,
-								background: theme.sidebarBg,
-								opacity: sidebarUnlocked ? 1 : 0.3,
-								cursor: sidebarUnlocked ? "pointer" : "default",
-							}}
-							onClick={sidebarUnlocked ? toggleSidebar : undefined}
-							title={sidebarUnlocked ? "Show sidebar" : "Unlock in tech tree"}
-						>
-							<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-								<rect
-									x="1.5"
-									y="2.5"
-									width="13"
-									height="11"
-									rx="1"
-									stroke="currentColor"
-									strokeWidth="1.2"
-								/>
-								<line
-									x1="5"
-									y1="3"
-									x2="5"
-									y2="13"
-									stroke="currentColor"
-									strokeWidth="1.2"
-								/>
-							</svg>
-						</button>
-					) : (
-						<SidebarTree onCollapse={toggleSidebar} />
-					)}
+				{/* Main area: sidebar + tabbed content + tutorial */}
+				<div
+					css={{
+						display: "flex",
+						flexDirection: "column",
+						flex: 1,
+						overflow: "hidden",
+					}}
+				>
+					<div css={{ display: "flex", flex: 1, overflow: "hidden" }}>
+						{!sidebarUnlocked || sidebarCollapsed ? (
+							<button
+								type="button"
+								css={collapsedStripCss}
+								style={{
+									borderRight: `1px solid ${theme.border}`,
+									background: theme.sidebarBg,
+									opacity: sidebarUnlocked ? 1 : 0.3,
+									cursor: sidebarUnlocked ? "pointer" : "default",
+								}}
+								onClick={sidebarUnlocked ? toggleSidebar : undefined}
+								title={sidebarUnlocked ? "Show sidebar" : "Unlock in tech tree"}
+							>
+								<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+									<rect
+										x="1.5"
+										y="2.5"
+										width="13"
+										height="11"
+										rx="1"
+										stroke="currentColor"
+										strokeWidth="1.2"
+									/>
+									<line
+										x1="5"
+										y1="3"
+										x2="5"
+										y2="13"
+										stroke="currentColor"
+										strokeWidth="1.2"
+									/>
+								</svg>
+							</button>
+						) : (
+							<SidebarTree onCollapse={toggleSidebar} />
+						)}
 
-					{/* Tabbed pane(s) */}
-					<TabbedPane
-						activePage={page}
-						onSetPage={setPage}
-						showSplitBtn
-						splitActive={splitEnabled}
-						onToggleSplit={toggleSplit}
-					/>
-					{splitEnabled && (
-						<TabbedPane activePage={rightPage} onSetPage={setRightPage} />
-					)}
+						{/* Tabbed pane(s) */}
+						<TabbedPane
+							activePage={page}
+							onSetPage={setPage}
+							showSplitBtn
+							splitActive={splitEnabled}
+							onToggleSplit={toggleSplit}
+						/>
+						{splitEnabled && (
+							<TabbedPane activePage={rightPage} onSetPage={setRightPage} />
+						)}
 
-					{!statsPanelUnlocked || statsPanelCollapsed ? (
-						<button
-							type="button"
-							css={collapsedStripCss}
-							style={{
-								borderLeft: `1px solid ${theme.border}`,
-								background: theme.sidebarBg,
-								opacity: statsPanelUnlocked ? 1 : 0.3,
-								cursor: statsPanelUnlocked ? "pointer" : "default",
-							}}
-							onClick={statsPanelUnlocked ? toggleStatsPanel : undefined}
-							title={statsPanelUnlocked ? "Show stats" : "Unlock in tech tree"}
-						>
-							<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-								<rect
-									x="1.5"
-									y="2.5"
-									width="13"
-									height="11"
-									rx="1"
-									stroke="currentColor"
-									strokeWidth="1.2"
-								/>
-								<line
-									x1="11"
-									y1="3"
-									x2="11"
-									y2="13"
-									stroke="currentColor"
-									strokeWidth="1.2"
-								/>
-							</svg>
-						</button>
-					) : (
-						<StatsPanel onCollapse={toggleStatsPanel} />
-					)}
+						{!statsPanelUnlocked || statsPanelCollapsed ? (
+							<button
+								type="button"
+								css={collapsedStripCss}
+								style={{
+									borderLeft: `1px solid ${theme.border}`,
+									background: theme.sidebarBg,
+									opacity: statsPanelUnlocked ? 1 : 0.3,
+									cursor: statsPanelUnlocked ? "pointer" : "default",
+								}}
+								onClick={statsPanelUnlocked ? toggleStatsPanel : undefined}
+								title={
+									statsPanelUnlocked ? "Show stats" : "Unlock in tech tree"
+								}
+							>
+								<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+									<rect
+										x="1.5"
+										y="2.5"
+										width="13"
+										height="11"
+										rx="1"
+										stroke="currentColor"
+										strokeWidth="1.2"
+									/>
+									<line
+										x1="11"
+										y1="3"
+										x2="11"
+										y2="13"
+										stroke="currentColor"
+										strokeWidth="1.2"
+									/>
+								</svg>
+							</button>
+						) : (
+							<StatsPanel onCollapse={toggleStatsPanel} />
+						)}
+					</div>
+					<TutorialTip />
 				</div>
 
 				{/* Status bar */}
