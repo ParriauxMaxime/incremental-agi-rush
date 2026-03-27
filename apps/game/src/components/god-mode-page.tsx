@@ -417,6 +417,7 @@ export function GodModePage() {
 								...current.ownedUpgrades,
 							};
 							for (const u of allUpgrades) {
+								if (u.id === "the_singularity") continue;
 								upgrades[u.id] = u.max;
 							}
 							useGameStore.setState({ ownedUpgrades: upgrades });
