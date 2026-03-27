@@ -15,6 +15,7 @@ import {
 	TECH_NODE_WIDTH,
 	TechNodeComponent,
 } from "@agi-rush/design-system";
+import dagre from "@dagrejs/dagre";
 import type { TechNode } from "@modules/game";
 import {
 	allTechNodes,
@@ -31,6 +32,51 @@ import { useIsMobile } from "../hooks/use-is-mobile";
 
 const nodeTypes = { techNode: TechNodeComponent };
 
+// ── Dagre auto-layout for visible nodes ──
+
+function computeLayout(
+	visibleIds: Set<string>,
+	techNodes: TechNode[],
+): Map<string, { x: number; y: number }> {
+	const g = new dagre.graphlib.Graph();
+	g.setGraph({
+		rankdir: "TB",
+		nodesep: 40,
+		ranksep: 60,
+		marginx: 20,
+		marginy: 20,
+	});
+	g.setDefaultEdgeLabel(() => ({}));
+
+	for (const n of techNodes) {
+		if (!visibleIds.has(n.id)) continue;
+		g.setNode(n.id, { width: TECH_NODE_WIDTH, height: TECH_NODE_HEIGHT });
+	}
+
+	for (const n of techNodes) {
+		if (!visibleIds.has(n.id)) continue;
+		for (const req of n.requires) {
+			if (visibleIds.has(req)) {
+				g.setEdge(req, n.id);
+			}
+		}
+	}
+
+	dagre.layout(g);
+
+	const positions = new Map<string, { x: number; y: number }>();
+	for (const id of visibleIds) {
+		const node = g.node(id);
+		if (node) {
+			positions.set(id, {
+				x: node.x - TECH_NODE_WIDTH / 2,
+				y: node.y - TECH_NODE_HEIGHT / 2,
+			});
+		}
+	}
+	return positions;
+}
+
 // ── Build React Flow data from game state ──
 
 function buildFlowNodes(
@@ -39,17 +85,24 @@ function buildFlowNodes(
 	loc: number,
 	cash: number,
 ): Node[] {
-	const nodes: Node[] = [];
+	// First pass: determine visible nodes
+	const visibleIds = new Set<string>();
 	for (const n of techNodes) {
-		const owned = ownedTechNodes[n.id] ?? 0;
-		const maxed = owned >= n.max;
 		const prereqsMet =
 			n.requires.length === 0 ||
 			n.requires.every((id) => (ownedTechNodes[id] ?? 0) > 0);
+		if (prereqsMet) visibleIds.add(n.id);
+	}
 
-		// Hide locked nodes
-		if (!prereqsMet) continue;
+	// Compute layout based on visible nodes only
+	const positions = computeLayout(visibleIds, techNodes);
 
+	const nodes: Node[] = [];
+	for (const n of techNodes) {
+		if (!visibleIds.has(n.id)) continue;
+
+		const owned = ownedTechNodes[n.id] ?? 0;
+		const maxed = owned >= n.max;
 		const cost = getTechNodeCost(n, owned);
 		const useLoc = n.currency === "loc";
 		const canAfford = useLoc ? loc >= cost : cash >= cost;
@@ -59,10 +112,12 @@ function buildFlowNodes(
 		else if (canAfford) state = NodeStateEnum.affordable;
 		else state = NodeStateEnum.visible;
 
+		const pos = positions.get(n.id) ?? { x: n.x ?? 0, y: n.y ?? 0 };
+
 		nodes.push({
 			id: n.id,
 			type: "techNode",
-			position: { x: n.x ?? 0, y: n.y ?? 0 },
+			position: pos,
 			data: { ...n, state, owned },
 		});
 	}
@@ -81,27 +136,26 @@ interface EdgeDef {
 }
 
 function buildEdgeDefs(
+	flowNodes: Node[],
 	techNodes: TechNode[],
 	ownedTechNodes: Record<string, number>,
 ): EdgeDef[] {
-	const nodeMap = new Map(techNodes.map((n) => [n.id, n]));
+	const posMap = new Map(flowNodes.map((n) => [n.id, n.position]));
 	const edges: EdgeDef[] = [];
 	for (const n of techNodes) {
-		const prereqsMet =
-			n.requires.length === 0 ||
-			n.requires.every((id) => (ownedTechNodes[id] ?? 0) > 0);
-		if (!prereqsMet) continue;
+		const targetPos = posMap.get(n.id);
+		if (!targetPos) continue;
 
 		for (const req of n.requires) {
-			const src = nodeMap.get(req);
-			if (!src) continue;
+			const srcPos = posMap.get(req);
+			if (!srcPos) continue;
 			edges.push({
 				sourceId: req,
 				targetId: n.id,
-				sx: (src.x ?? 0) + TECH_NODE_WIDTH / 2,
-				sy: (src.y ?? 0) + TECH_NODE_HEIGHT,
-				tx: (n.x ?? 0) + TECH_NODE_WIDTH / 2,
-				ty: n.y ?? 0,
+				sx: srcPos.x + TECH_NODE_WIDTH / 2,
+				sy: srcPos.y + TECH_NODE_HEIGHT,
+				tx: targetPos.x + TECH_NODE_WIDTH / 2,
+				ty: targetPos.y,
 			});
 		}
 	}
@@ -114,15 +168,14 @@ function findBlockingNode(
 	sy: number,
 	tx: number,
 	ty: number,
-	allNodes: TechNode[],
+	nodePositions: Map<string, { x: number; y: number }>,
 	excludeIds: Set<string>,
-): TechNode | null {
+): { x: number; y: number } | null {
 	const midY = (sy + ty) / 2;
-	for (const n of allNodes) {
-		if (excludeIds.has(n.id)) continue;
-		const nx = n.x ?? 0;
-		const ny = n.y ?? 0;
-		// Check if the vertical trunk at sx passes through this node
+	for (const [id, pos] of nodePositions) {
+		if (excludeIds.has(id)) continue;
+		const nx = pos.x;
+		const ny = pos.y;
 		const pad = 8;
 		if (
 			sx > nx - pad &&
@@ -130,7 +183,7 @@ function findBlockingNode(
 			midY > ny - pad &&
 			midY < ny + TECH_NODE_HEIGHT + pad
 		) {
-			return n;
+			return pos;
 		}
 	}
 	return null;
@@ -138,7 +191,7 @@ function findBlockingNode(
 
 function buildBundledPaths(
 	edges: EdgeDef[],
-	allNodes: TechNode[],
+	nodePositions: Map<string, { x: number; y: number }>,
 	color: string,
 ): Array<{ d: string; strokeWidth: number; opacity: number }> {
 	// Group edges by source
@@ -165,13 +218,13 @@ function buildBundledPaths(
 				sy,
 				e.tx,
 				e.ty,
-				allNodes,
+				nodePositions,
 				excludeIds,
 			);
 
 			if (blocker) {
 				// Route around: go to the side then down
-				const bx = blocker.x ?? 0;
+				const bx = blocker.x;
 				const side =
 					sx <= bx + TECH_NODE_WIDTH / 2 ? bx - 16 : bx + TECH_NODE_WIDTH + 16;
 				paths.push({
@@ -220,17 +273,21 @@ function buildBundledPaths(
 /** SVG overlay for bundled edges — reads viewport transform from React Flow */
 function BundledEdges({
 	edges,
-	allNodes,
+	flowNodes,
 	color,
 }: {
 	edges: EdgeDef[];
-	allNodes: TechNode[];
+	flowNodes: Node[];
 	color: string;
 }) {
 	const { x, y, zoom } = useViewport();
+	const nodePositions = useMemo(
+		() => new Map(flowNodes.map((n) => [n.id, n.position])),
+		[flowNodes],
+	);
 	const paths = useMemo(
-		() => buildBundledPaths(edges, allNodes, color),
-		[edges, allNodes, color],
+		() => buildBundledPaths(edges, nodePositions, color),
+		[edges, nodePositions, color],
 	);
 
 	return (
@@ -428,22 +485,22 @@ export function TechTreePage() {
 	}, [ownedTechNodes, loc, cash]);
 
 	const edgeDefs = useMemo(
-		() => buildEdgeDefs(allTechNodes, ownedTechNodes),
-		[ownedTechNodes],
+		() => buildEdgeDefs(flowNodes, allTechNodes, ownedTechNodes),
+		[flowNodes, ownedTechNodes],
 	);
 
 	const emptyEdges: Edge[] = useMemo(() => [], []);
 
-	// Compute pan bounds from all node positions (not just visible ones)
+	// Compute pan bounds from visible node positions
 	const translateExtent = useMemo((): [[number, number], [number, number]] => {
 		const padding = 200;
 		let minX = Number.POSITIVE_INFINITY;
 		let minY = Number.POSITIVE_INFINITY;
 		let maxX = Number.NEGATIVE_INFINITY;
 		let maxY = Number.NEGATIVE_INFINITY;
-		for (const n of allTechNodes) {
-			const x = n.x ?? 0;
-			const y = n.y ?? 0;
+		for (const n of flowNodes) {
+			const x = n.position.x;
+			const y = n.position.y;
 			minX = Math.min(minX, x);
 			minY = Math.min(minY, y);
 			maxX = Math.max(maxX, x + TECH_NODE_WIDTH);
@@ -453,7 +510,7 @@ export function TechTreePage() {
 			[minX - padding, minY - padding],
 			[maxX + padding, maxY + padding],
 		];
-	}, []);
+	}, [flowNodes]);
 
 	const [hovered, setHovered] = useState<{
 		node: TechNode;
@@ -541,7 +598,7 @@ export function TechTreePage() {
 			>
 				<BundledEdges
 					edges={edgeDefs}
-					allNodes={allTechNodes}
+					flowNodes={flowNodes}
 					color={theme.textMuted}
 				/>
 				<Background gap={20} color={theme.border} />
