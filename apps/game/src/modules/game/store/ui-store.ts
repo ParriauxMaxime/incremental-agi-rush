@@ -58,7 +58,7 @@ export const useUiStore = create<UiState>()(
 	persist(
 		(set, get) => ({
 			page: PageEnum.game,
-			splitEnabled: false,
+			splitEnabled: true,
 			rightPage: PageEnum.tech_tree,
 			editorTheme: EditorThemeEnum.one_dark,
 			seenTips: [],

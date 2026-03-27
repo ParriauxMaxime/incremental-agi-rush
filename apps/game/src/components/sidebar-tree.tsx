@@ -241,7 +241,7 @@ const pageFiles: Array<{ page: PageEnum; filename: string; dotColor: string }> =
 		{ page: PageEnum.game, filename: "agi.py", dotColor: "#519aba" },
 		{
 			page: PageEnum.tech_tree,
-			filename: "tech_tree.svg",
+			filename: "tech-tree.svg",
 			dotColor: "#f1c542",
 		},
 		{ page: PageEnum.settings, filename: "settings.json", dotColor: "#cbcb41" },

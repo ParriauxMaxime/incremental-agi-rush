@@ -74,7 +74,7 @@ interface TabDef {
 
 const middleTabs: TabDef[] = [
 	{ page: PageEnum.game, filename: "agi.py" },
-	{ page: PageEnum.tech_tree, filename: "tech_tree.svg" },
+	{ page: PageEnum.tech_tree, filename: "tech-tree.svg" },
 	{ page: PageEnum.settings, filename: "settings.json" },
 	{ page: PageEnum.god_mode, filename: "godmode.ts" },
 ];
