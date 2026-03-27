@@ -60,7 +60,7 @@ function toFlowEdges(nodes: TechNode[]): Edge[] {
 				target: node.id,
 				sourceHandle,
 				targetHandle,
-				type: "smoothstep",
+				type: "bezier",
 			});
 		}
 	}
