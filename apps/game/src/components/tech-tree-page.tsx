@@ -358,7 +358,11 @@ export function TechTreePage() {
 				onNodeMouseEnter={isMobile ? undefined : handleNodeMouseEnter}
 				onNodeMouseLeave={isMobile ? undefined : handleNodeMouseLeave}
 				onPaneClick={isMobile ? () => setHovered(null) : undefined}
-				fitView
+				defaultViewport={{
+					x: -(1254 - 300) * 2,
+					y: -(566 - 200) * 2,
+					zoom: 2,
+				}}
 				nodesDraggable={false}
 				nodesConnectable={false}
 				elementsSelectable={false}
