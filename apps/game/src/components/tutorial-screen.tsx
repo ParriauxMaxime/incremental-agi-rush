@@ -25,7 +25,7 @@ const tips: TipDef[] = [
 		id: "tech_tree_intro",
 		title: "The Tech Tree",
 		lines: [
-			"Click the split button ⊞ in the tab bar to open the tech tree.",
+			"The tech tree just opened on the right →",
 			"Research upgrades to boost your output.",
 			"Passive upgrades, hardware, and new hires live here.",
 		],
@@ -60,12 +60,16 @@ export function useTutorialTriggers() {
 
 		const unsub = useGameStore.subscribe((state) => {
 			if (cooldownRef.current) return;
-			const { seenTips, activeTip, showTip } = useUiStore.getState();
-			if (activeTip !== null) return;
+			const uiState = useUiStore.getState();
+			if (uiState.activeTip !== null) return;
 			for (const trigger of triggers) {
-				if (seenTips.includes(trigger.id)) continue;
+				if (uiState.seenTips.includes(trigger.id)) continue;
 				if (trigger.test(state)) {
-					showTip(trigger.id);
+					uiState.showTip(trigger.id);
+					// Auto-open split when tech tree tip triggers
+					if (trigger.id === "tech_tree_intro" && !uiState.splitEnabled) {
+						uiState.toggleSplit();
+					}
 					break;
 				}
 			}
