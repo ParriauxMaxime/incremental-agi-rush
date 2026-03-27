@@ -225,20 +225,17 @@ function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
 						</div>
 					)}
 				</div>
-				{/* Right: price badge, full height */}
+				{/* Right: price, right-aligned */}
 				<span
 					css={{
 						display: "flex",
 						alignItems: "center",
-						padding: "0 8px",
-						borderRadius: 3,
-						fontSize: 11,
+						fontSize: 12,
 						fontWeight: 600,
 						flexShrink: 0,
 						fontVariantNumeric: "tabular-nums",
 					}}
 					style={{
-						background: maxed ? theme.activeBg : `${theme.cashColor}18`,
 						color: maxed ? theme.success : theme.cashColor,
 					}}
 				>
