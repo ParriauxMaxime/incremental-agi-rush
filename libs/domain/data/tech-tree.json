@@ -5,9 +5,7 @@
 			"name": "Better Keyboard",
 			"description": "+3 LoC per keystroke",
 			"icon": "⌨️",
-			"requires": [
-				"computer"
-			],
+			"requires": ["computer"],
 			"max": 1,
 			"baseCost": 15,
 			"costMultiplier": 1,
@@ -47,9 +45,7 @@
 			"name": "Auto-Execute",
 			"description": "FLOPS run your code automatically.",
 			"icon": "⚡",
-			"requires": [
-				"computer"
-			],
+			"requires": ["computer"],
 			"max": 1,
 			"baseCost": 15,
 			"costMultiplier": 1,
@@ -69,9 +65,7 @@
 			"name": "Coffee",
 			"description": "+2 LoC per keystroke",
 			"icon": "☕",
-			"requires": [
-				"computer"
-			],
+			"requires": ["computer"],
 			"max": 1,
 			"baseCost": 40,
 			"costMultiplier": 1,
@@ -91,9 +85,7 @@
 			"name": "Barista",
 			"description": "+3 LoC per keystroke",
 			"icon": "☕",
-			"requires": [
-				"coffee"
-			],
+			"requires": ["coffee"],
 			"max": 1,
 			"baseCost": 120,
 			"costMultiplier": 1,
@@ -113,9 +105,7 @@
 			"name": "Doppio",
 			"description": "+5 LoC per keystroke",
 			"icon": "☕",
-			"requires": [
-				"barista"
-			],
+			"requires": ["barista"],
 			"max": 1,
 			"baseCost": 350,
 			"costMultiplier": 1,
@@ -135,9 +125,7 @@
 			"name": "GitHub Actions",
 			"description": "+3 FLOPS per level",
 			"icon": "🐙",
-			"requires": [
-				"tier_freelancing"
-			],
+			"requires": ["tier_freelancing"],
 			"max": 5,
 			"baseCost": 100,
 			"costMultiplier": 1.4,
@@ -157,9 +145,7 @@
 			"name": "Cloudflare Workers",
 			"description": "+4 FLOPS per level",
 			"icon": "🌩️",
-			"requires": [
-				"tier_freelancing"
-			],
+			"requires": ["tier_freelancing"],
 			"max": 5,
 			"baseCost": 120,
 			"costMultiplier": 1.4,
@@ -179,9 +165,7 @@
 			"name": "CPU Upgrade",
 			"description": "+2 FLOPS (bottlenecked by RAM)",
 			"icon": "🔲",
-			"requires": [
-				"computer"
-			],
+			"requires": ["computer"],
 			"max": 7,
 			"baseCost": 15,
 			"costMultiplier": 1.5,
@@ -210,9 +194,7 @@
 			"name": "RAM Upgrade",
 			"description": "+2 FLOPS (bottlenecked by CPU)",
 			"icon": "🧩",
-			"requires": [
-				"computer"
-			],
+			"requires": ["computer"],
 			"max": 6,
 			"baseCost": 15,
 			"costMultiplier": 1.5,
@@ -240,9 +222,7 @@
 			"name": "Storage",
 			"description": "+2 FLOPS (no bottleneck)",
 			"icon": "💾",
-			"requires": [
-				"computer"
-			],
+			"requires": ["computer"],
 			"max": 7,
 			"baseCost": 10,
 			"costMultiplier": 1.4,
@@ -271,9 +251,7 @@
 			"name": "Freelancing",
 			"description": "Unlock Tier 1 — clients appear, interns become available.",
 			"icon": "💼",
-			"requires": [
-				"computer"
-			],
+			"requires": ["computer"],
 			"max": 1,
 			"baseCost": 80,
 			"costMultiplier": 1,
@@ -293,9 +271,7 @@
 			"name": "Teaching",
 			"description": "+20% intern LoC/s per level",
 			"icon": "📖",
-			"requires": [
-				"interns"
-			],
+			"requires": ["interns"],
 			"max": 5,
 			"baseCost": 800,
 			"costMultiplier": 1.5,
@@ -315,9 +291,7 @@
 			"name": "Intern Trap",
 			"description": "-15% intern hiring cost per level",
 			"icon": "🪤",
-			"requires": [
-				"interns"
-			],
+			"requires": ["interns"],
 			"max": 5,
 			"baseCost": 600,
 			"costMultiplier": 1.4,
@@ -337,9 +311,7 @@
 			"name": "Code Review 101",
 			"description": "+10% cash per LoC per level",
 			"icon": "✅",
-			"requires": [
-				"interns"
-			],
+			"requires": ["interns"],
 			"max": 3,
 			"baseCost": 1000,
 			"costMultiplier": 1.5,
@@ -359,9 +331,7 @@
 			"name": "Startup",
 			"description": "Unlock Tier 2 — hire developers, scale up.",
 			"icon": "🚀",
-			"requires": [
-				"tier_freelancing"
-			],
+			"requires": ["tier_freelancing"],
 			"max": 1,
 			"baseCost": 2000,
 			"costMultiplier": 1,
@@ -381,9 +351,7 @@
 			"name": "CI/CD Pipeline",
 			"description": "+30 FLOPS per level",
 			"icon": "🔄",
-			"requires": [
-				"tier_startup"
-			],
+			"requires": ["tier_startup"],
 			"max": 5,
 			"baseCost": 4000,
 			"costMultiplier": 1.5,
@@ -403,9 +371,7 @@
 			"name": "Cloud Server",
 			"description": "+100 FLOPS per level",
 			"icon": "🌐",
-			"requires": [
-				"ci_cd_pipeline"
-			],
+			"requires": ["ci_cd_pipeline"],
 			"max": 5,
 			"baseCost": 12000,
 			"costMultiplier": 1.6,
@@ -425,9 +391,7 @@
 			"name": "Mentoring",
 			"description": "+20% developer LoC/s per level",
 			"icon": "🎓",
-			"requires": [
-				"tier_tech_company"
-			],
+			"requires": ["tier_tech_company"],
 			"max": 5,
 			"baseCost": 100000,
 			"costMultiplier": 1.8,
@@ -447,9 +411,7 @@
 			"name": "Recruiter",
 			"description": "-15% developer hiring cost per level",
 			"icon": "📋",
-			"requires": [
-				"tier_tech_company"
-			],
+			"requires": ["tier_tech_company"],
 			"max": 5,
 			"baseCost": 80000,
 			"costMultiplier": 1.7,
@@ -469,9 +431,7 @@
 			"name": "Code Standards",
 			"description": "+15% cash per LoC per level",
 			"icon": "📏",
-			"requires": [
-				"tier_startup"
-			],
+			"requires": ["tier_startup"],
 			"max": 3,
 			"baseCost": 10000,
 			"costMultiplier": 1.5,
@@ -511,9 +471,7 @@
 			"name": "Interns",
 			"description": "Unlock intern hiring. They're cheap and eager.",
 			"icon": "👶",
-			"requires": [
-				"tier_startup"
-			],
+			"requires": ["tier_startup"],
 			"max": 1,
 			"baseCost": 300,
 			"costMultiplier": 1,
@@ -533,9 +491,7 @@
 			"name": "Tech Company",
 			"description": "Unlock Tier 3 — hire teams, appoint managers.",
 			"icon": "🏢",
-			"requires": [
-				"tier_startup"
-			],
+			"requires": ["tier_startup"],
 			"max": 1,
 			"baseCost": 100000,
 			"costMultiplier": 1,
@@ -555,9 +511,7 @@
 			"name": "Team Structure",
 			"description": "Enables hiring full dev teams.",
 			"icon": "👥",
-			"requires": [
-				"tier_tech_company"
-			],
+			"requires": ["tier_tech_company"],
 			"max": 1,
 			"baseCost": 150000,
 			"costMultiplier": 1,
@@ -571,9 +525,7 @@
 			"name": "Agile Coaching",
 			"description": "+25% team LoC/s per level",
 			"icon": "📊",
-			"requires": [
-				"teams_gate"
-			],
+			"requires": ["teams_gate"],
 			"max": 5,
 			"baseCost": 200000,
 			"costMultiplier": 2,
@@ -593,9 +545,7 @@
 			"name": "Bulk Hiring",
 			"description": "-15% team hiring cost per level",
 			"icon": "📉",
-			"requires": [
-				"teams_gate"
-			],
+			"requires": ["teams_gate"],
 			"max": 5,
 			"baseCost": 180000,
 			"costMultiplier": 1.8,
@@ -615,9 +565,7 @@
 			"name": "Code Reviews",
 			"description": "+15% cash per LoC per level",
 			"icon": "🔍",
-			"requires": [
-				"teams_gate"
-			],
+			"requires": ["teams_gate"],
 			"max": 3,
 			"baseCost": 250000,
 			"costMultiplier": 2,
@@ -637,9 +585,7 @@
 			"name": "Management",
 			"description": "Unlock the management branch. Managers multiply team output.",
 			"icon": "👔",
-			"requires": [
-				"tier_tech_company"
-			],
+			"requires": ["tier_tech_company"],
 			"max": 1,
 			"baseCost": 200000,
 			"costMultiplier": 1,
@@ -653,9 +599,7 @@
 			"name": "Leadership Training",
 			"description": "+30% manager effectiveness per level",
 			"icon": "🎯",
-			"requires": [
-				"management_gate"
-			],
+			"requires": ["management_gate"],
 			"max": 5,
 			"baseCost": 300000,
 			"costMultiplier": 2,
@@ -675,9 +619,7 @@
 			"name": "HR Department",
 			"description": "-20% manager hiring cost per level",
 			"icon": "📎",
-			"requires": [
-				"management_gate"
-			],
+			"requires": ["management_gate"],
 			"max": 5,
 			"baseCost": 250000,
 			"costMultiplier": 1.8,
@@ -697,9 +639,7 @@
 			"name": "Delegation",
 			"description": "+20% all auto-LoC per level",
 			"icon": "📈",
-			"requires": [
-				"management_gate"
-			],
+			"requires": ["management_gate"],
 			"max": 3,
 			"baseCost": 400000,
 			"costMultiplier": 2,
@@ -719,9 +659,7 @@
 			"name": "Cloud Infrastructure",
 			"description": "+1,000 FLOPS per level",
 			"icon": "☁️",
-			"requires": [
-				"tier_tech_company"
-			],
+			"requires": ["tier_tech_company"],
 			"max": 5,
 			"baseCost": 300000,
 			"costMultiplier": 1.7,
@@ -741,9 +679,7 @@
 			"name": "CDN Network",
 			"description": "+2,000 storage FLOPS per level",
 			"icon": "🌍",
-			"requires": [
-				"tier_tech_company"
-			],
+			"requires": ["tier_tech_company"],
 			"max": 5,
 			"baseCost": 250000,
 			"costMultiplier": 1.5,
@@ -763,9 +699,7 @@
 			"name": "AI Lab",
 			"description": "Unlock Tier 4 — AI models, massive compute.",
 			"icon": "🧪",
-			"requires": [
-				"tier_tech_company"
-			],
+			"requires": ["tier_tech_company"],
 			"max": 1,
 			"baseCost": 50000000,
 			"costMultiplier": 1,
@@ -785,9 +719,7 @@
 			"name": "AGI Race",
 			"description": "Unlock Tier 5 — the final push.",
 			"icon": "🌀",
-			"requires": [
-				"tier_ai_lab"
-			],
+			"requires": ["tier_ai_lab"],
 			"max": 1,
 			"baseCost": 10000000000,
 			"costMultiplier": 1,
@@ -807,9 +739,7 @@
 			"name": "LLM",
 			"description": "Unlock LLM instances.",
 			"icon": "🧠",
-			"requires": [
-				"tier_ai_lab"
-			],
+			"requires": ["tier_ai_lab"],
 			"max": 1,
 			"baseCost": 2000000,
 			"costMultiplier": 1,
@@ -823,9 +753,7 @@
 			"name": "Fine-Tuning",
 			"description": "+20% LLM output per level",
 			"icon": "🎯",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"max": 5,
 			"baseCost": 10000000,
 			"costMultiplier": 1.8,
@@ -845,9 +773,7 @@
 			"name": "Model Distillation",
 			"description": "-15% LLM cost per level",
 			"icon": "💎",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"max": 5,
 			"baseCost": 8000000,
 			"costMultiplier": 1.5,
@@ -867,9 +793,7 @@
 			"name": "RLHF",
 			"description": "+15% cash per LoC per level",
 			"icon": "⭐",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"max": 5,
 			"baseCost": 12000000,
 			"costMultiplier": 1.6,
@@ -889,9 +813,7 @@
 			"name": "GPU Farm",
 			"description": "+500K FLOPS per level",
 			"icon": "🖥️",
-			"requires": [
-				"tier_ai_lab"
-			],
+			"requires": ["tier_ai_lab"],
 			"max": 5,
 			"baseCost": 3000000,
 			"costMultiplier": 1.7,
@@ -911,9 +833,7 @@
 			"name": "Fiber Network",
 			"description": "+100K storage FLOPS per level",
 			"icon": "🔗",
-			"requires": [
-				"tier_ai_lab"
-			],
+			"requires": ["tier_ai_lab"],
 			"max": 5,
 			"baseCost": 2500000,
 			"costMultiplier": 1.5,
@@ -933,9 +853,7 @@
 			"name": "Agent Framework",
 			"description": "Unlock autonomous AI agents.",
 			"icon": "🤖",
-			"requires": [
-				"tier_agi_race"
-			],
+			"requires": ["tier_agi_race"],
 			"max": 1,
 			"baseCost": 50000000,
 			"costMultiplier": 1,
@@ -949,9 +867,7 @@
 			"name": "Self-Improvement",
 			"description": "x1.5 agent output per level",
 			"icon": "♾️",
-			"requires": [
-				"agent_gate"
-			],
+			"requires": ["agent_gate"],
 			"max": 5,
 			"baseCost": 3000000000,
 			"costMultiplier": 3,
@@ -971,9 +887,7 @@
 			"name": "Scaling Laws",
 			"description": "-20% agent cost per level",
 			"icon": "📉",
-			"requires": [
-				"agent_gate"
-			],
+			"requires": ["agent_gate"],
 			"max": 5,
 			"baseCost": 80000000,
 			"costMultiplier": 1.5,
@@ -993,9 +907,7 @@
 			"name": "Alignment Research",
 			"description": "x1.5 cash per LoC per level",
 			"icon": "⚖️",
-			"requires": [
-				"agent_gate"
-			],
+			"requires": ["agent_gate"],
 			"max": 5,
 			"baseCost": 5000000000,
 			"costMultiplier": 3,
@@ -1015,9 +927,7 @@
 			"name": "Quantum Cluster",
 			"description": "+50M FLOPS per level",
 			"icon": "⚛️",
-			"requires": [
-				"tier_agi_race"
-			],
+			"requires": ["tier_agi_race"],
 			"max": 5,
 			"baseCost": 5000000,
 			"costMultiplier": 1.8,
@@ -1037,9 +947,7 @@
 			"name": "Neural Fabric",
 			"description": "+10M storage FLOPS per level",
 			"icon": "🕸️",
-			"requires": [
-				"tier_agi_race"
-			],
+			"requires": ["tier_agi_race"],
 			"max": 5,
 			"baseCost": 3000000,
 			"costMultiplier": 1.6,
@@ -1059,9 +967,7 @@
 			"name": "Intern Program",
 			"description": "+5 max interns per level",
 			"icon": "📋",
-			"requires": [
-				"interns"
-			],
+			"requires": ["interns"],
 			"max": 3,
 			"baseCost": 1200,
 			"costMultiplier": 1.5,
@@ -1081,9 +987,7 @@
 			"name": "Office Expansion",
 			"description": "+5 max teams per level",
 			"icon": "🏗️",
-			"requires": [
-				"teams_gate"
-			],
+			"requires": ["teams_gate"],
 			"max": 5,
 			"baseCost": 200000,
 			"costMultiplier": 1.8,
@@ -1103,9 +1007,7 @@
 			"name": "C-Suite",
 			"description": "+3 max managers per level",
 			"icon": "👑",
-			"requires": [
-				"management_gate"
-			],
+			"requires": ["management_gate"],
 			"max": 5,
 			"baseCost": 350000,
 			"costMultiplier": 2,
@@ -1125,9 +1027,7 @@
 			"name": "GPU Allocation",
 			"description": "+5 max LLM instances per level",
 			"icon": "🔢",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"max": 5,
 			"baseCost": 10000000,
 			"costMultiplier": 1.6,
@@ -1147,9 +1047,7 @@
 			"name": "Agent Swarm",
 			"description": "+3 max agents per level",
 			"icon": "🐝",
-			"requires": [
-				"agent_gate"
-			],
+			"requires": ["agent_gate"],
 			"max": 5,
 			"baseCost": 150000000,
 			"costMultiplier": 1.7,
@@ -1169,9 +1067,7 @@
 			"name": "Outsourcing",
 			"description": "Unlock freelance hiring on Malt.",
 			"icon": "🌍",
-			"requires": [
-				"tier_freelancing"
-			],
+			"requires": ["tier_freelancing"],
 			"max": 1,
 			"baseCost": 500,
 			"costMultiplier": 1,
@@ -1185,9 +1081,7 @@
 			"name": "Onboarding",
 			"description": "+20% freelancer LoC/s per level",
 			"icon": "📖",
-			"requires": [
-				"outsourcing"
-			],
+			"requires": ["outsourcing"],
 			"max": 5,
 			"baseCost": 1000,
 			"costMultiplier": 1.5,
@@ -1207,9 +1101,7 @@
 			"name": "Rate Negotiation",
 			"description": "-15% freelancer cost per level",
 			"icon": "🤝",
-			"requires": [
-				"outsourcing"
-			],
+			"requires": ["outsourcing"],
 			"max": 5,
 			"baseCost": 800,
 			"costMultiplier": 1.4,
@@ -1229,9 +1121,7 @@
 			"name": "Talent Pool",
 			"description": "+5 max freelancers",
 			"icon": "📇",
-			"requires": [
-				"outsourcing"
-			],
+			"requires": ["outsourcing"],
 			"max": 1,
 			"baseCost": 1200,
 			"costMultiplier": 1.5,
@@ -1251,9 +1141,7 @@
 			"name": "GPT-3",
 			"description": "Unlock GPT-3 for deployment.",
 			"icon": "🟢",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"max": 1,
 			"baseCost": 5000000,
 			"costMultiplier": 1,
@@ -1278,9 +1166,7 @@
 			"name": "GPT-3.5",
 			"description": "Unlock GPT-3.5 for deployment.",
 			"icon": "🟢",
-			"requires": [
-				"openai_gpt3"
-			],
+			"requires": ["openai_gpt3"],
 			"max": 1,
 			"baseCost": 25000000,
 			"costMultiplier": 1,
@@ -1305,9 +1191,7 @@
 			"name": "GPT-4",
 			"description": "Unlock GPT-4 for deployment.",
 			"icon": "🟢",
-			"requires": [
-				"openai_gpt35"
-			],
+			"requires": ["openai_gpt35"],
 			"max": 1,
 			"baseCost": 100000000,
 			"costMultiplier": 1,
@@ -1332,9 +1216,7 @@
 			"name": "GPT-4.1",
 			"description": "Unlock GPT-4.1 for deployment.",
 			"icon": "🟢",
-			"requires": [
-				"openai_gpt4"
-			],
+			"requires": ["openai_gpt4"],
 			"max": 1,
 			"baseCost": 500000000,
 			"costMultiplier": 1,
@@ -1359,9 +1241,7 @@
 			"name": "GPT-5",
 			"description": "Unlock GPT-5 for deployment.",
 			"icon": "🟢",
-			"requires": [
-				"openai_gpt4"
-			],
+			"requires": ["openai_gpt4"],
 			"max": 1,
 			"baseCost": 20000000000,
 			"costMultiplier": 1,
@@ -1386,9 +1266,7 @@
 			"name": "Claude Haiku",
 			"description": "Unlock Claude Haiku for deployment.",
 			"icon": "🟠",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"max": 1,
 			"baseCost": 10000000,
 			"costMultiplier": 1,
@@ -1413,9 +1291,7 @@
 			"name": "Claude Sonnet",
 			"description": "Unlock Claude Sonnet for deployment.",
 			"icon": "🟠",
-			"requires": [
-				"anthropic_haiku"
-			],
+			"requires": ["anthropic_haiku"],
 			"max": 1,
 			"baseCost": 150000000,
 			"costMultiplier": 1,
@@ -1440,9 +1316,7 @@
 			"name": "Claude Opus",
 			"description": "Unlock Claude Opus for deployment.",
 			"icon": "🟠",
-			"requires": [
-				"anthropic_sonnet"
-			],
+			"requires": ["anthropic_sonnet"],
 			"max": 1,
 			"baseCost": 5000000000,
 			"costMultiplier": 1,
@@ -1467,9 +1341,7 @@
 			"name": "GitHub Copilot",
 			"description": "Unlock Copilot for deployment.",
 			"icon": "🤖",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"max": 1,
 			"baseCost": 5000000,
 			"costMultiplier": 1,
@@ -1494,9 +1366,7 @@
 			"name": "Gemini Pro",
 			"description": "Unlock Gemini Pro for deployment.",
 			"icon": "🔵",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"max": 1,
 			"baseCost": 40000000,
 			"costMultiplier": 1,
@@ -1521,9 +1391,7 @@
 			"name": "Gemini Ultra",
 			"description": "Unlock Gemini Ultra for deployment.",
 			"icon": "🔵",
-			"requires": [
-				"google_gemini_pro"
-			],
+			"requires": ["google_gemini_pro"],
 			"max": 1,
 			"baseCost": 50000000000,
 			"costMultiplier": 1,
@@ -1548,9 +1416,7 @@
 			"name": "Llama 70B",
 			"description": "Unlock Llama 70B for deployment.",
 			"icon": "🦙",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"max": 1,
 			"baseCost": 10000000,
 			"costMultiplier": 1,
@@ -1575,9 +1441,7 @@
 			"name": "Llama 405B",
 			"description": "Unlock Llama 405B for deployment.",
 			"icon": "🦙",
-			"requires": [
-				"meta_llama_70b"
-			],
+			"requires": ["meta_llama_70b"],
 			"max": 1,
 			"baseCost": 250000000,
 			"costMultiplier": 1,
@@ -1602,9 +1466,7 @@
 			"name": "Mistral Large",
 			"description": "Unlock Mistral Large for deployment.",
 			"icon": "🇫🇷",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"max": 1,
 			"baseCost": 15000000,
 			"costMultiplier": 1,
@@ -1629,9 +1491,7 @@
 			"name": "Grok 2",
 			"description": "Unlock Grok 2 for deployment.",
 			"icon": "❌",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"max": 1,
 			"baseCost": 60000000,
 			"costMultiplier": 1,
@@ -1656,9 +1516,7 @@
 			"name": "Grok 3",
 			"description": "Unlock Grok 3 for deployment.",
 			"icon": "❌",
-			"requires": [
-				"xai_grok2"
-			],
+			"requires": ["xai_grok2"],
 			"max": 1,
 			"baseCost": 250000000000,
 			"costMultiplier": 1,
@@ -1683,9 +1541,7 @@
 			"name": "GPT-6",
 			"description": "Unlock GPT-6 for deployment.",
 			"icon": "🟢",
-			"requires": [
-				"openai_gpt5"
-			],
+			"requires": ["openai_gpt5"],
 			"max": 1,
 			"baseCost": 150000000000,
 			"costMultiplier": 1,
@@ -1710,9 +1566,7 @@
 			"name": "GPT-7",
 			"description": "Unlock GPT-7 for deployment.",
 			"icon": "🟢",
-			"requires": [
-				"openai_gpt6"
-			],
+			"requires": ["openai_gpt6"],
 			"max": 1,
 			"baseCost": 2500000000000,
 			"costMultiplier": 1,
@@ -1737,9 +1591,7 @@
 			"name": "Claude Saga",
 			"description": "Unlock Claude Saga for deployment.",
 			"icon": "🟠",
-			"requires": [
-				"anthropic_opus"
-			],
+			"requires": ["anthropic_opus"],
 			"max": 1,
 			"baseCost": 1000000000000,
 			"costMultiplier": 1,
@@ -1764,9 +1616,7 @@
 			"name": "Claude Universe",
 			"description": "Unlock Claude Universe for deployment.",
 			"icon": "🟠",
-			"requires": [
-				"anthropic_saga"
-			],
+			"requires": ["anthropic_saga"],
 			"max": 1,
 			"baseCost": 10000000000000,
 			"costMultiplier": 1,
@@ -1791,9 +1641,7 @@
 			"name": "Gemini Supreme",
 			"description": "Unlock Gemini Supreme for deployment.",
 			"icon": "🔵",
-			"requires": [
-				"google_gemini_ultra"
-			],
+			"requires": ["google_gemini_ultra"],
 			"max": 1,
 			"baseCost": 2500000000000,
 			"costMultiplier": 1,

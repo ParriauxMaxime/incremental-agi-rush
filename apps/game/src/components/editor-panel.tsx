@@ -18,33 +18,6 @@ const sectionCss = css({
 	transition: "flex 0.5s ease",
 });
 
-const tabBarCss = css({
-	display: "flex",
-	background: "#0d1117",
-	borderBottom: "1px solid #1e2630",
-	flexShrink: 0,
-});
-
-const tabCss = css({
-	padding: "6px 16px",
-	fontSize: 12,
-	color: "#c9d1d9",
-	background: "#141920",
-	border: "none",
-	borderRight: "1px solid #1e2630",
-	borderBottom: "1px solid #141920",
-	marginBottom: -1,
-	fontFamily: "inherit",
-	whiteSpace: "nowrap",
-});
-
-const contentCss = css({
-	flex: 1,
-	overflow: "hidden",
-	display: "flex",
-	flexDirection: "column",
-});
-
 const dividerCss = css({
 	height: 1,
 	background: "#1e2630",
@@ -72,12 +45,7 @@ export function EditorPanel() {
 
 			{showEditor && (
 				<div css={sectionCss} style={{ flex: showDashboard ? 3 : 1 }}>
-					<div css={tabBarCss}>
-						<div css={tabCss}>agi.py</div>
-					</div>
-					<div css={contentCss}>
-						<Editor />
-					</div>
+					<Editor />
 				</div>
 			)}
 

@@ -14,7 +14,7 @@ const headerCss = css({
 	padding: "4px 12px",
 	background: "#161b22",
 	borderBottom: "1px solid #1e2630",
-	fontSize: 10,
+	fontSize: 12,
 	color: "#8b949e",
 	display: "flex",
 	justifyContent: "space-between",
@@ -24,11 +24,11 @@ const sectionCss = css({
 	padding: "6px 10px",
 	display: "flex",
 	flexDirection: "column",
-	gap: 3,
+	gap: 4,
 });
 
 const sectionLabelCss = css({
-	fontSize: 9,
+	fontSize: 11,
 	textTransform: "uppercase",
 	letterSpacing: 0.5,
 	marginBottom: 2,
@@ -38,11 +38,11 @@ const rowCss = css({
 	display: "flex",
 	alignItems: "center",
 	gap: 6,
-	height: 18,
+	height: 22,
 });
 
 const nameCss = css({
-	fontSize: 10,
+	fontSize: 12,
 	color: "#8b949e",
 	minWidth: 70,
 	whiteSpace: "nowrap",
@@ -66,7 +66,7 @@ const barFillCss = css({
 });
 
 const valueCss = css({
-	fontSize: 10,
+	fontSize: 12,
 	minWidth: 55,
 	textAlign: "right",
 	fontVariantNumeric: "tabular-nums",
@@ -77,7 +77,7 @@ const footerCss = css({
 	borderTop: "1px solid #1e2630",
 	display: "flex",
 	justifyContent: "space-between",
-	fontSize: 9,
+	fontSize: 11,
 	color: "#484f58",
 });
 

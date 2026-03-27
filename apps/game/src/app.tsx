@@ -41,8 +41,8 @@ const tabBarCss = css({
 });
 
 const tabCss = css({
-	padding: "6px 16px",
-	fontSize: 12,
+	padding: "8px 16px",
+	fontSize: 14,
 	color: "#5c6370",
 	background: "#0d1117",
 	border: "none",

@@ -1,6 +1,7 @@
-import { css } from "@emotion/react";
 import type { Upgrade, UpgradeEffect } from "@agi-rush/domain";
+import { css } from "@emotion/react";
 import {
+	aiModels,
 	allMilestones,
 	allUpgrades,
 	getEffectiveMax,
@@ -34,7 +35,7 @@ const scrollCss = css({
 });
 
 const sectionHeaderCss = css({
-	fontSize: 9,
+	fontSize: 11,
 	textTransform: "uppercase",
 	letterSpacing: 0.5,
 	color: "#8b949e",
@@ -47,7 +48,7 @@ const folderRowCss = css({
 	alignItems: "center",
 	gap: 4,
 	padding: "3px 8px",
-	fontSize: 11,
+	fontSize: 13,
 	cursor: "pointer",
 	userSelect: "none",
 	"&:hover": { background: "#141920" },
@@ -87,7 +88,7 @@ const itemRow1Css = css({
 	display: "flex",
 	alignItems: "center",
 	gap: 6,
-	fontSize: 11,
+	fontSize: 13,
 });
 
 const itemNameCss = css({
@@ -98,7 +99,7 @@ const itemNameCss = css({
 });
 
 const itemCountCss = css({
-	fontSize: 9,
+	fontSize: 11,
 	flexShrink: 0,
 });
 
@@ -111,12 +112,12 @@ const itemRow2Css = css({
 });
 
 const effectCss = css({
-	fontSize: 9,
+	fontSize: 11,
 	flex: 1,
 });
 
 const priceBadgeCss = css({
-	fontSize: 8,
+	fontSize: 10,
 	padding: "1px 5px",
 	borderRadius: 3,
 	flexShrink: 0,
@@ -124,8 +125,52 @@ const priceBadgeCss = css({
 
 const milestoneCss = css({
 	padding: "2px 12px 2px 20px",
-	fontSize: 10,
+	fontSize: 12,
 	lineHeight: 1.8,
+});
+
+const execWrapperCss = css({
+	padding: "8px 8px",
+	borderTop: "1px solid #1e2630",
+	flexShrink: 0,
+});
+
+const execBtnCss = css({
+	width: "100%",
+	padding: "8px 0",
+	fontSize: 12,
+	fontWeight: "bold",
+	fontFamily: "inherit",
+	textTransform: "uppercase",
+	letterSpacing: 1,
+	border: "1px solid #7ee787",
+	borderRadius: 4,
+	cursor: "pointer",
+	transition: "all 0.1s",
+	background: "transparent",
+	color: "#7ee787",
+	"&:hover": { background: "#7ee787", color: "#0d1117" },
+	"&:active": { transform: "scale(0.97)" },
+	"&:disabled": {
+		opacity: 0.3,
+		cursor: "default",
+		"&:hover": { background: "transparent", color: "#7ee787" },
+	},
+});
+
+const autoExecLabelCss = css({
+	width: "100%",
+	padding: "8px 0",
+	fontSize: 12,
+	fontWeight: "bold",
+	fontFamily: "inherit",
+	textTransform: "uppercase",
+	letterSpacing: 1,
+	textAlign: "center",
+	color: "#3fb950",
+	border: "1px solid #238636",
+	borderRadius: 4,
+	background: "rgba(35, 134, 54, 0.1)",
 });
 
 // ── Effect summary ──
@@ -141,8 +186,7 @@ function formatEffect(effect: UpgradeEffect): { text: string; color: string } {
 	if (effect.type === "managerLoc")
 		return { text: "+50% teams", color: "#c084fc" };
 
-	if (effect.op === "multiply")
-		return { text: `×${val}`, color: "#c084fc" };
+	if (effect.op === "multiply") return { text: `×${val}`, color: "#c084fc" };
 
 	const locTypes = [
 		"freelancerLoc",
@@ -175,9 +219,7 @@ function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
 	const canAfford = cash >= cost;
 	const maxed = owned >= effectiveMax;
 
-	const effect = upgrade.effects[0]
-		? formatEffect(upgrade.effects[0])
-		: null;
+	const effect = upgrade.effects[0] ? formatEffect(upgrade.effects[0]) : null;
 
 	const nameColor = canAfford || maxed ? "#c9d1d9" : "#6272a4";
 
@@ -239,11 +281,30 @@ export function SidebarTree() {
 	const currentTierIndex = useGameStore((s) => s.currentTierIndex);
 	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
 	const reachedMilestones = useGameStore((s) => s.reachedMilestones);
+	const loc = useGameStore((s) => s.loc);
+	const flops = useGameStore((s) => s.flops);
+	const cashMultiplier = useGameStore((s) => s.cashMultiplier);
+	const aiUnlocked = useGameStore((s) => s.aiUnlocked);
+	const unlockedModels = useGameStore((s) => s.unlockedModels);
+	const autoExec = useGameStore((s) => s.autoExecuteEnabled);
+	const executeManual = useGameStore((s) => s.executeManual);
 	const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 	const [milestonesOpen, setMilestonesOpen] = useState(true);
 
 	const toggle = (id: string) =>
 		setCollapsed((prev) => ({ ...prev, [id]: !prev[id] }));
+
+	const tier = tiers[currentTierIndex];
+	const cashPerLoc = tier?.cashPerLoc ?? 0.1;
+	let aiFlopsCost = 0;
+	if (aiUnlocked) {
+		for (const model of aiModels) {
+			if (unlockedModels[model.id]) aiFlopsCost += model.flopsCost;
+		}
+	}
+	const execFlops = Math.max(0, flops - Math.min(aiFlopsCost, flops));
+	const execLoc = Math.min(Math.floor(execFlops), Math.floor(loc));
+	const earnPerExec = execLoc * cashPerLoc * cashMultiplier;
 
 	return (
 		<div css={sidebarCss}>
@@ -284,9 +345,7 @@ export function SidebarTree() {
 								)}
 							</div>
 							{isOpen &&
-								tierUpgrades.map((u) => (
-									<UpgradeItem key={u.id} upgrade={u} />
-								))}
+								tierUpgrades.map((u) => <UpgradeItem key={u.id} upgrade={u} />)}
 						</div>
 					);
 				})}
@@ -316,6 +375,23 @@ export function SidebarTree() {
 							</div>
 						);
 					})}
+			</div>
+
+			{/* Execute button at bottom */}
+			<div css={execWrapperCss}>
+				{autoExec ? (
+					<div css={autoExecLabelCss}>⚡ Auto-Execute</div>
+				) : (
+					<button
+						type="button"
+						css={execBtnCss}
+						onClick={executeManual}
+						disabled={execLoc <= 0}
+					>
+						⚡ Execute {formatNumber(execLoc)} → $
+						{formatNumber(earnPerExec, true)}
+					</button>
+				)}
 			</div>
 		</div>
 	);

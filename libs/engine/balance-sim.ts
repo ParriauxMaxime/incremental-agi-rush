@@ -429,8 +429,7 @@ export function runBalanceSim(
 
 		sim.currentTier = tierIndex;
 		sim.aiUnlocked =
-			sim.llmHostSlots > 0 &&
-			Object.values(sim.ownedModels).some(Boolean);
+			sim.llmHostSlots > 0 && Object.values(sim.ownedModels).some(Boolean);
 	}
 
 	/** Apply effects for a newly purchased item (instant effects only — recalc handles the rest) */
@@ -901,7 +900,9 @@ export function runBalanceSim(
 						val += Math.min(totalLocS, execCap) * cashPerLoc() * (ev - 1);
 					if (e.type === "instantCash") val += ev / 60;
 					if (e.type === "llmHostSlot") {
-						const unlockedCount = Object.values(sim.ownedModels).filter(Boolean).length;
+						const unlockedCount = Object.values(sim.ownedModels).filter(
+							Boolean,
+						).length;
 						const activeCount = Math.min(unlockedCount, sim.llmHostSlots);
 						if (activeCount < unlockedCount) {
 							const sorted = aiModels
