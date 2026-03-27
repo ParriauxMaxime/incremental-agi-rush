@@ -64,9 +64,9 @@ export const useUiStore = create<UiState>()(
 			seenTips: [],
 			activeTip: null,
 			techTreeViewport: {
-				x: -(1254 - 300) * 2,
-				y: -(566 - 200) * 2,
-				zoom: 2,
+				x: -850,
+				y: -200,
+				zoom: 1,
 			},
 			uiZoom: 100,
 			sidebarCollapsed: true,
