@@ -52,6 +52,13 @@ export interface GameState {
 	executionProgress: number;
 	locPerKey: number;
 	autoLocPerSec: number;
+	freelancerLocPerSec: number;
+	internLocPerSec: number;
+	devLocPerSec: number;
+	teamLocPerSec: number;
+	llmLocPerSec: number;
+	agentLocPerSec: number;
+	managerBonus: number;
 	locProductionMultiplier: number;
 	cashMultiplier: number;
 	freelancerCostDiscount: number;
@@ -122,6 +129,13 @@ const initialState: GameState = {
 	executionProgress: 0,
 	locPerKey: core.startingLocPerKey,
 	autoLocPerSec: 0,
+	freelancerLocPerSec: 0,
+	internLocPerSec: 0,
+	devLocPerSec: 0,
+	teamLocPerSec: 0,
+	llmLocPerSec: 0,
+	agentLocPerSec: 0,
+	managerBonus: 0,
 	locProductionMultiplier: 1,
 	cashMultiplier: 1,
 	freelancerCostDiscount: 1,
@@ -376,6 +390,19 @@ function recalcDerivedStats(state: GameState): void {
 	state.locPerKey = locPerKey;
 	state.autoLocPerSec =
 		totalAutoLoc * locProductionMultiplier * eventMods.autoLocMultiplier;
+	state.freelancerLocPerSec =
+		freelancerLoc * freelancerLocMultiplier * locProductionMultiplier * eventMods.autoLocMultiplier;
+	state.internLocPerSec =
+		internLoc * internLocMultiplier * locProductionMultiplier * eventMods.autoLocMultiplier;
+	state.devLocPerSec =
+		devLoc * devLocMultiplier * devSpeedMultiplier * locProductionMultiplier * eventMods.autoLocMultiplier;
+	state.teamLocPerSec =
+		teamLoc * teamLocMultiplier * managerTeamBonus * locProductionMultiplier * eventMods.autoLocMultiplier;
+	state.llmLocPerSec =
+		llmLoc * llmLocMultiplier * locProductionMultiplier * eventMods.autoLocMultiplier;
+	state.agentLocPerSec =
+		agentLoc * agentLocMultiplier * locProductionMultiplier * eventMods.autoLocMultiplier;
+	state.managerBonus = managerTeamBonus;
 	const computedFlops = baseFlops + hardwareFlops;
 	state.flops =
 		eventMods.flopsOverride !== null
