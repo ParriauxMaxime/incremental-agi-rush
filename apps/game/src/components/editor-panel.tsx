@@ -69,11 +69,7 @@ export function EditorPanel() {
 	const showPrompt = aiUnlocked;
 
 	return (
-		<div
-			css={panelCss}
-			style={{ flex, minWidth }}
-			data-tutorial="editor"
-		>
+		<div css={panelCss} style={{ flex, minWidth }} data-tutorial="editor">
 			{/* Dashboard (T2+ or when devs are hired) */}
 			{showDashboard && (
 				<div css={sectionCss} style={{ flex: showEditor ? 2 : 3 }}>

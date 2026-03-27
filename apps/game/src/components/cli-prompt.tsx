@@ -140,20 +140,16 @@ export function CliPrompt() {
 
 	const activeModels = aiModels.filter((m) => unlockedModels[m.id]);
 
-	const addEntry = useCallback(
-		(entry: LogEntry) => {
-			setLog((prev) => {
-				const next = [...prev, entry];
-				return next.length > 50 ? next.slice(-30) : next;
-			});
-		},
-		[],
-	);
+	const addEntry = useCallback((entry: LogEntry) => {
+		setLog((prev) => {
+			const next = [...prev, entry];
+			return next.length > 50 ? next.slice(-30) : next;
+		});
+	}, []);
 
 	const handleSubmit = useCallback(() => {
 		if (!input.trim() || activeModels.length === 0) return;
-		const model =
-			activeModels[Math.floor(Math.random() * activeModels.length)];
+		const model = activeModels[Math.floor(Math.random() * activeModels.length)];
 		addEntry({
 			model: `${model.name} ${model.version}`,
 			color: getModelColor(model.family),
@@ -177,9 +173,12 @@ export function CliPrompt() {
 		return () => clearInterval(interval);
 	}, [activeModels, addEntry]);
 
-	// Auto-scroll
+	// biome-ignore lint/correctness/useExhaustiveDependencies: log triggers scroll on new entries
 	useEffect(() => {
-		logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: "smooth" });
+		logRef.current?.scrollTo({
+			top: logRef.current.scrollHeight,
+			behavior: "smooth",
+		});
 	}, [log]);
 
 	return (

@@ -391,17 +391,37 @@ function recalcDerivedStats(state: GameState): void {
 	state.autoLocPerSec =
 		totalAutoLoc * locProductionMultiplier * eventMods.autoLocMultiplier;
 	state.freelancerLocPerSec =
-		freelancerLoc * freelancerLocMultiplier * locProductionMultiplier * eventMods.autoLocMultiplier;
+		freelancerLoc *
+		freelancerLocMultiplier *
+		locProductionMultiplier *
+		eventMods.autoLocMultiplier;
 	state.internLocPerSec =
-		internLoc * internLocMultiplier * locProductionMultiplier * eventMods.autoLocMultiplier;
+		internLoc *
+		internLocMultiplier *
+		locProductionMultiplier *
+		eventMods.autoLocMultiplier;
 	state.devLocPerSec =
-		devLoc * devLocMultiplier * devSpeedMultiplier * locProductionMultiplier * eventMods.autoLocMultiplier;
+		devLoc *
+		devLocMultiplier *
+		devSpeedMultiplier *
+		locProductionMultiplier *
+		eventMods.autoLocMultiplier;
 	state.teamLocPerSec =
-		teamLoc * teamLocMultiplier * managerTeamBonus * locProductionMultiplier * eventMods.autoLocMultiplier;
+		teamLoc *
+		teamLocMultiplier *
+		managerTeamBonus *
+		locProductionMultiplier *
+		eventMods.autoLocMultiplier;
 	state.llmLocPerSec =
-		llmLoc * llmLocMultiplier * locProductionMultiplier * eventMods.autoLocMultiplier;
+		llmLoc *
+		llmLocMultiplier *
+		locProductionMultiplier *
+		eventMods.autoLocMultiplier;
 	state.agentLocPerSec =
-		agentLoc * agentLocMultiplier * locProductionMultiplier * eventMods.autoLocMultiplier;
+		agentLoc *
+		agentLocMultiplier *
+		locProductionMultiplier *
+		eventMods.autoLocMultiplier;
 	state.managerBonus = managerTeamBonus;
 	const computedFlops = baseFlops + hardwareFlops;
 	state.flops =

@@ -99,8 +99,6 @@ export function AnalyticsDashboard() {
 	const internLocPerSec = useGameStore((s) => s.internLocPerSec);
 	const devLocPerSec = useGameStore((s) => s.devLocPerSec);
 	const teamLocPerSec = useGameStore((s) => s.teamLocPerSec);
-	const llmLocPerSec = useGameStore((s) => s.llmLocPerSec);
-	const agentLocPerSec = useGameStore((s) => s.agentLocPerSec);
 	const managerBonus = useGameStore((s) => s.managerBonus);
 	const locPerKey = useGameStore((s) => s.locPerKey);
 	const flops = useGameStore((s) => s.flops);
@@ -174,7 +172,8 @@ export function AnalyticsDashboard() {
 	}, [humanSources, aiSources]);
 
 	const totalLoc = autoLocPerSec + locPerKey * 6;
-	const execRatio = flops > 0 && totalLoc > 0 ? Math.min(1, flops / totalLoc) : 1;
+	const execRatio =
+		flops > 0 && totalLoc > 0 ? Math.min(1, flops / totalLoc) : 1;
 
 	return (
 		<div css={wrapperCss}>

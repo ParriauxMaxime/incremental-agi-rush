@@ -1,4 +1,5 @@
 import { css } from "@emotion/react";
+import { useGameStore } from "@modules/game";
 import { MilestoneList, UpgradeList } from "@modules/upgrade";
 import { useState } from "react";
 import { FlopsSlider } from "./flops-slider";
@@ -56,11 +57,12 @@ type Tab = "upgrades" | "milestones";
 
 export function Sidebar() {
 	const [activeTab, setActiveTab] = useState<Tab>("upgrades");
+	const aiUnlocked = useGameStore((s) => s.aiUnlocked);
 
 	return (
 		<div css={sidebarStyle} data-sidebar>
 			<ResourceBar />
-			<FlopsSlider />
+			{!aiUnlocked && <FlopsSlider />}
 			<TierProgress />
 			<div css={tabBarStyle} role="tablist">
 				<button

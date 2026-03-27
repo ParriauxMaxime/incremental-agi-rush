@@ -92,10 +92,11 @@ const panelCss = css({
 	overflow: "hidden",
 });
 
-const middlePanelCss = css(panelCss, {
-	flex: 3,
-	borderRight: "1px solid #1e2630",
-});
+function getMiddlePanelFlex(tierIndex: number): number {
+	if (tierIndex <= 1) return 2;
+	if (tierIndex <= 3) return 5;
+	return 5.5;
+}
 
 const contentCss = css({
 	flex: 1,
@@ -302,6 +303,7 @@ export function App() {
 	const page = useUiStore((s) => s.page);
 	const setPage = useUiStore((s) => s.setPage);
 	const singularity = useGameStore((s) => s.singularity);
+	const tierIndex = useGameStore((s) => s.currentTierIndex);
 	const shellRef = useRef<HTMLDivElement>(null);
 	const singularityOnMount = useRef(useGameStore.getState().singularity);
 	const singularityAnimate = singularity && !singularityOnMount.current;
@@ -339,7 +341,16 @@ export function App() {
 				<EditorPanel />
 
 				{/* Panel 2: Tech Tree / Settings / God Mode (tab-switched) */}
-				<div css={middlePanelCss}>
+				<div
+					css={[
+						panelCss,
+						{
+							flex: getMiddlePanelFlex(tierIndex),
+							borderRight: "1px solid #1e2630",
+							transition: "flex 0.5s ease",
+						},
+					]}
+				>
 					<div css={tabBarCss}>
 						{middleTabs.map((t) => (
 							<button
