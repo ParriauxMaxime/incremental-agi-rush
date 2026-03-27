@@ -441,8 +441,8 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 				)}
 			</div>
 
-			<div css={scrollCss}>
-				{/* Resources */}
+			{/* Resources (fixed, no scroll) */}
+			<div css={{ padding: "8px 0", flexShrink: 0 }}>
 				<div css={sectionCss}>
 					<div css={sectionLabelCss}>Resources</div>
 
@@ -488,7 +488,10 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 						</div>
 					</div>
 				</div>
+			</div>
 
+			{/* Scrollable: LoC Sources + FLOPS slider */}
+			<div css={scrollCss}>
 				{/* LoC Sources + AI Models (analytics unlock) */}
 				{showSources && (
 					<>
