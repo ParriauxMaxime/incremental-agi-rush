@@ -11,16 +11,15 @@ import {
 } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { useState } from "react";
+import { useIdeTheme } from "../hooks/use-ide-theme";
 
 // ── Styles ──
 
 const sidebarCss = css({
 	display: "flex",
 	flexDirection: "column",
-	width: 240,
+	width: 260,
 	minWidth: 200,
-	background: "#0d1117",
-	borderRight: "1px solid #1e2630",
 	overflow: "hidden",
 	flexShrink: 0,
 });
@@ -52,12 +51,6 @@ const folderRowCss = css({
 	cursor: "pointer",
 	userSelect: "none",
 	"&:hover": { background: "#141920" },
-});
-
-const folderLockedCss = css({
-	color: "#484f58",
-	cursor: "default",
-	"&:hover": { background: "transparent" },
 });
 
 const itemCss = css({
@@ -288,6 +281,7 @@ export function SidebarTree() {
 	const unlockedModels = useGameStore((s) => s.unlockedModels);
 	const autoExec = useGameStore((s) => s.autoExecuteEnabled);
 	const executeManual = useGameStore((s) => s.executeManual);
+	const theme = useIdeTheme();
 	const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 	const [milestonesOpen, setMilestonesOpen] = useState(true);
 
@@ -307,52 +301,102 @@ export function SidebarTree() {
 	const earnPerExec = execLoc * cashPerLoc * cashMultiplier;
 
 	return (
-		<div css={sidebarCss}>
+		<div
+			css={sidebarCss}
+			style={{
+				background: theme.sidebarBg,
+				borderRight: `1px solid ${theme.border}`,
+			}}
+		>
+			<div
+				css={{
+					padding: "10px 12px",
+					fontSize: 11,
+					fontWeight: 600,
+					textTransform: "uppercase",
+					letterSpacing: 0.5,
+					color: theme.textMuted,
+				}}
+			>
+				Explorer
+			</div>
 			<div css={scrollCss}>
-				<div css={sectionHeaderCss}>Upgrades</div>
-				{tiers.map((tier) => {
-					const locked = tier.index > currentTierIndex;
-					const isOpen = !locked && !collapsed[tier.id];
-					const tierUpgrades = allUpgrades.filter(
-						(u) =>
-							u.tier === tier.id &&
-							(!u.requires ||
-								u.requires.every((id) => (ownedTechNodes[id] ?? 0) > 0)),
-					);
+				{/* Open Editors */}
+				<div css={sectionHeaderCss} style={{ color: theme.textMuted }}>
+					▾ Open Editors
+				</div>
+				<div
+					css={{
+						padding: "2px 8px 2px 28px",
+						display: "flex",
+						alignItems: "center",
+						gap: 6,
+						fontSize: 13,
+						height: 22,
+						background: theme.activeBg,
+						color: theme.foreground,
+					}}
+				>
+					<span
+						css={{
+							width: 6,
+							height: 6,
+							borderRadius: "50%",
+							background: "#519aba",
+							flexShrink: 0,
+						}}
+					/>
+					agi.py
+				</div>
 
-					return (
-						<div key={tier.id}>
-							<div
-								css={[folderRowCss, locked && folderLockedCss]}
-								onClick={() => {
-									if (!locked) toggle(tier.id);
-								}}
-								onKeyDown={(e) => {
-									if (e.key === "Enter" && !locked) toggle(tier.id);
-								}}
-								role="button"
-								tabIndex={locked ? -1 : 0}
-							>
-								<span style={{ fontSize: 10, width: 12 }}>
-									{locked ? "▸" : isOpen ? "▾" : "▸"}
-								</span>
-								<span>📂</span>
-								<span style={{ color: locked ? "#484f58" : "#c9d1d9" }}>
-									{tier.id}/
-								</span>
-								{locked && (
-									<span style={{ fontSize: 8, marginLeft: 4 }}>🔒</span>
-								)}
+				{/* Upgrades */}
+				<div
+					css={sectionHeaderCss}
+					style={{ color: theme.textMuted, marginTop: 8 }}
+				>
+					▾ Upgrades
+				</div>
+				{tiers
+					.filter((tier) => tier.index <= currentTierIndex)
+					.map((tier) => {
+						const isOpen = !collapsed[tier.id];
+						const tierUpgrades = allUpgrades.filter(
+							(u) =>
+								u.tier === tier.id &&
+								(!u.requires ||
+									u.requires.every((id) => (ownedTechNodes[id] ?? 0) > 0)),
+						);
+
+						return (
+							<div key={tier.id}>
+								<div
+									css={folderRowCss}
+									style={{ color: theme.foreground }}
+									onClick={() => toggle(tier.id)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") toggle(tier.id);
+									}}
+									role="button"
+									tabIndex={0}
+								>
+									<span style={{ fontSize: 10, width: 12 }}>
+										{isOpen ? "▾" : "▸"}
+									</span>
+									<span>📂</span>
+									<span>{tier.id}/</span>
+								</div>
+								{isOpen &&
+									tierUpgrades.map((u) => (
+										<UpgradeItem key={u.id} upgrade={u} />
+									))}
 							</div>
-							{isOpen &&
-								tierUpgrades.map((u) => <UpgradeItem key={u.id} upgrade={u} />)}
-						</div>
-					);
-				})}
+						);
+					})}
 
 				{/* Milestones section */}
 				<div
 					css={[sectionHeaderCss, { cursor: "pointer" }]}
+					style={{ color: theme.textMuted, marginTop: 12 }}
 					onClick={() => setMilestonesOpen(!milestonesOpen)}
 					onKeyDown={(e) => {
 						if (e.key === "Enter") setMilestonesOpen(!milestonesOpen);

@@ -27,12 +27,27 @@ export interface EditorTheme {
 	operator: string;
 	type: string;
 	variable: string;
+	// IDE-wide colors
+	sidebarBg: string;
+	activityBarBg: string;
+	panelBg: string;
+	tabBarBg: string;
+	tabActiveBg: string;
+	tabInactiveBg: string;
+	statusBarBg: string;
+	statusBarFg: string;
+	border: string;
+	hoverBg: string;
+	activeBg: string;
+	textMuted: string;
+	accent: string;
+	success: string;
 }
 
 export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 	[EditorThemeEnum.one_dark]: {
 		name: "One Dark",
-		background: "#0a0e14",
+		background: "#1e1e1e",
 		foreground: "#c5c8c6",
 		lineNumbers: "#3b4048",
 		cursor: "#528bff",
@@ -45,6 +60,20 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		operator: "#56b6c2",
 		type: "#e5c07b",
 		variable: "#e06c75",
+		sidebarBg: "#252526",
+		activityBarBg: "#333333",
+		panelBg: "#1e1e1e",
+		tabBarBg: "#252526",
+		tabActiveBg: "#1e1e1e",
+		tabInactiveBg: "#2d2d2d",
+		statusBarBg: "#007acc",
+		statusBarFg: "#ffffff",
+		border: "#1e1e1e",
+		hoverBg: "#2a2d2e",
+		activeBg: "#37373d",
+		textMuted: "#858585",
+		accent: "#528bff",
+		success: "#4ec9b0",
 	},
 	[EditorThemeEnum.monokai]: {
 		name: "Monokai",
@@ -61,6 +90,20 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		operator: "#f92672",
 		type: "#66d9ef",
 		variable: "#fd971f",
+		sidebarBg: "#1e1f1c",
+		activityBarBg: "#272822",
+		panelBg: "#272822",
+		tabBarBg: "#1e1f1c",
+		tabActiveBg: "#272822",
+		tabInactiveBg: "#1e1f1c",
+		statusBarBg: "#414339",
+		statusBarFg: "#f8f8f2",
+		border: "#1e1f1c",
+		hoverBg: "#3e3d32",
+		activeBg: "#49483e",
+		textMuted: "#75715e",
+		accent: "#66d9ef",
+		success: "#a6e22e",
 	},
 	[EditorThemeEnum.github_dark]: {
 		name: "GitHub Dark",
@@ -77,6 +120,20 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		operator: "#ff7b72",
 		type: "#ffa657",
 		variable: "#ffa657",
+		sidebarBg: "#161b22",
+		activityBarBg: "#0d1117",
+		panelBg: "#0d1117",
+		tabBarBg: "#161b22",
+		tabActiveBg: "#0d1117",
+		tabInactiveBg: "#161b22",
+		statusBarBg: "#1f6feb",
+		statusBarFg: "#ffffff",
+		border: "#30363d",
+		hoverBg: "#1c2128",
+		activeBg: "#264f78",
+		textMuted: "#8b949e",
+		accent: "#58a6ff",
+		success: "#3fb950",
 	},
 	[EditorThemeEnum.github_light]: {
 		name: "GitHub Light",
@@ -93,6 +150,20 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		operator: "#cf222e",
 		type: "#953800",
 		variable: "#953800",
+		sidebarBg: "#f6f8fa",
+		activityBarBg: "#e8e8e8",
+		panelBg: "#ffffff",
+		tabBarBg: "#f6f8fa",
+		tabActiveBg: "#ffffff",
+		tabInactiveBg: "#f6f8fa",
+		statusBarBg: "#0969da",
+		statusBarFg: "#ffffff",
+		border: "#d0d7de",
+		hoverBg: "#eaeef2",
+		activeBg: "#dae5ed",
+		textMuted: "#6e7781",
+		accent: "#0969da",
+		success: "#1a7f37",
 	},
 	[EditorThemeEnum.solarized_dark]: {
 		name: "Solarized Dark",
@@ -109,6 +180,20 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		operator: "#93a1a1",
 		type: "#b58900",
 		variable: "#cb4b16",
+		sidebarBg: "#073642",
+		activityBarBg: "#002b36",
+		panelBg: "#002b36",
+		tabBarBg: "#073642",
+		tabActiveBg: "#002b36",
+		tabInactiveBg: "#073642",
+		statusBarBg: "#268bd2",
+		statusBarFg: "#fdf6e3",
+		border: "#073642",
+		hoverBg: "#0a4050",
+		activeBg: "#0d4f63",
+		textMuted: "#586e75",
+		accent: "#268bd2",
+		success: "#859900",
 	},
 	[EditorThemeEnum.solarized_light]: {
 		name: "Solarized Light",
@@ -125,6 +210,20 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		operator: "#657b83",
 		type: "#b58900",
 		variable: "#cb4b16",
+		sidebarBg: "#eee8d5",
+		activityBarBg: "#e0dbc8",
+		panelBg: "#fdf6e3",
+		tabBarBg: "#eee8d5",
+		tabActiveBg: "#fdf6e3",
+		tabInactiveBg: "#eee8d5",
+		statusBarBg: "#268bd2",
+		statusBarFg: "#fdf6e3",
+		border: "#d6ceb6",
+		hoverBg: "#e6e0cc",
+		activeBg: "#d6ceb6",
+		textMuted: "#93a1a1",
+		accent: "#268bd2",
+		success: "#859900",
 	},
 	[EditorThemeEnum.dracula]: {
 		name: "Dracula",
@@ -141,6 +240,20 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		operator: "#ff79c6",
 		type: "#8be9fd",
 		variable: "#ffb86c",
+		sidebarBg: "#21222c",
+		activityBarBg: "#343746",
+		panelBg: "#282a36",
+		tabBarBg: "#21222c",
+		tabActiveBg: "#282a36",
+		tabInactiveBg: "#21222c",
+		statusBarBg: "#6272a4",
+		statusBarFg: "#f8f8f2",
+		border: "#21222c",
+		hoverBg: "#343746",
+		activeBg: "#44475a",
+		textMuted: "#6272a4",
+		accent: "#bd93f9",
+		success: "#50fa7b",
 	},
 	[EditorThemeEnum.nord]: {
 		name: "Nord",
@@ -157,5 +270,19 @@ export const EDITOR_THEMES: Record<EditorThemeEnum, EditorTheme> = {
 		operator: "#81a1c1",
 		type: "#ebcb8b",
 		variable: "#d08770",
+		sidebarBg: "#2e3440",
+		activityBarBg: "#2e3440",
+		panelBg: "#2e3440",
+		tabBarBg: "#2e3440",
+		tabActiveBg: "#3b4252",
+		tabInactiveBg: "#2e3440",
+		statusBarBg: "#5e81ac",
+		statusBarFg: "#eceff4",
+		border: "#3b4252",
+		hoverBg: "#3b4252",
+		activeBg: "#434c5e",
+		textMuted: "#616e88",
+		accent: "#88c0d0",
+		success: "#a3be8c",
 	},
 };

@@ -18,6 +18,7 @@ import {
 } from "@modules/game";
 import { useEffect, useRef } from "react";
 import { match } from "ts-pattern";
+import { useIdeTheme } from "./hooks/use-ide-theme";
 import { useIsMobile } from "./hooks/use-is-mobile";
 
 const globalStyles = css({
@@ -31,35 +32,7 @@ const globalStyles = css({
 	},
 });
 
-// ── Shared tab bar styles ──
-
-const tabBarCss = css({
-	display: "flex",
-	background: "#0d1117",
-	borderBottom: "1px solid #1e2630",
-	flexShrink: 0,
-});
-
-const tabCss = css({
-	padding: "8px 16px",
-	fontSize: 14,
-	color: "#5c6370",
-	background: "#0d1117",
-	border: "none",
-	borderRight: "1px solid #1e2630",
-	cursor: "pointer",
-	fontFamily: "inherit",
-	whiteSpace: "nowrap",
-	transition: "all 0.15s",
-	"&:hover": { color: "#8b949e", background: "#141920" },
-});
-
-const tabActiveCss = css(tabCss, {
-	color: "#c9d1d9",
-	background: "#141920",
-	borderBottom: "1px solid #141920",
-	marginBottom: -1,
-});
+// ── Shared styles ──
 
 // ── CRT collapse animation ──
 
@@ -290,6 +263,7 @@ export function App() {
 	const page = useUiStore((s) => s.page);
 	const setPage = useUiStore((s) => s.setPage);
 	const singularity = useGameStore((s) => s.singularity);
+	const theme = useIdeTheme();
 	const shellRef = useRef<HTMLDivElement>(null);
 	const singularityOnMount = useRef(useGameStore.getState().singularity);
 	const singularityAnimate = singularity && !singularityOnMount.current;
@@ -327,9 +301,9 @@ export function App() {
 						flexDirection: "column",
 						height: "100vh",
 						overflow: "hidden",
-						background: "#0a0e14",
-						color: "#c5c8c6",
-						fontFamily: "'Courier New', monospace",
+						background: theme.background,
+						color: theme.foreground,
+						fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
 					},
 					singularity && singularityAnimate && shellCollapseCss,
 				]}
@@ -340,17 +314,51 @@ export function App() {
 
 					{/* Tabbed main area */}
 					<div css={[panelCss, { flex: 1 }]}>
-						<div css={tabBarCss}>
-							{middleTabs.map((t) => (
-								<button
-									key={t.page}
-									type="button"
-									css={t.page === page ? tabActiveCss : tabCss}
-									onClick={() => setPage(t.page)}
-								>
-									{t.filename}
-								</button>
-							))}
+						<div
+							css={{
+								display: "flex",
+								background: theme.tabBarBg,
+								borderBottom: `1px solid ${theme.border}`,
+								flexShrink: 0,
+								height: 35,
+							}}
+						>
+							{middleTabs.map((t) => {
+								const active = t.page === page;
+								return (
+									<button
+										key={t.page}
+										type="button"
+										css={{
+											padding: "0 16px",
+											display: "flex",
+											alignItems: "center",
+											gap: 8,
+											fontSize: 13,
+											color: active ? theme.foreground : theme.textMuted,
+											background: active
+												? theme.tabActiveBg
+												: theme.tabInactiveBg,
+											border: "none",
+											borderRight: `1px solid ${theme.border}`,
+											borderBottom: active
+												? `1px solid ${theme.tabActiveBg}`
+												: "none",
+											marginBottom: active ? -1 : 0,
+											cursor: "pointer",
+											fontFamily: "inherit",
+											whiteSpace: "nowrap",
+											transition: "all 0.15s",
+											"&:hover": {
+												color: theme.foreground,
+											},
+										}}
+										onClick={() => setPage(t.page)}
+									>
+										{t.filename}
+									</button>
+								);
+							})}
 						</div>
 						<div css={contentCss}>
 							{match(page)

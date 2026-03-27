@@ -2,18 +2,16 @@ import { css } from "@emotion/react";
 import { tiers, useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { useEffect, useRef, useState } from "react";
+import { useIdeTheme } from "../hooks/use-ide-theme";
 
 const barCss = css({
 	display: "flex",
 	alignItems: "center",
 	justifyContent: "space-between",
-	padding: "3px 12px",
-	background: "#0d1117",
-	borderTop: "1px solid #1e2630",
-	fontSize: 13,
-	fontFamily: "'Courier New', monospace",
+	padding: "0 12px",
+	fontSize: 12,
 	flexShrink: 0,
-	height: 28,
+	height: 22,
 });
 
 const leftCss = css({
@@ -37,7 +35,7 @@ const statCss = css({
 });
 
 const rateCss = css({
-	color: "#484f58",
+	opacity: 0.7,
 	fontSize: 11,
 });
 
@@ -66,7 +64,7 @@ export function StatusBar() {
 	const totalExecutedLoc = useGameStore((s) => s.totalExecutedLoc);
 	const flops = useGameStore((s) => s.flops);
 	const currentTierIndex = useGameStore((s) => s.currentTierIndex);
-	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
+	const theme = useIdeTheme();
 
 	const locRate = useRatePerSec(totalLoc);
 	const cashRate = useRatePerSec(totalCash);
@@ -75,38 +73,38 @@ export function StatusBar() {
 	const tier = tiers[currentTierIndex];
 
 	return (
-		<div css={barCss}>
+		<div
+			css={barCss}
+			style={{
+				background: theme.statusBarBg,
+				color: theme.statusBarFg,
+			}}
+		>
 			<div css={leftCss}>
+				<span css={statCss}>⚡ {tier?.name ?? "—"}</span>
 				<span css={statCss}>
-					<span style={{ color: "#3fb950" }}>${formatNumber(cash, true)}</span>
+					${formatNumber(cash, true)}
 					{cashRate > 0.1 && (
-						<span css={rateCss}>(+${formatNumber(cashRate, true)}/s)</span>
+						<span css={rateCss}> (+${formatNumber(cashRate, true)}/s)</span>
 					)}
 				</span>
 				<span css={statCss}>
-					<span style={{ color: "#58a6ff" }}>◇ {formatNumber(loc)} LoC</span>
+					◇ {formatNumber(loc)} LoC
 					{locRate > 0.1 && (
-						<span css={rateCss}>(+{formatNumber(locRate)}/s)</span>
+						<span css={rateCss}> (+{formatNumber(locRate)}/s)</span>
 					)}
 				</span>
 				<span css={statCss}>
-					<span style={{ color: "#fbbf24" }}>
-						⚡ {formatNumber(flops)} FLOPS
-					</span>
+					⚡ {formatNumber(flops)} FLOPS
 					{execRate > 0.1 && (
-						<span css={rateCss}>({formatNumber(execRate)} exec/s)</span>
+						<span css={rateCss}> ({formatNumber(execRate)} exec/s)</span>
 					)}
-				</span>
-				<span css={statCss}>
-					<span style={{ color: "#c084fc" }}>
-						{formatNumber(autoLocPerSec)} loc/s
-					</span>
 				</span>
 			</div>
 			<div css={rightCss}>
-				<span style={{ color: "#8b949e" }}>{tier?.name ?? "—"}</span>
-				<span style={{ color: "#484f58" }}>${tier?.cashPerLoc ?? 0}/loc</span>
-				<span style={{ color: "#484f58" }}>Python</span>
+				<span>${tier?.cashPerLoc ?? 0}/loc</span>
+				<span>Python</span>
+				<span>UTF-8</span>
 			</div>
 		</div>
 	);
