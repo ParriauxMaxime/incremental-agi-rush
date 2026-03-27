@@ -1,6 +1,6 @@
-import { css } from "@emotion/react";
+import { css, keyframes } from "@emotion/react";
 import { useGameStore, useUiStore } from "@modules/game";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 
 // ── Tip definitions ──
@@ -82,17 +82,19 @@ export function useTutorialTriggers() {
 				if (uiState.seenTips.includes(trigger.id)) continue;
 				if (trigger.test(state)) {
 					uiState.showTip(trigger.id);
+					// Resolve loading line when tech tree unlocks
+					if (trigger.id === "tech_tree_intro") {
+						uiState.resolveLoadingLine("✓ tech-tree.svg loaded");
+						if (!uiState.splitEnabled) {
+							uiState.toggleSplit();
+						}
+					}
 					const tip = tipMap.get(trigger.id);
 					if (tip) {
 						for (const line of tip.lines) {
 							uiState.pushTerminalLine(line);
 						}
-						// Blank line after each tip block
 						uiState.pushTerminalLine("");
-					}
-					// Auto-open split when tech tree tip triggers
-					if (trigger.id === "tech_tree_intro" && !uiState.splitEnabled) {
-						uiState.toggleSplit();
 					}
 					break;
 				}
@@ -109,6 +111,7 @@ export function useTutorialTriggers() {
 					uiState.pushTerminalLine(line);
 				}
 				uiState.pushTerminalLine("");
+				uiState.pushTerminalLine("$ loading tech-tree.svg ...");
 			}
 		}
 
@@ -196,6 +199,19 @@ const shortcutHintCss = css({
 	marginLeft: 6,
 });
 
+const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+
+function Spinner({ color }: { color: string }) {
+	const [frame, setFrame] = useState(0);
+	useEffect(() => {
+		const id = setInterval(() => {
+			setFrame((f) => (f + 1) % spinnerFrames.length);
+		}, 80);
+		return () => clearInterval(id);
+	}, []);
+	return <span style={{ color }}>{spinnerFrames[frame]}</span>;
+}
+
 export function TutorialTip() {
 	const terminalOpen = useUiStore((s) => s.terminalOpen);
 	const terminalLog = useUiStore((s) => s.terminalLog);
@@ -258,23 +274,32 @@ export function TutorialTip() {
 					color: theme.textMuted,
 				}}
 			>
-				{terminalLog.map((line, i) => (
-					<div
-						key={i}
-						style={{
-							color: line.startsWith("$")
-								? theme.success
-								: line.startsWith("✓")
-									? theme.accent
-									: line.startsWith("  ")
-										? theme.foreground
-										: theme.textMuted,
-							minHeight: line === "" ? "0.8em" : undefined,
-						}}
-					>
-						{line || "\u00A0"}
-					</div>
-				))}
+				{terminalLog.map((line, i) => {
+					const isLoading = line.startsWith("$ loading ");
+					return (
+						<div
+							key={i}
+							style={{
+								color: line.startsWith("$")
+									? theme.success
+									: line.startsWith("✓")
+										? theme.accent
+										: line.startsWith("  ")
+											? theme.foreground
+											: theme.textMuted,
+								minHeight: line === "" ? "0.8em" : undefined,
+							}}
+						>
+							{isLoading ? (
+								<>
+									{line} <Spinner color={theme.success} />
+								</>
+							) : (
+								line || "\u00A0"
+							)}
+						</div>
+					);
+				})}
 			</div>
 		</div>
 	);

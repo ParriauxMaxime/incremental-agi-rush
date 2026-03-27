@@ -52,6 +52,7 @@ interface UiState {
 	setUiZoom: (size: number) => void;
 	showTip: (id: string) => void;
 	pushTerminalLine: (line: string) => void;
+	resolveLoadingLine: (replacement: string) => void;
 	resetAll: () => void;
 	setTechTreeViewport: (viewport: TechTreeViewport) => void;
 }
@@ -95,6 +96,16 @@ export const useUiStore = create<UiState>()(
 					terminalLog: [...s.terminalLog, line],
 					terminalOpen: true,
 				}));
+			},
+			resolveLoadingLine: (replacement) => {
+				set((s) => {
+					const log = [...s.terminalLog];
+					const idx = log.findIndex((l) => l.startsWith("$ loading "));
+					if (idx >= 0) {
+						log[idx] = replacement;
+					}
+					return { terminalLog: log };
+				});
 			},
 			resetAll: () => {
 				set({
