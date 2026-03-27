@@ -104,7 +104,7 @@ function buildFlowEdges(
 				target: n.id,
 				sourceHandle,
 				targetHandle,
-				type: "smoothstep",
+				type: "bezier",
 				style: {
 					stroke: borderColor,
 					strokeWidth: 1.5,
