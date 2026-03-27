@@ -489,7 +489,7 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 					</div>
 				</div>
 
-				{/* LoC Sources (analytics) */}
+				{/* LoC Sources + AI Models (analytics unlock) */}
 				{showSources && (
 					<>
 						<div css={dividerCss} />
@@ -509,7 +509,12 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 									}}
 									style={{ color: theme.locColor }}
 								>
-									{formatNumber(autoLocPerSec + locPerKey * 6)}/s
+									{formatNumber(
+										autoLocPerSec +
+											locPerKey * 6 +
+											aiSources.reduce((sum, s) => sum + s.locPerSec, 0),
+									)}
+									/s
 								</span>
 							</div>
 							{humanSources.map((s) => (
@@ -550,35 +555,39 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 									</span>
 								</div>
 							)}
-						</div>
-					</>
-				)}
-
-				{/* AI Sources */}
-				{aiSources.length > 0 && (
-					<>
-						<div css={dividerCss} />
-						<div css={sectionCss}>
-							<div css={sectionLabelCss}>AI Models</div>
-							{aiSources.map((s) => (
-								<div css={sourceRowCss} key={s.name}>
-									<span css={sourceNameCss} style={{ color: theme.textMuted }}>
-										{s.name}
-									</span>
-									<div css={barTrackCss}>
-										<div
-											css={barFillCss}
-											style={{
-												width: `${(s.locPerSec / aiMaxLoc) * 100}%`,
-												background: s.color,
-											}}
-										/>
-									</div>
-									<span css={sourceValueCss} style={{ color: s.color }}>
-										{formatNumber(s.locPerSec)}/s
-									</span>
-								</div>
-							))}
+							{aiSources.length > 0 && (
+								<>
+									<div
+										css={{
+											height: 1,
+											background: theme.border,
+											margin: "6px 0",
+										}}
+									/>
+									{aiSources.map((s) => (
+										<div css={sourceRowCss} key={s.name}>
+											<span
+												css={sourceNameCss}
+												style={{ color: theme.textMuted }}
+											>
+												{s.name}
+											</span>
+											<div css={barTrackCss}>
+												<div
+													css={barFillCss}
+													style={{
+														width: `${(s.locPerSec / aiMaxLoc) * 100}%`,
+														background: s.color,
+													}}
+												/>
+											</div>
+											<span css={sourceValueCss} style={{ color: s.color }}>
+												{formatNumber(s.locPerSec)}/s
+											</span>
+										</div>
+									))}
+								</>
+							)}
 						</div>
 					</>
 				)}
