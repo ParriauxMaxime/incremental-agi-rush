@@ -145,19 +145,20 @@ ARP_NOTES = {
     7: (["E3", "G3", "B3", "E4", "G4", "B4", "E5", "G5"], 1),        # Em
 }
 
-# Lead melody — call and response phrases, breathing between.
-# Each chord gets a short melodic phrase then silence.
+# Lead melody — call and response, aligned to chord changes.
+# Bars: Cadd9(0-7) Am7(8-15) Fm(16-23) G7(24-27) Em(28-31)
+# Each beat = 1 unit. Bar = 4 beats.
 LEAD_MELODY = [
-    # Cadd9 (bars 0-1): ascending call — hopeful
-    ("C5", 0.5, 1), ("D5", 1.8, 0.8), ("E5", 3, 2),
-    # Am7 (bars 2-3): answer — descending, reflective
-    ("E5", 8, 0.8), ("D5", 9, 0.8), ("C5", 10, 1.5),
-    # Fm (bars 4-5): the minor turn — Ab stands alone, stark
-    ("Ab4", 16, 1.5), ("C5", 18, 1), ("Ab4", 19.5, 2),
-    # G7 (bar 6): quick upward push
-    ("G4", 24, 0.8), ("B4", 25, 1.2),
-    # Em (bar 7): resolve down, settle
-    ("G4", 27, 1), ("E4", 28.5, 2),
+    # Cadd9 (beats 0-7): ascending call
+    ("C5", 0.5, 1.5), ("D5", 2.5, 1), ("E5", 4, 2.5),
+    # Am7 (beats 8-15): descending answer
+    ("E5", 8.5, 1), ("D5", 10, 1), ("C5", 11.5, 2),
+    # Fm (beats 16-23): minor color — Ab stands out
+    ("Ab4", 16.5, 2), ("C5", 19, 1), ("Ab4", 20.5, 2),
+    # G7 (beats 24-27): quick upward push
+    ("G4", 24.5, 1), ("B4", 26, 1.5),
+    # Em (beats 28-31): settle
+    ("G4", 28.5, 1), ("E4", 30, 1.5),
 ]
 
 
