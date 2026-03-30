@@ -257,6 +257,10 @@
 		"name": "Rój agentów",
 		"description": "+3 maksymalnych agentów za poziom"
 	},
+	"auto_poke": {
+		"name": "Auto-Prompt",
+		"description": "Modele AI automatycznie generują prompty."
+	},
 	"outsourcing": {
 		"name": "Outsourcing",
 		"description": "Odblokuj zatrudnianie freelancerów na Malt."

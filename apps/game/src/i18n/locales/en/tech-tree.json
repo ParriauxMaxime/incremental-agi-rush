@@ -257,6 +257,10 @@
 		"name": "Agent Swarm",
 		"description": "+3 max agents per level"
 	},
+	"auto_poke": {
+		"name": "Auto-Prompt",
+		"description": "AI models autonomously generate prompts."
+	},
 	"outsourcing": {
 		"name": "Outsourcing",
 		"description": "Unlock freelance hiring on Malt."

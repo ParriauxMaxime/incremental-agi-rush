@@ -170,6 +170,7 @@ export function StatsPanelResources() {
 			locPerSec: locPerKey * 6,
 			color: theme.keyword,
 		});
+		rows.sort((a, b) => b.locPerSec - a.locPerSec);
 		return rows;
 	}, [
 		ownedUpgrades,

@@ -1,9 +1,36 @@
-import { css } from "@emotion/react";
+import { css, keyframes } from "@emotion/react";
 import { aiModels, useGameStore } from "@modules/game";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
+import {
+	type DiffLine,
+	type DiffSnippet,
+	pickDiffSnippet,
+} from "./diff-snippets";
 import { FlopsSlider } from "./flops-slider";
+
+// ── Types ──
+
+interface LogEntry {
+	kind: "prompt" | "model-header" | "file-header" | "diff-line" | "blank";
+	text: string;
+	color?: string;
+	diffType?: DiffLine["type"];
+}
+
+type StreamState =
+	| { phase: "idle" }
+	| {
+			phase: "streaming";
+			model: string;
+			color: string;
+			snippet: DiffSnippet;
+			lineIdx: number;
+	  }
+	| { phase: "done" };
+
+// ── Styles ──
 
 const wrapperCss = css({
 	display: "flex",
@@ -31,12 +58,50 @@ const inputRowCss = css({
 	flexShrink: 0,
 });
 
-interface LogEntry {
-	model: string;
-	color: string;
-	text: string;
-	isUser?: boolean;
+const blink = keyframes({
+	"50%": { opacity: 0 },
+});
+
+const cursorCss = css({
+	display: "inline-block",
+	width: 7,
+	height: 14,
+	verticalAlign: "text-bottom",
+	animation: `${blink} 1s step-end infinite`,
+});
+
+// ── Prompt suggestions ──
+
+const PROMPT_SUGGESTIONS = [
+	"Refactor the attention mechanism",
+	"Add chain-of-thought reasoning",
+	"Optimize the training loop",
+	"Implement RLHF pipeline",
+	"Scale to 2048 GPUs",
+	"Fix the alignment loss function",
+	"Add mixture of experts routing",
+	"Implement self-reflection module",
+	"Build autonomous agent framework",
+	"Deploy world model predictor",
+	"Compress the tokenizer vocabulary",
+	"Profile memory bottlenecks",
+	"Add safety guardrails",
+	"Improve benchmark evaluation",
+	"Implement emergent capability detection",
+	"Upgrade to flash attention",
+	"Add speculative decoding",
+	"Tune hyperparameters",
+	"Build data preprocessing pipeline",
+	"Implement tool-use capabilities",
+];
+
+function pickPrompt(): string {
+	return PROMPT_SUGGESTIONS[
+		Math.floor(Math.random() * PROMPT_SUGGESTIONS.length)
+	];
 }
+
+// ── Helpers ──
 
 function getModelColor(family: string): string {
 	const colors: Record<string, string> = {
@@ -51,92 +116,168 @@ function getModelColor(family: string): string {
 	return colors[family] ?? "#8b949e";
 }
 
+function diffLinePrefix(type: DiffLine["type"]): string {
+	if (type === "add") return "+ ";
+	if (type === "remove") return "- ";
+	return "  ";
+}
+
+function diffLineColor(
+	type: DiffLine["type"],
+	theme: { success: string; textMuted: string },
+): string {
+	if (type === "add") return theme.success;
+	if (type === "remove") return "#f85149";
+	return theme.textMuted;
+}
+
+// ── Max visible log entries ──
+const MAX_LOG = 150;
+const TRIM_TO = 80;
+
+// ── Component ──
+
 export function CliPrompt() {
 	const unlockedModels = useGameStore((s) => s.unlockedModels);
+	const autoPokeEnabled = useGameStore((s) => s.autoPokeEnabled);
+	const addLoc = useGameStore((s) => s.addLoc);
 	const theme = useIdeTheme();
-	const { t: tAi } = useTranslation("ai-models");
 	const { t: tUi } = useTranslation();
+
 	const [log, setLog] = useState<LogEntry[]>([]);
 	const [input, setInput] = useState("");
+	const [stream, setStream] = useState<StreamState>({ phase: "idle" });
 	const logRef = useRef<HTMLDivElement>(null);
+	const streamRef = useRef(stream);
+	streamRef.current = stream;
 
-	const flavorResponses = useMemo(
-		() => ({
-			claude: tAi("_flavor.claude", { returnObjects: true }) as string[],
-			gpt: tAi("_flavor.gpt", { returnObjects: true }) as string[],
-			gemini: tAi("_flavor.gemini", { returnObjects: true }) as string[],
-			llama: tAi("_flavor.llama", { returnObjects: true }) as string[],
-			grok: tAi("_flavor.grok", { returnObjects: true }) as string[],
-			mistral: tAi("_flavor.mistral", { returnObjects: true }) as string[],
-			copilot: tAi("_flavor.copilot", { returnObjects: true }) as string[],
-		}),
-		[tAi],
+	const activeModels = useMemo(
+		() => aiModels.filter((m) => unlockedModels[m.id]),
+		[unlockedModels],
 	);
-
-	const idleMessages = useMemo(
-		() => tAi("_idle", { returnObjects: true }) as string[],
-		[tAi],
-	);
-
-	const getFlavorResponse = useCallback(
-		(family: string): string => {
-			const responses =
-				flavorResponses[family as keyof typeof flavorResponses] ??
-				flavorResponses.gpt;
-			return responses[Math.floor(Math.random() * responses.length)];
-		},
-		[flavorResponses],
-	);
-
-	const activeModels = aiModels.filter((m) => unlockedModels[m.id]);
 
 	const addEntry = useCallback((entry: LogEntry) => {
 		setLog((prev) => {
 			const next = [...prev, entry];
-			return next.length > 100 ? next.slice(-60) : next;
+			return next.length > MAX_LOG ? next.slice(-TRIM_TO) : next;
 		});
 	}, []);
 
-	const handleSubmit = useCallback(() => {
-		if (!input.trim() || activeModels.length === 0) return;
-		// Show user prompt
-		addEntry({
-			model: "you",
-			color: theme.foreground,
-			text: input.trim(),
-			isUser: true,
-		});
-		// AI responds
-		const model = activeModels[Math.floor(Math.random() * activeModels.length)];
-		setTimeout(
-			() => {
-				addEntry({
-					model: `${model.name} ${model.version}`,
-					color: getModelColor(model.family),
-					text: getFlavorResponse(model.family),
-				});
-			},
-			300 + Math.random() * 500,
-		);
-		setInput("");
-	}, [input, activeModels, addEntry, theme.foreground, getFlavorResponse]);
+	// ── Start a prompt run ──
+	const startPrompt = useCallback(
+		(promptText: string) => {
+			if (activeModels.length === 0) return;
 
-	// Idle messages every ~20s
-	useEffect(() => {
-		if (activeModels.length === 0) return;
-		const interval = setInterval(() => {
+			// Show user prompt
+			addEntry({ kind: "prompt", text: promptText });
+
+			// Pick model + snippet
 			const model =
 				activeModels[Math.floor(Math.random() * activeModels.length)];
-			addEntry({
-				model: `${model.name} ${model.version}`,
-				color: getModelColor(model.family),
-				text: idleMessages[Math.floor(Math.random() * idleMessages.length)],
-			});
-		}, 20_000);
-		return () => clearInterval(interval);
-	}, [activeModels, addEntry, idleMessages]);
+			const snippet = pickDiffSnippet();
+			const modelLabel = `${model.name} ${model.version}`;
+			const color = getModelColor(model.family);
 
-	// Auto-scroll
+			// Show model header + file after a short delay
+			setTimeout(
+				() => {
+					addEntry({
+						kind: "model-header",
+						text: modelLabel,
+						color,
+					});
+					addEntry({
+						kind: "file-header",
+						text: snippet.file,
+					});
+					setStream({
+						phase: "streaming",
+						model: modelLabel,
+						color,
+						snippet,
+						lineIdx: 0,
+					});
+				},
+				200 + Math.random() * 300,
+			);
+		},
+		[activeModels, addEntry],
+	);
+
+	// ── Stream diff lines one by one ──
+	useEffect(() => {
+		if (stream.phase !== "streaming") return;
+
+		const { snippet, lineIdx } = stream;
+
+		if (lineIdx >= snippet.lines.length) {
+			// Done streaming — add blank line and go idle
+			addEntry({ kind: "blank", text: "" });
+			setStream({ phase: "done" });
+			return;
+		}
+
+		const line = snippet.lines[lineIdx];
+		// Base delay ~100-250ms per line, faster for context lines
+		const delay =
+			line.type === "context"
+				? 60 + Math.random() * 80
+				: 100 + Math.random() * 150;
+
+		const timer = setTimeout(() => {
+			addEntry({
+				kind: "diff-line",
+				text: `${diffLinePrefix(line.type)}${line.text}`,
+				diffType: line.type,
+			});
+			// Add LoC for "add" lines
+			if (line.type === "add") {
+				addLoc(1);
+			}
+			setStream((prev) =>
+				prev.phase === "streaming"
+					? { ...prev, lineIdx: prev.lineIdx + 1 }
+					: prev,
+			);
+		}, delay);
+
+		return () => clearTimeout(timer);
+	}, [stream, addEntry, addLoc]);
+
+	// ── After streaming done, go back to idle (allow auto-poke) ──
+	useEffect(() => {
+		if (stream.phase !== "done") return;
+		const timer = setTimeout(
+			() => {
+				setStream({ phase: "idle" });
+			},
+			1000 + Math.random() * 1000,
+		);
+		return () => clearTimeout(timer);
+	}, [stream.phase]);
+
+	// ── Auto-poke: automatically submit prompts ──
+	useEffect(() => {
+		if (!autoPokeEnabled || stream.phase !== "idle") return;
+		if (activeModels.length === 0) return;
+
+		const delay = 2000 + Math.random() * 3000;
+		const timer = setTimeout(() => {
+			startPrompt(pickPrompt());
+		}, delay);
+		return () => clearTimeout(timer);
+	}, [autoPokeEnabled, stream.phase, activeModels.length, startPrompt]);
+
+	// ── Manual submit ──
+	const handleSubmit = useCallback(() => {
+		const text = input.trim();
+		if (!text || activeModels.length === 0) return;
+		if (stream.phase === "streaming") return; // don't interrupt
+		setInput("");
+		startPrompt(text);
+	}, [input, activeModels, stream.phase, startPrompt]);
+
+	// ── Auto-scroll ──
 	// biome-ignore lint/correctness/useExhaustiveDependencies: log triggers scroll
 	useEffect(() => {
 		logRef.current?.scrollTo({
@@ -145,19 +286,12 @@ export function CliPrompt() {
 		});
 	}, [log]);
 
+	const isStreaming = stream.phase === "streaming";
+
 	return (
 		<div css={wrapperCss} style={{ background: theme.panelBg }}>
 			<FlopsSlider />
-			<div
-				ref={logRef}
-				css={logCss}
-				style={
-					{
-						color: theme.textMuted,
-						"--thumb": theme.scrollThumb,
-					} as React.CSSProperties
-				}
-			>
+			<div ref={logRef} css={logCss} style={{ color: theme.textMuted }}>
 				{log.length === 0 && (
 					<div style={{ color: theme.textMuted, opacity: 0.5 }}>
 						<div>{tUi("cli.header")}</div>
@@ -166,23 +300,55 @@ export function CliPrompt() {
 					</div>
 				)}
 				{log.map((entry, i) => (
-					<div key={`${entry.model}-${i}`} css={{ marginBottom: 2 }}>
-						{entry.isUser ? (
+					<div key={i}>
+						{entry.kind === "prompt" && (
 							<>
 								<span style={{ color: theme.success }}>{"❯ "}</span>
 								<span style={{ color: theme.foreground }}>{entry.text}</span>
 							</>
-						) : (
-							<>
-								<span style={{ color: entry.color, fontSize: 12 }}>
-									{entry.model}
-								</span>
-								<span style={{ color: theme.textMuted }}>{" › "}</span>
-								<span style={{ color: theme.foreground }}>{entry.text}</span>
-							</>
 						)}
+						{entry.kind === "model-header" && (
+							<span
+								style={{
+									color: entry.color,
+									fontSize: 12,
+									fontWeight: "bold",
+								}}
+							>
+								{entry.text} ›
+							</span>
+						)}
+						{entry.kind === "file-header" && (
+							<span
+								style={{
+									color: theme.accent,
+									fontSize: 11,
+									opacity: 0.7,
+								}}
+							>
+								{"  "}
+								{entry.text}
+							</span>
+						)}
+						{entry.kind === "diff-line" && (
+							<span
+								style={{
+									color: diffLineColor(entry.diffType ?? "context", theme),
+									fontSize: 12,
+								}}
+							>
+								{"  "}
+								{entry.text}
+							</span>
+						)}
+						{entry.kind === "blank" && <br />}
 					</div>
 				))}
+				{isStreaming && (
+					<div>
+						<span css={cursorCss} style={{ background: theme.accent }} />
+					</div>
+				)}
 			</div>
 			<div
 				css={inputRowCss}
@@ -207,14 +373,18 @@ export function CliPrompt() {
 						fontFamily: "'Courier New', monospace",
 						fontSize: 13,
 						caretColor: theme.accent,
-						"&::placeholder": { color: theme.textMuted, opacity: 0.4 },
+						"&::placeholder": {
+							color: theme.textMuted,
+							opacity: 0.4,
+						},
 					}}
 					value={input}
 					onChange={(e) => setInput(e.target.value)}
 					onKeyDown={(e) => {
 						if (e.key === "Enter") handleSubmit();
 					}}
-					placeholder={tUi("cli.placeholder")}
+					placeholder={isStreaming ? "" : tUi("cli.placeholder")}
+					disabled={isStreaming}
 					spellCheck={false}
 					autoComplete="off"
 				/>

@@ -30,14 +30,15 @@ function deriveSentiment(
 // ---------------------------------------------------------------------------
 
 const slideIn = keyframes({
-	from: { transform: "translateY(20px)", opacity: 0 },
-	to: { transform: "translateY(0)", opacity: 1 },
+	from: { transform: "translateX(-50%) translateY(-20px)", opacity: 0 },
+	to: { transform: "translateX(-50%) translateY(0)", opacity: 1 },
 });
 
 const toastWrapperCss = css({
 	position: "fixed",
-	bottom: 30,
-	right: 12,
+	top: 12,
+	left: "50%",
+	transform: "translateX(-50%)",
 	zIndex: 1000,
 	animation: `${slideIn} 0.2s ease-out`,
 	minWidth: 320,

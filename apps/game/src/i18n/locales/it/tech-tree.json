@@ -257,6 +257,10 @@
 		"name": "Sciame di agenti",
 		"description": "+3 agenti max per livello"
 	},
+	"auto_poke": {
+		"name": "Auto-Prompt",
+		"description": "I modelli IA generano prompt automaticamente."
+	},
 	"outsourcing": {
 		"name": "Outsourcing",
 		"description": "Sblocca l'assunzione di freelance su Malt."

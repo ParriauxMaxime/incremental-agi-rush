@@ -815,8 +815,8 @@
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": 346,
-			"y": 1014
+			"x": 340,
+			"y": 1020
 		},
 		{
 			"id": "llm_training",
@@ -1131,6 +1131,26 @@
 			],
 			"x": 1180,
 			"y": 1460
+		},
+		{
+			"id": "auto_poke",
+			"name": "Auto-Prompt",
+			"description": "AI models autonomously generate prompts.",
+			"icon": "🔄",
+			"requires": ["llm_gate"],
+			"max": 1,
+			"baseCost": 30000000,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "autoPoke",
+					"op": "enable",
+					"value": 1
+				}
+			],
+			"x": 180,
+			"y": 1020
 		},
 		{
 			"id": "outsourcing",

@@ -109,6 +109,7 @@ export interface GameState {
 	ownedTechNodes: Record<string, number>;
 	autoTypeEnabled: boolean;
 	autoExecuteEnabled: boolean;
+	autoPokeEnabled: boolean;
 	running: boolean;
 	manualExecAccum: number;
 	singularity: boolean;
@@ -197,6 +198,7 @@ const initialState: GameState = {
 	ownedTechNodes: { computer: 1 },
 	autoTypeEnabled: false,
 	autoExecuteEnabled: false,
+	autoPokeEnabled: false,
 	running: true,
 	manualExecAccum: 0,
 	singularity: false,
@@ -769,6 +771,7 @@ export const useGameStore = create<GameState & GameActions>()(
 					};
 					if (node.id === "auto_type") newState.autoTypeEnabled = true;
 					if (node.id === "auto_execute") newState.autoExecuteEnabled = true;
+					if (node.id === "auto_poke") newState.autoPokeEnabled = true;
 					recalcDerivedStats(newState);
 					return newState;
 				});
@@ -861,6 +864,7 @@ export const useGameStore = create<GameState & GameActions>()(
 				ownedTechNodes: state.ownedTechNodes,
 				autoTypeEnabled: state.autoTypeEnabled,
 				autoExecuteEnabled: state.autoExecuteEnabled,
+				autoPokeEnabled: state.autoPokeEnabled,
 				reachedMilestones: state.reachedMilestones,
 			}),
 			onRehydrateStorage: () => (state) => {

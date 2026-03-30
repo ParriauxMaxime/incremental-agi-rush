@@ -257,6 +257,10 @@
 		"name": "Essaim d'agents",
 		"description": "+3 agents max par niveau"
 	},
+	"auto_poke": {
+		"name": "Auto-Prompt",
+		"description": "Les modèles IA génèrent des prompts automatiquement."
+	},
 	"outsourcing": {
 		"name": "Externalisation",
 		"description": "Débloque le recrutement de freelances sur Malt."

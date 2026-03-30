@@ -13,14 +13,24 @@ function getCurrencyColor(currency: string): string {
 		.otherwise(() => "#8892b0");
 }
 
+interface StateStyle {
+	borderColor: string;
+	opacity: number;
+	cursor: string;
+	background: string;
+	filter: string;
+}
+
 function getStateStyle(
 	state: NodeStateEnum | undefined,
 	currency: string,
 	selected: boolean,
-): { borderColor: string; opacity: number; cursor: string } {
+): StateStyle {
+	const defaults = { background: "#16213e", filter: "none" };
 	if (!state) {
 		// Editor mode — border by currency, full opacity
 		return {
+			...defaults,
 			borderColor: selected ? "#ffffff" : getCurrencyColor(currency),
 			opacity: 1,
 			cursor: "grab",
@@ -29,20 +39,26 @@ function getStateStyle(
 	return match(state)
 		.with(NodeStateEnum.locked, () => ({
 			borderColor: "#1e2630",
-			opacity: 0.4,
+			opacity: 1,
 			cursor: "default",
+			background: "#0d1220",
+			filter: "saturate(0.2) brightness(0.5)",
 		}))
 		.with(NodeStateEnum.visible, () => ({
 			borderColor: "#1e2630",
 			opacity: 0.6,
 			cursor: "default",
+			background: "#16213e",
+			filter: "none",
 		}))
 		.with(NodeStateEnum.affordable, () => ({
+			...defaults,
 			borderColor: "#58a6ff",
 			opacity: 1,
 			cursor: "pointer",
 		}))
 		.with(NodeStateEnum.owned, () => ({
+			...defaults,
 			borderColor: "#3fb950",
 			opacity: 0.8,
 			cursor: "default",
@@ -198,7 +214,7 @@ export function TechNodeComponent({ data, selected }: NodeProps) {
 	return (
 		<div
 			css={css({
-				background: "#16213e",
+				background: style.background,
 				border: `2px solid ${style.borderColor}`,
 				borderRadius: 8,
 				padding: "6px 8px",
@@ -208,7 +224,8 @@ export function TechNodeComponent({ data, selected }: NodeProps) {
 				overflow: "hidden",
 				cursor: style.cursor,
 				opacity: style.opacity,
-				transition: "opacity 0.2s, border-color 0.2s",
+				filter: style.filter,
+				transition: "opacity 0.2s, border-color 0.2s, filter 0.2s",
 				position: "relative",
 			})}
 		>

@@ -257,6 +257,10 @@
 		"name": "Agenten-Schwarm",
 		"description": "+3 max. Agenten pro Stufe"
 	},
+	"auto_poke": {
+		"name": "Auto-Prompt",
+		"description": "KI-Modelle generieren automatisch Prompts."
+	},
 	"outsourcing": {
 		"name": "Outsourcing",
 		"description": "Freelancer-Einstellung auf Malt freischalten."

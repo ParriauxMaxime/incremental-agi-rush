@@ -257,6 +257,10 @@
 		"name": "Enjambre de agentes",
 		"description": "+3 agentes máximos por nivel"
 	},
+	"auto_poke": {
+		"name": "Auto-Prompt",
+		"description": "Los modelos de IA generan prompts automáticamente."
+	},
 	"outsourcing": {
 		"name": "Externalización",
 		"description": "Desbloquea la contratación de freelancers en Malt."

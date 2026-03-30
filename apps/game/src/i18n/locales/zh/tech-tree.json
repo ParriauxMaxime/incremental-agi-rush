@@ -257,6 +257,10 @@
 		"name": "代理集群",
 		"description": "每级最大代理 +3"
 	},
+	"auto_poke": {
+		"name": "自动提示",
+		"description": "AI模型自动生成提示词。"
+	},
 	"outsourcing": {
 		"name": "外包",
 		"description": "在 Malt 解锁自由职业者招募。"

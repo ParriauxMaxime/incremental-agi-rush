@@ -234,7 +234,7 @@ function BundledEdges({
 				height: "100%",
 				pointerEvents: "none",
 				overflow: "visible",
-				zIndex: 0,
+				zIndex: -1,
 			}}
 		>
 			<g transform={`translate(${x}, ${y}) scale(${zoom})`}>
@@ -273,17 +273,16 @@ const containerBaseCss = css({
 
 interface PopoverProps {
 	node: TechNode;
-	x: number;
-	y: number;
 }
 
-function NodePopover({ node, x, y }: PopoverProps) {
+function NodePopover({ node }: PopoverProps) {
 	const { t } = useTranslation();
 	const { t: tTech } = useTranslation("tech-tree");
 	const theme = useIdeTheme();
 	const loc = useGameStore((s) => s.loc);
 	const cash = useGameStore((s) => s.cash);
 	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
+	const viewport = useViewport();
 
 	const owned = ownedTechNodes[node.id] ?? 0;
 	const maxed = owned >= node.max;
@@ -292,6 +291,9 @@ function NodePopover({ node, x, y }: PopoverProps) {
 	const useLoc = node.currency === "loc";
 	const canAfford = useLoc ? loc >= cost : cash >= cost;
 	const levelLabel = node.levelLabels?.[owned];
+
+	const x = ((node.x ?? 0) + TECH_NODE_WIDTH) * viewport.zoom + viewport.x + 12;
+	const y = (node.y ?? 0) * viewport.zoom + viewport.y;
 
 	const popoverStyle = css({
 		position: "absolute",
@@ -455,11 +457,7 @@ export function TechTreePage() {
 		];
 	}, [flowNodes]);
 
-	const [hovered, setHovered] = useState<{
-		node: TechNode;
-		x: number;
-		y: number;
-	} | null>(null);
+	const [hovered, setHovered] = useState<TechNode | null>(null);
 	const leaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
 	const handleNodeClick = useCallback(
@@ -475,31 +473,19 @@ export function TechTreePage() {
 			if (!maxed && canAfford) {
 				researchNode(techNode);
 				if (isMobile) setHovered(null);
-			} else if (isMobile && containerRef.current) {
-				const containerRect = containerRef.current.getBoundingClientRect();
-				setHovered({
-					node: techNode,
-					x: e.clientX - containerRect.left + 12,
-					y: e.clientY - containerRect.top,
-				});
+			} else if (isMobile) {
+				setHovered(techNode);
 			}
 		},
 		[ownedTechNodes, loc, cash, researchNode, isMobile],
 	);
 
 	const handleNodeMouseEnter = useCallback(
-		(e: React.MouseEvent, node: Node) => {
+		(_e: React.MouseEvent, node: Node) => {
 			clearTimeout(leaveTimer.current);
 			const techNode = allTechNodes.find((n) => n.id === node.id);
-			if (techNode && containerRef.current) {
-				const el = e.currentTarget as HTMLElement;
-				const containerRect = containerRef.current.getBoundingClientRect();
-				const nodeRect = el.getBoundingClientRect();
-				setHovered({
-					node: techNode,
-					x: nodeRect.right - containerRect.left + 12,
-					y: nodeRect.top - containerRect.top,
-				});
+			if (techNode) {
+				setHovered(techNode);
 			}
 		},
 		[],
@@ -546,11 +532,8 @@ export function TechTreePage() {
 					color={theme.textMuted}
 				/>
 				<Background gap={20} color={theme.border} />
+				{hovered && <NodePopover node={hovered} />}
 			</ReactFlow>
-
-			{hovered && (
-				<NodePopover node={hovered.node} x={hovered.x} y={hovered.y} />
-			)}
 		</div>
 	);
 }
