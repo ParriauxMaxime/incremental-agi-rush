@@ -164,8 +164,8 @@ def generate_pad():
     """Lush detuned saw pad with long release tails — chords overlap and bleed."""
     out = np.zeros(N_SAMPLES)
 
-    # Release tail: chords ring 1.5 bars past their boundary
-    RELEASE_BARS = 1.5
+    # Release tail: chords ring past their boundary
+    RELEASE_BARS = 1.2
 
     for notes, _, bar_start, bar_dur in CHORD_SEQ:
         start = int(bar_start * BAR * SAMPLE_RATE)
