@@ -1,4 +1,5 @@
 import { useAudioStore } from "./audio-store";
+import type { MusicStyleEnum } from "./music-engine";
 import {
 	initMusic,
 	isStarted,
@@ -7,6 +8,7 @@ import {
 	singularityBreakdown,
 	startMusic,
 	stopMusic,
+	switchStyle,
 } from "./music-engine";
 import {
 	playEvent,
@@ -31,10 +33,8 @@ export async function init(tierIndex: number) {
 	if (initialized) return;
 	initialized = true;
 
-	await initMusic();
-
-	// Apply current volume
-	const { musicVolume, muted } = useAudioStore.getState();
+	const { musicVolume, muted, musicStyle } = useAudioStore.getState();
+	await initMusic(musicStyle);
 	setMusicVolume(musicVolume, muted);
 
 	startMusic(tierIndex);
@@ -67,4 +67,5 @@ export const music = {
 		const { musicVolume, muted } = useAudioStore.getState();
 		setMusicVolume(musicVolume, muted);
 	},
+	switchStyle: (style: MusicStyleEnum) => switchStyle(style),
 } as const;

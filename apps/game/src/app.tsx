@@ -11,7 +11,7 @@ import {
 	useTutorialTriggers,
 } from "@components/tutorial-screen";
 import { css, Global, keyframes } from "@emotion/react";
-import { useAudioStore } from "@modules/audio";
+import { MusicStyleEnum, useAudioStore } from "@modules/audio";
 import { useAudioEvents } from "@modules/audio/use-audio-events";
 import type { EditorTheme } from "@modules/editor";
 import { EDITOR_THEMES, type EditorThemeEnum } from "@modules/editor";
@@ -130,6 +130,8 @@ function SettingsPage() {
 	const sfxVolume = useAudioStore((s) => s.sfxVolume);
 	const setMusicVolume = useAudioStore((s) => s.setMusicVolume);
 	const setSfxVolume = useAudioStore((s) => s.setSfxVolume);
+	const musicStyle = useAudioStore((s) => s.musicStyle);
+	const setMusicStyle = useAudioStore((s) => s.setMusicStyle);
 	const theme = useIdeTheme();
 
 	return (
@@ -341,6 +343,41 @@ function SettingsPage() {
 					<span css={{ fontSize: 11, color: theme.textMuted, width: 32, textAlign: "right" }}>
 						{sfxVolume}%
 					</span>
+				</div>
+				<div css={{ display: "flex", alignItems: "center", gap: 10 }}>
+					<span css={{ fontSize: 12, color: theme.textMuted, width: 40 }}>
+						{t("settings.style")}
+					</span>
+					<div css={{ display: "flex", gap: 6 }}>
+						{Object.values(MusicStyleEnum).map((style) => (
+							<button
+								key={style}
+								type="button"
+								onClick={() => setMusicStyle(style)}
+								css={{
+									fontSize: 11,
+									padding: "4px 10px",
+									borderRadius: 4,
+									border:
+										musicStyle === style
+											? `1px solid ${theme.accent}`
+											: `1px solid ${theme.border}`,
+									background:
+										musicStyle === style ? theme.activeBg : "transparent",
+									color:
+										musicStyle === style
+											? theme.foreground
+											: theme.textMuted,
+									cursor: "pointer",
+									fontFamily: "inherit",
+									transition: "all 0.15s",
+									"&:hover": { borderColor: theme.accent },
+								}}
+							>
+								{style === "chiptune" ? "Chiptune" : "Landing"}
+							</button>
+						))}
+					</div>
 				</div>
 			</div>
 		</div>

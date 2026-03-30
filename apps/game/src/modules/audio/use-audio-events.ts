@@ -36,8 +36,15 @@ export function useAudioEvents() {
 		}
 	}, [tierIndex]);
 
-	// Volume sync
+	// Volume sync + music style changes
 	useEffect(() => {
-		return useAudioStore.subscribe(() => music.syncVolume());
+		let prevStyle = useAudioStore.getState().musicStyle;
+		return useAudioStore.subscribe((state) => {
+			music.syncVolume();
+			if (state.musicStyle !== prevStyle) {
+				prevStyle = state.musicStyle;
+				music.switchStyle(state.musicStyle);
+			}
+		});
 	}, []);
 }

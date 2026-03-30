@@ -2,24 +2,48 @@ import * as Tone from "tone";
 
 /**
  * Stem-based music engine. Each tier fades in additional stems.
- *
- * Stems are loaded from `/audio/stems/` as OGG files.
- * Expected files: bass.ogg, keys.ogg, drums.ogg, pad.ogg, lead.ogg, glitch.ogg
- *
- * Until real stems are provided, the engine is a no-op (no files = no crash).
+ * Supports multiple music packs (stem sets) that can be hot-swapped.
  */
 
-const STEM_NAMES = ["bass", "keys", "drums", "pad", "lead", "glitch"] as const;
-type StemName = (typeof STEM_NAMES)[number];
+export const MusicStyleEnum = {
+	chiptune: "chiptune",
+	landing: "landing",
+} as const;
 
-/** Which stems are active at each tier index (0-5). Cumulative. */
-const TIER_STEMS: Record<number, StemName[]> = {
-	0: ["bass", "keys"],
-	1: ["bass", "keys", "drums"],
-	2: ["bass", "keys", "drums", "pad"],
-	3: ["bass", "keys", "drums", "pad", "lead"],
-	4: ["bass", "keys", "drums", "pad", "lead", "glitch"],
-	5: ["bass", "keys", "drums", "pad", "lead", "glitch"],
+export type MusicStyleEnum = (typeof MusicStyleEnum)[keyof typeof MusicStyleEnum];
+
+/** Pack definition: stem file names + tier→stem mapping */
+interface StemPack {
+	dir: string;
+	stems: readonly string[];
+	tiers: Record<number, string[]>;
+}
+
+const PACKS: Record<MusicStyleEnum, StemPack> = {
+	chiptune: {
+		dir: "stems",
+		stems: ["bass", "keys", "drums", "pad", "lead", "glitch"],
+		tiers: {
+			0: ["bass", "keys"],
+			1: ["bass", "keys", "drums"],
+			2: ["bass", "keys", "drums", "pad"],
+			3: ["bass", "keys", "drums", "pad", "lead"],
+			4: ["bass", "keys", "drums", "pad", "lead", "glitch"],
+			5: ["bass", "keys", "drums", "pad", "lead", "glitch"],
+		},
+	},
+	landing: {
+		dir: "stems/landing",
+		stems: ["pad", "arp", "bass", "drums", "lead"],
+		tiers: {
+			0: ["pad"],
+			1: ["pad", "arp"],
+			2: ["pad", "arp", "bass"],
+			3: ["pad", "arp", "bass", "drums"],
+			4: ["pad", "arp", "bass", "drums", "lead"],
+			5: ["pad", "arp", "bass", "drums", "lead"],
+		},
+	},
 };
 
 const FADE_DURATION = 2; // seconds
@@ -29,25 +53,24 @@ interface StemPlayer {
 	gain: Tone.Gain;
 }
 
-const stems: Map<StemName, StemPlayer> = new Map();
+const stems: Map<string, StemPlayer> = new Map();
 let started = false;
 let currentTier = 0;
+let currentStyle: MusicStyleEnum = MusicStyleEnum.chiptune;
 
-export async function initMusic() {
-	await Tone.start();
+async function loadPack(style: MusicStyleEnum) {
+	const pack = PACKS[style];
+	const basePath = `${window.location.origin}/audio/${pack.dir}`;
 
-	const basePath = `${window.location.origin}/audio/stems`;
-
-	// Load each stem individually — skip any that 404 or fail
 	await Promise.all(
-		STEM_NAMES.map(
+		pack.stems.map(
 			(name) =>
 				new Promise<void>((resolve) => {
 					const player = new Tone.Player({
 						url: `${basePath}/${name}.ogg`,
 						loop: true,
 						autostart: false,
-						onerror: () => resolve(), // silently skip missing stems
+						onerror: () => resolve(),
 						onload: () => {
 							const gain = new Tone.Gain(0);
 							player.connect(gain);
@@ -59,6 +82,50 @@ export async function initMusic() {
 				}),
 		),
 	);
+}
+
+function clearStems() {
+	for (const [, stem] of stems) {
+		try {
+			stem.player.stop();
+			stem.player.dispose();
+			stem.gain.dispose();
+		} catch {
+			// ignore disposal errors
+		}
+	}
+	stems.clear();
+}
+
+export async function initMusic(style?: MusicStyleEnum) {
+	await Tone.start();
+	currentStyle = style ?? MusicStyleEnum.chiptune;
+	await loadPack(currentStyle);
+}
+
+/** Hot-swap to a different music style. Crossfades over 1s. */
+export async function switchStyle(style: MusicStyleEnum) {
+	if (style === currentStyle && stems.size > 0) return;
+
+	const wasStarted = started;
+	const tier = currentTier;
+
+	// Fade out current stems
+	for (const [, stem] of stems) {
+		stem.gain.gain.rampTo(0, 1);
+	}
+	await new Promise((r) => setTimeout(r, 1100));
+
+	// Clear and load new pack
+	clearStems();
+	currentStyle = style;
+	await loadPack(style);
+
+	// Restart if was playing
+	if (wasStarted) {
+		started = false;
+		startMusic(tier);
+	}
 }
 
 export function startMusic(tierIndex: number) {
@@ -81,7 +148,8 @@ export function setTier(tierIndex: number) {
 }
 
 function applyTier(tierIndex: number, fadeSec: number) {
-	const active = new Set(TIER_STEMS[tierIndex] ?? TIER_STEMS[5]);
+	const pack = PACKS[currentStyle];
+	const active = new Set(pack.tiers[tierIndex] ?? pack.tiers[5]);
 
 	for (const [name, stem] of stems) {
 		const target = active.has(name) ? 1 : 0;
