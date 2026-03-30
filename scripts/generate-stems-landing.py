@@ -222,7 +222,7 @@ def generate_pad():
                 duck[end_attack:end_release] = duck_depth + (1 - duck_depth) * (np.linspace(0, 1, n_rel) ** 2)
     out *= duck
 
-    return out * 0.6
+    return out * 0.42
 
 
 def generate_arp():
