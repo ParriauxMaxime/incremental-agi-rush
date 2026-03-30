@@ -243,29 +243,16 @@ def generate_bass():
     out = np.zeros(N_SAMPLES)
 
     # Bass patterns: (beat_offset, note_type, velocity, duration_beats)
-    # note_type: "root", "oct" (octave up), "7th", "5th"
+    # Half-time feel — root on 1, color notes on 3. Leaves room for pad/drums.
     BASS_PATTERN_A = [
-        # beat, note, vel, dur — syncopated groove with octave jumps
-        (0,    "root", 1.0, 0.4),    # 1 — root, strong
-        (0.5,  "oct",  0.5, 0.3),    # &  — octave up, ghost
-        (1,    "root", 0.8, 0.4),    # 2 — root
-        (1.75, "oct",  0.4, 0.2),    # e of 2 — push
-        (2,    "root", 1.0, 0.4),    # 3 — root, strong
-        (2.5,  "5th",  0.6, 0.3),    # &  — fifth for movement
-        (3,    "root", 0.7, 0.35),   # 4
-        (3.5,  "7th",  0.6, 0.3),    # &  — the 7th! tension before next chord
-        (3.75, "root", 0.3, 0.2),    # a of 4 — resolve hint
+        (0,   "root", 1.0, 1.2),    # 1 — root, long sustain
+        (2,   "5th",  0.7, 1.0),    # 3 — fifth, movement
+        (3.5, "7th",  0.5, 0.4),    # & of 4 — 7th, tension before next chord
     ]
     BASS_PATTERN_B = [
-        # Variation for second bar — lean into the 7th more
-        (0,    "root", 1.0, 0.5),    # 1 — longer root
-        (0.75, "oct",  0.4, 0.2),    # push
-        (1,    "root", 0.7, 0.35),   # 2
-        (1.5,  "7th",  0.5, 0.3),    # & — 7th color
-        (2,    "root", 0.9, 0.4),    # 3
-        (2.5,  "5th",  0.5, 0.3),    # & — fifth
-        (3,    "7th",  0.8, 0.4),    # 4 — 7th strong, yearning before change
-        (3.5,  "oct",  0.6, 0.3),    # & — octave up
+        (0,   "root", 1.0, 1.2),    # 1 — root
+        (2,   "7th",  0.7, 1.0),    # 3 — lean into the 7th
+        (3.5, "5th",  0.5, 0.4),    # & of 4 — fifth as pickup
     ]
 
     # Interval map: semitones above root for each note type per chord
