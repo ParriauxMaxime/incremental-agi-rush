@@ -13,7 +13,10 @@ export type {
 	GameActions,
 	GameState,
 	GodModeOverrides,
+	PurchaseEntry,
 	QueuedBlock,
+	RateSnapshot,
+	TierTransition,
 } from "./store/game-store";
 export {
 	allMilestones,
