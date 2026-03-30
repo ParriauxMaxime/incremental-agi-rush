@@ -233,33 +233,67 @@ def generate_arp():
 
 
 def generate_bass():
-    """Warm sub bass with gentle pluck. Half-time feel (beats 1 and 3)."""
+    """Groovy synth bass — filtered saw, octave jumps, syncopated 8th-note pattern."""
     out = np.zeros(N_SAMPLES)
 
-    for _, root, bar_start in CHORD_SEQ:
-        freq = nf(root)
-        section_start = int(bar_start * BAR * SAMPLE_RATE)
+    # Bass patterns per chord: list of (beat_offset, octave_shift, velocity, duration_beats)
+    # Octave_shift: 0 = root octave, 1 = octave up
+    # This gives a bouncy, syncopated feel with ghost notes
+    BASS_PATTERN_A = [
+        # beat, oct, vel, dur — syncopated groove with octave jumps
+        (0,    0, 1.0, 0.4),    # 1 — root, strong
+        (0.5,  1, 0.5, 0.3),    # &  — octave up, ghost
+        (1,    0, 0.8, 0.4),    # 2 — root
+        (1.75, 1, 0.4, 0.2),    # e of 2 — push (syncopation)
+        (2,    0, 1.0, 0.4),    # 3 — root, strong
+        (2.5,  1, 0.6, 0.3),    # &  — octave up
+        (3,    0, 0.7, 0.35),   # 4
+        (3.5,  1, 0.5, 0.25),   # &  — octave up
+        (3.75, 0, 0.3, 0.2),    # a of 4 — chromatic approach
+    ]
+    BASS_PATTERN_B = [
+        # Variation for second bar of each chord
+        (0,    0, 1.0, 0.5),    # 1 — longer root
+        (0.75, 1, 0.4, 0.2),    # push
+        (1,    0, 0.7, 0.35),   # 2
+        (1.5,  1, 0.6, 0.3),    # &
+        (2,    0, 0.9, 0.4),    # 3
+        (2.5,  0, 0.5, 0.3),    # & — stay low
+        (3,    1, 0.8, 0.4),    # 4 — jump up
+        (3.5,  0, 0.6, 0.3),    # & — back down
+    ]
 
-        # Half-time: beats 1 and 3 only (per bar)
-        for bar_offset in range(2):
-            bar_abs_start = section_start + int(bar_offset * BAR * SAMPLE_RATE)
-            for beat in [0, 2]:
-                beat_start = bar_abs_start + int(beat * BEAT * SAMPLE_RATE)
-                n = int(BEAT * 1.6 * SAMPLE_RATE)
-                end = min(beat_start + n, N_SAMPLES)
-                actual_n = end - beat_start
+    for _, root, bar_start in CHORD_SEQ:
+        root_freq = nf(root)
+
+        for bar_offset, pattern in [(0, BASS_PATTERN_A), (1, BASS_PATTERN_B)]:
+            bar_abs_start = (bar_start + bar_offset) * BAR
+
+            for beat_off, oct, vel, dur in pattern:
+                freq = root_freq * (2 ** oct)
+                note_start = int((bar_abs_start + beat_off * BEAT) * SAMPLE_RATE)
+                n = int(dur * BEAT * SAMPLE_RATE)
+                end = min(note_start + n, N_SAMPLES)
+                actual_n = end - note_start
                 if actual_n <= 0:
                     continue
 
                 t_local = np.linspace(0, actual_n / SAMPLE_RATE, actual_n, endpoint=False)
-                # Sub sine + octave sine for warmth
-                bass_sig = sine(freq, t_local, 0.35)
-                bass_sig += sine(freq * 2, t_local, 0.12)
-                bass_sig *= env_ad(actual_n, attack_s=0.01, decay_s=0.6)
-                bass_sig = soft_clip(bass_sig, drive=1.5)
-                out[beat_start:end] += bass_sig
 
-    out = lowpass_1pole(out, 500)
+                # Filtered saw for grit + sub sine for weight
+                bass_sig = saw_bl(freq, t_local, 0.22 * vel, harmonics=6)
+                bass_sig += sine(freq, t_local, 0.18 * vel)
+
+                # Plucky envelope — fast attack, snappy decay
+                bass_sig *= env_ad(actual_n, attack_s=0.005, decay_s=dur * BEAT * 0.6)
+
+                # Soft drive
+                bass_sig = soft_clip(bass_sig, drive=2.0)
+
+                out[note_start:end] += bass_sig
+
+    # Filter: keep the body, let some grit through
+    out = lowpass_1pole(out, 1800)
     return out * 0.6
 
 
