@@ -1,25 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#0d1117"/>
-  <rect x="60" y="60" width="1080" height="510" rx="16" fill="#161b22" stroke="#30363d" stroke-width="2"/>
+  <rect width="1200" height="630" fill="#272822"/>
+  <rect x="60" y="60" width="1080" height="510" rx="16" fill="#1e1f1c" stroke="#49483e" stroke-width="2"/>
   <!-- Title bar -->
-  <rect x="60" y="60" width="1080" height="40" rx="16" fill="#1c2128"/>
-  <rect x="60" y="84" width="1080" height="16" fill="#1c2128"/>
+  <rect x="60" y="60" width="1080" height="40" rx="16" fill="#1e1f1c"/>
+  <rect x="60" y="84" width="1080" height="16" fill="#1e1f1c"/>
   <circle cx="88" cy="80" r="7" fill="#f85149"/>
   <circle cx="112" cy="80" r="7" fill="#d29922"/>
   <circle cx="136" cy="80" r="7" fill="#3fb950"/>
-  <text x="540" y="85" font-family="monospace" font-size="14" fill="#8b949e" text-anchor="middle">flopsed.io</text>
-  <!-- Code content -->
-  <text x="100" y="140" font-family="monospace" font-size="28" fill="#3fb950">$ init flopsed</text>
-  <text x="100" y="180" font-family="monospace" font-size="22" fill="#8b949e">// type code. execute for cash. build AGI.</text>
-  <text x="100" y="230" font-family="monospace" font-size="20" fill="#c678dd">while</text>
-  <text x="176" y="230" font-family="monospace" font-size="20" fill="#58a6ff">(cash &lt; Infinity) {</text>
-  <text x="140" y="265" font-family="monospace" font-size="20" fill="#d19a66">hire(devs);</text>
-  <text x="140" y="300" font-family="monospace" font-size="20" fill="#d19a66">upgrade(hardware);</text>
-  <text x="140" y="335" font-family="monospace" font-size="20" fill="#d19a66">train(ai_models);</text>
-  <text x="140" y="370" font-family="monospace" font-size="20" fill="#e94560">flops++;</text>
-  <text x="100" y="405" font-family="monospace" font-size="20" fill="#58a6ff">}</text>
-  <text x="100" y="450" font-family="monospace" font-size="20" fill="#3fb950">// the singularity is near...</text>
+  <text x="540" y="85" font-family="monospace" font-size="14" fill="#75715e" text-anchor="middle">flopsed.io</text>
+  <!-- Full lines, single color each -->
+  <text x="100" y="155" font-family="monospace" font-size="26" fill="#f92672">class <tspan fill="#a6e22e">AGI</tspan><tspan fill="#f8f8f2">:</tspan></text>
+  <text x="100" y="210" font-family="monospace" font-size="26" fill="#f8f8f2">    <tspan fill="#66d9ef">def</tspan> <tspan fill="#a6e22e">run</tspan>(<tspan fill="#fd971f">self</tspan>):</text>
+  <text x="100" y="265" font-family="monospace" font-size="26" fill="#f8f8f2">        self.loc = <tspan fill="#a6e22e">type_code</tspan>() + <tspan fill="#a6e22e">hire_devs</tspan>()</text>
+  <text x="100" y="320" font-family="monospace" font-size="26" fill="#f8f8f2">        self.cash = <tspan fill="#a6e22e">execute</tspan>(self.loc, self.flops)</text>
+  <text x="100" y="375" font-family="monospace" font-size="26" fill="#f8f8f2">        self.flops = <tspan fill="#a6e22e">buy_hardware</tspan>(self.cash)</text>
+  <text x="100" y="430" font-family="monospace" font-size="26" fill="#75715e">        # the singularity is near...</text>
   <!-- Title -->
-  <text x="600" y="530" font-family="monospace" font-size="48" font-weight="bold" fill="#e6edf3" text-anchor="middle">FLOPSED</text>
-  <text x="600" y="555" font-family="monospace" font-size="16" fill="#8b949e" text-anchor="middle">Brace yourselves, AGI's coming</text>
+  <text x="600" y="515" font-family="monospace" font-size="52" font-weight="bold" fill="#f8f8f2" text-anchor="middle">FLOPSED</text>
+  <text x="600" y="548" font-family="monospace" font-size="18" fill="#75715e" text-anchor="middle">Brace yourselves, AGI's coming</text>
 </svg>
