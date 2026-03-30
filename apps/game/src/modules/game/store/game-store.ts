@@ -18,6 +18,7 @@ import {
 	getTechNodeCost as engineGetTechNodeCost,
 	getUpgradeCost as engineGetUpgradeCost,
 } from "@flopsed/engine";
+import { sfx } from "@modules/audio";
 import { useEventStore } from "@modules/event";
 import { match } from "ts-pattern";
 import { create } from "zustand";
@@ -560,6 +561,7 @@ export const useGameStore = create<GameState & GameActions>()(
 						totalCash += executed * earnRate;
 						loc -= executed;
 						totalExecutedLoc += executed;
+						sfx.execute();
 					}
 
 					loc = Math.max(0, loc);
@@ -603,6 +605,7 @@ export const useGameStore = create<GameState & GameActions>()(
 								useEventStore
 									.getState()
 									.showMilestoneToast(m.name, m.description, m.cashBonus);
+								sfx.milestone();
 							}
 						}
 					}
@@ -635,6 +638,7 @@ export const useGameStore = create<GameState & GameActions>()(
 					recalcDerivedStats(newState);
 					return newState;
 				});
+				sfx.purchase();
 			},
 
 			researchNode: (node: TechNode) => {
@@ -681,6 +685,7 @@ export const useGameStore = create<GameState & GameActions>()(
 					recalcDerivedStats(newState);
 					return newState;
 				});
+				sfx.purchase();
 			},
 
 			toggleAutoType: () => {

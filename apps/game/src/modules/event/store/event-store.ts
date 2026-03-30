@@ -12,6 +12,7 @@ import {
 	TIER_INDEX,
 } from "@flopsed/domain";
 import { resolveExpression } from "@flopsed/engine";
+import { sfx } from "@modules/audio";
 import { match } from "ts-pattern";
 import { create } from "zustand";
 
@@ -281,6 +282,7 @@ export const useEventStore = create<EventState & EventActions>()(
 					const newLog = [def.id, ...eventLog].slice(0, LOG_CAP);
 					eventLog = newLog;
 					changed = true;
+					sfx.event();
 				}
 
 				nextSpawnAt = randomInterval();

@@ -1,4 +1,5 @@
 import { css, keyframes } from "@emotion/react";
+import { sfx } from "@modules/audio";
 import { allEvents, useEventStore } from "@modules/event";
 import { useGameStore, useUiStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
@@ -180,6 +181,7 @@ export function Editor() {
 	const running = useGameStore((s) => s.running);
 
 	const onKeystroke = useCallback(() => {
+		sfx.typing();
 		advanceTokens(locPerKey);
 
 		// Check for mash-key event interaction (only while game is running)

@@ -11,6 +11,7 @@ import {
 	useTutorialTriggers,
 } from "@components/tutorial-screen";
 import { css, Global, keyframes } from "@emotion/react";
+import { useAudioEvents } from "@modules/audio/use-audio-events";
 import type { EditorTheme } from "@modules/editor";
 import { EDITOR_THEMES, type EditorThemeEnum } from "@modules/editor";
 import { EventToast } from "@modules/event/components/event-toast";
@@ -421,6 +422,7 @@ function TabbedPane({
 
 export function App() {
 	useGameLoop();
+	useAudioEvents();
 	useTutorialTriggers();
 	useKeyboardShortcuts();
 	const isMobile = useIsMobile();
