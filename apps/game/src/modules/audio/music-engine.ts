@@ -162,12 +162,17 @@ export function setMusicVolume(volume: number, muted: boolean) {
 	Tone.getDestination().volume.rampTo(val, 0.1);
 }
 
-/** Singularity: distort audio then fade to silence over 3 seconds. */
+/** Singularity: vinyl halt — pitch drops slowly while fading out. */
 export function singularityBreakdown() {
+	const duration = 4; // seconds to fully stop
 	for (const [, stem] of stems) {
-		stem.gain.gain.rampTo(0, 3);
+		// Ramp playback rate from 1 → 0.05 (pitch drops ~4 octaves)
+		stem.player.playbackRate.rampTo(0.05, duration);
+		// Fade volume slightly — most of the effect is the pitch drop
+		stem.gain.gain.rampTo(0.15, duration * 0.7);
+		stem.gain.gain.rampTo(0, duration * 0.3, `+${duration * 0.7}`);
 	}
-	setTimeout(() => stopMusic(), 3500);
+	setTimeout(() => stopMusic(), (duration + 0.5) * 1000);
 }
 
 export function stopMusic() {
