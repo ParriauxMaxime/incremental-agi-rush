@@ -163,18 +163,17 @@ LEAD_MELODY_BARS = [
 
 
 def generate_pad():
-    """Lush detuned saw pad with long release tails — chords overlap and bleed."""
-    out = np.zeros(N_SAMPLES)
-
-    # Release tail: chords ring past their boundary
+    """Lush detuned saw pad with release tails that wrap around the loop point."""
     RELEASE_BARS = 1.1
+    # Render into an oversized buffer so tails can extend past the loop point
+    extended_n = N_SAMPLES + int(RELEASE_BARS * BAR * SAMPLE_RATE * 2)
+    out = np.zeros(extended_n)
 
     for notes, _, bar_start, bar_dur in CHORD_SEQ:
         start = int(bar_start * BAR * SAMPLE_RATE)
-        # Render longer than the chord's duration — let it ring
         render_dur = (bar_dur + RELEASE_BARS) * BAR
         render_n = int(render_dur * SAMPLE_RATE)
-        end = min(start + render_n, N_SAMPLES)
+        end = min(start + render_n, extended_n)
         n = end - start
         t_local = np.linspace(0, n / SAMPLE_RATE, n, endpoint=False)
 
@@ -186,13 +185,12 @@ def generate_pad():
             osc2 = saw_bl(freq * detune, t_local, 0.10, harmonics=10)
             chord_sig += osc1 + osc2
 
-        # Envelope: quick attack (matches bass timing), sustain, long release
+        # Envelope: quick attack, sustain, long exponential release
         env = np.ones(n)
-        att = int(0.08 * SAMPLE_RATE)  # 80ms — pad arrives with the bass
+        att = int(0.08 * SAMPLE_RATE)
         sustain_end = int(bar_dur * BAR * SAMPLE_RATE)
         if att < n:
             env[:att] = np.linspace(0, 1, att)
-        # After the chord's actual duration, fade out with long tail
         if sustain_end < n:
             release_n = n - sustain_end
             t_rel = np.arange(release_n) / SAMPLE_RATE
@@ -200,6 +198,12 @@ def generate_pad():
 
         chord_sig *= env
         out[start:end] += chord_sig
+
+    # Wrap overflow back into the start — the Em tail blends into Cadd9
+    overflow = out[N_SAMPLES:]
+    wrap_n = min(len(overflow), N_SAMPLES)
+    out[:wrap_n] += overflow[:wrap_n]
+    out = out[:N_SAMPLES]
 
     # Gentle high-end taming
     out = lowpass_1pole(out, 7000)
@@ -455,7 +459,7 @@ def loop_crossfade(audio, crossfade_s=0.5):
 
 
 def save_ogg(name, audio):
-    audio = loop_crossfade(audio, crossfade_s=0.8)
+    audio = loop_crossfade(audio, crossfade_s=2.0)
     audio = normalize(audio)
     audio_16 = (audio * 32767).astype(np.int16)
 
