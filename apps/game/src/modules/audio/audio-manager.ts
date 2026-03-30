@@ -1,9 +1,12 @@
 import { useAudioStore } from "./audio-store";
 import type { MusicStyleEnum } from "./music-engine";
 import {
+	getPackStems,
+	getStemNames,
 	initMusic,
 	isStarted,
 	setMusicVolume,
+	setStemGain,
 	setTier,
 	singularityBreakdown,
 	startMusic,
@@ -68,4 +71,7 @@ export const music = {
 		setMusicVolume(musicVolume, muted);
 	},
 	switchStyle: (style: MusicStyleEnum) => switchStyle(style),
+	getStemNames: () => getStemNames(),
+	getPackStems: () => getPackStems(),
+	setStemGain: (name: string, on: boolean) => setStemGain(name, on),
 } as const;

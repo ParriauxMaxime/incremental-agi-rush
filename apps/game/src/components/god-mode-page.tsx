@@ -7,6 +7,7 @@ import {
 	useGameStore,
 	useUiStore,
 } from "@modules/game";
+import { MusicStyleEnum, music, useAudioStore } from "@modules/audio";
 import { formatNumber } from "@utils/format";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -126,6 +127,82 @@ function BumpBtn({ label, onClick }: { label: string; onClick: () => void }) {
 		>
 			{label}
 		</button>
+	);
+}
+
+// ── Stem mixer (god mode audio testing) ──
+
+function StemMixer() {
+	const theme = useIdeTheme();
+	const musicStyle = useAudioStore((s) => s.musicStyle);
+	const packStems = music.getPackStems();
+	const [enabledStems, setEnabledStems] = useState<Record<string, boolean>>(() => {
+		const init: Record<string, boolean> = {};
+		for (const s of packStems) init[s] = false;
+		return init;
+	});
+
+	const toggle = (name: string) => {
+		const next = !enabledStems[name];
+		setEnabledStems((prev) => ({ ...prev, [name]: next }));
+		music.setStemGain(name, next);
+	};
+
+	const allOn = () => {
+		const next: Record<string, boolean> = {};
+		for (const s of packStems) {
+			next[s] = true;
+			music.setStemGain(s, true);
+		}
+		setEnabledStems(next);
+	};
+
+	const allOff = () => {
+		const next: Record<string, boolean> = {};
+		for (const s of packStems) {
+			next[s] = false;
+			music.setStemGain(s, false);
+		}
+		setEnabledStems(next);
+	};
+
+	return (
+		<Section title={`Stems — ${musicStyle}`} defaultOpen>
+			<div css={{ display: "flex", gap: 6, marginBottom: 8 }}>
+				<BumpBtn label="All on" onClick={allOn} />
+				<BumpBtn label="All off" onClick={allOff} />
+			</div>
+			<div css={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+				{packStems.map((name) => (
+					<label
+						key={name}
+						css={{
+							display: "flex",
+							alignItems: "center",
+							gap: 6,
+							padding: "6px 12px",
+							borderRadius: 4,
+							border: `1px solid ${enabledStems[name] ? theme.accent : theme.border}`,
+							background: enabledStems[name] ? `${theme.accent}18` : "transparent",
+							cursor: "pointer",
+							fontSize: 12,
+							transition: "all 0.15s",
+							"&:hover": { borderColor: theme.accent },
+						}}
+					>
+						<input
+							type="checkbox"
+							checked={enabledStems[name] ?? false}
+							onChange={() => toggle(name)}
+							css={{ accentColor: theme.accent, cursor: "pointer" }}
+						/>
+						<span style={{ color: enabledStems[name] ? theme.foreground : theme.textMuted }}>
+							{name}
+						</span>
+					</label>
+				))}
+			</div>
+		</Section>
 	);
 }
 
@@ -391,6 +468,8 @@ export function GodModePage() {
 					</a>
 				</div>
 			</Section>
+
+			<StemMixer />
 
 			<Section title={t("god_mode.danger_zone")} defaultOpen={false}>
 				<div css={{ display: "flex", gap: 8, flexWrap: "wrap" }}>

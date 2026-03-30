@@ -180,3 +180,21 @@ export function stopMusic() {
 export function isStarted() {
 	return started;
 }
+
+/** Get loaded stem names for the current pack. */
+export function getStemNames(): string[] {
+	return [...stems.keys()];
+}
+
+/** Set individual stem gain (0 or 1). For god mode testing. */
+export function setStemGain(name: string, on: boolean) {
+	const stem = stems.get(name);
+	if (stem) {
+		stem.gain.gain.rampTo(on ? 1 : 0, 0.3);
+	}
+}
+
+/** Get current pack's stem list (even if not loaded yet). */
+export function getPackStems(style?: MusicStyleEnum): readonly string[] {
+	return PACKS[style ?? currentStyle].stems;
+}
