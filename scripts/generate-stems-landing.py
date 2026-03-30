@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Generate music stems inspired by HOME - "We're Finally Landing".
+"""Generate music stems: nostalgic synthwave inspired by HOME's layering approach.
 
-Key: D major, BPM: 90, 8-bar loop (~21.3s)
-Chord progression: Dadd2 | Dadd2 | Em | Em | G | G | Gm | Gm
-Each chord = 2 bars.
+Original composition in C major, 85 BPM, 8-bar loop (~22.6s).
+Chord progression: Cadd9 | Cadd9 | Am7 | Am7 | Fmaj7 | Fmaj7 | Fm | Fm
+The IV→iv (F→Fm) borrowed chord creates bittersweet nostalgia.
 
 5 stems mapping to game tiers:
-  T0: pad (brass pad, detuned saws, vibrato, heavy reverb)
-  T1: arp (descending 32nd-note arpeggios, lowpassed saw)
-  T2: bass (overdriven square, punchy pluck envelope)
-  T3: drums (kick/snare/hats, sidechain-style pump)
-  T4+: lead (square wave, highpassed, delay-drenched)
+  T0: pad (detuned saws, lush, wide)
+  T1: pad + arp (ascending arpeggios, bright)
+  T2: pad + arp + bass (warm sub bass, half-time feel)
+  T3: pad + arp + bass + drums (kick/snare/hats, groove)
+  T4+: all + lead (airy square melody, delay-drenched)
 
-Output: apps/game/public/audio/stems/landing/{pad,arp,bass,drums,lead}.ogg
+Output: apps/game/public/audio/stems/landing/*.ogg
 """
 
 import os
@@ -24,15 +24,11 @@ from scipy.io import wavfile
 from scipy.signal import lfilter
 
 SAMPLE_RATE = 44100
-BPM = 90
-BEAT = 60 / BPM  # ~0.667s
-BAR = BEAT * 4    # ~2.667s
-DURATION = BAR * 8  # ~21.33s (one full cycle)
+BPM = 85
+BEAT = 60 / BPM
+BAR = BEAT * 4
+DURATION = BAR * 8
 N_SAMPLES = int(DURATION * SAMPLE_RATE)
-
-OUT_DIR = os.path.join(
-    os.path.dirname(__file__), "..", "apps", "game", "public", "audio", "stems", "landing"
-)
 
 # ── Note frequencies ──
 
@@ -59,7 +55,6 @@ def sine(freq, t, amp=1.0):
 
 
 def saw_bl(freq, t, amp=1.0, harmonics=12):
-    """Band-limited sawtooth."""
     out = np.zeros_like(t)
     for k in range(1, harmonics + 1):
         out += ((-1) ** (k + 1)) * np.sin(2 * np.pi * k * freq * t) / k
@@ -67,9 +62,8 @@ def saw_bl(freq, t, amp=1.0, harmonics=12):
 
 
 def square_bl(freq, t, amp=1.0, harmonics=8):
-    """Band-limited square wave."""
     out = np.zeros_like(t)
-    for k in range(1, harmonics + 1, 2):  # odd harmonics only
+    for k in range(1, harmonics + 1, 2):
         out += np.sin(2 * np.pi * k * freq * t) / k
     return amp * out * (4 / np.pi)
 
@@ -87,21 +81,20 @@ def highpass_1pole(signal, cutoff, sr=SAMPLE_RATE):
     return signal - lowpass_1pole(signal, cutoff, sr)
 
 
-def simple_reverb(signal, decay=0.4, delays_ms=(23, 37, 53, 71, 97), sr=SAMPLE_RATE):
-    """Simple multi-tap delay reverb."""
+def simple_reverb(signal, decay=0.4, delays_ms=(23, 37, 53, 71, 97)):
     out = signal.copy()
     for d_ms in delays_ms:
-        n = int(d_ms / 1000 * sr)
+        n = int(d_ms / 1000 * SAMPLE_RATE)
         delayed = np.zeros_like(signal)
-        delayed[n:] = signal[:-n] if n < len(signal) else 0
+        if n < len(signal):
+            delayed[n:] = signal[:-n]
         out += delayed * decay
         decay *= 0.7
     return out
 
 
-def delay_effect(signal, beat_frac=0.75, feedback=0.35, wet=0.3, sr=SAMPLE_RATE):
-    """Tempo-synced delay (dotted eighth by default)."""
-    delay_samples = int(BEAT * beat_frac * sr)
+def delay_effect(signal, beat_frac=0.75, feedback=0.35, wet=0.3):
+    delay_samples = int(BEAT * beat_frac * SAMPLE_RATE)
     out = signal.copy()
     delayed = np.zeros_like(signal)
     for i in range(delay_samples, len(signal)):
@@ -110,70 +103,60 @@ def delay_effect(signal, beat_frac=0.75, feedback=0.35, wet=0.3, sr=SAMPLE_RATE)
 
 
 def soft_clip(signal, drive=2.0):
-    """Soft-clipping waveshaper."""
     return np.tanh(signal * drive) / np.tanh(drive)
 
 
-def env_ad(n, attack_s=0.01, decay_s=0.3, sr=SAMPLE_RATE):
-    """Attack-decay envelope."""
+def env_ad(n, attack_s=0.01, decay_s=0.3):
     env = np.ones(n)
-    a_n = int(attack_s * sr)
+    a_n = int(attack_s * SAMPLE_RATE)
     if a_n > 0 and a_n < n:
         env[:a_n] = np.linspace(0, 1, a_n)
     d_start = a_n
     if d_start < n:
-        t_d = np.arange(n - d_start) / sr
+        t_d = np.arange(n - d_start) / SAMPLE_RATE
         env[d_start:] = np.exp(-t_d / decay_s)
     return env
 
 
-# ── Chord definitions ──
-# Dadd2 = D E F# A, Em = E G B, G = G B D, Gm = G Bb D (E on top for Gm6)
+# ── Chord progression: Cadd9 | Am7 | Fmaj7 | Fm ──
+# Each chord = 2 bars
 
-CHORDS = [
-    # Each entry: (chord_notes_mid_register, root_bass, bar_start)
-    (["D3", "E3", "A3", "D4"], "D2", 0),   # Dadd2 bars 1-2
-    (["D3", "E3", "A3", "D4"], "D2", 2),   # Dadd2 bars 3-4 (repeated)
-    (["E3", "G3", "B3", "E4"], "E2", 2),   # Em bars 3-4
-    (["E3", "G3", "B3", "E4"], "E2", 4),   # Em bars 5-6 (actually 3-4)
-    (["G3", "B3", "D4", "G4"], "G2", 4),   # G bars 5-6
-    (["G3", "B3", "D4", "G4"], "G2", 6),   # G bars 7-8 (actually 5-6)
-    (["G3", "Bb3", "D4", "E4"], "G2", 6),  # Gm6 bars 7-8
-]
-
-# Corrected: each chord lasts 2 bars
 CHORD_SEQ = [
-    (["D3", "E3", "A3", "D4"], "D2", 0),    # Dadd2, bars 0-1
-    (["E3", "G3", "B3", "E4"], "E2", 2),    # Em, bars 2-3
-    (["G3", "B3", "D4", "G4"], "G2", 4),    # G, bars 4-5
-    (["G3", "Bb3", "D4", "E4"], "G2", 6),   # Gm6, bars 6-7
+    # Cadd9: C D E G (open, airy)
+    (["C3", "D3", "E3", "G3", "C4"], "C2", 0),
+    # Am7: A C E G (melancholic)
+    (["A2", "C3", "E3", "G3", "A3"], "A1", 2),
+    # Fmaj7: F A C E (warm, bright)
+    (["F3", "A3", "C4", "E4"], "F2", 4),
+    # Fm: F Ab C (the gut-punch — borrowed iv from C minor)
+    (["F3", "Ab3", "C4", "F4"], "F2", 6),
 ]
 
-# Arp patterns: descending notes for each chord (2 octaves)
+# Arp: ascending patterns through chord tones (2 octaves)
 ARP_NOTES = {
-    0: ["D5", "A4", "E4", "D4", "A3", "E3", "D3", "A2"],     # Dadd2
-    2: ["E5", "B4", "G4", "E4", "B3", "G3", "E3", "B2"],     # Em
-    4: ["G5", "D5", "B4", "G4", "D4", "B3", "G3", "D3"],     # G
-    6: ["E5", "D5", "Bb4", "G4", "E4", "D4", "Bb3", "G3"],   # Gm6
+    0: ["C3", "D3", "E3", "G3", "C4", "D4", "E4", "G4"],       # Cadd9
+    2: ["A2", "C3", "E3", "G3", "A3", "C4", "E4", "G4"],       # Am7
+    4: ["F3", "A3", "C4", "E4", "F4", "A4", "C5", "E5"],       # Fmaj7
+    6: ["F3", "Ab3", "C4", "F4", "Ab4", "C5", "F5", "Ab5"],    # Fm
 }
 
-# Lead melody (simplified, one note per beat roughly)
+# Original lead melody — pentatonic-ish, lives in C major, drops to minor for Fm
 LEAD_MELODY = [
-    # bar 0-1 (Dadd2): float on the chord
-    ("D5", 0, 1.5), ("E5", 1.5, 1), ("A4", 2.5, 1.5),
-    # bar 2-3 (Em): step down
-    ("G4", 4, 1.5), ("B4", 5.5, 1), ("E5", 6.5, 2),
-    # bar 4-5 (G): soar
-    ("D5", 8, 2), ("B4", 10, 1), ("G4", 11, 1),
-    # bar 6-7 (Gm6): the emotional turn
-    ("Bb4", 12, 2), ("D5", 14, 1), ("E5", 15, 1.5), ("D5", 16.5, 2),
-    # resolve back
-    ("A4", 18.5, 1.5), ("D5", 20, 1),
+    # Cadd9 section: gentle, floating
+    ("E4", 0, 2), ("G4", 2, 1.5), ("C5", 3.5, 1),
+    # Am7: descending, wistful
+    ("B4", 5, 1.5), ("A4", 6.5, 1), ("G4", 7.5, 2),
+    # Fmaj7: rising hope
+    ("A4", 10, 1.5), ("C5", 11.5, 1), ("E5", 12.5, 2),
+    # Fm: the turn — Ab is the minor color
+    ("C5", 15, 1), ("Ab4", 16, 2), ("F4", 18, 1.5), ("G4", 19.5, 1.5),
+    # Resolve hint
+    ("E4", 21, 1.5), ("C4", 22.5, 1),
 ]
 
 
 def generate_pad():
-    """Detuned saw pad with vibrato and heavy reverb. Dreamy brass synth."""
+    """Lush detuned saw pad. No vibrato — just width from detuning."""
     out = np.zeros(N_SAMPLES)
 
     for notes, _, bar_start in CHORD_SEQ:
@@ -186,45 +169,41 @@ def generate_pad():
         chord_sig = np.zeros(n)
         for note_name in notes:
             freq = nf(note_name)
-            # Two detuned oscillators (+10 cents apart)
-            detune_factor = 2 ** (10 / 1200)  # 10 cents
-            # Very subtle vibrato LFO — gentle shimmer, not wobble
-            vibrato = 1 + 0.001 * np.sin(2 * np.pi * 1.5 * t_local)
-            osc1 = saw_bl(freq * vibrato, t_local, 0.12)
-            osc2 = saw_bl(freq * detune_factor * vibrato, t_local, 0.12)
+            # Two detuned oscillators (+8 cents) — width, no wobble
+            detune = 2 ** (8 / 1200)
+            osc1 = saw_bl(freq * 0.999, t_local, 0.10, harmonics=10)
+            osc2 = saw_bl(freq * detune, t_local, 0.10, harmonics=10)
             chord_sig += osc1 + osc2
 
-        # Slow attack/release for pad character
+        # Gentle attack/release
         env = np.ones(n)
-        att = int(0.3 * SAMPLE_RATE)
-        rel = int(0.5 * SAMPLE_RATE)
+        att = int(0.4 * SAMPLE_RATE)
+        rel = int(0.6 * SAMPLE_RATE)
         if att < n:
             env[:att] = np.linspace(0, 1, att)
         if rel < n:
-            env[-rel:] = np.linspace(1, 0.3, rel)
+            env[-rel:] = np.linspace(1, 0.2, rel)
 
         chord_sig *= env
         out[start:end] += chord_sig
 
-    # Gentle warmth filter — keep it bright and brassy, just tame the harshest highs
-    out = lowpass_1pole(out, 8000)
-    # Reverb — spacious but not muddy
-    out = simple_reverb(out, decay=0.4, delays_ms=(31, 53, 79, 113, 157))
-    # Delay — subtle space
-    out = delay_effect(out, beat_frac=0.5, feedback=0.2, wet=0.15)
+    # Gentle high-end taming only
+    out = lowpass_1pole(out, 7000)
+    # Spacious reverb
+    out = simple_reverb(out, decay=0.35, delays_ms=(29, 47, 73, 109, 151))
+    # Subtle delay
+    out = delay_effect(out, beat_frac=0.5, feedback=0.15, wet=0.12)
 
-    return out * 0.7
+    return out * 0.65
 
 
 def generate_arp():
-    """Descending 32nd-note arpeggios, lowpassed sawtooth."""
+    """Ascending arpeggios, lowpassed saw, bright and sparkling."""
     out = np.zeros(N_SAMPLES)
-    note_dur = BEAT / 8  # 32nd note
+    note_dur = BEAT / 6  # sextuplets — slightly different rhythm feel than 32nds
 
     for bar_start, notes in ARP_NOTES.items():
         section_start = bar_start * BAR
-        # Play for 2 bars
-        total_beats = 8
         t_pos = section_start
 
         while t_pos < section_start + 2 * BAR and t_pos < DURATION:
@@ -241,60 +220,51 @@ def generate_arp():
                     continue
 
                 t_local = np.linspace(0, actual_n / SAMPLE_RATE, actual_n, endpoint=False)
-                note_sig = saw_bl(freq, t_local, 0.12, harmonics=6)
-                note_sig *= env_ad(actual_n, attack_s=0.002, decay_s=note_dur * 0.8)
+                note_sig = saw_bl(freq, t_local, 0.10, harmonics=6)
+                note_sig *= env_ad(actual_n, attack_s=0.003, decay_s=note_dur * 0.7)
                 out[start_idx:end_idx] += note_sig
                 t_pos += note_dur
 
-    # Lowpass at ~2500 Hz
-    out = lowpass_1pole(out, 2500)
-    # Light reverb
-    out = simple_reverb(out, decay=0.3, delays_ms=(23, 41, 67))
-    # Delay (dotted eighth feel)
+    out = lowpass_1pole(out, 3000)
+    out = simple_reverb(out, decay=0.3, delays_ms=(19, 37, 59))
     out = delay_effect(out, beat_frac=0.75, feedback=0.3, wet=0.25)
 
-    return out * 0.45
+    return out * 0.4
 
 
 def generate_bass():
-    """Overdriven square bass with punchy pluck envelope."""
+    """Warm sub bass with gentle pluck. Half-time feel (beats 1 and 3)."""
     out = np.zeros(N_SAMPLES)
 
     for _, root, bar_start in CHORD_SEQ:
         freq = nf(root)
         section_start = int(bar_start * BAR * SAMPLE_RATE)
 
-        # Play root on every beat (4 beats per bar, 2 bars)
-        for beat in range(8):
-            beat_start = section_start + int(beat * BEAT * SAMPLE_RATE)
-            n = int(BEAT * 0.8 * SAMPLE_RATE)
-            end = min(beat_start + n, N_SAMPLES)
-            actual_n = end - beat_start
-            if actual_n <= 0:
-                continue
+        # Half-time: beats 1 and 3 only (per bar)
+        for bar_offset in range(2):
+            bar_abs_start = section_start + int(bar_offset * BAR * SAMPLE_RATE)
+            for beat in [0, 2]:
+                beat_start = bar_abs_start + int(beat * BEAT * SAMPLE_RATE)
+                n = int(BEAT * 1.6 * SAMPLE_RATE)
+                end = min(beat_start + n, N_SAMPLES)
+                actual_n = end - beat_start
+                if actual_n <= 0:
+                    continue
 
-            t_local = np.linspace(0, actual_n / SAMPLE_RATE, actual_n, endpoint=False)
+                t_local = np.linspace(0, actual_n / SAMPLE_RATE, actual_n, endpoint=False)
+                # Sub sine + octave sine for warmth
+                bass_sig = sine(freq, t_local, 0.35)
+                bass_sig += sine(freq * 2, t_local, 0.12)
+                bass_sig *= env_ad(actual_n, attack_s=0.01, decay_s=0.6)
+                bass_sig = soft_clip(bass_sig, drive=1.5)
+                out[beat_start:end] += bass_sig
 
-            # Square wave bass with octave layering
-            bass_sig = square_bl(freq, t_local, 0.3, harmonics=4)
-            bass_sig += square_bl(freq * 2, t_local, 0.1, harmonics=3)
-
-            # Punchy pluck envelope (fast attack, medium decay)
-            bass_sig *= env_ad(actual_n, attack_s=0.005, decay_s=0.25)
-
-            # Overdrive
-            bass_sig = soft_clip(bass_sig, drive=3.0)
-
-            out[beat_start:end] += bass_sig
-
-    # Lowpass to tame harsh harmonics
-    out = lowpass_1pole(out, 1200)
-
-    return out * 0.55
+    out = lowpass_1pole(out, 500)
+    return out * 0.6
 
 
 def generate_drums():
-    """Kick/snare/hat pattern with sidechain-style amplitude pumping baked in."""
+    """Laid-back groove. Kick on 1/3, snare on 2/4, hats on 8ths."""
     out = np.zeros(N_SAMPLES)
     rng = np.random.default_rng(42)
 
@@ -304,46 +274,44 @@ def generate_drums():
         for beat in range(4):
             beat_start = bar_start + int(beat * BEAT * SAMPLE_RATE)
 
-            # Kick on every beat (4-on-the-floor)
-            n = int(0.18 * SAMPLE_RATE)
-            t_local = np.linspace(0, 0.18, n, endpoint=False)
-            # Pitch-dropping sine (150Hz -> 45Hz) + click
-            freq_sweep = 150 * np.exp(-t_local * 18) + 45
-            phase = np.cumsum(freq_sweep / SAMPLE_RATE) * 2 * np.pi
-            kick = np.sin(phase) * 0.6 * np.exp(-t_local * 12)
-            # Add click transient
-            click_n = min(int(0.005 * SAMPLE_RATE), n)
-            kick[:click_n] += rng.normal(0, 0.15, click_n) * np.exp(-np.linspace(0, 5, click_n))
-            end = min(beat_start + n, N_SAMPLES)
-            out[beat_start:end] += kick[:end - beat_start]
+            # Kick on 1 and 3
+            if beat in (0, 2):
+                n = int(0.18 * SAMPLE_RATE)
+                t_local = np.linspace(0, 0.18, n, endpoint=False)
+                freq_sweep = 140 * np.exp(-t_local * 16) + 42
+                phase = np.cumsum(freq_sweep / SAMPLE_RATE) * 2 * np.pi
+                kick = np.sin(phase) * 0.55 * np.exp(-t_local * 10)
+                click_n = min(int(0.004 * SAMPLE_RATE), n)
+                kick[:click_n] += rng.normal(0, 0.1, click_n) * np.exp(-np.linspace(0, 5, click_n))
+                end = min(beat_start + n, N_SAMPLES)
+                out[beat_start:end] += kick[:end - beat_start]
 
-            # Snare on beats 2 and 4
+            # Snare on 2 and 4
             if beat in (1, 3):
-                n = int(0.15 * SAMPLE_RATE)
-                t_local = np.linspace(0, 0.15, n, endpoint=False)
-                snare_body = sine(180, t_local, 0.25) * np.exp(-t_local * 20)
-                snare_noise = rng.normal(0, 0.2, n) * np.exp(-t_local * 18)
-                snare = soft_clip(snare_body + snare_noise, drive=1.5)
+                n = int(0.14 * SAMPLE_RATE)
+                t_local = np.linspace(0, 0.14, n, endpoint=False)
+                body = sine(190, t_local, 0.2) * np.exp(-t_local * 22)
+                noise = rng.normal(0, 0.18, n) * np.exp(-t_local * 16)
+                snare = soft_clip(body + noise, drive=1.3)
                 end = min(beat_start + n, N_SAMPLES)
                 out[beat_start:end] += snare[:end - beat_start]
 
-            # Hi-hats on 16th notes
-            for sixteenth in range(4):
-                hh_start = beat_start + int(sixteenth * BEAT * 0.25 * SAMPLE_RATE)
-                n = int(0.04 * SAMPLE_RATE)
-                t_local = np.linspace(0, 0.04, n, endpoint=False)
-                vel = 0.08 if sixteenth == 0 else 0.04
-                hh = rng.normal(0, vel, n) * np.exp(-t_local * 50)
-                # Highpass the hat
-                hh = highpass_1pole(hh, 6000)
+            # Hats on 8th notes
+            for eighth in range(2):
+                hh_start = beat_start + int(eighth * BEAT * 0.5 * SAMPLE_RATE)
+                n = int(0.035 * SAMPLE_RATE)
+                t_local = np.linspace(0, 0.035, n, endpoint=False)
+                vel = 0.07 if eighth == 0 else 0.035
+                hh = rng.normal(0, vel, n) * np.exp(-t_local * 45)
+                hh = highpass_1pole(hh, 7000)
                 end = min(hh_start + n, N_SAMPLES)
                 out[hh_start:end] += hh[:end - hh_start]
 
-    return out * 0.7
+    return out * 0.65
 
 
 def generate_lead():
-    """Square wave lead, highpassed, drenched in delay and reverb."""
+    """Airy square lead, highpassed, drenched in delay/reverb."""
     out = np.zeros(N_SAMPLES)
 
     for note_name, beat_start, beat_dur in LEAD_MELODY:
@@ -356,24 +324,16 @@ def generate_lead():
             continue
 
         t_local = np.linspace(0, actual_n / SAMPLE_RATE, actual_n, endpoint=False)
-
-        # Square wave with slight vibrato
-        vibrato = 1 + 0.003 * np.sin(2 * np.pi * 4 * t_local)
-        lead_sig = square_bl(freq * vibrato, t_local, 0.2, harmonics=5)
-
-        # Envelope
-        lead_sig *= env_ad(actual_n, attack_s=0.03, decay_s=beat_dur * BEAT * 0.7)
-
+        lead_sig = square_bl(freq, t_local, 0.18, harmonics=5)
+        lead_sig += sine(freq * 2, t_local, 0.04)  # gentle overtone
+        lead_sig *= env_ad(actual_n, attack_s=0.04, decay_s=beat_dur * BEAT * 0.6)
         out[start:end] += lead_sig
 
-    # Highpass at ~970 Hz (makes it airy)
-    out = highpass_1pole(out, 970)
-    # Heavy delay
-    out = delay_effect(out, beat_frac=0.75, feedback=0.4, wet=0.45)
-    # Heavy reverb
-    out = simple_reverb(out, decay=0.5, delays_ms=(37, 67, 101, 149, 199))
+    out = highpass_1pole(out, 900)
+    out = delay_effect(out, beat_frac=0.75, feedback=0.4, wet=0.4)
+    out = simple_reverb(out, decay=0.45, delays_ms=(31, 59, 97, 139, 191))
 
-    return out * 0.4
+    return out * 0.38
 
 
 def normalize(audio, peak=0.8):
@@ -383,12 +343,12 @@ def normalize(audio, peak=0.8):
     return audio
 
 
-def save_ogg(name, audio, subdir="landing"):
+def save_ogg(name, audio):
     audio = normalize(audio)
     audio_16 = (audio * 32767).astype(np.int16)
 
     out_dir = os.path.join(
-        os.path.dirname(__file__), "..", "apps", "game", "public", "audio", "stems", subdir
+        os.path.dirname(__file__), "..", "apps", "game", "public", "audio", "stems", "landing"
     )
     os.makedirs(out_dir, exist_ok=True)
     ogg_path = os.path.join(out_dir, f"{name}.ogg")
@@ -407,8 +367,9 @@ def save_ogg(name, audio, subdir="landing"):
 
 
 def main():
-    print('Generating "We\'re Finally Landing" inspired stems')
-    print(f"D major, {BPM} BPM, 8 bars ({DURATION:.1f}s loop)\n")
+    print(f"Generating original synthwave stems")
+    print(f"C major, {BPM} BPM, 8 bars ({DURATION:.1f}s loop)")
+    print(f"Progression: Cadd9 → Am7 → Fmaj7 → Fm\n")
 
     stems = {
         "pad": generate_pad,
@@ -420,19 +381,15 @@ def main():
 
     for name, gen_fn in stems.items():
         audio = gen_fn()
-        save_ogg(name, audio, subdir="landing")
+        save_ogg(name, audio)
 
-    # Also generate a "keys" alias that maps to pad, and "glitch" that maps to lead
-    # so the 6-stem engine can load them (bass, keys, drums, pad, lead, glitch)
-    # Actually, let's just generate the 5 stems and update the engine to support this set
-
-    print(f"\nDone! Stems saved to landing/")
-    print("\nStem → Tier mapping:")
-    print("  T0: pad (dreamy brass synth)")
-    print("  T1: pad + arp (sparkling arpeggios)")
-    print("  T2: pad + arp + bass (punchy foundation)")
-    print("  T3: pad + arp + bass + drums (the drop)")
-    print("  T4+: pad + arp + bass + drums + lead (full arrangement)")
+    print(f"\nDone!")
+    print(f"\nTier mapping:")
+    print(f"  T0: pad (lush detuned saws)")
+    print(f"  T1: + arp (ascending sextuplet arpeggios)")
+    print(f"  T2: + bass (warm sub, half-time)")
+    print(f"  T3: + drums (laid-back groove)")
+    print(f"  T4+: + lead (airy square, delay-drenched)")
 
 
 if __name__ == "__main__":
