@@ -5,6 +5,7 @@ import {
 	type EditorThemeEnum,
 } from "@modules/editor";
 import { useGameStore, useUiStore } from "@modules/game";
+import { useTranslation } from "react-i18next";
 
 interface MobileSettingsOverlayProps {
 	onClose: () => void;
@@ -183,6 +184,7 @@ function ThemeCard({
 }
 
 export function MobileSettingsOverlay({ onClose }: MobileSettingsOverlayProps) {
+	const { t } = useTranslation();
 	const editorTheme = useUiStore((s) => s.editorTheme);
 	const setEditorTheme = useUiStore((s) => s.setEditorTheme);
 	const autoTypeEnabled = useGameStore((s) => s.autoTypeEnabled);
@@ -206,13 +208,13 @@ export function MobileSettingsOverlay({ onClose }: MobileSettingsOverlayProps) {
 			/>
 			<div css={panelStyle}>
 				<div css={headerStyle}>
-					<h2 css={titleStyle}>Settings</h2>
+					<h2 css={titleStyle}>{t("mobile.settings")}</h2>
 					<button type="button" css={closeButtonStyle} onClick={onClose}>
 						X
 					</button>
 				</div>
 
-				<div css={sectionLabelStyle}>Theme</div>
+				<div css={sectionLabelStyle}>{t("mobile.theme")}</div>
 				<div css={themeGridStyle}>
 					{Object.entries(EDITOR_THEMES).map(([key, theme]) => (
 						<ThemeCard
@@ -227,19 +229,19 @@ export function MobileSettingsOverlay({ onClose }: MobileSettingsOverlayProps) {
 
 				{autoTypeUnlocked && (
 					<div css={toggleRowStyle}>
-						<span css={toggleLabelStyle}>Auto-type</span>
+						<span css={toggleLabelStyle}>{t("mobile.auto_type")}</span>
 						<button
 							type="button"
 							css={[toggleButtonStyle, autoTypeEnabled && toggleActiveStyle]}
 							onClick={toggleAutoType}
 						>
-							{autoTypeEnabled ? "ON" : "OFF"}
+							{autoTypeEnabled ? t("mobile.on") : t("mobile.off")}
 						</button>
 					</div>
 				)}
 
 				<button type="button" css={resetButtonStyle} onClick={handleReset}>
-					Reset Game
+					{t("mobile.reset_game")}
 				</button>
 			</div>
 		</>

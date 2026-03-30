@@ -1,4 +1,5 @@
 import { css } from "@emotion/react";
+import { useTranslation } from "react-i18next";
 
 export const MobileTabEnum = {
 	code: "code",
@@ -14,9 +15,9 @@ interface MobileTabBarProps {
 }
 
 const tabs = [
-	{ key: MobileTabEnum.code, label: "Code", icon: "⌨️" },
-	{ key: MobileTabEnum.tree, label: "Tree", icon: "🌳" },
-	{ key: MobileTabEnum.shop, label: "Shop", icon: "🛒" },
+	{ key: MobileTabEnum.code, labelKey: "mobile.code", icon: "⌨️" },
+	{ key: MobileTabEnum.tree, labelKey: "mobile.tree", icon: "🌳" },
+	{ key: MobileTabEnum.shop, labelKey: "mobile.shop", icon: "🛒" },
 ];
 
 const barStyle = css({
@@ -62,6 +63,8 @@ const labelStyle = css({
 });
 
 export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
+	const { t } = useTranslation();
+
 	return (
 		<div css={barStyle}>
 			{tabs.map((tab) => (
@@ -75,7 +78,7 @@ export function MobileTabBar({ activeTab, onTabChange }: MobileTabBarProps) {
 					onClick={() => onTabChange(tab.key)}
 				>
 					<span css={iconStyle}>{tab.icon}</span>
-					<span css={labelStyle}>{tab.label}</span>
+					<span css={labelStyle}>{t(tab.labelKey)}</span>
 				</button>
 			))}
 		</div>

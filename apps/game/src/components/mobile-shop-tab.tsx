@@ -1,6 +1,7 @@
 import { css } from "@emotion/react";
 import { MilestoneList, UpgradeList } from "@modules/upgrade";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { TierProgress } from "./tier-progress";
 
 const containerCss = css({
@@ -41,6 +42,7 @@ const listCss = css({
 });
 
 export function MobileShopTab() {
+	const { t } = useTranslation();
 	const [tab, setTab] = useState<"upgrades" | "milestones">("upgrades");
 
 	return (
@@ -52,14 +54,14 @@ export function MobileShopTab() {
 					css={tab === "upgrades" ? toggleActiveCss : toggleBtnCss}
 					onClick={() => setTab("upgrades")}
 				>
-					Upgrades
+					{t("mobile.upgrades")}
 				</button>
 				<button
 					type="button"
 					css={tab === "milestones" ? toggleActiveCss : toggleBtnCss}
 					onClick={() => setTab("milestones")}
 				>
-					Milestones
+					{t("mobile.milestones")}
 				</button>
 			</div>
 			<div css={listCss}>
