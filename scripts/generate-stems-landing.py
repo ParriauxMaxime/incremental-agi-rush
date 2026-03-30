@@ -199,31 +199,28 @@ def generate_pad():
         chord_sig *= env
         out[start:end] += chord_sig
 
-    # Sidechain duck: pad dips ~4dB on every half-note (where bass hits)
-    # This lets the bass punch through when both play together
-    duck = np.ones(N_SAMPLES)
-    duck_depth = 0.6  # duck to 60% volume
-    duck_attack = int(0.008 * SAMPLE_RATE)  # 8ms snap down
-    duck_release = int(0.15 * SAMPLE_RATE)  # 150ms ease back up
-    for bar in range(8):
-        for beat in [0, 2]:  # half-note pulse matching bass pattern
-            trigger = int((bar * BAR + beat * BEAT) * SAMPLE_RATE)
-            # Quick dip down
-            end_attack = min(trigger + duck_attack, N_SAMPLES)
-            duck[trigger:end_attack] = np.linspace(1, duck_depth, end_attack - trigger)
-            # Smooth release back to 1
-            end_release = min(end_attack + duck_release, N_SAMPLES)
-            n_rel = end_release - end_attack
-            if n_rel > 0:
-                duck[end_attack:end_release] = duck_depth + (1 - duck_depth) * (np.linspace(0, 1, n_rel) ** 2)
-    out *= duck
-
     # Gentle high-end taming
     out = lowpass_1pole(out, 7000)
     # Lush reverb — longer decay for that wash
     out = simple_reverb(out, decay=0.45, delays_ms=(29, 47, 73, 109, 151, 197))
     # Delay adds more space
     out = delay_effect(out, beat_frac=0.5, feedback=0.2, wet=0.15)
+
+    # Sidechain duck AFTER effects — so the reverb tail also ducks
+    duck = np.ones(N_SAMPLES)
+    duck_depth = 0.55  # duck to 55% volume (~5dB)
+    duck_attack = int(0.005 * SAMPLE_RATE)  # 5ms snap down
+    duck_release = int(0.18 * SAMPLE_RATE)  # 180ms ease back up
+    for bar in range(8):
+        for beat in range(4):  # every beat — bass hits on 0/2, kick on all 4
+            trigger = int((bar * BAR + beat * BEAT) * SAMPLE_RATE)
+            end_attack = min(trigger + duck_attack, N_SAMPLES)
+            duck[trigger:end_attack] = np.linspace(1, duck_depth, end_attack - trigger)
+            end_release = min(end_attack + duck_release, N_SAMPLES)
+            n_rel = end_release - end_attack
+            if n_rel > 0:
+                duck[end_attack:end_release] = duck_depth + (1 - duck_depth) * (np.linspace(0, 1, n_rel) ** 2)
+    out *= duck
 
     return out * 0.6
 
