@@ -394,21 +394,21 @@ def generate_lead():
             continue
 
         t_local = np.linspace(0, actual_n / SAMPLE_RATE, actual_n, endpoint=False)
-        # Triangle + sine — soft, clear, not buzzy
-        lead_sig = saw_bl(freq, t_local, 0.10, harmonics=3)
-        lead_sig += sine(freq, t_local, 0.10)
-        # Medium attack, natural decay
-        lead_sig *= env_ad(actual_n, attack_s=0.05, decay_s=beat_dur * BEAT * 0.6)
+        # Pure sine + gentle 2nd harmonic — clean, sober, sits above the mix
+        lead_sig = sine(freq, t_local, 0.16)
+        lead_sig += sine(freq * 2, t_local, 0.03)
+        # Soft attack, natural decay
+        lead_sig *= env_ad(actual_n, attack_s=0.06, decay_s=beat_dur * BEAT * 0.5)
         # Anti-click fadeout
         fadeout_n = min(int(0.015 * SAMPLE_RATE), actual_n)
         lead_sig[-fadeout_n:] *= np.linspace(1, 0, fadeout_n) ** 2
         out[start:end] += lead_sig
 
     out = highpass_1pole(out, 700)
-    # Moderate delay — adds tail but doesn't wash out
-    out = delay_effect(out, beat_frac=0.75, feedback=0.3, wet=0.25)
-    # Reverb for space
-    out = simple_reverb(out, decay=0.35, delays_ms=(31, 59, 97, 139))
+    # Light delay — just a touch of space
+    out = delay_effect(out, beat_frac=0.75, feedback=0.2, wet=0.15)
+    # Minimal reverb — sober, not washy
+    out = simple_reverb(out, decay=0.2, delays_ms=(31, 59, 97))
     out = apply_kick_sidechain(out)
 
     return out * 0.4
