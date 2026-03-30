@@ -125,6 +125,14 @@
 		"name": "Analityka",
 		"description": "Sprawdź podział produkcji LoC według źródeł."
 	},
+	"unlock_session_timeline": {
+		"name": "Oś czasu sesji",
+		"description": "Śledź swój postęp i historię zakupów."
+	},
+	"unlock_perf_graphs": {
+		"name": "Wykresy wydajności",
+		"description": "Wykresy sparkline pokazujące wskaźniki w czasie."
+	},
 	"interns": {
 		"name": "Stażyści",
 		"description": "Odblokuj zatrudnianie stażystów. Są tani i chętni."

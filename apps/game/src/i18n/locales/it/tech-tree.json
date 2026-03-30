@@ -125,6 +125,14 @@
 		"name": "Analisi",
 		"description": "Vedi la ripartizione della produzione di LoC per fonte."
 	},
+	"unlock_session_timeline": {
+		"name": "Cronologia sessione",
+		"description": "Monitora i tuoi progressi e la cronologia acquisti."
+	},
+	"unlock_perf_graphs": {
+		"name": "Grafici prestazioni",
+		"description": "Grafici sparkline che mostrano i tassi nel tempo."
+	},
 	"interns": {
 		"name": "Stagisti",
 		"description": "Sblocca l'assunzione di stagisti. Sono economici ed entusiasti."

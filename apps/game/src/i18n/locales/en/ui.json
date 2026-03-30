@@ -23,7 +23,17 @@
 		"managers": "Managers",
 		"manager_bonus": "+{{bonus}}% team output",
 		"auto_exec": "⚡ Auto — +${{rate}}/s",
-		"execute": "⚡ Execute {{loc}} → ${{earn}}"
+		"execute": "⚡ Execute {{loc}} → ${{earn}}",
+		"tab_resources": "Resources",
+		"tab_timeline": "Timeline",
+		"tab_graphs": "Graphs",
+		"tier_progression": "Tier Progression",
+		"rates_vs_30s": "Rates (vs 30s ago)",
+		"cash_per_sec": "Cash/s",
+		"recent_purchases": "Recent Purchases",
+		"graphs_collecting": "Collecting data...",
+		"produced_vs_executed": "produced vs executed",
+		"utilization": "utilization"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} tokens",

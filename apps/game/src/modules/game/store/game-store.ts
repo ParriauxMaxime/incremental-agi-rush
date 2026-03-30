@@ -39,6 +39,28 @@ export interface QueuedBlock {
 	loc: number;
 }
 
+export interface TierTransition {
+	tierIndex: number;
+	enteredAt: number;
+}
+
+export interface PurchaseEntry {
+	id: string;
+	name: string;
+	cost: number;
+	time: number;
+}
+
+export interface RateSnapshot {
+	t: number;
+	cashPerSec: number;
+	locProducedPerSec: number;
+	locExecutedPerSec: number;
+	flops: number;
+	flopUtilization: number;
+	tierIndex: number;
+}
+
 export interface GameState {
 	loc: number;
 	totalLoc: number;
@@ -91,6 +113,14 @@ export interface GameState {
 	manualExecAccum: number;
 	singularity: boolean;
 	reachedMilestones: string[];
+	sessionStartTime: number;
+	tierTransitions: TierTransition[];
+	purchaseLog: PurchaseEntry[];
+	rateSnapshots: RateSnapshot[];
+	lastSnapshotTime: number;
+	prevTickTotalCash: number;
+	prevTickTotalLoc: number;
+	prevTickTotalExecLoc: number;
 }
 
 export interface GodModeOverrides {
@@ -171,6 +201,14 @@ const initialState: GameState = {
 	manualExecAccum: 0,
 	singularity: false,
 	reachedMilestones: [],
+	sessionStartTime: performance.now(),
+	tierTransitions: [{ tierIndex: 0, enteredAt: 0 }],
+	purchaseLog: [],
+	rateSnapshots: [],
+	lastSnapshotTime: 0,
+	prevTickTotalCash: 0,
+	prevTickTotalLoc: 0,
+	prevTickTotalExecLoc: 0,
 };
 
 function getEffectiveMax(upgrade: Upgrade, state?: GameState): number {
@@ -454,6 +492,13 @@ function recalcDerivedStats(state: GameState): void {
 	state.llmMaxBonus = llmMaxBonus;
 	state.agentMaxBonus = agentMaxBonus;
 	state.llmHostSlots = llmHostSlots;
+	if (tierIndex !== state.currentTierIndex) {
+		const elapsed = (performance.now() - state.sessionStartTime) / 1000;
+		state.tierTransitions = [
+			...state.tierTransitions,
+			{ tierIndex, enteredAt: elapsed },
+		];
+	}
 	state.currentTierIndex = tierIndex;
 	state.unlockedModels = unlockedModels;
 	state.aiUnlocked =
@@ -610,6 +655,33 @@ export const useGameStore = create<GameState & GameActions>()(
 						}
 					}
 
+					// ── 4. Session analytics snapshots (every 5s) ──
+					const elapsed = (performance.now() - s.sessionStartTime) / 1000;
+					if (elapsed - s.lastSnapshotTime >= 5) {
+						const cashDelta = totalCash - s.prevTickTotalCash;
+						const locDelta = totalLoc - s.prevTickTotalLoc;
+						const execDelta = totalExecutedLoc - s.prevTickTotalExecLoc;
+						const dtSnap = elapsed - s.lastSnapshotTime;
+						const flopUtil = s.flops > 0 ? Math.min(1, loc / Math.max(1, s.flops)) : 0;
+
+						const snapshot: RateSnapshot = {
+							t: elapsed,
+							cashPerSec: dtSnap > 0 ? cashDelta / dtSnap : 0,
+							locProducedPerSec: dtSnap > 0 ? locDelta / dtSnap : 0,
+							locExecutedPerSec: dtSnap > 0 ? execDelta / dtSnap : 0,
+							flops: s.flops,
+							flopUtilization: flopUtil,
+							tierIndex: s.currentTierIndex,
+						};
+
+						const snapshots = [...s.rateSnapshots, snapshot].slice(-720);
+						next.rateSnapshots = snapshots;
+						next.lastSnapshotTime = elapsed;
+						next.prevTickTotalCash = totalCash;
+						next.prevTickTotalLoc = totalLoc;
+						next.prevTickTotalExecLoc = totalExecutedLoc;
+					}
+
 					return next;
 				});
 			},
@@ -639,6 +711,17 @@ export const useGameStore = create<GameState & GameActions>()(
 					return newState;
 				});
 				sfx.purchase();
+				{
+					const elapsed = (performance.now() - get().sessionStartTime) / 1000;
+					set((s) => ({
+						purchaseLog: [...s.purchaseLog.slice(-49), {
+							id: upgrade.id,
+							name: upgrade.id,
+							cost,
+							time: elapsed,
+						}],
+					}));
+				}
 			},
 
 			researchNode: (node: TechNode) => {
@@ -686,6 +769,17 @@ export const useGameStore = create<GameState & GameActions>()(
 					return newState;
 				});
 				sfx.purchase();
+				{
+					const elapsed = (performance.now() - get().sessionStartTime) / 1000;
+					set((s) => ({
+						purchaseLog: [...s.purchaseLog.slice(-49), {
+							id: node.id,
+							name: node.id,
+							cost,
+							time: elapsed,
+						}],
+					}));
+				}
 			},
 
 			toggleAutoType: () => {

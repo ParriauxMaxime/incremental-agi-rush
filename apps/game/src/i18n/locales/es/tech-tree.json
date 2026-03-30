@@ -125,6 +125,14 @@
 		"name": "Analíticas",
 		"description": "Ve el desglose de producción de LoC por fuente."
 	},
+	"unlock_session_timeline": {
+		"name": "Cronología de sesión",
+		"description": "Rastrea tu progreso e historial de compras."
+	},
+	"unlock_perf_graphs": {
+		"name": "Gráficos de rendimiento",
+		"description": "Gráficos sparkline mostrando tasas a lo largo del tiempo."
+	},
 	"interns": {
 		"name": "Becarios",
 		"description": "Desbloquea la contratación de becarios. Son baratos y entusiastas."

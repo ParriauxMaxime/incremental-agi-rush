@@ -125,6 +125,14 @@
 		"name": "Analytics",
 		"description": "See LoC production breakdown by source."
 	},
+	"unlock_session_timeline": {
+		"name": "Session Timeline",
+		"description": "Track your session progress and purchase history."
+	},
+	"unlock_perf_graphs": {
+		"name": "Performance Graphs",
+		"description": "Sparkline charts showing rates over time."
+	},
 	"interns": {
 		"name": "Interns",
 		"description": "Unlock intern hiring. They're cheap and eager."

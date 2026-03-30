@@ -125,6 +125,14 @@
 		"name": "Analytik",
 		"description": "LoC-Produktionsaufschlüsselung nach Quelle anzeigen."
 	},
+	"unlock_session_timeline": {
+		"name": "Sitzungschronik",
+		"description": "Verfolge deinen Fortschritt und Kaufverlauf."
+	},
+	"unlock_perf_graphs": {
+		"name": "Leistungsgrafiken",
+		"description": "Sparkline-Diagramme zeigen Raten im Zeitverlauf."
+	},
 	"interns": {
 		"name": "Praktikanten",
 		"description": "Praktikanten-Einstellung freischalten. Günstig und motiviert."

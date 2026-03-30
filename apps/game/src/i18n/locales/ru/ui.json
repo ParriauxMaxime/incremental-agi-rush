@@ -23,7 +23,17 @@
 		"managers": "Менеджеры",
 		"manager_bonus": "+{{bonus}}% выработки команды",
 		"auto_exec": "⚡ Авто — +${{rate}}/s",
-		"execute": "⚡ Выполнить {{loc}} → ${{earn}}"
+		"execute": "⚡ Выполнить {{loc}} → ${{earn}}",
+		"tab_resources": "Ресурсы",
+		"tab_timeline": "Хронология",
+		"tab_graphs": "Графики",
+		"tier_progression": "Прогресс уровней",
+		"rates_vs_30s": "Показатели (vs 30с назад)",
+		"cash_per_sec": "Кэш/с",
+		"recent_purchases": "Недавние покупки",
+		"graphs_collecting": "Сбор данных...",
+		"produced_vs_executed": "произведено vs выполнено",
+		"utilization": "загрузка"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} токенов",

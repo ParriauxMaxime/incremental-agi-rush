@@ -125,6 +125,14 @@
 		"name": "分析",
 		"description": "按来源查看 LoC 生产明细。"
 	},
+	"unlock_session_timeline": {
+		"name": "会话时间线",
+		"description": "追踪你的进度和购买历史。"
+	},
+	"unlock_perf_graphs": {
+		"name": "性能图表",
+		"description": "显示随时间变化的速率迷你图。"
+	},
 	"interns": {
 		"name": "实习生",
 		"description": "解锁实习生招募。他们便宜又积极。"

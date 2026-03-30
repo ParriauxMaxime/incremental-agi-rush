@@ -125,6 +125,14 @@
 		"name": "Analytique",
 		"description": "Voir la répartition de production de LoC par source."
 	},
+	"unlock_session_timeline": {
+		"name": "Chronologie de session",
+		"description": "Suivez votre progression et historique d'achats."
+	},
+	"unlock_perf_graphs": {
+		"name": "Graphiques de performance",
+		"description": "Graphiques sparkline montrant les taux dans le temps."
+	},
 	"interns": {
 		"name": "Stagiaires",
 		"description": "Débloque le recrutement de stagiaires. Ils sont bon marché et motivés."
