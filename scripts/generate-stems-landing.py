@@ -145,20 +145,20 @@ ARP_NOTES = {
     7: (["E3", "G3", "B3", "E4", "G4", "B4", "E5", "G5"], 1),        # Em
 }
 
-# Lead melody — call and response, aligned to chord changes.
-# Bars: Cadd9(0-7) Am7(8-15) Fm(16-23) G7(24-27) Em(28-31)
-# Each beat = 1 unit. Bar = 4 beats.
-LEAD_MELODY = [
-    # Cadd9 (beats 0-7): ascending call
-    ("C5", 0.5, 1.5), ("D5", 2.5, 1), ("E5", 4, 2.5),
-    # Am7 (beats 8-15): descending answer
-    ("E5", 8.5, 1), ("D5", 10, 1), ("C5", 11.5, 2),
-    # Fm (beats 16-23): minor color — Ab stands out
-    ("Ab4", 16.5, 2), ("C5", 19, 1), ("Ab4", 20.5, 2),
-    # G7 (beats 24-27): quick upward push
-    ("G4", 24.5, 1), ("B4", 26, 1.5),
-    # Em (beats 28-31): settle
-    ("G4", 28.5, 1), ("E4", 30, 1.5),
+# Lead melody — uses same bar-based timing as bass/pad.
+# (note, bar_position, duration_in_beats)
+# bar_position is fractional bars (e.g., 0.125 = half a beat into bar 0)
+LEAD_MELODY_BARS = [
+    # Cadd9 (bars 0-2): ascending call
+    ("C5", 0.125, 1.5), ("D5", 0.625, 1), ("E5", 1.0, 2.5),
+    # Am7 (bars 2-4): descending answer
+    ("E5", 2.125, 1), ("D5", 2.5, 1), ("C5", 2.875, 2),
+    # Fm (bars 4-6): minor color
+    ("Ab4", 4.125, 2), ("C5", 4.75, 1), ("Ab4", 5.125, 2),
+    # G7 (bar 6-7): quick upward push
+    ("G4", 6.125, 1), ("B4", 6.5, 1.5),
+    # Em (bar 7-8): settle
+    ("G4", 7.125, 1), ("E4", 7.5, 1.5),
 ]
 
 
@@ -186,9 +186,9 @@ def generate_pad():
             osc2 = saw_bl(freq * detune, t_local, 0.10, harmonics=10)
             chord_sig += osc1 + osc2
 
-        # Envelope: gentle attack, sustain through the chord, long exponential release
+        # Envelope: quick attack (matches bass timing), sustain, long release
         env = np.ones(n)
-        att = int(0.3 * SAMPLE_RATE)
+        att = int(0.08 * SAMPLE_RATE)  # 80ms — pad arrives with the bass
         sustain_end = int(bar_dur * BAR * SAMPLE_RATE)
         if att < n:
             env[:att] = np.linspace(0, 1, att)
@@ -385,9 +385,9 @@ def generate_lead():
     """Call-and-response melody — short phrases with space between."""
     out = np.zeros(N_SAMPLES)
 
-    for note_name, beat_start, beat_dur in LEAD_MELODY:
+    for note_name, bar_pos, beat_dur in LEAD_MELODY_BARS:
         freq = nf(note_name)
-        start = int(beat_start * BEAT * SAMPLE_RATE)
+        start = int(bar_pos * BAR * SAMPLE_RATE)
         n = int(beat_dur * BEAT * SAMPLE_RATE)
         end = min(start + n, N_SAMPLES)
         actual_n = end - start
