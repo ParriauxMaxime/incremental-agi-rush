@@ -11,6 +11,7 @@ import {
 	useTutorialTriggers,
 } from "@components/tutorial-screen";
 import { css, Global, keyframes } from "@emotion/react";
+import { useAudioStore } from "@modules/audio";
 import { useAudioEvents } from "@modules/audio/use-audio-events";
 import type { EditorTheme } from "@modules/editor";
 import { EDITOR_THEMES, type EditorThemeEnum } from "@modules/editor";
@@ -136,6 +137,12 @@ function SettingsPage() {
 	const setEditorTheme = useUiStore((s) => s.setEditorTheme);
 	const uiZoom = useUiStore((s) => s.uiZoom);
 	const setUiZoom = useUiStore((s) => s.setUiZoom);
+	const musicVolume = useAudioStore((s) => s.musicVolume);
+	const sfxVolume = useAudioStore((s) => s.sfxVolume);
+	const muted = useAudioStore((s) => s.muted);
+	const setMusicVolume = useAudioStore((s) => s.setMusicVolume);
+	const setSfxVolume = useAudioStore((s) => s.setSfxVolume);
+	const toggleMute = useAudioStore((s) => s.toggleMute);
 	const theme = useIdeTheme();
 
 	return (
@@ -249,6 +256,66 @@ function SettingsPage() {
 						</option>
 					))}
 				</select>
+			</SettingItem>
+
+			<SettingItem
+				category="Audio"
+				name="Music Volume"
+				description="Controls the background music volume."
+			>
+				<input
+					type="range"
+					min={0}
+					max={100}
+					value={musicVolume}
+					onChange={(e) => setMusicVolume(Number(e.target.value))}
+					css={{
+						width: 260,
+						accentColor: theme.accent,
+						cursor: "pointer",
+					}}
+				/>
+				<span css={{ marginLeft: 8, fontSize: 12, color: theme.textMuted }}>
+					{musicVolume}%
+				</span>
+			</SettingItem>
+
+			<SettingItem
+				category="Audio"
+				name="SFX Volume"
+				description="Controls the sound effects volume (typing, purchases, events)."
+			>
+				<input
+					type="range"
+					min={0}
+					max={100}
+					value={sfxVolume}
+					onChange={(e) => setSfxVolume(Number(e.target.value))}
+					css={{
+						width: 260,
+						accentColor: theme.accent,
+						cursor: "pointer",
+					}}
+				/>
+				<span css={{ marginLeft: 8, fontSize: 12, color: theme.textMuted }}>
+					{sfxVolume}%
+				</span>
+			</SettingItem>
+
+			<SettingItem
+				category="Audio"
+				name="Mute All"
+				description="Mute all game audio (music and sound effects)."
+			>
+				<label css={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+					<input
+						type="checkbox"
+						checked={muted}
+						onChange={toggleMute}
+						css={{ accentColor: theme.accent, cursor: "pointer" }}
+					/>
+					<span css={{ fontSize: 13 }}>{muted ? "Muted" : "Unmuted"}</span>
+				</label>
 			</SettingItem>
 		</div>
 	);
