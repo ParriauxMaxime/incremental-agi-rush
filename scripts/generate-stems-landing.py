@@ -355,18 +355,24 @@ def generate_drums():
                 end = min(beat_start + n, N_SAMPLES)
                 out[beat_start:end] += snare[:end - beat_start]
 
-            # Hats on 8th notes
-            for eighth in range(2):
-                hh_start = beat_start + int(eighth * BEAT * 0.5 * SAMPLE_RATE)
-                n = int(0.035 * SAMPLE_RATE)
-                t_local = np.linspace(0, 0.035, n, endpoint=False)
-                vel = 0.07 if eighth == 0 else 0.035
-                hh = rng.normal(0, vel, n) * np.exp(-t_local * 45)
-                hh = highpass_1pole(hh, 7000)
+            # Hats on 16th notes — steady pulse, accented on downbeats
+            for sixteenth in range(4):
+                hh_start = beat_start + int(sixteenth * BEAT * 0.25 * SAMPLE_RATE)
+                n = int(0.04 * SAMPLE_RATE)
+                t_local = np.linspace(0, 0.04, n, endpoint=False)
+                # Accent pattern: strong on beat, medium on &, soft on e/a
+                if sixteenth == 0:
+                    vel = 0.10
+                elif sixteenth == 2:
+                    vel = 0.07
+                else:
+                    vel = 0.04
+                hh = rng.normal(0, vel, n) * np.exp(-t_local * 40)
+                hh = highpass_1pole(hh, 6000)
                 end = min(hh_start + n, N_SAMPLES)
                 out[hh_start:end] += hh[:end - hh_start]
 
-    return out * 0.65
+    return out * 0.7
 
 
 def generate_lead():
