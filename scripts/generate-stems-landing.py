@@ -165,7 +165,7 @@ def generate_pad():
     out = np.zeros(N_SAMPLES)
 
     # Release tail: chords ring past their boundary
-    RELEASE_BARS = 1.2
+    RELEASE_BARS = 1.1
 
     for notes, _, bar_start, bar_dur in CHORD_SEQ:
         start = int(bar_start * BAR * SAMPLE_RATE)
@@ -325,10 +325,10 @@ def generate_bass():
                 tri = saw_bl(freq * 2, t_local, 0.08 * vel, harmonics=3)
                 bass_sig += tri
 
-                # Smooth envelope — gentle attack, long natural decay
-                bass_sig *= env_ad(actual_n, attack_s=0.02, decay_s=dur * BEAT * 0.8)
-                # Anti-click: short cosine fade-out on last 5ms
-                fadeout_n = min(int(0.005 * SAMPLE_RATE), actual_n)
+                # Long smooth envelope — notes ring out, no hard cutoff
+                bass_sig *= env_ad(actual_n, attack_s=0.02, decay_s=dur * BEAT * 2.0)
+                # Anti-click: 15ms fade-out
+                fadeout_n = min(int(0.015 * SAMPLE_RATE), actual_n)
                 bass_sig[-fadeout_n:] *= np.linspace(1, 0, fadeout_n) ** 2
 
                 out[note_start:end] += bass_sig
@@ -440,7 +440,7 @@ def loop_crossfade(audio, crossfade_s=0.5):
 
 
 def save_ogg(name, audio):
-    audio = loop_crossfade(audio, crossfade_s=0.4)
+    audio = loop_crossfade(audio, crossfade_s=0.8)
     audio = normalize(audio)
     audio_16 = (audio * 32767).astype(np.int16)
 
