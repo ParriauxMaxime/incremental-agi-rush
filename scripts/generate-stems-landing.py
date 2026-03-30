@@ -145,18 +145,19 @@ ARP_NOTES = {
     7: (["E3", "G3", "B3", "E4", "G4", "B4", "E5", "G5"], 1),        # Em
 }
 
-# Original lead melody — C major, drops to minor for Fm
+# Lead melody — long sustained notes, delay fills the space.
+# Fewer notes = more emotion. Each note sings over its chord.
 LEAD_MELODY = [
-    # Cadd9 (bars 0-1): gentle, floating
-    ("E4", 0, 2), ("G4", 2, 1.5), ("C5", 3.5, 1),
-    # Am7 (bars 2-3): descending, wistful
-    ("B4", 5, 1.5), ("A4", 6.5, 1), ("G4", 7.5, 2),
-    # Fm (bars 4-5): the darkness — Ab is the minor color, dramatic
-    ("Ab4", 10, 2), ("C5", 12, 1.5), ("Ab4", 13.5, 1.5),
-    # G (bar 6): lift — rising out of the dark
-    ("G4", 15, 1), ("B4", 16, 1.5),
-    # Em (bar 7): dark, mysterious — pulls you back to Cadd9
-    ("E4", 17.5, 1.5), ("B4", 19, 1.5),
+    # Cadd9 (bars 0-1): one note, let it ring
+    ("E5", 1, 6),
+    # Am7 (bars 2-3): step down gently
+    ("C5", 8, 4),
+    # Fm (bars 4-5): Ab — the emotional peak, hang on it
+    ("Ab4", 13, 5),
+    # G7 (bar 6): resolve up through F
+    ("F4", 19, 2),
+    # Em (bar 7): land on B, yearns back to C
+    ("B4", 22, 4),
 ]
 
 
@@ -392,7 +393,7 @@ def generate_drums():
 
 
 def generate_lead():
-    """Airy square lead, highpassed, drenched in delay/reverb."""
+    """Sustained singing lead — few notes, long tails, delay does the rhythm."""
     out = np.zeros(N_SAMPLES)
 
     for note_name, beat_start, beat_dur in LEAD_MELODY:
@@ -405,16 +406,23 @@ def generate_lead():
             continue
 
         t_local = np.linspace(0, actual_n / SAMPLE_RATE, actual_n, endpoint=False)
-        lead_sig = square_bl(freq, t_local, 0.18, harmonics=5)
-        lead_sig += sine(freq * 2, t_local, 0.04)  # gentle overtone
-        lead_sig *= env_ad(actual_n, attack_s=0.04, decay_s=beat_dur * BEAT * 0.6)
+        # Soft square + sine blend — warm, not harsh
+        lead_sig = square_bl(freq, t_local, 0.12, harmonics=3)
+        lead_sig += sine(freq, t_local, 0.08)
+        # Slow attack, very long decay — notes bloom and fade
+        lead_sig *= env_ad(actual_n, attack_s=0.15, decay_s=beat_dur * BEAT * 0.8)
+        # Anti-click fadeout
+        fadeout_n = min(int(0.02 * SAMPLE_RATE), actual_n)
+        lead_sig[-fadeout_n:] *= np.linspace(1, 0, fadeout_n) ** 2
         out[start:end] += lead_sig
 
-    out = highpass_1pole(out, 900)
-    out = delay_effect(out, beat_frac=0.75, feedback=0.4, wet=0.4)
-    out = simple_reverb(out, decay=0.45, delays_ms=(31, 59, 97, 139, 191))
+    out = highpass_1pole(out, 800)
+    # Heavy delay — the echoes become the rhythm
+    out = delay_effect(out, beat_frac=0.75, feedback=0.45, wet=0.45)
+    # Lush reverb
+    out = simple_reverb(out, decay=0.5, delays_ms=(31, 59, 97, 139, 191))
 
-    return out * 0.38
+    return out * 0.35
 
 
 def normalize(audio, peak=0.8):
