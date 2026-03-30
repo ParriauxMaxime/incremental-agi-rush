@@ -311,6 +311,9 @@ def generate_bass():
 
                 # Smooth envelope — gentle attack, long natural decay
                 bass_sig *= env_ad(actual_n, attack_s=0.02, decay_s=dur * BEAT * 0.8)
+                # Anti-click: short cosine fade-out on last 5ms
+                fadeout_n = min(int(0.005 * SAMPLE_RATE), actual_n)
+                bass_sig[-fadeout_n:] *= np.linspace(1, 0, fadeout_n) ** 2
 
                 out[note_start:end] += bass_sig
 
