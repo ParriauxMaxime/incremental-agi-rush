@@ -75,7 +75,8 @@
 		"zoom_level_desc": "Passt die Zoomstufe der IDE an. Möglicherweise ist ein Neustart erforderlich.",
 		"language": "Sprache",
 		"language_name": "Anzeigesprache",
-		"language_desc": "Legt die Anzeigesprache des Spiels fest."
+		"language_desc": "Legt die Anzeigesprache des Spiels fest.",
+		"audio": "Audio", "music_volume": "Musiklautstärke", "sfx_volume": "Effektlautstärke", "mute_all": "Alles stumm", "muted": "Stumm", "unmuted": "Aktiv", "mute": "Stumm", "unmute": "Ton an"
 	},
 	"editor": {
 		"terminal": "Terminal"

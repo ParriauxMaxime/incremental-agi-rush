@@ -94,7 +94,7 @@ export function StatusBar() {
 					type="button"
 					css={muteBtnCss}
 					onClick={toggleMute}
-					title={muted ? "Unmute" : "Mute"}
+					title={muted ? t("settings.unmute") : t("settings.mute")}
 				>
 					{muted ? "🔇" : "🔊"}
 				</button>

@@ -75,7 +75,15 @@
 		"zoom_level_desc": "Adjust the zoom level of the IDE. Restart may be needed.",
 		"language": "Language",
 		"language_name": "Display Language",
-		"language_desc": "Specifies the display language for the game."
+		"language_desc": "Specifies the display language for the game.",
+		"audio": "Audio",
+		"music_volume": "Music Volume",
+		"sfx_volume": "SFX Volume",
+		"mute_all": "Mute All",
+		"muted": "Muted",
+		"unmuted": "Unmuted",
+		"mute": "Mute",
+		"unmute": "Unmute"
 	},
 	"editor": {
 		"terminal": "Terminal"

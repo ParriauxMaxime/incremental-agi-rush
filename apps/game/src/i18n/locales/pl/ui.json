@@ -75,7 +75,8 @@
 		"zoom_level_desc": "Dostosuj poziom powiększenia IDE. Może wymagać restartu.",
 		"language": "Język",
 		"language_name": "Język interfejsu",
-		"language_desc": "Określa język wyświetlania gry."
+		"language_desc": "Określa język wyświetlania gry.",
+		"audio": "Audio", "music_volume": "Głośność muzyki", "sfx_volume": "Głośność efektów", "mute_all": "Wycisz wszystko", "muted": "Wyciszono", "unmuted": "Włączono", "mute": "Wycisz", "unmute": "Włącz"
 	},
 	"editor": { "terminal": "Terminal" },
 	"tech_tree": {

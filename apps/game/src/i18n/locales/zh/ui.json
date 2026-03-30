@@ -75,7 +75,8 @@
 		"zoom_level_desc": "调整 IDE 的缩放级别。可能需要重启。",
 		"language": "语言",
 		"language_name": "显示语言",
-		"language_desc": "指定游戏的显示语言。"
+		"language_desc": "指定游戏的显示语言。",
+		"audio": "音频", "music_volume": "音乐音量", "sfx_volume": "音效音量", "mute_all": "全部静音", "muted": "已静音", "unmuted": "已开启", "mute": "静音", "unmute": "取消静音"
 	},
 	"editor": { "terminal": "终端" },
 	"tech_tree": {

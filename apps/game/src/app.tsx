@@ -262,8 +262,8 @@ function SettingsPage() {
 			</SettingItem>
 
 			<SettingItem
-				category="Audio"
-				name="Music Volume"
+				category={t("settings.audio")}
+				name={t("settings.music_volume")}
 				description="Controls the background music volume."
 			>
 				<input
@@ -284,8 +284,8 @@ function SettingsPage() {
 			</SettingItem>
 
 			<SettingItem
-				category="Audio"
-				name="SFX Volume"
+				category={t("settings.audio")}
+				name={t("settings.sfx_volume")}
 				description="Controls the sound effects volume (typing, purchases, events)."
 			>
 				<input
@@ -306,8 +306,8 @@ function SettingsPage() {
 			</SettingItem>
 
 			<SettingItem
-				category="Audio"
-				name="Mute All"
+				category={t("settings.audio")}
+				name={t("settings.mute_all")}
 				description="Mute all game audio (music and sound effects)."
 			>
 				<label
@@ -324,7 +324,7 @@ function SettingsPage() {
 						onChange={toggleMute}
 						css={{ accentColor: theme.accent, cursor: "pointer" }}
 					/>
-					<span css={{ fontSize: 13 }}>{muted ? "Muted" : "Unmuted"}</span>
+					<span css={{ fontSize: 13 }}>{muted ? t("settings.muted") : t("settings.unmuted")}</span>
 				</label>
 			</SettingItem>
 
