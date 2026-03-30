@@ -252,6 +252,145 @@ export function playEvent(volume: number, muted: boolean) {
 	osc.stop(t + 0.2);
 }
 
+// ── Endgame SFX ──
+
+/** CRT power-down: high pitch sweeping to silence. */
+export function playCrtDown(volume: number, muted: boolean) {
+	const gain = sliderToGain(volume, muted);
+	if (gain === 0) return;
+
+	const ac = getCtx();
+	const t = ac.currentTime;
+	const dur = 0.7;
+
+	const osc = ac.createOscillator();
+	osc.type = "sine";
+	osc.frequency.setValueAtTime(4000, t);
+	osc.frequency.exponentialRampToValueAtTime(80, t + dur);
+
+	const g = ac.createGain();
+	g.gain.setValueAtTime(gain * 0.15, t);
+	g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+	osc.connect(g).connect(ac.destination);
+	osc.start(t);
+	osc.stop(t + dur);
+}
+
+/** Digital boot hum: low drone fading in. */
+export function playBootHum(volume: number, muted: boolean) {
+	const gain = sliderToGain(volume, muted);
+	if (gain === 0) return;
+
+	const ac = getCtx();
+	const t = ac.currentTime;
+	const dur = 0.5;
+
+	const osc = ac.createOscillator();
+	osc.type = "sawtooth";
+	osc.frequency.value = 60;
+
+	const lp = ac.createBiquadFilter();
+	lp.type = "lowpass";
+	lp.frequency.value = 200;
+
+	const g = ac.createGain();
+	g.gain.setValueAtTime(0, t);
+	g.gain.linearRampToValueAtTime(gain * 0.08, t + dur * 0.7);
+	g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+	osc.connect(lp).connect(g).connect(ac.destination);
+	osc.start(t);
+	osc.stop(t + dur);
+}
+
+/** Terminal keystroke: metallic click, different from game typing. */
+export function playTerminalKey(volume: number, muted: boolean) {
+	const now = performance.now();
+	if (now - lastTypingTime < 20) return;
+	lastTypingTime = now;
+
+	const gain = sliderToGain(volume, muted);
+	if (gain === 0) return;
+
+	const ac = getCtx();
+	const t = ac.currentTime;
+
+	// Short metallic ping
+	const osc = ac.createOscillator();
+	osc.type = "square";
+	osc.frequency.value = 2000 + Math.random() * 800;
+
+	const g = ac.createGain();
+	g.gain.setValueAtTime(gain * 0.06, t);
+	g.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
+
+	osc.connect(g).connect(ac.destination);
+	osc.start(t);
+	osc.stop(t + 0.02);
+}
+
+/** Glitchy error alarm: distorted buzz. */
+export function playErrorAlarm(volume: number, muted: boolean) {
+	const gain = sliderToGain(volume, muted);
+	if (gain === 0) return;
+
+	const ac = getCtx();
+	const t = ac.currentTime;
+
+	// Two detuned square waves for harsh buzz
+	for (const freq of [150, 157]) {
+		const osc = ac.createOscillator();
+		osc.type = "square";
+		osc.frequency.value = freq;
+
+		const g = ac.createGain();
+		g.gain.setValueAtTime(gain * 0.1, t);
+		g.gain.setValueAtTime(gain * 0.1, t + 0.3);
+		g.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+
+		osc.connect(g).connect(ac.destination);
+		osc.start(t);
+		osc.stop(t + 0.5);
+	}
+}
+
+/** Low dramatic drone swell — tension builder. */
+export function playDroneSwell(volume: number, muted: boolean) {
+	const gain = sliderToGain(volume, muted);
+	if (gain === 0) return;
+
+	const ac = getCtx();
+	const t = ac.currentTime;
+	const dur = 3;
+
+	const osc = ac.createOscillator();
+	osc.type = "sawtooth";
+	osc.frequency.value = 55;
+
+	const osc2 = ac.createOscillator();
+	osc2.type = "sawtooth";
+	osc2.frequency.value = 55.5; // slight detune for width
+
+	const lp = ac.createBiquadFilter();
+	lp.type = "lowpass";
+	lp.frequency.setValueAtTime(100, t);
+	lp.frequency.linearRampToValueAtTime(800, t + dur);
+
+	const g = ac.createGain();
+	g.gain.setValueAtTime(0, t);
+	g.gain.linearRampToValueAtTime(gain * 0.12, t + dur * 0.8);
+	g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+	osc.connect(lp);
+	osc2.connect(lp);
+	lp.connect(g).connect(ac.destination);
+	osc.start(t);
+	osc2.start(t);
+	osc.stop(t + dur);
+	osc2.stop(t + dur);
+}
+
 // ── Resume AudioContext after user gesture ──
 
 export function resumeCtx() {

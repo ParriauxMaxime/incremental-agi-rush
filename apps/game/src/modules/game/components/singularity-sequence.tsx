@@ -1,5 +1,5 @@
 import { css, keyframes } from "@emotion/react";
-import { music } from "@modules/audio";
+import { music, sfx } from "@modules/audio";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGameStore } from "../store/game-store";
 
@@ -175,6 +175,11 @@ const reconnectedCss = css({
 	whiteSpace: "nowrap",
 });
 
+const slideIn = keyframes({
+	from: { transform: "translateX(100%)" },
+	to: { transform: "translateX(0)" },
+});
+
 const contentAreaCss = css({
 	flex: 1,
 	overflowY: "auto",
@@ -184,7 +189,6 @@ const contentAreaCss = css({
 	color: "#c9d1d9",
 	whiteSpace: "pre-wrap",
 	wordBreak: "break-word",
-	maxWidth: 960,
 });
 
 const bottomBarCss = css({
@@ -426,6 +430,7 @@ function useTypingLines(
 		// Emit next token (chunk of characters)
 		if (charIndex < currentLine.length) {
 			const timer = setTimeout(() => {
+				sfx.terminalKey();
 				setCharIndex((prev) =>
 					Math.min(prev + randomTokenSize(), currentLine.length),
 				);
@@ -542,8 +547,21 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 	}, [scrollTrigger]);
 
 	useEffect(() => {
-		if (animate && phase === PhaseEnum.glitch) {
+		if (!animate) return;
+		if (phase === PhaseEnum.glitch) {
 			music.singularity();
+		}
+		if (phase === PhaseEnum.crt_collapse) {
+			sfx.crtDown();
+		}
+		if (phase === PhaseEnum.cli_fade_in) {
+			sfx.bootHum();
+		}
+		if (phase === PhaseEnum.error_display) {
+			sfx.errorAlarm();
+		}
+		if (phase === PhaseEnum.show_link) {
+			sfx.droneSwell();
 		}
 	}, [animate, phase]);
 
@@ -593,27 +611,16 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 	}
 
 	return (
-		<div css={[overlayBaseCss, { background: "#0a0e14" }]}>
+		<div css={[overlayBaseCss, { background: "rgba(0, 0, 0, 0.4)" }]}>
 			<div
 				css={[
 					cliContainerCss,
 					{
-						opacity: cliOpacity,
-						transition: `opacity ${CLI_FADE_DURATION}ms ease-in`,
+						animation: animate
+							? `${slideIn} ${CLI_FADE_DURATION}ms ease-out forwards`
+							: undefined,
 					},
 				]}
-				ref={() => {
-					// Trigger fade-in on next frame
-					if (phase === PhaseEnum.cli_fade_in && animate) {
-						requestAnimationFrame(() => {
-							const el = document.querySelector(
-								"[data-singularity-cli]",
-							) as HTMLElement | null;
-							if (el) el.style.opacity = "1";
-						});
-					}
-				}}
-				data-singularity-cli
 			>
 				{/* Top bar */}
 				<div css={topBarCss}>

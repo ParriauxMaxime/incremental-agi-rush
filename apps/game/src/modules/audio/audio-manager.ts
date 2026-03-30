@@ -14,10 +14,15 @@ import {
 	switchStyle,
 } from "./music-engine";
 import {
+	playBootHum,
+	playCrtDown,
+	playDroneSwell,
+	playErrorAlarm,
 	playEvent,
 	playExecute,
 	playMilestone,
 	playPurchase,
+	playTerminalKey,
 	playTierUnlock,
 	playTyping,
 	resumeCtx,
@@ -52,6 +57,11 @@ export const sfx = {
 	tierUnlock: () => playTierUnlock(...sfxVol()),
 	milestone: () => playMilestone(...sfxVol()),
 	event: () => playEvent(...sfxVol()),
+	crtDown: () => playCrtDown(...sfxVol()),
+	bootHum: () => playBootHum(...sfxVol()),
+	terminalKey: () => playTerminalKey(...sfxVol()),
+	errorAlarm: () => playErrorAlarm(...sfxVol()),
+	droneSwell: () => playDroneSwell(...sfxVol()),
 } as const;
 
 // ── Music wrappers ──
