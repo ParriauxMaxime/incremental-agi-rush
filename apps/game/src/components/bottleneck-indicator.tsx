@@ -1,6 +1,7 @@
 import { css } from "@emotion/react";
 import { useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
+import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/shallow";
 
 const containerCss = css({
@@ -99,6 +100,7 @@ function HardwareBar({
 }
 
 export function BottleneckIndicator() {
+	const { t } = useTranslation();
 	const state = useGameStore(
 		useShallow((s) => ({
 			cpuFlops: s.cpuFlops,
@@ -138,23 +140,23 @@ export function BottleneckIndicator() {
 		<div css={containerCss}>
 			{hasHardware && (
 				<>
-					<div css={titleCss}>Hardware</div>
+					<div css={titleCss}>{t("hardware.title")}</div>
 					<HardwareBar
-						label="CPU"
+						label={t("hardware.cpu")}
 						value={cpuFlops}
 						max={maxHw}
 						color="#61afef"
 						isBottleneck={cpuBottleneck}
 					/>
 					<HardwareBar
-						label="RAM"
+						label={t("hardware.ram")}
 						value={ramFlops}
 						max={maxHw}
 						color="#c678dd"
 						isBottleneck={ramBottleneck}
 					/>
 					<HardwareBar
-						label="Disk"
+						label={t("hardware.disk")}
 						value={storageFlops}
 						max={maxHw}
 						color="#98c379"
@@ -164,10 +166,9 @@ export function BottleneckIndicator() {
 						<div
 							css={[bottleneckCss, { background: "#2d2000", color: "#e5c07b" }]}
 						>
-							{cpuBottleneck ? "⚠ CPU bottleneck" : "⚠ RAM bottleneck"}
+							{cpuBottleneck ? t("hardware.cpu_bottleneck") : t("hardware.ram_bottleneck")}
 							<span css={{ fontWeight: "normal", color: "#8b949e" }}>
-								— min({formatNumber(cpuFlops)}, {formatNumber(ramFlops)}) +{" "}
-								{formatNumber(storageFlops)}
+								{t("hardware.formula", { cpu: formatNumber(cpuFlops), ram: formatNumber(ramFlops), storage: formatNumber(storageFlops) })}
 							</span>
 						</div>
 					)}
@@ -181,10 +182,9 @@ export function BottleneckIndicator() {
 						!hasHardware && { marginTop: 0 },
 					]}
 				>
-					⚠ FLOPS bottleneck
+					{t("hardware.flops_bottleneck")}
 					<span css={{ fontWeight: "normal", color: "#8b949e" }}>
-						— {formatNumber(flops)} FLOPS &lt; {formatNumber(estLocPerSec)}{" "}
-						LoC/s
+						{t("hardware.flops_detail", { flops: formatNumber(flops), locPerSec: formatNumber(estLocPerSec) })}
 					</span>
 				</div>
 			)}

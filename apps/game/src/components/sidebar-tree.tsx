@@ -13,6 +13,7 @@ import {
 } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 
 // ── Styles (layout-only, no colors) ──
@@ -148,6 +149,7 @@ function formatEffect(
 // ── Upgrade item ──
 
 function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
+	const { t } = useTranslation();
 	const cash = useGameStore((s) => s.cash);
 	const owned = useGameStore((s) => s.ownedUpgrades[upgrade.id] ?? 0);
 	const buyUpgrade = useGameStore((s) => s.buyUpgrade);
@@ -207,7 +209,7 @@ function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
 					<div css={itemRow1Css}>
 						<span>{upgrade.icon}</span>
 						<span css={itemNameCss} style={{ color: nameColor }}>
-							{upgrade.name}
+							{t(`${upgrade.id}.name`, { ns: "upgrades" })}
 						</span>
 						<span
 							css={itemCountCss}
@@ -269,6 +271,7 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 	const currentTierIndex = useGameStore((s) => s.currentTierIndex);
 	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
 	const reachedMilestones = useGameStore((s) => s.reachedMilestones);
+	const { t } = useTranslation();
 	const theme = useIdeTheme();
 	const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 	const [milestonesOpen, setMilestonesOpen] = useState(false);
@@ -297,12 +300,12 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 					justifyContent: "space-between",
 				}}
 			>
-				Explorer
+				{t("sidebar.title")}
 				{onCollapse && (
 					<button
 						type="button"
 						onClick={onCollapse}
-						title="Hide sidebar"
+						title={t("sidebar.hide")}
 						css={{
 							background: "none",
 							border: "none",
@@ -340,7 +343,7 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 				</style>
 				{/* Open Editors */}
 				<div css={sectionHeaderBaseCss} style={{ color: theme.textMuted }}>
-					&#9662; Open Editors
+					&#9662; {t("sidebar.open_editors")}
 				</div>
 				{pageFiles.map((f) => {
 					const active = f.page === page;
@@ -388,7 +391,7 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 					css={sectionHeaderBaseCss}
 					style={{ color: theme.textMuted, marginTop: 8 }}
 				>
-					&#9662; Upgrades
+					&#9662; {t("sidebar.upgrades")}
 				</div>
 				{tiers
 					.filter((tier) => tier.index <= currentTierIndex)
@@ -446,7 +449,7 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 					role="button"
 					tabIndex={0}
 				>
-					{milestonesOpen ? "▾" : "▸"} Milestones
+					{milestonesOpen ? "▾" : "▸"} {t("sidebar.milestones")}
 				</div>
 				{milestonesOpen &&
 					allMilestones
@@ -457,7 +460,7 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 								css={milestoneCss}
 								style={{ color: theme.success }}
 							>
-								✓ {m.name} — {formatNumber(m.threshold)}
+								{t("sidebar.milestone_item", { name: t(`${m.id}.name`, { ns: "milestones" }), threshold: formatNumber(m.threshold) })}
 							</div>
 						))}
 			</div>

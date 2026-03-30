@@ -2,6 +2,7 @@ import { css } from "@emotion/react";
 import { aiModels, useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 const wrapperCss = css({
 	padding: "8px 12px",
@@ -47,6 +48,7 @@ const rateCss = css({
 });
 
 export function FlopsSlider() {
+	const { t } = useTranslation();
 	const aiUnlocked = useGameStore((s) => s.aiUnlocked);
 	const flops = useGameStore((s) => s.flops);
 	const unlockedModels = useGameStore((s) => s.unlockedModels);
@@ -82,10 +84,10 @@ export function FlopsSlider() {
 				}}
 			>
 				<span css={[labelCss, { color: "#3fb950" }]}>
-					Exec {formatNumber(execFlops)} FLOPS
+					{t("flops_slider.exec_flops", { count: formatNumber(execFlops) })}
 				</span>
 				<span css={[labelCss, { color: "#c678dd" }]}>
-					AI {formatNumber(aiFlopsCost)} FLOPS
+					{t("flops_slider.ai_flops", { count: formatNumber(aiFlopsCost) })}
 				</span>
 			</div>
 			<div css={barCss}>
@@ -93,8 +95,8 @@ export function FlopsSlider() {
 				<div css={aiSegCss} style={{ width: `${aiPct}%` }} />
 			</div>
 			<div css={ratesCss}>
-				<span css={rateCss}>{formatNumber(execFlops)} loc/s exec</span>
-				<span css={rateCss}>{formatNumber(aiLocPerSec)} loc/s gen</span>
+				<span css={rateCss}>{t("flops_slider.exec_rate", { count: formatNumber(execFlops) })}</span>
+				<span css={rateCss}>{t("flops_slider.ai_rate", { count: formatNumber(aiLocPerSec) })}</span>
 			</div>
 		</div>
 	);

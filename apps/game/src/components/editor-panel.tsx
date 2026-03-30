@@ -1,6 +1,7 @@
 import { css } from "@emotion/react";
 import { Editor } from "@modules/editor";
 import { useGameStore } from "@modules/game";
+import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 import { CliPrompt } from "./cli-prompt";
 
@@ -56,6 +57,7 @@ const bottomContentCss = css({
 });
 
 export function EditorPanel() {
+	const { t } = useTranslation();
 	const aiUnlocked = useGameStore((s) => s.aiUnlocked);
 	const theme = useIdeTheme();
 
@@ -90,7 +92,7 @@ export function EditorPanel() {
 								borderBottom: `1px solid ${theme.foreground}`,
 							}}
 						>
-							Terminal
+							{t("editor.terminal")}
 						</span>
 					</div>
 					<div css={bottomContentCss} style={{ background: theme.panelBg }}>

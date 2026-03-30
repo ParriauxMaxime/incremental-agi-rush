@@ -1,5 +1,6 @@
 import { css } from "@emotion/react";
 import { tiers, useGameStore } from "@modules/game";
+import { useTranslation } from "react-i18next";
 
 const containerStyle = css({
 	padding: "8px 16px",
@@ -13,12 +14,13 @@ const containerStyle = css({
 });
 
 export function TierProgress() {
+	const { t: tTiers } = useTranslation("tiers");
 	const currentTierIndex = useGameStore((s) => s.currentTierIndex);
 	const tier = tiers[currentTierIndex];
 
 	return (
 		<div css={containerStyle}>
-			{tier.name} — {tier.tagline}
+			{tTiers(`${tier.id}.name`)} — {tTiers(`${tier.id}.tagline`)}
 		</div>
 	);
 }
