@@ -25,6 +25,76 @@ function useRatePerSec(value: number): number {
 	return rate;
 }
 
+// ── Keypress rate tracker ──
+// Three modes:
+//   idle (no input for 3s)  → 0 keys/sec (auto-type handled separately)
+//   active (discrete presses) → actual non-repeat keypress rate (3s window)
+//   held (key repeat)        → capped at 12 keys/sec (fast sustained typing)
+
+const IGNORED_KEYS = new Set([
+	"Shift",
+	"Control",
+	"Alt",
+	"Meta",
+	"Tab",
+	"Escape",
+	"CapsLock",
+]);
+const HELD_CAP = 12;
+const IDLE_TIMEOUT = 3000;
+
+function useKeypressRate(): number {
+	const pressTimestamps = useRef<number[]>([]);
+	const heldRef = useRef(false);
+	const lastKeyTime = useRef(0);
+	const [rate, setRate] = useState(0);
+
+	useEffect(() => {
+		function onKeyDown(e: KeyboardEvent) {
+			if (IGNORED_KEYS.has(e.key)) return;
+			lastKeyTime.current = performance.now();
+			if (e.repeat) {
+				heldRef.current = true;
+			} else {
+				heldRef.current = false;
+				pressTimestamps.current.push(performance.now());
+			}
+		}
+		function onKeyUp() {
+			heldRef.current = false;
+		}
+
+		window.addEventListener("keydown", onKeyDown);
+		window.addEventListener("keyup", onKeyUp);
+
+		const id = setInterval(() => {
+			const now = performance.now();
+			if (now - lastKeyTime.current > IDLE_TIMEOUT) {
+				// Idle: no keys for 3s
+				pressTimestamps.current.length = 0;
+				setRate(0);
+			} else if (heldRef.current) {
+				// Held: cap at reasonable fast typing speed
+				setRate(HELD_CAP);
+			} else {
+				// Active: count non-repeat presses in last 3s
+				const cutoff = now - IDLE_TIMEOUT;
+				const ts = pressTimestamps.current;
+				while (ts.length > 0 && ts[0] < cutoff) ts.shift();
+				setRate(ts.length / 3);
+			}
+		}, 500);
+
+		return () => {
+			window.removeEventListener("keydown", onKeyDown);
+			window.removeEventListener("keyup", onKeyUp);
+			clearInterval(id);
+		};
+	}, []);
+
+	return rate;
+}
+
 // ── Layout-only styles (no colors) ──
 
 const sectionCss = css({
@@ -36,12 +106,14 @@ const statRowCss = css({
 	alignItems: "center",
 	justifyContent: "space-between",
 	padding: "6px 0",
+	contain: "layout style",
 });
 
 const statValueCss = css({
 	fontSize: 22,
 	fontWeight: "bold",
 	fontVariantNumeric: "tabular-nums",
+	contain: "layout style",
 });
 
 const sourceRowCss = css({
@@ -62,7 +134,9 @@ const sourceNameCss = css({
 const barFillCss = css({
 	height: "100%",
 	borderRadius: 3,
-	transition: "width 0.3s ease",
+	width: "100%",
+	transformOrigin: "left",
+	transition: "transform 0.3s ease",
 });
 
 const sourceValueCss = css({
@@ -70,6 +144,61 @@ const sourceValueCss = css({
 	minWidth: 50,
 	textAlign: "right",
 	fontVariantNumeric: "tabular-nums",
+});
+
+const resourcesWrapCss = css({
+	padding: "8px 0",
+	flexShrink: 0,
+});
+
+const sourcesHeaderCss = css({
+	display: "flex",
+	justifyContent: "space-between",
+	alignItems: "center",
+});
+
+const sourcesTotalCss = css({
+	fontSize: 12,
+	fontVariantNumeric: "tabular-nums",
+});
+
+const autoExecRowCss = css({
+	display: "flex",
+	alignItems: "center",
+	gap: 8,
+});
+
+const toggleWrapCss = css({
+	display: "flex",
+	alignItems: "center",
+	cursor: "pointer",
+	userSelect: "none",
+	flexShrink: 0,
+	"&:hover": { opacity: 0.8 },
+});
+
+const toggleTrackCss = css({
+	width: 28,
+	height: 14,
+	borderRadius: 7,
+	position: "relative" as const,
+	transition: "background 0.2s",
+});
+
+const toggleThumbCss = css({
+	position: "absolute" as const,
+	top: 2,
+	width: 10,
+	height: 10,
+	borderRadius: "50%",
+	background: "#e6edf3",
+	transition: "left 0.2s",
+	display: "block",
+});
+
+const aiDividerCss = css({
+	height: 1,
+	margin: "6px 0",
 });
 
 // ── AI model colors ──
@@ -81,7 +210,7 @@ function modelColor(model: AiModelData, fallback: string): string {
 		gemini: "#fbbf24",
 		llama: "#a29bfe",
 		mistral: "#fd79a8",
-		grok: "#e17055",
+		deepseek: "#00d4aa",
 		copilot: "#6c5ce7",
 	};
 	return colors[model.family] ?? fallback;
@@ -94,6 +223,12 @@ interface SourceRow {
 	locPerSec: number;
 	color: string;
 	count?: number;
+	/** AI models: LoC output corresponding to token consumption */
+	locOutput?: number;
+	/** AI models: FLOPS demand */
+	flopsCost?: number;
+	/** AI models: FLOPS saturation percentage (0-1) */
+	flopsPct?: number;
 }
 
 export function StatsPanelResources() {
@@ -108,6 +243,10 @@ export function StatsPanelResources() {
 	const aiUnlocked = useGameStore((s) => s.aiUnlocked);
 	const unlockedModels = useGameStore((s) => s.unlockedModels);
 	const autoExec = useGameStore((s) => s.autoExecuteEnabled);
+	const autoExecUnlocked = useGameStore(
+		(s) => (s.ownedTechNodes.auto_execute ?? 0) > 0,
+	);
+	const toggleAutoExecute = useGameStore((s) => s.toggleAutoExecute);
 	const executeManual = useGameStore((s) => s.executeManual);
 	const llmHostSlots = useGameStore((s) => s.llmHostSlots);
 	const freelancerLocPerSec = useGameStore((s) => s.freelancerLocPerSec);
@@ -116,9 +255,11 @@ export function StatsPanelResources() {
 	const teamLocPerSec = useGameStore((s) => s.teamLocPerSec);
 	const managerBonus = useGameStore((s) => s.managerBonus);
 	const locPerKey = useGameStore((s) => s.locPerKey);
+	const autoTypeEnabled = useGameStore((s) => s.autoTypeEnabled);
 	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
 	const ownedUpgrades = useGameStore((s) => s.ownedUpgrades);
 	const theme = useIdeTheme();
+	const keysPerSec = useKeypressRate();
 
 	const cashRate = useRatePerSec(totalCash);
 
@@ -166,9 +307,12 @@ export function StatsPanelResources() {
 				locPerSec: devLocPerSec,
 				color: theme.accent,
 			});
+		// "You" rate: actual keypresses (3s window) + auto-type baseline (5 keys/s)
+		const autoTypeKeysPerSec = autoTypeEnabled ? 5 : 0;
+		const effectiveKeysPerSec = Math.max(keysPerSec, autoTypeKeysPerSec);
 		rows.push({
 			name: t("stats_panel.you"),
-			locPerSec: locPerKey * 6,
+			locPerSec: effectiveKeysPerSec * locPerKey,
 			color: theme.keyword,
 		});
 		rows.sort((a, b) => b.locPerSec - a.locPerSec);
@@ -180,6 +324,8 @@ export function StatsPanelResources() {
 		devLocPerSec,
 		teamLocPerSec,
 		locPerKey,
+		autoTypeEnabled,
+		keysPerSec,
 		theme,
 		t,
 	]);
@@ -187,23 +333,24 @@ export function StatsPanelResources() {
 	const flopSlider = useGameStore((s) => s.flopSlider);
 	const aiSources = useMemo((): SourceRow[] => {
 		if (!aiUnlocked) return [];
-		// Bottom-up allocation: cheapest models first (matches tick logic)
 		const activeModels = aiModels
 			.filter((m) => unlockedModels[m.id])
-			.sort((a, b) => a.flopsCost - b.flopsCost)
 			.slice(0, llmHostSlots);
-		let remaining = flops * (1 - flopSlider);
-		const rows = activeModels.map((model) => {
-			const modelFlops = Math.min(model.flopsCost, remaining);
-			remaining -= modelFlops;
-			const ratio = model.flopsCost > 0 ? modelFlops / model.flopsCost : 0;
-			return {
-				name: `${model.name} ${model.version}`,
-				locPerSec: model.locPerSec * Math.min(1, ratio),
-				color: modelColor(model, theme.textMuted),
-			};
-		});
-		// Display sorted by output descending (highest producers first)
+		// Proportional FLOPS: all models share fairly
+		const aiFlops = flops * (1 - flopSlider);
+		let totalDemand = 0;
+		for (const m of activeModels) totalDemand += m.flopsCost;
+		const saturation =
+			totalDemand > 0 ? Math.min(1, aiFlops / totalDemand) : 0;
+		const rows = activeModels.map((model) => ({
+			name: `${model.name} ${model.version}`,
+			locPerSec: model.tokenCost * saturation,
+			locOutput: model.locPerSec * saturation,
+			flopsCost: model.flopsCost,
+			flopsPct: saturation,
+			color: modelColor(model, theme.textMuted),
+		}));
+		// Display sorted by consumption descending (hungriest first)
 		rows.sort((a, b) => b.locPerSec - a.locPerSec);
 		return rows;
 	}, [aiUnlocked, unlockedModels, llmHostSlots, flops, flopSlider, theme]);
@@ -346,7 +493,7 @@ export function StatsPanelResources() {
 	return (
 		<>
 			{/* Resources (fixed, no scroll) */}
-			<div css={{ padding: "8px 0", flexShrink: 0 }}>
+			<div css={resourcesWrapCss}>
 				<div css={sectionCss}>
 					<div css={sectionLabelCss}>{t("stats_panel.resources")}</div>
 
@@ -421,30 +568,22 @@ export function StatsPanelResources() {
 					<>
 						<div css={dividerCss} />
 						<div css={sectionCss}>
-							<div
-								css={{
-									display: "flex",
-									justifyContent: "space-between",
-									alignItems: "center",
-								}}
-							>
+							<div css={sourcesHeaderCss}>
 								<div css={sectionLabelCss}>
 									{aiUnlocked
 										? t("stats_panel.token_sources")
 										: t("stats_panel.loc_sources")}
 								</div>
 								<span
-									css={{
-										fontSize: 12,
-										fontVariantNumeric: "tabular-nums",
-									}}
+									css={sourcesTotalCss}
 									style={{
 										color: aiUnlocked ? theme.cashColor : theme.locColor,
 									}}
 								>
 									{formatNumber(
 										autoLocPerSec +
-											locPerKey * 6 +
+											Math.max(keysPerSec, autoTypeEnabled ? 5 : 0) *
+												locPerKey +
 											(aiUnlocked
 												? 0
 												: aiSources.reduce((sum, s) => sum + s.locPerSec, 0)),
@@ -469,7 +608,7 @@ export function StatsPanelResources() {
 										<div
 											css={barFillCss}
 											style={{
-												width: `${(s.locPerSec / humanMaxLoc) * 100}%`,
+												transform: `scaleX(${s.locPerSec / humanMaxLoc})`,
 												background: s.color,
 											}}
 										/>
@@ -498,12 +637,60 @@ export function StatsPanelResources() {
 							{aiSources.length > 0 && (
 								<>
 									<div
-										css={{
-											height: 1,
-											background: theme.border,
-											margin: "6px 0",
-										}}
+										css={aiDividerCss}
+										style={{ background: theme.border }}
 									/>
+									<div
+										css={sourcesHeaderCss}
+										style={{ marginBottom: 2 }}
+									>
+										<span
+											css={sectionLabelCss}
+											style={{ fontSize: 10 }}
+										>
+											🔥 {t("stats_panel.token_consumers", { defaultValue: "Token Consumers" })}
+										</span>
+										<span css={sourcesTotalCss} style={{ color: theme.tokenColor }}>
+											{formatNumber(
+												aiSources.reduce(
+													(sum, s) => sum + s.locPerSec,
+													0,
+												),
+											)}{" "}
+											tok/s
+										</span>
+									</div>
+									<div
+										css={sourceRowCss}
+										style={{
+											height: 16,
+											fontSize: 10,
+											marginBottom: 2,
+										}}
+									>
+										<span style={{ color: theme.flopsColor }}>
+											⚡ {formatNumber(flops * (1 - flopSlider))}
+										</span>
+										<span style={{ color: theme.textMuted }}>/</span>
+										<span
+											style={{
+												color:
+													(aiSources[0]?.flopsPct ?? 0) < 0.5
+														? "#f44336"
+														: (aiSources[0]?.flopsPct ?? 0) < 0.9
+															? "#fbbf24"
+															: theme.success,
+											}}
+										>
+											{formatNumber(
+												aiSources.reduce(
+													(sum, s) => sum + (s.flopsCost ?? 0),
+													0,
+												),
+											)}{" "}
+											FLOPS ({Math.round((aiSources[0]?.flopsPct ?? 0) * 100)}%)
+										</span>
+									</div>
 									{aiSources.map((s) => (
 										<div css={sourceRowCss} key={s.name}>
 											<span
@@ -516,14 +703,30 @@ export function StatsPanelResources() {
 												<div
 													css={barFillCss}
 													style={{
-														width: `${(s.locPerSec / aiMaxLoc) * 100}%`,
+														transform: `scaleX(${s.locPerSec / aiMaxLoc})`,
 														background: s.color,
 													}}
 												/>
 											</div>
-											<span css={sourceValueCss} style={{ color: s.color }}>
-												{formatNumber(s.locPerSec)}
-												{t("stats_panel.per_sec")}
+											<span
+												css={sourceValueCss}
+												style={{ color: s.color }}
+											>
+												{formatNumber(s.locOutput ?? 0)}/s
+												<span
+													style={{
+														color:
+															(s.flopsPct ?? 0) < 0.5
+																? "#f44336"
+																: (s.flopsPct ?? 0) < 0.9
+																	? "#fbbf24"
+																	: theme.success,
+														marginLeft: 3,
+														fontSize: 9,
+													}}
+												>
+													⚡{formatNumber(s.flopsCost ?? 0)}
+												</span>
 											</span>
 										</div>
 									))}
@@ -537,8 +740,45 @@ export function StatsPanelResources() {
 			{/* Execute button */}
 			<div css={execBarCss}>
 				{autoExec ? (
-					<div css={autoExecLabelCss}>
-						{t("stats_panel.auto_exec", { rate: formatNumber(cashRate, true) })}
+					<div css={autoExecRowCss}>
+						<div css={autoExecLabelCss} style={{ flex: 1 }}>
+							{t("stats_panel.auto_exec", {
+								rate: formatNumber(cashRate, true),
+							})}
+						</div>
+						<div
+							css={toggleWrapCss}
+							onClick={toggleAutoExecute}
+							style={{ color: theme.success }}
+						>
+							<div css={toggleTrackCss} style={{ background: theme.success }}>
+								<span css={toggleThumbCss} style={{ left: 16 }} />
+							</div>
+						</div>
+					</div>
+				) : autoExecUnlocked ? (
+					<div css={autoExecRowCss}>
+						<button
+							type="button"
+							css={execBtnCss}
+							onClick={executeManual}
+							disabled={execLoc <= 0}
+							style={{ flex: 1 }}
+						>
+							{t("stats_panel.execute", {
+								loc: formatNumber(execLoc),
+								earn: formatNumber(earnPerExec, true),
+							})}
+						</button>
+						<div
+							css={toggleWrapCss}
+							onClick={toggleAutoExecute}
+							style={{ color: theme.textMuted }}
+						>
+							<div css={toggleTrackCss} style={{ background: "#30363d" }}>
+								<span css={toggleThumbCss} style={{ left: 2 }} />
+							</div>
+						</div>
 					</div>
 				) : (
 					<button

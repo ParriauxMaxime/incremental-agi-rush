@@ -16,22 +16,47 @@ interface NodeInspectorProps {
 const EFFECT_TYPES = [
 	"locPerKey",
 	"autoLoc",
+	"freelancerLoc",
 	"internLoc",
 	"devLoc",
+	"teamLoc",
+	"managerLoc",
+	"llmLoc",
+	"agentLoc",
 	"flops",
 	"cpuFlops",
 	"ramFlops",
 	"storageFlops",
 	"locProductionSpeed",
 	"cashMultiplier",
+	"tokenMultiplier",
 	"devSpeed",
+	"freelancerLocMultiplier",
 	"internLocMultiplier",
 	"devLocMultiplier",
+	"teamLocMultiplier",
+	"managerMultiplier",
+	"llmLocMultiplier",
+	"agentLocMultiplier",
+	"freelancerCostDiscount",
 	"internCostDiscount",
 	"devCostDiscount",
+	"teamCostDiscount",
+	"managerCostDiscount",
+	"llmCostDiscount",
+	"agentCostDiscount",
+	"freelancerMaxBonus",
+	"internMaxBonus",
+	"teamMaxBonus",
+	"managerMaxBonus",
+	"llmMaxBonus",
+	"agentMaxBonus",
+	"llmHostSlot",
 	"tierUnlock",
+	"modelUnlock",
 	"autoType",
-	"freelancerLoc",
+	"autoPoke",
+	"autoArbitrage",
 	"singularity",
 ];
 
@@ -203,9 +228,9 @@ function RequiresEditor({
 	nodeId: string;
 	onChange: (requires: string[]) => void;
 }) {
-	const available = allNodeIds.filter(
-		(id) => id !== nodeId && !requires.includes(id),
-	);
+	const available = allNodeIds
+		.filter((id) => id !== nodeId && !requires.includes(id))
+		.sort((a, b) => a.localeCompare(b));
 
 	return (
 		<div css={fieldStyle}>

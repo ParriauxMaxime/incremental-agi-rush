@@ -44,12 +44,13 @@ T4+:    Human workers → Tokens → AI models → LoC ─┐
 
 ### Token System
 
-Tokens gate AI output but are designed to be abundant at T4:
+Tokens gate AI output and are a meaningful constraint from T4 onward:
 - Human output is split: `tokensProduced = min(humanOutput, totalTokenDemand)`
 - Surplus goes directly to LoC: `directLoc = humanOutput - tokensProduced`
 - `tokenEfficiency = tokensProduced / totalTokenDemand` (0–1, multiplicative gate on AI output)
-- T4 model tokenCosts are intentionally low (~5-7x less than flopsCost ratio) so FLOPS is the real bottleneck
-- T5 models have higher tokenCosts to reintroduce token pressure at endgame
+- Token demand scales with model power — more powerful models consume more tokens
+- Players must balance human worker investment (token supply) vs AI model purchases (token demand)
+- Both FLOPS and tokens are real bottlenecks at T4+, with FLOPS gating execution and tokens gating AI generation
 
 ### AI Output Formula
 
@@ -94,9 +95,18 @@ From `libs/domain/data/balance.json` → `validation`:
 
 - AGI time: 20-60 minutes
 - Purchases: 80-500
-- Longest wait between purchases: max 600s
+- Longest wait between purchases: max 300s
 - All 6 tiers must be reached
-- Per-tier min/max durations (see balance.json)
+- Per-tier duration bounds (seconds):
+
+| Tier | Min | Max |
+|------|-----|-----|
+| Garage | 30 | 300 |
+| Freelancing | 60 | 800 |
+| Startup | 120 | 900 |
+| Tech Company | 150 | 900 |
+| AI Lab | 30 | 1600 |
+| AGI Race | 60 | 1200 |
 
 ## Key Bottlenecks by Tier
 
@@ -156,7 +166,8 @@ Each tick:
 
 ## Known Issues (2026-03-31)
 
-- AI Lab tier duration is too short (1-27s across all profiles). T4 needs rebalancing — likely increase model costs or reduce early T4 cash flow.
+- **AI Lab tier too short** (1s casual/average, 27s fast). T4 needs rebalancing — likely increase model costs or reduce early T4 cash flow. The accumulated T3 wealth + compounding multipliers blow through T4 costs instantly.
 - Agent setups (writer/reviewer, swarm, pipeline, tournament) defined in ai-models.json but not wired in game or sim.
 - AI model special abilities (quality floors, conditional bonuses, etc.) not implemented.
 - Code quality mechanic not implemented in game (sim has placeholder decay).
+- High idle time (~97% across all profiles) — sim purchase AI may be too conservative, or upgrade costs may ramp too steeply.

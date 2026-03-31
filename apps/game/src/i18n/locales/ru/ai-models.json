@@ -55,12 +55,12 @@
 		"special_name": "Le Code",
 		"special_description": "+10% скорости при наличии кофемашины. Oui oui."
 	},
-	"grok_2": {
+	"deepseek_v2": {
 		"special_name": "Хаотичный",
 		"special_description": "Выход LoC колеблется ±50% случайно каждые 10 сек"
 	},
-	"grok_3": {
-		"special_name": "Based",
+	"deepseek_r1": {
+		"special_name": "Chain of Thought",
 		"special_description": "Иногда генерирует мем-комментарии. Денег не приносит, но в редакторе смешно."
 	},
 	"gpt_6": {
@@ -71,7 +71,7 @@
 		"special_name": "Сверхинтеллект",
 		"special_description": "Пишет код быстрее, чем ты успеваешь читать. Приближается сингулярность."
 	},
-	"claude_saga": {
+	"claude_mythos": {
 		"special_name": "Идеальное выравнивание",
 		"special_description": "Порог качества 100% — каждая строка готова к продакшену."
 	},

@@ -63,6 +63,7 @@ export interface EventDefinition {
 	description: string;
 	icon: string;
 	minTier: TierIdEnum;
+	maxTier?: TierIdEnum;
 	duration: number;
 	effects: EventEffect[];
 	interaction?: EventInteraction;

@@ -13,6 +13,7 @@ const statCellCss = css({
 	alignItems: "center",
 	gap: 2,
 	minWidth: 0,
+	contain: "layout style",
 });
 
 const valueCss = css({
@@ -195,7 +196,7 @@ export function ResourceBar() {
 					<div css={rateStyle}>
 						{locRate > 0.1
 							? t("resource_bar.loc_rate", { rate: formatNumber(locRate) })
-							: ""}
+							: "\u00A0"}
 					</div>
 				</div>
 
@@ -214,7 +215,7 @@ export function ResourceBar() {
 							? t("resource_bar.cash_rate", {
 									rate: formatNumber(cashRate, true),
 								})
-							: ""}
+							: "\u00A0"}
 					</div>
 				</div>
 
@@ -228,7 +229,7 @@ export function ResourceBar() {
 					<div css={rateStyle}>
 						{execRate > 0.1
 							? t("resource_bar.loc_rate", { rate: formatNumber(execRate) })
-							: ""}
+							: "\u00A0"}
 					</div>
 				</div>
 			</div>

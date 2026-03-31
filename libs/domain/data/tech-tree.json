@@ -20,7 +20,7 @@
 				}
 			],
 			"x": 980,
-			"y": 740
+			"y": 580
 		},
 		{
 			"id": "auto_type",
@@ -41,8 +41,8 @@
 					"value": true
 				}
 			],
-			"x": 980,
-			"y": 500
+			"x": 1340,
+			"y": 660
 		},
 		{
 			"id": "auto_execute",
@@ -64,7 +64,7 @@
 				}
 			],
 			"x": 980,
-			"y": 420
+			"y": 220
 		},
 		{
 			"id": "coffee",
@@ -85,8 +85,8 @@
 					"value": 2
 				}
 			],
-			"x": 1240,
-			"y": 600
+			"x": 1160,
+			"y": 500
 		},
 		{
 			"id": "barista",
@@ -107,8 +107,8 @@
 					"value": 3
 				}
 			],
-			"x": 1240,
-			"y": 680
+			"x": 1160,
+			"y": 580
 		},
 		{
 			"id": "doppio",
@@ -129,8 +129,8 @@
 					"value": 5
 				}
 			],
-			"x": 1240,
-			"y": 760
+			"x": 1160,
+			"y": 660
 		},
 		{
 			"id": "github_actions",
@@ -151,8 +151,8 @@
 					"value": 3
 				}
 			],
-			"x": 1200,
-			"y": 260
+			"x": 1340,
+			"y": 220
 		},
 		{
 			"id": "cloudflare_workers",
@@ -173,8 +173,8 @@
 					"value": 4
 				}
 			],
-			"x": 1200,
-			"y": 180
+			"x": 1340,
+			"y": 300
 		},
 		{
 			"id": "cpu_upgrade",
@@ -204,8 +204,8 @@
 				"2MHz → 4MHz",
 				"4MHz → 8MHz"
 			],
-			"x": 1480,
-			"y": 560
+			"x": 1340,
+			"y": 580
 		},
 		{
 			"id": "ram_upgrade",
@@ -234,8 +234,8 @@
 				"2GB → 4GB",
 				"4GB → 8GB"
 			],
-			"x": 1480,
-			"y": 660
+			"x": 1340,
+			"y": 500
 		},
 		{
 			"id": "storage_upgrade",
@@ -265,8 +265,8 @@
 				"320GB → 640GB",
 				"640GB → 1TB"
 			],
-			"x": 1480,
-			"y": 460
+			"x": 1340,
+			"y": 420
 		},
 		{
 			"id": "tier_freelancing",
@@ -287,8 +287,8 @@
 					"value": 1
 				}
 			],
-			"x": 980,
-			"y": 180
+			"x": 1160,
+			"y": 260
 		},
 		{
 			"id": "intern_teaching",
@@ -309,8 +309,8 @@
 					"value": 1.2
 				}
 			],
-			"x": 300,
-			"y": -220
+			"x": 580,
+			"y": 0
 		},
 		{
 			"id": "intern_trap",
@@ -331,8 +331,8 @@
 					"value": 0.85
 				}
 			],
-			"x": 300,
-			"y": -140
+			"x": 580,
+			"y": -80
 		},
 		{
 			"id": "intern_quality",
@@ -353,8 +353,8 @@
 					"value": 1.1
 				}
 			],
-			"x": 620,
-			"y": -220
+			"x": 760,
+			"y": -100
 		},
 		{
 			"id": "tier_startup",
@@ -375,8 +375,8 @@
 					"value": 2
 				}
 			],
-			"x": 460,
-			"y": -60
+			"x": 760,
+			"y": 80
 		},
 		{
 			"id": "ci_cd_pipeline",
@@ -397,8 +397,8 @@
 					"value": 30
 				}
 			],
-			"x": 620,
-			"y": -60
+			"x": 580,
+			"y": 80
 		},
 		{
 			"id": "cloud_server",
@@ -419,8 +419,8 @@
 					"value": 100
 				}
 			],
-			"x": 620,
-			"y": 20
+			"x": 580,
+			"y": 160
 		},
 		{
 			"id": "dev_mentoring",
@@ -441,8 +441,8 @@
 					"value": 1.2
 				}
 			],
-			"x": 40,
-			"y": 240
+			"x": 720,
+			"y": 320
 		},
 		{
 			"id": "dev_recruiting",
@@ -463,7 +463,7 @@
 					"value": 0.85
 				}
 			],
-			"x": 40,
+			"x": 360,
 			"y": 320
 		},
 		{
@@ -485,8 +485,8 @@
 					"value": 1.15
 				}
 			],
-			"x": 300,
-			"y": -60
+			"x": 940,
+			"y": 0
 		},
 		{
 			"id": "computer",
@@ -505,8 +505,8 @@
 					"value": 1
 				}
 			],
-			"x": 1240,
-			"y": 500
+			"x": 1160,
+			"y": 420
 		},
 		{
 			"id": "unlock_sidebar",
@@ -522,7 +522,7 @@
 			"currency": "cash",
 			"effects": [],
 			"x": 980,
-			"y": 660
+			"y": 500
 		},
 		{
 			"id": "unlock_stats_panel",
@@ -538,7 +538,7 @@
 			"currency": "cash",
 			"effects": [],
 			"x": 980,
-			"y": 580
+			"y": 420
 		},
 		{
 			"id": "unlock_analytics",
@@ -546,15 +546,15 @@
 			"description": "See LoC production breakdown by source.",
 			"icon": "📈",
 			"requires": [
-				"outsourcing"
+				"tier_freelancing"
 			],
 			"max": 1,
 			"baseCost": 200,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": 1360,
-			"y": 100
+			"x": 980,
+			"y": 300
 		},
 		{
 			"id": "unlock_session_timeline",
@@ -569,8 +569,8 @@
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": 820,
-			"y": 580
+			"x": 980,
+			"y": 660
 		},
 		{
 			"id": "unlock_perf_graphs",
@@ -585,8 +585,8 @@
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": 620,
-			"y": -140
+			"x": 760,
+			"y": 160
 		},
 		{
 			"id": "interns",
@@ -607,8 +607,8 @@
 					"value": 10
 				}
 			],
-			"x": 460,
-			"y": -140
+			"x": 760,
+			"y": 0
 		},
 		{
 			"id": "tier_tech_company",
@@ -629,8 +629,8 @@
 					"value": 3
 				}
 			],
-			"x": 260,
-			"y": 320
+			"x": 540,
+			"y": 360
 		},
 		{
 			"id": "teams_gate",
@@ -645,7 +645,7 @@
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": 40,
+			"x": 360,
 			"y": 400
 		},
 		{
@@ -667,8 +667,8 @@
 					"value": 1.25
 				}
 			],
-			"x": 140,
-			"y": 580
+			"x": 440,
+			"y": 500
 		},
 		{
 			"id": "team_cost",
@@ -689,7 +689,7 @@
 					"value": 0.85
 				}
 			],
-			"x": 140,
+			"x": 280,
 			"y": 500
 		},
 		{
@@ -711,7 +711,7 @@
 					"value": 1.15
 				}
 			],
-			"x": -60,
+			"x": 440,
 			"y": 580
 		},
 		{
@@ -727,7 +727,7 @@
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": 460,
+			"x": 720,
 			"y": 400
 		},
 		{
@@ -749,7 +749,7 @@
 					"value": 1.3
 				}
 			],
-			"x": 560,
+			"x": 800,
 			"y": 580
 		},
 		{
@@ -771,7 +771,7 @@
 					"value": 0.8
 				}
 			],
-			"x": 560,
+			"x": 640,
 			"y": 500
 		},
 		{
@@ -780,7 +780,7 @@
 			"description": "+20% all auto-LoC per level",
 			"icon": "📈",
 			"requires": [
-				"tier_ai_lab"
+				"management_gate"
 			],
 			"max": 3,
 			"baseCost": 400000,
@@ -793,7 +793,7 @@
 					"value": 1.2
 				}
 			],
-			"x": 360,
+			"x": 800,
 			"y": 500
 		},
 		{
@@ -815,8 +815,8 @@
 					"value": 1000
 				}
 			],
-			"x": 460,
-			"y": 240
+			"x": 400,
+			"y": 160
 		},
 		{
 			"id": "cdn_network",
@@ -837,8 +837,8 @@
 					"value": 2000
 				}
 			],
-			"x": 460,
-			"y": 320
+			"x": 400,
+			"y": 80
 		},
 		{
 			"id": "tier_ai_lab",
@@ -859,8 +859,8 @@
 					"value": 4
 				}
 			],
-			"x": 340,
-			"y": 840
+			"x": 640,
+			"y": 720
 		},
 		{
 			"id": "tier_agi_race",
@@ -881,8 +881,8 @@
 					"value": 5
 				}
 			],
-			"x": 1280,
-			"y": 1220
+			"x": 1160,
+			"y": 760
 		},
 		{
 			"id": "llm_gate",
@@ -897,8 +897,8 @@
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": 340,
-			"y": 1020
+			"x": 640,
+			"y": 820
 		},
 		{
 			"id": "llm_training",
@@ -919,8 +919,8 @@
 					"value": 1.2
 				}
 			],
-			"x": 586,
-			"y": 1054
+			"x": 740,
+			"y": 1000
 		},
 		{
 			"id": "llm_cost",
@@ -941,8 +941,8 @@
 					"value": 0.85
 				}
 			],
-			"x": 746,
-			"y": 974
+			"x": 540,
+			"y": 920
 		},
 		{
 			"id": "llm_quality",
@@ -963,8 +963,8 @@
 					"value": 1.15
 				}
 			],
-			"x": 586,
-			"y": 974
+			"x": 740,
+			"y": 920
 		},
 		{
 			"id": "gpu_farm",
@@ -985,8 +985,8 @@
 					"value": 2000000
 				}
 			],
-			"x": 140,
-			"y": 820
+			"x": 1000,
+			"y": 920
 		},
 		{
 			"id": "fiber_network",
@@ -1007,8 +1007,8 @@
 					"value": 500000
 				}
 			],
-			"x": 140,
-			"y": 740
+			"x": 1000,
+			"y": 840
 		},
 		{
 			"id": "agent_gate",
@@ -1019,12 +1019,12 @@
 				"tier_agi_race"
 			],
 			"max": 1,
-			"baseCost": 50000000,
+			"baseCost": 100000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": 1280,
-			"y": 1320
+			"x": 1340,
+			"y": 820
 		},
 		{
 			"id": "agent_autonomy",
@@ -1035,7 +1035,7 @@
 				"agent_gate"
 			],
 			"max": 5,
-			"baseCost": 3000000000,
+			"baseCost": 6000000000,
 			"costMultiplier": 3,
 			"currency": "cash",
 			"effects": [
@@ -1045,8 +1045,8 @@
 					"value": 1.5
 				}
 			],
-			"x": 1180,
-			"y": 1560
+			"x": 1260,
+			"y": 1100
 		},
 		{
 			"id": "agent_cost",
@@ -1057,7 +1057,7 @@
 				"agent_gate"
 			],
 			"max": 5,
-			"baseCost": 80000000,
+			"baseCost": 160000000,
 			"costMultiplier": 1.5,
 			"currency": "cash",
 			"effects": [
@@ -1067,8 +1067,8 @@
 					"value": 0.8
 				}
 			],
-			"x": 1380,
-			"y": 1560
+			"x": 1420,
+			"y": 1100
 		},
 		{
 			"id": "agent_alignment",
@@ -1079,7 +1079,7 @@
 				"agent_gate"
 			],
 			"max": 5,
-			"baseCost": 5000000000,
+			"baseCost": 10000000000,
 			"costMultiplier": 3,
 			"currency": "cash",
 			"effects": [
@@ -1089,8 +1089,8 @@
 					"value": 1.5
 				}
 			],
-			"x": 1380,
-			"y": 1460
+			"x": 1420,
+			"y": 1020
 		},
 		{
 			"id": "quantum_compute",
@@ -1101,7 +1101,7 @@
 				"tier_agi_race"
 			],
 			"max": 5,
-			"baseCost": 5000000,
+			"baseCost": 10000000,
 			"costMultiplier": 1.8,
 			"currency": "loc",
 			"effects": [
@@ -1111,8 +1111,8 @@
 					"value": 50000000
 				}
 			],
-			"x": 1080,
-			"y": 1320
+			"x": 1160,
+			"y": 840
 		},
 		{
 			"id": "neural_fabric",
@@ -1123,7 +1123,7 @@
 				"tier_agi_race"
 			],
 			"max": 5,
-			"baseCost": 3000000,
+			"baseCost": 6000000,
 			"costMultiplier": 1.6,
 			"currency": "loc",
 			"effects": [
@@ -1133,8 +1133,8 @@
 					"value": 10000000
 				}
 			],
-			"x": 1480,
-			"y": 1320
+			"x": 1160,
+			"y": 920
 		},
 		{
 			"id": "intern_capacity",
@@ -1155,8 +1155,8 @@
 					"value": 5
 				}
 			],
-			"x": 460,
-			"y": -220
+			"x": 940,
+			"y": -80
 		},
 		{
 			"id": "team_capacity",
@@ -1177,8 +1177,8 @@
 					"value": 5
 				}
 			],
-			"x": -60,
-			"y": 500
+			"x": 280,
+			"y": 580
 		},
 		{
 			"id": "manager_capacity",
@@ -1199,18 +1199,18 @@
 					"value": 3
 				}
 			],
-			"x": 360,
+			"x": 640,
 			"y": 580
 		},
 		{
 			"id": "llm_capacity",
 			"name": "GPU Allocation",
-			"description": "+5 max LLM instances per level",
+			"description": "+4 max LLM instances per level",
 			"icon": "🔢",
 			"requires": [
 				"llm_gate"
 			],
-			"max": 5,
+			"max": 4,
 			"baseCost": 30000000,
 			"costMultiplier": 1.6,
 			"currency": "cash",
@@ -1218,11 +1218,11 @@
 				{
 					"type": "llmMaxBonus",
 					"op": "add",
-					"value": 5
+					"value": 4
 				}
 			],
-			"x": 746,
-			"y": 1054
+			"x": 540,
+			"y": 1000
 		},
 		{
 			"id": "agent_capacity",
@@ -1233,7 +1233,7 @@
 				"agent_gate"
 			],
 			"max": 5,
-			"baseCost": 150000000,
+			"baseCost": 300000000,
 			"costMultiplier": 1.7,
 			"currency": "cash",
 			"effects": [
@@ -1243,8 +1243,30 @@
 					"value": 3
 				}
 			],
-			"x": 1180,
-			"y": 1460
+			"x": 1260,
+			"y": 1020
+		},
+		{
+			"id": "synthetic_data",
+			"name": "Synthetic Data",
+			"description": "Agents generate training data. x1.5 token output per level",
+			"icon": "🔄",
+			"requires": [
+				"agent_gate"
+			],
+			"max": 5,
+			"baseCost": 2000000000,
+			"costMultiplier": 3,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "tokenMultiplier",
+					"op": "multiply",
+					"value": 1.5
+				}
+			],
+			"x": 1340,
+			"y": 920
 		},
 		{
 			"id": "auto_poke",
@@ -1265,8 +1287,8 @@
 					"value": 1
 				}
 			],
-			"x": 140,
-			"y": 980
+			"x": 820,
+			"y": 820
 		},
 		{
 			"id": "auto_arbitrage",
@@ -1274,7 +1296,7 @@
 			"description": "Automatically optimizes FLOPS allocation for maximum cash flow.",
 			"icon": "⚖️",
 			"requires": [
-				"tier_ai_lab"
+				"llm_gate"
 			],
 			"max": 1,
 			"baseCost": 50000000,
@@ -1287,8 +1309,8 @@
 					"value": 1
 				}
 			],
-			"x": 140,
-			"y": 900
+			"x": 820,
+			"y": 740
 		},
 		{
 			"id": "outsourcing",
@@ -1303,8 +1325,8 @@
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [],
-			"x": 1200,
-			"y": 100
+			"x": 1160,
+			"y": 180
 		},
 		{
 			"id": "freelancer_training",
@@ -1325,8 +1347,8 @@
 					"value": 1.2
 				}
 			],
-			"x": 1040,
-			"y": -60
+			"x": 1160,
+			"y": 80
 		},
 		{
 			"id": "freelancer_cost",
@@ -1347,8 +1369,8 @@
 					"value": 0.9
 				}
 			],
-			"x": 1360,
-			"y": -60
+			"x": 980,
+			"y": 100
 		},
 		{
 			"id": "freelancer_capacity",
@@ -1369,8 +1391,8 @@
 					"value": 5
 				}
 			],
-			"x": 1200,
-			"y": -60
+			"x": 1340,
+			"y": 100
 		},
 		{
 			"id": "openai_gpt3",
@@ -1396,8 +1418,8 @@
 					"value": 1.02
 				}
 			],
-			"x": 6,
-			"y": 1174
+			"x": 640,
+			"y": 1260
 		},
 		{
 			"id": "openai_gpt35",
@@ -1423,8 +1445,8 @@
 					"value": 1.02
 				}
 			],
-			"x": 6,
-			"y": 1254
+			"x": 800,
+			"y": 1300
 		},
 		{
 			"id": "openai_gpt4",
@@ -1450,8 +1472,8 @@
 					"value": 1.02
 				}
 			],
-			"x": 6,
-			"y": 1394
+			"x": 960,
+			"y": 1340
 		},
 		{
 			"id": "openai_gpt41",
@@ -1477,8 +1499,8 @@
 					"value": 1.02
 				}
 			],
-			"x": 86,
-			"y": 1494
+			"x": 1120,
+			"y": 1300
 		},
 		{
 			"id": "openai_gpt5",
@@ -1504,8 +1526,8 @@
 					"value": 1.05
 				}
 			],
-			"x": -74,
-			"y": 1494
+			"x": 1120,
+			"y": 1380
 		},
 		{
 			"id": "anthropic_haiku",
@@ -1531,8 +1553,8 @@
 					"value": 1.02
 				}
 			],
-			"x": 166,
-			"y": 1174
+			"x": 760,
+			"y": 1180
 		},
 		{
 			"id": "anthropic_sonnet",
@@ -1558,8 +1580,8 @@
 					"value": 1.02
 				}
 			],
-			"x": 166,
-			"y": 1254
+			"x": 960,
+			"y": 1220
 		},
 		{
 			"id": "anthropic_opus",
@@ -1585,8 +1607,8 @@
 					"value": 1.05
 				}
 			],
-			"x": 246,
-			"y": 1494
+			"x": 1120,
+			"y": 1220
 		},
 		{
 			"id": "github_copilot",
@@ -1612,8 +1634,8 @@
 					"value": 1.02
 				}
 			],
-			"x": -314,
-			"y": 1174
+			"x": 520,
+			"y": 1100
 		},
 		{
 			"id": "google_gemini_pro",
@@ -1639,8 +1661,8 @@
 					"value": 1.02
 				}
 			],
-			"x": 326,
-			"y": 1174
+			"x": 880,
+			"y": 1460
 		},
 		{
 			"id": "google_gemini_ultra",
@@ -1666,8 +1688,8 @@
 					"value": 1.05
 				}
 			],
-			"x": 326,
-			"y": 1254
+			"x": 1220,
+			"y": 1460
 		},
 		{
 			"id": "meta_llama_70b",
@@ -1693,8 +1715,8 @@
 					"value": 1.02
 				}
 			],
-			"x": -154,
-			"y": 1174
+			"x": 960,
+			"y": 1040
 		},
 		{
 			"id": "meta_llama_405b",
@@ -1720,8 +1742,8 @@
 					"value": 1.02
 				}
 			],
-			"x": -154,
-			"y": 1254
+			"x": 960,
+			"y": 1120
 		},
 		{
 			"id": "mistral_unlock",
@@ -1747,26 +1769,26 @@
 					"value": 1.02
 				}
 			],
-			"x": 646,
-			"y": 1174
+			"x": 760,
+			"y": 1100
 		},
 		{
-			"id": "xai_grok2",
-			"name": "Grok 2",
-			"description": "Unlock Grok 2 for deployment.",
-			"icon": "❌",
+			"id": "deepseek_v2",
+			"name": "DeepSeek V2",
+			"description": "Unlock DeepSeek V2 for deployment.",
+			"icon": "🔮",
 			"requires": [
 				"llm_gate"
 			],
 			"max": 1,
-			"baseCost": 180000000,
+			"baseCost": 18000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
 				{
 					"type": "modelUnlock",
 					"op": "enable",
-					"value": "grok_2"
+					"value": "deepseek_v2"
 				},
 				{
 					"type": "cashMultiplier",
@@ -1774,16 +1796,16 @@
 					"value": 1.02
 				}
 			],
-			"x": 486,
-			"y": 1174
+			"x": 580,
+			"y": 1180
 		},
 		{
-			"id": "xai_grok3",
-			"name": "Grok 3",
-			"description": "Unlock Grok 3 for deployment.",
-			"icon": "❌",
+			"id": "deepseek_r1",
+			"name": "DeepSeek R1",
+			"description": "Unlock DeepSeek R1 for deployment.",
+			"icon": "🔮",
 			"requires": [
-				"xai_grok2"
+				"deepseek_v2"
 			],
 			"max": 1,
 			"baseCost": 250000000000,
@@ -1793,7 +1815,7 @@
 				{
 					"type": "modelUnlock",
 					"op": "enable",
-					"value": "grok_3"
+					"value": "deepseek_r1"
 				},
 				{
 					"type": "cashMultiplier",
@@ -1801,8 +1823,8 @@
 					"value": 1.05
 				}
 			],
-			"x": 486,
-			"y": 1254
+			"x": 1360,
+			"y": 1540
 		},
 		{
 			"id": "openai_gpt6",
@@ -1828,8 +1850,8 @@
 					"value": 1.08
 				}
 			],
-			"x": 6,
-			"y": 1594
+			"x": 1320,
+			"y": 1320
 		},
 		{
 			"id": "openai_gpt7",
@@ -1855,8 +1877,8 @@
 					"value": 1.15
 				}
 			],
-			"x": 6,
-			"y": 1694
+			"x": 1480,
+			"y": 1320
 		},
 		{
 			"id": "anthropic_mythos",
@@ -1882,8 +1904,8 @@
 					"value": 1.08
 				}
 			],
-			"x": 206,
-			"y": 1594
+			"x": 1380,
+			"y": 1220
 		},
 		{
 			"id": "anthropic_universe",
@@ -1909,8 +1931,8 @@
 					"value": 1.2
 				}
 			],
-			"x": 206,
-			"y": 1694
+			"x": 1540,
+			"y": 1220
 		},
 		{
 			"id": "google_gemini_supreme",
@@ -1936,8 +1958,30 @@
 					"value": 1.1
 				}
 			],
-			"x": 386,
-			"y": 1594
+			"x": 1480,
+			"y": 1400
+		},
+		{
+			"id": "the_singularity",
+			"name": "The Singularity",
+			"description": "There is no turning back.",
+			"icon": "🌀",
+			"requires": [
+				"tier_agi_race"
+			],
+			"max": 1,
+			"baseCost": 2000000000000000,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "singularity",
+					"op": "enable",
+					"value": true
+				}
+			],
+			"x": 1720,
+			"y": 1300
 		}
 	]
 }

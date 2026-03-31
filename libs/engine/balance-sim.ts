@@ -41,7 +41,7 @@ const DEFAULT_CONFIG: SimConfig = {
 	keysPerSec: 6,
 	skill: 0.8,
 	aiStrategy: AiStrategyEnum.balanced,
-	maxMinutes: 60,
+	maxMinutes: 90,
 };
 
 // ── Simulation (synced with specs/balance-check.js) ──
@@ -83,6 +83,7 @@ export function runBalanceSim(
 		managerMultiplier: 1,
 		devSpeedMultiplier: 1,
 		cashMultiplier: 1,
+		tokenMultiplier: 1,
 		aiLocMultiplier: 1,
 		freelancerLoc: 0,
 		freelancerLocMultiplier: 1,
@@ -348,6 +349,7 @@ export function runBalanceSim(
 		sim.agentMaxBonus = 0;
 		sim.locProductionMultiplier = 1;
 		sim.cashMultiplier = 1;
+		sim.tokenMultiplier = 1;
 		sim.aiLocMultiplier = 1;
 		sim.autoTypeEnabled = false;
 		let tierIndex = sim.currentTier;
@@ -388,6 +390,7 @@ export function runBalanceSim(
 				if (e.type === "locProductionSpeed")
 					sim.locProductionMultiplier *= mult;
 				if (e.type === "cashMultiplier") sim.cashMultiplier *= mult;
+				if (e.type === "tokenMultiplier") sim.tokenMultiplier *= mult;
 				if (e.type === "devSpeed") sim.devSpeedMultiplier *= mult;
 				if (e.type === "freelancerLocMultiplier")
 					sim.freelancerLocMultiplier *= mult;
@@ -492,6 +495,25 @@ export function runBalanceSim(
 
 	const agiTarget =
 		"agiLocTarget" in core ? (core.agiLocTarget as number) : 200000000;
+
+	// Find singularity cost (tech node or upgrade)
+	let singularityCashCost = Number.POSITIVE_INFINITY;
+	const singUpgrade = upgrades.find((u) =>
+		u.effects.some((e: { type: string }) => e.type === "singularity"),
+	);
+	if (singUpgrade) {
+		singularityCashCost = singUpgrade.baseCost;
+	} else {
+		const singNode = techNodes.find((n) =>
+			n.effects.some((e: { type: string }) => e.type === "singularity"),
+		);
+		if (singNode && singNode.currency === "cash") {
+			singularityCashCost = singNode.baseCost;
+		}
+	}
+	// Fallback: if no singularity found, use totalLoc target
+	const useCashWin = singularityCashCost < Number.POSITIVE_INFINITY;
+
 	const maxSeconds = cfg.maxMinutes * 60;
 	let purchaseCount = 0;
 	let lastPurchaseTime = 0;
@@ -657,13 +679,14 @@ export function runBalanceSim(
 				.slice(0, sim.llmHostSlots);
 
 			// Token split: humans produce tokens for AI, surplus → direct LoC
+			const adjustedHumanOutput = humanOutput * sim.tokenMultiplier;
 			let totalTokenDemand = 0;
 			for (const m of activeModels) {
 				totalTokenDemand += m.tokenCost;
 			}
-			const tokensProduced = Math.min(humanOutput, totalTokenDemand);
+			const tokensProduced = Math.min(adjustedHumanOutput, totalTokenDemand);
 			tokensConsumed = tokensProduced;
-			const directLoc = humanOutput - tokensProduced;
+			const directLoc = adjustedHumanOutput - tokensProduced;
 			const tokenEfficiency =
 				totalTokenDemand > 0 ? tokensProduced / totalTokenDemand : 0;
 
@@ -671,17 +694,17 @@ export function runBalanceSim(
 			const aiFlops = flops * (1 - sim.flopSlider);
 			const execFlops = flops * sim.flopSlider;
 
-			// AI LoC (gated by tokens AND slider-allocated FLOPS, cheapest first)
-			let remainingAiFlops = aiFlops;
+			// AI LoC (gated by tokens AND proportional FLOPS allocation)
+			let totalFlopsDemand = 0;
+			for (const m of activeModels) totalFlopsDemand += m.flopsCost;
+			const flopSaturation =
+				totalFlopsDemand > 0 ? Math.min(1, aiFlops / totalFlopsDemand) : 0;
 			for (const m of activeModels) {
-				const modelFlops = Math.min(m.flopsCost, remainingAiFlops);
-				remainingAiFlops -= modelFlops;
-				const ratio = m.flopsCost > 0 ? modelFlops / m.flopsCost : 0;
 				aiLoc +=
 					m.locPerSec *
 					sim.aiLocMultiplier *
 					tokenEfficiency *
-					Math.min(1, ratio);
+					flopSaturation;
 			}
 
 			sim.loc += directLoc + aiLoc;
@@ -691,10 +714,11 @@ export function runBalanceSim(
 			sim.totalCash += executed * cashPerLoc();
 			sim.loc -= executed;
 
-			// Auto-arbitrage: adjust slider for next tick
+			// Auto-arbitrage: target slider based on actual demand
 			if (sim.autoArbitrageEnabled) {
-				let targetSlider = flops > 0 ? aiLoc / flops : 0.7;
-				// Queue pressure bias
+				const idealAiFraction =
+					flops > 0 ? Math.min(0.9, totalFlopsDemand / flops) : 0.3;
+				let targetSlider = 1 - idealAiFraction;
 				if (sim.loc > execFlops * 5) targetSlider += 0.05;
 				else if (sim.loc < execFlops * 1) targetSlider -= 0.05;
 				targetSlider = Math.min(0.95, Math.max(0.1, targetSlider));
@@ -816,6 +840,8 @@ export function runBalanceSim(
 							(calcAutoLoc() + effLocPerKey() * cfg.keysPerSec) *
 							cashPerLoc() *
 							(ev - 1);
+					if (e.type === "tokenMultiplier" && sim.aiUnlocked)
+						val += calcAutoLoc() * cashPerLoc() * (ev - 1) * 0.5;
 					if (
 						e.type === "internCostDiscount" ||
 						e.type === "devCostDiscount" ||
@@ -877,6 +903,11 @@ export function runBalanceSim(
 		}
 
 		// ── Buy items ──
+		// At T5 approaching singularity: keep buying but reserve cash.
+		// Don't spend more than 50% of current cash on any item — lets savings
+		// grow naturally while still investing in FLOPS.
+		const cashCap =
+			useCashWin && sim.currentTier >= 5 ? sim.cash * 0.5 : Number.POSITIVE_INFINITY;
 		let boughtThisTick = false;
 		for (let b = 0; b < 5; b++) {
 			const avail = upgrades.filter((u) => {
@@ -912,7 +943,7 @@ export function runBalanceSim(
 
 			for (const u of avail) {
 				const cost = getCost(u);
-				if (cost > sim.cash) continue;
+				if (cost > sim.cash || cost > cashCap) continue;
 				let val = 0;
 				for (const e of u.effects) {
 					const ev = e.value as number;
@@ -940,6 +971,8 @@ export function runBalanceSim(
 						val += ev * cashPerLoc() * (bottlenecked ? 0.3 : 1);
 					if (e.type === "cashMultiplier")
 						val += Math.min(totalLocS, execCap) * cashPerLoc() * (ev - 1);
+					if (e.type === "tokenMultiplier" && sim.aiUnlocked)
+						val += totalLocS * cashPerLoc() * (ev - 1) * 0.5;
 					if (e.type === "instantCash") val += ev / 60;
 					if (e.type === "llmHostSlot") {
 						const unlockedCount = Object.values(sim.ownedModels).filter(
@@ -970,7 +1003,7 @@ export function runBalanceSim(
 			}
 
 			for (const m of availModels) {
-				if (m.cost > sim.cash) continue;
+				if (m.cost > sim.cash || m.cost > cashCap) continue;
 				const val = (m.locPerSec * sim.aiLocMultiplier * cashPerLoc()) / m.cost;
 				if (val > bestVal) {
 					bestVal = val;
@@ -1042,7 +1075,12 @@ export function runBalanceSim(
 		}
 
 		// ── AGI check ──
-		if (sim.totalLoc >= agiTarget) {
+		if (useCashWin) {
+			if (sim.cash >= singularityCashCost) {
+				agiTime = t;
+				break;
+			}
+		} else if (sim.totalLoc >= agiTarget) {
 			agiTime = t;
 			break;
 		}

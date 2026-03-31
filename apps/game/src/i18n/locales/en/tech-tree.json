@@ -217,6 +217,10 @@
 		"name": "Agent Framework",
 		"description": "Unlock autonomous AI agents."
 	},
+	"synthetic_data": {
+		"name": "Synthetic Data",
+		"description": "Agents generate training data. x1.5 token output per level"
+	},
 	"agent_autonomy": {
 		"name": "Self-Improvement",
 		"description": "x1.5 agent output per level"
@@ -337,13 +341,13 @@
 		"name": "Mistral Large",
 		"description": "Unlock Mistral Large for deployment."
 	},
-	"xai_grok2": {
-		"name": "Grok 2",
-		"description": "Unlock Grok 2 for deployment."
+	"deepseek_v2": {
+		"name": "DeepSeek V2",
+		"description": "Unlock DeepSeek V2 for deployment."
 	},
-	"xai_grok3": {
-		"name": "Grok 3",
-		"description": "Unlock Grok 3 for deployment."
+	"deepseek_r1": {
+		"name": "DeepSeek R1",
+		"description": "Unlock DeepSeek R1 for deployment."
 	},
 	"openai_gpt6": {
 		"name": "GPT-6",
@@ -353,9 +357,9 @@
 		"name": "GPT-7",
 		"description": "Unlock GPT-7 for deployment."
 	},
-	"anthropic_saga": {
-		"name": "Claude Saga",
-		"description": "Unlock Claude Saga for deployment."
+	"anthropic_mythos": {
+		"name": "Claude Mythos",
+		"description": "Unlock Claude Mythos for deployment."
 	},
 	"anthropic_universe": {
 		"name": "Claude Universe",
@@ -364,5 +368,9 @@
 	"google_gemini_supreme": {
 		"name": "Gemini Supreme",
 		"description": "Unlock Gemini Supreme for deployment."
+	},
+	"the_singularity": {
+		"name": "The Singularity",
+		"description": "There is no turning back."
 	}
 }

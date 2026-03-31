@@ -29,7 +29,11 @@ function randomInterval(): number {
 }
 
 function pickWeightedEvent(tierIndex: number): EventDefinition | null {
-	const eligible = allEvents.filter((e) => TIER_INDEX[e.minTier] <= tierIndex);
+	const eligible = allEvents.filter(
+		(e) =>
+			TIER_INDEX[e.minTier] <= tierIndex &&
+			(e.maxTier == null || TIER_INDEX[e.maxTier] >= tierIndex),
+	);
 	if (eligible.length === 0) return null;
 
 	const totalWeight = eligible.reduce((sum, e) => sum + e.weight, 0);
@@ -197,43 +201,45 @@ export const useEventStore = create<EventState & EventActions>()(
 			let changed = false;
 
 			// Tick down active event durations; remove expired (always, even when paused)
-			const updatedEvents: ActiveEvent[] = [];
-			for (const ev of state.activeEvents) {
-				if (ev.resolved || ev.remainingDuration <= 0) {
-					// Already done — skip (drop from list)
-					changed = true;
-					continue;
+			let updatedEvents = state.activeEvents;
+			if (updatedEvents.length > 0) {
+				const next: ActiveEvent[] = [];
+				for (const ev of updatedEvents) {
+					if (ev.resolved || ev.remainingDuration <= 0) {
+						changed = true;
+						continue;
+					}
+					const newRemaining = ev.remainingDuration - dt;
+					if (newRemaining <= 0) {
+						changed = true;
+					} else {
+						next.push({ ...ev, remainingDuration: newRemaining });
+						changed = true;
+					}
 				}
-				const newRemaining = ev.remainingDuration - dt;
-				if (newRemaining <= 0) {
-					changed = true;
-					// Expired without resolution — just drop it
-				} else {
-					updatedEvents.push({ ...ev, remainingDuration: newRemaining });
-					changed = true;
-				}
+				updatedEvents = next;
 			}
 
-			// Tick down toast dismiss countdown (always)
+			// Tick down toast dismiss countdown (only set changed when toast expires)
 			let { toastEvent, toastDismissCountdown } = state;
 			if (toastEvent !== null) {
 				toastDismissCountdown -= dt;
 				if (toastDismissCountdown <= 0) {
 					toastEvent = null;
 					toastDismissCountdown = 0;
+					changed = true;
 				}
-				changed = true;
 			}
 
-			// Tick down milestone toast
+			// Tick down milestone toast (only set changed when it expires)
 			let { milestoneToast, milestoneDismissCountdown } = state;
 			if (milestoneToast !== null) {
 				milestoneDismissCountdown -= dt;
 				if (milestoneDismissCountdown <= 0) {
 					milestoneToast = null;
 					milestoneDismissCountdown = 0;
+					changed = true;
 				}
-				changed = true;
 			}
 
 			// Spawn check: only when running and no non-synthetic active event
@@ -427,6 +433,7 @@ export const useEventStore = create<EventState & EventActions>()(
 
 		getEventModifiers(): EventModifiers {
 			const { activeEvents } = get();
+			if (activeEvents.length === 0) return DEFAULT_EVENT_MODIFIERS;
 			const hasActive = activeEvents.some((ev) => !ev.resolved || ev.synthetic);
 			if (!hasActive) return DEFAULT_EVENT_MODIFIERS;
 

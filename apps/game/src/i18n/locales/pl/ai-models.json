@@ -55,12 +55,12 @@
 		"special_name": "Le Code",
 		"special_description": "+10% prędkości, jeśli masz Ekspres do kawy. Oui oui."
 	},
-	"grok_2": {
+	"deepseek_v2": {
 		"special_name": "Chaotyczny",
 		"special_description": "Produkcja LoC waha się ±50% losowo co 10s"
 	},
-	"grok_3": {
-		"special_name": "Based",
+	"deepseek_r1": {
+		"special_name": "Chain of Thought",
 		"special_description": "Czasem generuje memiczne komentarze. Bez wartości gotówkowej, ale śmiesznie w edytorze."
 	},
 	"gpt_6": {
@@ -71,7 +71,7 @@
 		"special_name": "Superinteligentny",
 		"special_description": "Pisze kod szybciej, niż możesz go czytać. Zbliżanie się do osobliwości."
 	},
-	"claude_saga": {
+	"claude_mythos": {
 		"special_name": "Idealne wyrównanie",
 		"special_description": "Próg jakości 100% — każda linia gotowa na produkcję."
 	},

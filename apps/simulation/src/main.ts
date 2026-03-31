@@ -107,7 +107,7 @@ function validateProfile(profile: Profile): ProfileResult {
 	const result: SimResult = runBalanceSim(simData, {
 		keysPerSec: profile.keysPerSec,
 		skill: profile.skill,
-		maxMinutes: 60,
+		maxMinutes: 90,
 	});
 
 	const failures: string[] = [];
@@ -115,7 +115,7 @@ function validateProfile(profile: Profile): ProfileResult {
 
 	// AGI time check
 	if (result.agiTime === null) {
-		failures.push("AGI never reached in 60 minutes");
+		failures.push(`AGI never reached in ${validation.agiMaxMinutes} minutes`);
 	} else {
 		if (agiMinutes !== null && agiMinutes < validation.agiMinMinutes) {
 			failures.push(
@@ -227,7 +227,7 @@ function printHuman(results: ProfileResult[]): void {
 
 		// AGI time
 		if (r.agiMinutes === null) {
-			console.log("  FAIL: AGI never reached in 60 minutes!");
+			console.log(`  FAIL: AGI never reached in ${validation.agiMaxMinutes} minutes!`);
 		} else if (
 			r.agiMinutes < validation.agiMinMinutes ||
 			r.agiMinutes > validation.agiMaxMinutes
@@ -349,7 +349,7 @@ if (traceOutput) {
 		const result: SimResult = runBalanceSim(simData, {
 			keysPerSec: p.keysPerSec,
 			skill: p.skill,
-			maxMinutes: 60,
+			maxMinutes: 90,
 		});
 		return {
 			profile: p.name,

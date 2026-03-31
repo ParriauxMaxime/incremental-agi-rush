@@ -46,9 +46,9 @@ function getStateStyle(
 		}))
 		.with(NodeStateEnum.visible, () => ({
 			borderColor: "#1e2630",
-			opacity: 0.6,
+			opacity: 1,
 			cursor: "default",
-			background: "#16213e",
+			background: "#111a2e",
 			filter: "none",
 		}))
 		.with(NodeStateEnum.affordable, () => ({
@@ -60,7 +60,7 @@ function getStateStyle(
 		.with(NodeStateEnum.owned, () => ({
 			...defaults,
 			borderColor: "#3fb950",
-			opacity: 0.8,
+			opacity: 1,
 			cursor: "default",
 		}))
 		.exhaustive();

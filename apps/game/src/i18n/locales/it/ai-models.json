@@ -55,12 +55,12 @@
 		"special_name": "Le Code",
 		"special_description": "+10% velocità se hai la Macchina del caffè. Oui oui."
 	},
-	"grok_2": {
+	"deepseek_v2": {
 		"special_name": "Caotico",
 		"special_description": "Output LoC fluttua di ±50% casualmente ogni 10s"
 	},
-	"grok_3": {
-		"special_name": "Based",
+	"deepseek_r1": {
+		"special_name": "Chain of Thought",
 		"special_description": "Genera occasionalmente commenti meme. Nessun valore cash, ma fa ridere nell'editor."
 	},
 	"gpt_6": {
@@ -71,7 +71,7 @@
 		"special_name": "Superintelligente",
 		"special_description": "Scrive codice più veloce di quanto tu possa leggerlo. La singolarità si avvicina."
 	},
-	"claude_saga": {
+	"claude_mythos": {
 		"special_name": "Allineamento perfetto",
 		"special_description": "100% floor di qualità — ogni riga è pronta per la produzione."
 	},

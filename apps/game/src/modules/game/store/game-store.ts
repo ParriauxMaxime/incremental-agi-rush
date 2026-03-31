@@ -85,6 +85,7 @@ export interface GameState {
 	managerBonus: number;
 	locProductionMultiplier: number;
 	cashMultiplier: number;
+	tokenMultiplier: number;
 	freelancerCostDiscount: number;
 	internCostDiscount: number;
 	devCostDiscount: number;
@@ -181,6 +182,7 @@ const initialState: GameState = {
 	managerBonus: 0,
 	locProductionMultiplier: 1,
 	cashMultiplier: 1,
+	tokenMultiplier: 1,
 	freelancerCostDiscount: 1,
 	internCostDiscount: 1,
 	devCostDiscount: 1,
@@ -256,6 +258,7 @@ function recalcDerivedStats(state: GameState): void {
 	let storageFlops = 0;
 	let locProductionMultiplier = 1;
 	let cashMultiplier = 1;
+	let tokenMultiplier = 1;
 	let freelancerLocMultiplier = 1;
 	let internLocMultiplier = 1;
 	let devLocMultiplier = 1;
@@ -342,6 +345,9 @@ function recalcDerivedStats(state: GameState): void {
 				break;
 			case "cashMultiplier:multiply":
 				cashMultiplier *= val ** owned;
+				break;
+			case "tokenMultiplier:multiply":
+				tokenMultiplier *= val ** owned;
 				break;
 			case "devSpeed:multiply":
 				devSpeedMultiplier *= val ** owned;
@@ -510,6 +516,7 @@ function recalcDerivedStats(state: GameState): void {
 			: computedFlops * eventMods.flopsMultiplier;
 	state.locProductionMultiplier = locProductionMultiplier;
 	state.cashMultiplier = cashMultiplier;
+	state.tokenMultiplier = tokenMultiplier;
 	state.freelancerCostDiscount = freelancerCostDiscount;
 	state.internCostDiscount = internCostDiscount;
 	state.devCostDiscount = devCostDiscount;
@@ -571,9 +578,11 @@ export const useGameStore = create<GameState & GameActions>()(
 					if (aiUnlocked && s.running) {
 						// Get event modifier for token production
 						const eventMods = useEventStore.getState().getEventModifiers();
-						const tokenMultiplier = eventMods.tokenProductionMultiplier;
+						const eventTokenMult = eventMods.tokenProductionMultiplier;
 
-						const adjustedHumanOutput = humanOutput * tokenMultiplier;
+						// Apply both tech tree token multiplier and event modifier
+						const adjustedHumanOutput =
+							humanOutput * s.tokenMultiplier * eventTokenMult;
 
 						// Compute AI token demand
 						const activeModels = aiModels
@@ -595,14 +604,19 @@ export const useGameStore = create<GameState & GameActions>()(
 						const tokenEfficiency =
 							totalTokenDemand > 0 ? tokensProduced / totalTokenDemand : 0;
 
-						// AI LoC output (gated by tokens AND slider-allocated FLOPS)
+						// AI LoC output (gated by tokens AND proportional FLOPS)
 						const aiFlops = s.flops * (1 - s.flopSlider);
-						let remainingAiFlops = aiFlops;
+						let totalFlopsDemand = 0;
 						for (const model of activeModels) {
-							const modelFlops = Math.min(model.flopsCost, remainingAiFlops);
-							remainingAiFlops -= modelFlops;
-							const flopRatio =
-								model.flopsCost > 0 ? modelFlops / model.flopsCost : 0;
+							totalFlopsDemand += model.flopsCost;
+						}
+						// Proportional: all models share FLOPS fairly
+						const flopSaturation =
+							totalFlopsDemand > 0
+								? Math.min(1, aiFlops / totalFlopsDemand)
+								: 0;
+						for (const model of activeModels) {
+							const flopRatio = flopSaturation;
 							aiProduced +=
 								model.locPerSec * tokenEfficiency * Math.min(1, flopRatio) * dt;
 						}
@@ -730,23 +744,23 @@ export const useGameStore = create<GameState & GameActions>()(
 
 					// ── 5. Auto-arbitrage (smooth slider adjustment) ──
 					if (s.autoArbitrageEnabled && aiUnlocked) {
-						// Compute AI production rate at current slider
-						const currentAiFlops = s.flops * (1 - s.flopSlider);
-						let aiLocRate = 0;
-						let remainingForCalc = currentAiFlops;
 						const activeForCalc = aiModels
 							.filter((m) => s.unlockedModels[m.id])
-							.sort((a, b) => a.flopsCost - b.flopsCost)
 							.slice(0, s.llmHostSlots);
+
+						// Compute total AI FLOPS demand
+						let totalAiDemand = 0;
 						for (const model of activeForCalc) {
-							const mf = Math.min(model.flopsCost, remainingForCalc);
-							remainingForCalc -= mf;
-							const ratio = model.flopsCost > 0 ? mf / model.flopsCost : 0;
-							aiLocRate += model.locPerSec * Math.min(1, ratio);
+							totalAiDemand += model.flopsCost;
 						}
 
-						// Target: match exec rate to AI production rate
-						let targetSlider = s.flops > 0 ? aiLocRate / s.flops : 0.7;
+						// Ideal split: give AI what it needs, rest to exec
+						// Target AI fraction = demand / total FLOPS (capped)
+						const idealAiFraction =
+							s.flops > 0
+								? Math.min(0.9, totalAiDemand / s.flops)
+								: 0.3;
+						let targetSlider = 1 - idealAiFraction;
 
 						// Queue pressure bias
 						const currentExecFlops = s.flops * s.flopSlider;
@@ -757,12 +771,12 @@ export const useGameStore = create<GameState & GameActions>()(
 						}
 
 						// Clamp
-						targetSlider = Math.min(0.95, Math.max(0.1, targetSlider));
+						targetSlider = Math.min(0.9, Math.max(0.1, targetSlider));
 
 						// Smooth lerp
 						const newSlider =
 							s.flopSlider + (targetSlider - s.flopSlider) * 0.02;
-						next.flopSlider = Math.min(0.95, Math.max(0.1, newSlider));
+						next.flopSlider = Math.min(0.9, Math.max(0.1, newSlider));
 					}
 
 					return next;
@@ -960,6 +974,7 @@ export const useGameStore = create<GameState & GameActions>()(
 				flopSlider: state.flopSlider,
 				autoArbitrageEnabled: state.autoArbitrageEnabled,
 				reachedMilestones: state.reachedMilestones,
+				editorStreamingMode: state.editorStreamingMode,
 			}),
 			onRehydrateStorage: () => (state) => {
 				if (state) recalcDerivedStats(state);

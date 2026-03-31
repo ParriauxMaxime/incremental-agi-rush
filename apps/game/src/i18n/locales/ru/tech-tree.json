@@ -337,13 +337,13 @@
 		"name": "Mistral Large",
 		"description": "Разблокировать Mistral Large для деплоя."
 	},
-	"xai_grok2": {
-		"name": "Grok 2",
-		"description": "Разблокировать Grok 2 для деплоя."
+	"deepseek_v2": {
+		"name": "DeepSeek V2",
+		"description": "Разблокировать DeepSeek V2 для деплоя."
 	},
-	"xai_grok3": {
-		"name": "Grok 3",
-		"description": "Разблокировать Grok 3 для деплоя."
+	"deepseek_r1": {
+		"name": "DeepSeek R1",
+		"description": "Разблокировать DeepSeek R1 для деплоя."
 	},
 	"openai_gpt6": {
 		"name": "GPT-6",
@@ -353,9 +353,9 @@
 		"name": "GPT-7",
 		"description": "Разблокировать GPT-7 для деплоя."
 	},
-	"anthropic_saga": {
-		"name": "Claude Saga",
-		"description": "Разблокировать Claude Saga для деплоя."
+	"anthropic_mythos": {
+		"name": "Claude Mythos",
+		"description": "Разблокировать Claude Mythos для деплоя."
 	},
 	"anthropic_universe": {
 		"name": "Claude Universe",

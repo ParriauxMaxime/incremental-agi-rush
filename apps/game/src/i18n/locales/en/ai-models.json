@@ -55,13 +55,13 @@
 		"special_name": "Le Code",
 		"special_description": "+10% speed if you own Coffee Machine. Oui oui."
 	},
-	"grok_2": {
-		"special_name": "Chaotic",
-		"special_description": "LoC output fluctuates ±50% randomly every 10s"
+	"deepseek_v2": {
+		"special_name": "Distilled",
+		"special_description": "MoE architecture: 50% less FLOPS cost than listed"
 	},
-	"grok_3": {
-		"special_name": "Based",
-		"special_description": "Occasionally generates meme comments. No cash value, but funny in the editor."
+	"deepseek_r1": {
+		"special_name": "Chain of Thought",
+		"special_description": "Thinks before coding. +20% quality but 2x token cost."
 	},
 	"gpt_6": {
 		"special_name": "Recursive improvement",
@@ -71,7 +71,7 @@
 		"special_name": "Superintelligent",
 		"special_description": "Writes code faster than you can read it. Approaching singularity."
 	},
-	"claude_saga": {
+	"claude_mythos": {
 		"special_name": "Perfect alignment",
 		"special_description": "100% quality floor — every line is production-ready."
 	},

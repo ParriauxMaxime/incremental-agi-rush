@@ -12,7 +12,7 @@ import {
 	useUiStore,
 } from "@modules/game";
 import { formatNumber } from "@utils/format";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 
@@ -22,7 +22,8 @@ const sidebarCss = css({
 	display: "flex",
 	flexDirection: "column",
 	width: 260,
-	minWidth: 200,
+	minWidth: 260,
+	height: "100%",
 	overflow: "hidden",
 	flexShrink: 0,
 	boxShadow: "2px 0 6px rgba(0,0,0,0.15)",
@@ -102,11 +103,34 @@ const milestoneCss = css({
 	lineHeight: 1.8,
 });
 
+const priceCss = css({
+	display: "flex",
+	alignItems: "center",
+	fontSize: 12,
+	fontWeight: 600,
+	flexShrink: 0,
+	fontVariantNumeric: "tabular-nums",
+});
+
 // ── Effect summary ──
 
-function formatEffect(
+/** Map from LoC effect type to the per-type LoC/s state key */
+const LOC_RATE_KEY: Record<string, keyof GameState> = {
+	freelancerLoc: "freelancerLocPerSec",
+	internLoc: "internLocPerSec",
+	devLoc: "devLocPerSec",
+	teamLoc: "teamLocPerSec",
+	agentLoc: "agentLocPerSec",
+};
+
+type GameState = ReturnType<typeof useGameStore.getState>;
+
+/** Simplified formatEffect that takes a pre-selected rate value instead of full state */
+function formatEffectSimple(
 	effect: UpgradeEffect,
 	theme: EditorTheme,
+	rateValue: number,
+	owned?: number,
 ): { text: string; color: string } {
 	const val = effect.value as number;
 	if (effect.op === "enable" && effect.type === "singularity")
@@ -117,9 +141,16 @@ function formatEffect(
 		return { text: `+${val} AI slot`, color: theme.flopsColor };
 	if (effect.type === "managerLoc")
 		return { text: "+50% teams", color: theme.locColor };
-
 	if (effect.op === "multiply")
 		return { text: `×${val}`, color: theme.cashColor };
+
+	if (LOC_RATE_KEY[effect.type] && rateValue > 0 && owned && owned > 0) {
+		const effectivePerUnit = rateValue / owned;
+		return {
+			text: `+${formatNumber(effectivePerUnit)} loc/s`,
+			color: theme.locColor,
+		};
+	}
 
 	const locTypes = [
 		"freelancerLoc",
@@ -141,21 +172,37 @@ function formatEffect(
 
 // ── Upgrade item ──
 
-function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
+const UpgradeItem = memo(function UpgradeItem({
+	upgrade,
+}: {
+	upgrade: Upgrade;
+}) {
 	const { t } = useTranslation();
-	const cash = useGameStore((s) => s.cash);
-	const owned = useGameStore((s) => s.ownedUpgrades[upgrade.id] ?? 0);
 	const buyUpgrade = useGameStore((s) => s.buyUpgrade);
-	const state = useGameStore((s) => s);
 	const theme = useIdeTheme();
 
-	const cost = getUpgradeCost(upgrade, owned, state);
-	const effectiveMax = getEffectiveMax(upgrade, state);
-	const canAfford = cash >= cost;
+	// Compute cost/max/canAfford in a single selector that returns discrete values.
+	// canAfford is a boolean — only flips when cash crosses the cost threshold,
+	// not every tick like raw cash would.
+	const owned = useGameStore((s) => s.ownedUpgrades[upgrade.id] ?? 0);
+	const cost = useGameStore((s) => {
+		const o = s.ownedUpgrades[upgrade.id] ?? 0;
+		return getUpgradeCost(upgrade, o, s);
+	});
+	const effectiveMax = useGameStore((s) => getEffectiveMax(upgrade, s));
+	const canAfford = useGameStore((s) => {
+		const o = s.ownedUpgrades[upgrade.id] ?? 0;
+		return s.cash >= getUpgradeCost(upgrade, o, s);
+	});
 	const maxed = owned >= effectiveMax;
 
+	// Only select the specific rate key this upgrade's effect needs
+	const rateKey = upgrade.effects[0]
+		? LOC_RATE_KEY[upgrade.effects[0].type]
+		: undefined;
+	const rateValue = useGameStore((s) => (rateKey ? (s[rateKey] as number) : 0));
 	const effect = upgrade.effects[0]
-		? formatEffect(upgrade.effects[0], theme)
+		? formatEffectSimple(upgrade.effects[0], theme, rateValue, owned)
 		: null;
 
 	const nameColor = canAfford || maxed ? theme.foreground : theme.textMuted;
@@ -225,14 +272,7 @@ function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
 				</div>
 				{/* Right: price, right-aligned */}
 				<span
-					css={{
-						display: "flex",
-						alignItems: "center",
-						fontSize: 12,
-						fontWeight: 600,
-						flexShrink: 0,
-						fontVariantNumeric: "tabular-nums",
-					}}
+					css={priceCss}
 					style={{
 						color: maxed ? theme.success : theme.cashColor,
 					}}
@@ -242,7 +282,7 @@ function UpgradeItem({ upgrade }: { upgrade: Upgrade }) {
 			</div>
 		</div>
 	);
-}
+});
 
 // ── Main sidebar ──
 

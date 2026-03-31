@@ -55,12 +55,12 @@
 		"special_name": "Le Code",
 		"special_description": "拥有咖啡机时速度 +10%。Oui oui。"
 	},
-	"grok_2": {
+	"deepseek_v2": {
 		"special_name": "混乱",
 		"special_description": "LoC 产出每 10 秒随机波动 ±50%"
 	},
-	"grok_3": {
-		"special_name": "Based",
+	"deepseek_r1": {
+		"special_name": "Chain of Thought",
 		"special_description": "偶尔生成梗图注释。没有现金价值，但在编辑器里挺好笑。"
 	},
 	"gpt_6": {
@@ -71,7 +71,7 @@
 		"special_name": "超级智能",
 		"special_description": "写代码比你读代码还快。接近奇点。"
 	},
-	"claude_saga": {
+	"claude_mythos": {
 		"special_name": "完美对齐",
 		"special_description": "质量底线 100%——每一行都生产就绪。"
 	},
@@ -109,7 +109,7 @@
 		],
 		"grok": [
 			"lmao 想象一下不用 AI。不管了，这是你要的函数",
-			"Based 实现来袭。不骗你。",
+			"Chain of Thought 实现来袭。不骗你。",
 			"你的旧代码库被碾压了。这是更好的东西。"
 		],
 		"mistral": [

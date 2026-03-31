@@ -337,13 +337,13 @@
 		"name": "Mistral Large",
 		"description": "解锁 Mistral Large 以部署。"
 	},
-	"xai_grok2": {
-		"name": "Grok 2",
-		"description": "解锁 Grok 2 以部署。"
+	"deepseek_v2": {
+		"name": "DeepSeek V2",
+		"description": "解锁 DeepSeek V2 以部署。"
 	},
-	"xai_grok3": {
-		"name": "Grok 3",
-		"description": "解锁 Grok 3 以部署。"
+	"deepseek_r1": {
+		"name": "DeepSeek R1",
+		"description": "解锁 DeepSeek R1 以部署。"
 	},
 	"openai_gpt6": {
 		"name": "GPT-6",
@@ -353,9 +353,9 @@
 		"name": "GPT-7",
 		"description": "解锁 GPT-7 以部署。"
 	},
-	"anthropic_saga": {
-		"name": "Claude Saga",
-		"description": "解锁 Claude Saga 以部署。"
+	"anthropic_mythos": {
+		"name": "Claude Mythos",
+		"description": "解锁 Claude Mythos 以部署。"
 	},
 	"anthropic_universe": {
 		"name": "Claude Universe",

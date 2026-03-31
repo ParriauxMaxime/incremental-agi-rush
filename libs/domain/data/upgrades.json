@@ -7,10 +7,12 @@
 			"description": "Remote dev — writes 5 LoC/s",
 			"icon": "💻",
 			"baseCost": 100,
-			"costMultiplier": 2.5,
+			"costMultiplier": 1.8,
 			"max": 5,
 			"costCategory": "freelancer",
-			"requires": ["outsourcing"],
+			"requires": [
+				"outsourcing"
+			],
 			"effects": [
 				{
 					"type": "freelancerLoc",
@@ -80,7 +82,9 @@
 			"costMultiplier": 1.2,
 			"max": 10,
 			"costCategory": "intern",
-			"requires": ["interns"],
+			"requires": [
+				"interns"
+			],
 			"effects": [
 				{
 					"type": "internLoc",
@@ -106,7 +110,9 @@
 					"value": 200
 				}
 			],
-			"requires": ["teams_gate"]
+			"requires": [
+				"teams_gate"
+			]
 		},
 		{
 			"id": "manager",
@@ -125,13 +131,15 @@
 					"value": 1
 				}
 			],
-			"requires": ["management_gate"]
+			"requires": [
+				"management_gate"
+			]
 		},
 		{
 			"id": "gpu_cluster",
 			"tier": "tech_company",
 			"name": "GPU Cluster",
-			"description": "+50,000 FLOPS",
+			"description": "+30,000 FLOPS",
 			"icon": "🎮",
 			"baseCost": 800000,
 			"costMultiplier": 1.7,
@@ -140,7 +148,7 @@
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 50000
+					"value": 30000
 				}
 			]
 		},
@@ -239,7 +247,9 @@
 			"costMultiplier": 1.8,
 			"max": 5,
 			"costCategory": "llm",
-			"requires": ["llm_gate"],
+			"requires": [
+				"llm_gate"
+			],
 			"effects": [
 				{
 					"type": "llmHostSlot",
@@ -271,7 +281,7 @@
 			"name": "AI Agent",
 			"description": "Autonomous agent — writes 100,000 LoC/s",
 			"icon": "🤖",
-			"baseCost": 5000000000,
+			"baseCost": 10000000000,
 			"costMultiplier": 1.8,
 			"max": 5,
 			"costCategory": "agent",
@@ -287,33 +297,33 @@
 			"id": "supercomputer",
 			"tier": "agi_race",
 			"name": "Supercomputer",
-			"description": "+20M FLOPS",
+			"description": "+200M FLOPS",
 			"icon": "🖲️",
-			"baseCost": 2000000000,
+			"baseCost": 4000000000,
 			"costMultiplier": 1.8,
 			"max": 5,
 			"effects": [
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 20000000
+					"value": 200000000
 				}
 			]
 		},
 		{
-			"id": "the_singularity",
+			"id": "planetary_datacenter",
 			"tier": "agi_race",
-			"name": "The Singularity",
-			"description": "You win. Or do you?",
-			"icon": "🌀",
-			"baseCost": 2000000000000000,
-			"costMultiplier": 1,
-			"max": 1,
+			"name": "Planetary Datacenter",
+			"description": "A continent-sized compute farm. +10B FLOPS",
+			"icon": "🛰️",
+			"baseCost": 2000000000,
+			"costMultiplier": 1.15,
+			"max": 999,
 			"effects": [
 				{
-					"type": "singularity",
-					"op": "enable",
-					"value": true
+					"type": "flops",
+					"op": "add",
+					"value": 10000000000
 				}
 			]
 		}

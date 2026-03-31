@@ -227,14 +227,9 @@ function BundledEdges({
 	return (
 		<svg
 			css={{
-				position: "absolute",
-				top: 0,
-				left: 0,
 				width: "100%",
 				height: "100%",
-				pointerEvents: "none",
 				overflow: "visible",
-				zIndex: -1,
 			}}
 		>
 			<g transform={`translate(${x}, ${y}) scale(${zoom})`}>
@@ -497,9 +492,6 @@ export function TechTreePage() {
 
 	const containerDynamicCss = css({
 		background: theme.background,
-		".react-flow__background": {
-			background: `${theme.background} !important`,
-		},
 	});
 
 	return (
@@ -526,7 +518,7 @@ export function TechTreePage() {
 				translateExtent={translateExtent}
 				proOptions={{ hideAttribution: true }}
 			>
-				<BundledEdges
+					<BundledEdges
 					edges={edgeDefs}
 					flowNodes={flowNodes}
 					color={theme.textMuted}

@@ -3,12 +3,7 @@ import { aiModels, useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-
-const wrapperCss = css({
-	padding: "8px 12px",
-	background: "#131820",
-	borderBottom: "1px solid #1e2630",
-});
+import { useIdeTheme } from "../hooks/use-ide-theme";
 
 const labelRowCss = css({
 	display: "flex",
@@ -22,44 +17,10 @@ const labelCss = css({
 	letterSpacing: 0.5,
 });
 
-const sliderCss = css({
-	width: "100%",
-	height: 10,
-	borderRadius: 5,
-	appearance: "none",
-	outline: "none",
-	cursor: "grab",
-	"&:active": { cursor: "grabbing" },
-	"&::-webkit-slider-thumb": {
-		appearance: "none",
-		width: 16,
-		height: 16,
-		borderRadius: "50%",
-		background: "#e6edf3",
-		border: "2px solid #0d1117",
-		boxShadow: "0 0 4px rgba(0,0,0,0.5)",
-		cursor: "grab",
-	},
-	"&::-moz-range-thumb": {
-		width: 16,
-		height: 16,
-		borderRadius: "50%",
-		background: "#e6edf3",
-		border: "2px solid #0d1117",
-		boxShadow: "0 0 4px rgba(0,0,0,0.5)",
-		cursor: "grab",
-	},
-});
-
 const ratesCss = css({
 	display: "flex",
 	justifyContent: "space-between",
 	marginTop: 4,
-});
-
-const rateCss = css({
-	fontSize: 9,
-	color: "#484e58",
 });
 
 const arbitrageCss = css({
@@ -73,13 +34,24 @@ const arbitrageCss = css({
 	"&:hover": { opacity: 0.8 },
 });
 
-const toggleCss = css({
+const toggleTrackCss = css({
 	width: 28,
 	height: 14,
 	borderRadius: 7,
 	position: "relative" as const,
 	transition: "background 0.2s",
 	flexShrink: 0,
+});
+
+const toggleThumbCss = css({
+	position: "absolute" as const,
+	top: 2,
+	width: 10,
+	height: 10,
+	borderRadius: "50%",
+	background: "#e6edf3",
+	transition: "left 0.2s",
+	display: "block",
 });
 
 export function FlopsSlider() {
@@ -95,6 +67,7 @@ export function FlopsSlider() {
 	);
 	const setFlopSlider = useGameStore((s) => s.setFlopSlider);
 	const toggleAutoArbitrage = useGameStore((s) => s.toggleAutoArbitrage);
+	const theme = useIdeTheme();
 
 	const { aiLocPerSec } = useMemo(() => {
 		const active = aiModels
@@ -120,24 +93,66 @@ export function FlopsSlider() {
 		[setFlopSlider],
 	);
 
+	const wrapperCss = useMemo(
+		() =>
+			css({
+				padding: "8px 12px",
+				background: theme.panelBg,
+				borderBottom: `1px solid ${theme.border}`,
+			}),
+		[theme.panelBg, theme.border],
+	);
+
+	const sliderCss = useMemo(
+		() =>
+			css({
+				width: "100%",
+				height: 10,
+				borderRadius: 5,
+				appearance: "none",
+				outline: "none",
+				cursor: "grab",
+				"&:active": { cursor: "grabbing" },
+				"&::-webkit-slider-thumb": {
+					appearance: "none",
+					width: 16,
+					height: 16,
+					borderRadius: "50%",
+					background: theme.foreground,
+					border: `2px solid ${theme.background}`,
+					boxShadow: "0 0 4px rgba(0,0,0,0.5)",
+					cursor: "grab",
+				},
+				"&::-moz-range-thumb": {
+					width: 16,
+					height: 16,
+					borderRadius: "50%",
+					background: theme.foreground,
+					border: `2px solid ${theme.background}`,
+					boxShadow: "0 0 4px rgba(0,0,0,0.5)",
+					cursor: "grab",
+				},
+			}),
+		[theme.foreground, theme.background],
+	);
+
 	if (!aiUnlocked) return null;
 
 	const execFlops = flops * flopSlider;
 	const aiFlops = flops * (1 - flopSlider);
 	const execPct = Math.round(flopSlider * 100);
 
-	// Build slider background gradient
-	const sliderBg = `linear-gradient(90deg, #3fb950 0%, #3fb950 ${execPct}%, #c678dd ${execPct}%, #c678dd 100%)`;
+	const sliderBg = `linear-gradient(90deg, ${theme.success} 0%, ${theme.success} ${execPct}%, ${theme.keyword} ${execPct}%, ${theme.keyword} 100%)`;
 
 	return (
 		<div css={wrapperCss}>
 			<div css={labelRowCss}>
-				<span css={[labelCss, { color: "#3fb950" }]}>
+				<span css={[labelCss, { color: theme.success }]}>
 					{t("flops_slider.exec_flops", {
 						count: formatNumber(execFlops),
 					})}
 				</span>
-				<span css={[labelCss, { color: "#c678dd" }]}>
+				<span css={[labelCss, { color: theme.keyword }]}>
 					{t("flops_slider.ai_flops", {
 						count: formatNumber(aiFlops),
 					})}
@@ -154,12 +169,12 @@ export function FlopsSlider() {
 				style={{ background: sliderBg }}
 			/>
 			<div css={ratesCss}>
-				<span css={rateCss}>
+				<span style={{ fontSize: 9, color: theme.textMuted }}>
 					{t("flops_slider.exec_rate", {
 						count: formatNumber(execFlops),
 					})}
 				</span>
-				<span css={rateCss}>
+				<span style={{ fontSize: 9, color: theme.textMuted }}>
 					{t("flops_slider.ai_rate", {
 						count: formatNumber(aiLocPerSec),
 					})}
@@ -171,29 +186,20 @@ export function FlopsSlider() {
 					<span
 						style={{
 							fontSize: 11,
-							color: autoArbitrageEnabled ? "#e5c07b" : "#484e58",
+							color: autoArbitrageEnabled ? theme.type : theme.textMuted,
 						}}
 					>
 						{t("flops_slider.auto_arbitrage_active")}
 					</span>
 					<div
-						css={toggleCss}
+						css={toggleTrackCss}
 						style={{
-							background: autoArbitrageEnabled ? "#e5c07b" : "#30363d",
+							background: autoArbitrageEnabled ? theme.type : theme.border,
 						}}
 					>
 						<span
-							style={{
-								position: "absolute",
-								top: 2,
-								left: autoArbitrageEnabled ? 16 : 2,
-								width: 10,
-								height: 10,
-								borderRadius: "50%",
-								background: "#e6edf3",
-								transition: "left 0.2s",
-								display: "block",
-							}}
+							css={toggleThumbCss}
+							style={{ left: autoArbitrageEnabled ? 16 : 2 }}
 						/>
 					</div>
 					{autoArbitrageEnabled && (
@@ -201,7 +207,7 @@ export function FlopsSlider() {
 							style={{
 								marginLeft: "auto",
 								fontSize: 10,
-								color: "#484e58",
+								color: theme.textMuted,
 							}}
 						>
 							{t("flops_slider.targeting", { pct: execPct })}

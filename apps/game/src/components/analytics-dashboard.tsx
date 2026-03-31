@@ -28,7 +28,9 @@ const rowCss = css({
 const barFillCss = css({
 	height: "100%",
 	borderRadius: 3,
-	transition: "width 0.3s ease",
+	width: "100%",
+	transformOrigin: "left",
+	transition: "transform 0.3s ease",
 });
 
 const valueCss = css({
@@ -191,7 +193,7 @@ export function AnalyticsDashboard() {
 							<div
 								css={barFillCss}
 								style={{
-									width: `${(s.locPerSec / maxLoc) * 100}%`,
+									transform: `scaleX(${s.locPerSec / maxLoc})`,
 									background: s.color,
 								}}
 							/>
@@ -260,7 +262,7 @@ export function AnalyticsDashboard() {
 									<div
 										css={barFillCss}
 										style={{
-											width: `${(s.locPerSec / maxLoc) * 100}%`,
+											transform: `scaleX(${s.locPerSec / maxLoc})`,
 											background: s.color,
 										}}
 									/>

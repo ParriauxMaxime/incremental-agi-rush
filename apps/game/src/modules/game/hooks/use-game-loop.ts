@@ -14,20 +14,36 @@ export function useGameLoop() {
 
 	useEffect(() => {
 		let rafId: number;
+		// Reuse a single context object to avoid allocation every frame
+		const ctx: ExpressionContext = {
+			currentCash: 0,
+			currentLoc: 0,
+			currentLocPerSec: 0,
+		};
+
+		// Throttle game tick to ~20fps (50ms). The game is an incremental/idle
+		// game — 60fps simulation is wasteful. Animations (RollingNumber, bar fills)
+		// use CSS transitions so they stay smooth regardless of tick rate.
+		const MIN_TICK_MS = 50;
 
 		function loop() {
 			const now = performance.now();
-			const dt = (now - lastTickRef.current) / 1000;
+			const elapsed = now - lastTickRef.current;
+
+			if (elapsed < MIN_TICK_MS) {
+				rafId = requestAnimationFrame(loop);
+				return;
+			}
+
+			const dt = elapsed / 1000;
 			lastTickRef.current = now;
 
 			// Tick events
 			const gameState = useGameStore.getState();
 			const eventStore = useEventStore.getState();
-			const ctx: ExpressionContext = {
-				currentCash: gameState.cash,
-				currentLoc: gameState.loc,
-				currentLocPerSec: gameState.autoLocPerSec,
-			};
+			ctx.currentCash = gameState.cash;
+			ctx.currentLoc = gameState.loc;
+			ctx.currentLocPerSec = gameState.autoLocPerSec;
 			const eventChanged = eventStore.tick(
 				dt,
 				gameState.currentTierIndex,

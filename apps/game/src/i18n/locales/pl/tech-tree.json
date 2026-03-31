@@ -337,13 +337,13 @@
 		"name": "Mistral Large",
 		"description": "Odblokuj Mistral Large do wdrożenia."
 	},
-	"xai_grok2": {
-		"name": "Grok 2",
-		"description": "Odblokuj Grok 2 do wdrożenia."
+	"deepseek_v2": {
+		"name": "DeepSeek V2",
+		"description": "Odblokuj DeepSeek V2 do wdrożenia."
 	},
-	"xai_grok3": {
-		"name": "Grok 3",
-		"description": "Odblokuj Grok 3 do wdrożenia."
+	"deepseek_r1": {
+		"name": "DeepSeek R1",
+		"description": "Odblokuj DeepSeek R1 do wdrożenia."
 	},
 	"openai_gpt6": {
 		"name": "GPT-6",
@@ -353,9 +353,9 @@
 		"name": "GPT-7",
 		"description": "Odblokuj GPT-7 do wdrożenia."
 	},
-	"anthropic_saga": {
-		"name": "Claude Saga",
-		"description": "Odblokuj Claude Saga do wdrożenia."
+	"anthropic_mythos": {
+		"name": "Claude Mythos",
+		"description": "Odblokuj Claude Mythos do wdrożenia."
 	},
 	"anthropic_universe": {
 		"name": "Claude Universe",

@@ -1,22 +1,25 @@
 import { css, keyframes } from "@emotion/react";
+import { sfx } from "@modules/audio";
 import { useGameStore, useUiStore } from "@modules/game";
-import { useMemo } from "react";
+import { formatNumber } from "@utils/format";
+import { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { CODE_BLOCKS } from "../data/code-tokens";
 import { EDITOR_THEMES } from "../data/editor-themes";
+import { useEditorFocus } from "../hooks/use-editor-focus";
+import { useKeyboardInput } from "../hooks/use-keyboard-input";
 
 const LINE_HEIGHT = 21;
 const VISIBLE_LINES = 40;
 
-// Build a static HTML line buffer from CODE_BLOCKS (done once at module load)
+// Build static HTML once at module load — never changes
 function buildStaticLines(): string[] {
 	const lines: string[] = [];
 	for (const block of CODE_BLOCKS) {
 		for (const line of block.lines) {
 			lines.push(line);
 		}
-		lines.push(""); // blank between blocks
+		lines.push("");
 	}
-	// Repeat to fill at least VISIBLE_LINES * 2 (for seamless loop)
 	while (lines.length < VISIBLE_LINES * 2) {
 		for (const block of CODE_BLOCKS) {
 			for (const line of block.lines) {
@@ -30,6 +33,7 @@ function buildStaticLines(): string[] {
 
 const STATIC_LINES = buildStaticLines();
 const HALF = Math.floor(STATIC_LINES.length / 2);
+const BASE_DURATION = 10;
 
 // ── Styles ──
 
@@ -40,6 +44,8 @@ const wrapperCss = css({
 	fontSize: 13,
 	lineHeight: 1.6,
 	contain: "strict",
+	cursor: "text",
+	"&:focus": { outline: "none" },
 });
 
 const maskCss = css({
@@ -53,11 +59,20 @@ const maskCss = css({
 		"linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
 });
 
+const scrollUp = keyframes({
+	"0%": { transform: "translateY(0)" },
+	"100%": { transform: `translateY(-${HALF * LINE_HEIGHT}px)` },
+});
+
 const linesCss = css({
 	position: "absolute",
 	left: 0,
 	right: 0,
 	willChange: "transform",
+	animationName: scrollUp,
+	animationTimingFunction: "linear",
+	animationIterationCount: "infinite",
+	animationDuration: `${BASE_DURATION}s`,
 });
 
 const lineCss = css({
@@ -75,6 +90,19 @@ const lineNumCss = css({
 	fontVariantNumeric: "tabular-nums",
 });
 
+const statusBarCss = css({
+	background: "#141920",
+	padding: "4px 16px",
+	fontSize: 11,
+	color: "#6272a4",
+	display: "flex",
+	justifyContent: "flex-end",
+	gap: 16,
+	borderTop: "1px solid #1e2630",
+	flexShrink: 0,
+	fontVariantNumeric: "tabular-nums",
+});
+
 const fillBarCss = css({
 	position: "absolute",
 	right: 2,
@@ -87,37 +115,102 @@ const fillBarCss = css({
 	zIndex: 2,
 });
 
+// ── Static lines: rendered once, never re-rendered ──
+
+interface StaticLinesProps {
+	lineNumberColor: string;
+}
+
+const StaticLines = memo(function StaticLines({
+	lineNumberColor,
+}: StaticLinesProps) {
+	return (
+		<>
+			{STATIC_LINES.map((line, i) => (
+				<div css={lineCss} key={i}>
+					<span css={lineNumCss} style={{ color: lineNumberColor }}>
+						{(i % HALF) + 1}
+					</span>
+					<span dangerouslySetInnerHTML={{ __html: line || "&nbsp;" }} />
+				</div>
+			))}
+		</>
+	);
+});
+
+// ── Main component ──
+
 export function StreamingEditor() {
-	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
-	const loc = useGameStore((s) => s.loc);
-	const flops = useGameStore((s) => s.flops);
+	const locPerKey = useGameStore((s) => s.locPerKey);
+	const addLoc = useGameStore((s) => s.addLoc);
+	const running = useGameStore((s) => s.running);
 	const editorTheme = useUiStore((s) => s.editorTheme);
 	const theme = EDITOR_THEMES[editorTheme];
+	const editorRef = useRef<HTMLDivElement>(null);
+	const linesRef = useRef<HTMLDivElement>(null);
+	const fillBarRef = useRef<HTMLDivElement>(null);
+	const totalLocRef = useRef<HTMLSpanElement>(null);
+	const locPerKeyRef = useRef<HTMLSpanElement>(null);
 
-	// Scroll speed: map autoLocPerSec to animation duration
-	// Higher production = faster scroll. Clamp between 4s (very fast) and 60s (slow).
-	const scrollDuration = useMemo(() => {
-		if (autoLocPerSec <= 0) return 0;
-		const speed = Math.max(4, Math.min(60, 2000 / autoLocPerSec));
-		return speed;
-	}, [autoLocPerSec]);
+	// ── Keyboard input (produces LoC) ──
+	const keystrokeTimestamps = useRef<number[]>([]);
 
-	// Fill indicator: loc as fraction of a visual "buffer" (flops × 10 as max)
-	const maxBuffer = Math.max(1, flops * 10);
-	const fillRatio = Math.min(1, loc / maxBuffer);
+	const onKeystroke = useCallback(() => {
+		if (!running) return;
+		sfx.typing();
+		addLoc(locPerKey);
+		keystrokeTimestamps.current.push(performance.now());
+	}, [addLoc, locPerKey, running]);
 
-	const scrollAnim = useMemo(
-		() =>
-			scrollDuration > 0
-				? keyframes({
-						"0%": { transform: "translateY(0)" },
-						"100%": {
-							transform: `translateY(-${HALF * LINE_HEIGHT}px)`,
-						},
-					})
-				: null,
-		[scrollDuration],
-	);
+	useKeyboardInput(editorRef, onKeystroke);
+	useEditorFocus(editorRef);
+
+	// ── Animation speed + fill bar: updated via store subscription + refs (no re-renders) ──
+	useEffect(() => {
+		const unsub = useGameStore.subscribe((state) => {
+			const el = linesRef.current;
+			const bar = fillBarRef.current;
+
+			// Compute typing rate from timestamps
+			const now = performance.now();
+			const cutoff = now - 2000;
+			const ts = keystrokeTimestamps.current;
+			while (ts.length > 0 && ts[0] < cutoff) ts.shift();
+			const typingLocPerSec = (ts.length / 2) * state.locPerKey;
+
+			const totalLocPerSec = state.autoLocPerSec + typingLocPerSec;
+
+			// Update animation speed via Web Animations API
+			if (el) {
+				const anim = el.getAnimations()[0];
+				if (anim) {
+					if (totalLocPerSec <= 0) {
+						anim.playbackRate = 0;
+					} else {
+						const desired = Math.max(0.5, (HALF * 5) / totalLocPerSec);
+						anim.playbackRate = BASE_DURATION / desired;
+					}
+				}
+			}
+
+			// Update fill bar via direct DOM manipulation
+			if (bar) {
+				const maxBuffer = Math.max(1, state.flops * 10);
+				const fillRatio = Math.min(1, state.loc / maxBuffer);
+				bar.style.opacity = fillRatio > 0.01 ? "0.4" : "0";
+				bar.style.transform = `scaleY(${fillRatio})`;
+			}
+
+			// Update status bar
+			if (totalLocRef.current) {
+				totalLocRef.current.textContent = `${formatNumber(state.totalLoc)} lines`;
+			}
+			if (locPerKeyRef.current) {
+				locPerKeyRef.current.textContent = `${state.locPerKey} LoC/key`;
+			}
+		});
+		return unsub;
+	}, []);
 
 	const themedWrapperCss = useMemo(
 		() =>
@@ -137,40 +230,24 @@ export function StreamingEditor() {
 		[theme],
 	);
 
-	const animatedLinesCss = useMemo(
-		() =>
-			css(linesCss, {
-				animation:
-					scrollAnim && scrollDuration > 0
-						? `${scrollAnim} ${scrollDuration}s linear infinite`
-						: "none",
-			}),
-		[scrollAnim, scrollDuration],
-	);
-
 	return (
-		<div css={themedWrapperCss}>
-			<div css={maskCss}>
-				<div css={animatedLinesCss}>
-					{STATIC_LINES.map((line, i) => (
-						<div css={lineCss} key={i}>
-							<span css={lineNumCss} style={{ color: theme.lineNumbers }}>
-								{(i % HALF) + 1}
-							</span>
-							<span dangerouslySetInnerHTML={{ __html: line || "&nbsp;" }} />
-						</div>
-					))}
+		<>
+			<div ref={editorRef} css={themedWrapperCss} tabIndex={0}>
+				<div css={maskCss}>
+					<div ref={linesRef} css={linesCss}>
+						<StaticLines lineNumberColor={theme.lineNumbers} />
+					</div>
 				</div>
+				<div
+					ref={fillBarRef}
+					css={fillBarCss}
+					style={{ background: theme.accent }}
+				/>
 			</div>
-			{/* Fill indicator bar */}
-			<div
-				css={fillBarCss}
-				style={{
-					background: theme.accent,
-					opacity: fillRatio > 0.01 ? 0.4 : 0,
-					transform: `scaleY(${fillRatio})`,
-				}}
-			/>
-		</div>
+			<div css={statusBarCss}>
+				<span ref={totalLocRef} />
+				<span ref={locPerKeyRef} />
+			</div>
+		</>
 	);
 }

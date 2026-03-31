@@ -67,6 +67,10 @@
 		"name": "Supercomputer",
 		"description": "+20M FLOPS"
 	},
+	"planetary_datacenter": {
+		"name": "Planetary Datacenter",
+		"description": "A continent-sized compute farm. +10B FLOPS"
+	},
 	"the_singularity": {
 		"name": "The Singularity",
 		"description": "You win. Or do you?"
