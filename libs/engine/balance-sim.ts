@@ -1034,7 +1034,7 @@ export function runBalanceSim(
 				cashPerSec:
 					Math.min(manualLoc + autoTypeLoc + autoLoc + aiLoc, snapExecFlops) *
 					cashPerLoc(),
-				tokensPerSec: humanOutput,
+				tokensPerSec: sim.aiUnlocked ? humanOutput : 0,
 				tier: sim.currentTier,
 			});
 		}
