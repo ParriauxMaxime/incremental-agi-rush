@@ -30,6 +30,7 @@ export interface SimSnapshot {
 	quality: number;
 	locPerSec: number;
 	cashPerSec: number;
+	tokensPerSec: number;
 	tier: number;
 }
 
@@ -120,6 +121,7 @@ export interface SimEvent {
 	id: string;
 	name: string;
 	minTier: string;
+	maxTier?: string;
 	duration: number;
 	effects: SimEventEffect[];
 	interaction?: { type: string; reductionPerKey: number };

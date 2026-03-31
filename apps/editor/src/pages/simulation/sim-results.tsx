@@ -157,7 +157,7 @@ export function SimResults({ result }: SimResultsProps) {
 			<div css={sectionTitleCss}>Cash Over Time</div>
 			<CashChart snapshots={result.snapshots} />
 
-			<div css={sectionTitleCss}>FLOPS vs LoC/s Over Time</div>
+			<div css={sectionTitleCss}>Economy Over Time</div>
 			<FlopsChart snapshots={result.snapshots} />
 
 			<div css={sectionTitleCss}>Tier Timeline</div>

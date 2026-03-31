@@ -159,7 +159,10 @@ export function runBalanceSim(
 
 	function pickSimEvent(): SimEvent | null {
 		const eligible = simEvents.filter(
-			(e) => (tierIdToIndex[e.minTier] ?? 0) <= sim.currentTier,
+			(e) =>
+				(tierIdToIndex[e.minTier] ?? 0) <= sim.currentTier &&
+				(e.maxTier == null ||
+					(tierIdToIndex[e.maxTier] ?? 5) >= sim.currentTier),
 		);
 		if (eligible.length === 0) return null;
 		const totalWeight = eligible.reduce((sum, e) => sum + e.weight, 0);
@@ -895,9 +898,7 @@ export function runBalanceSim(
 
 			const totalLocS =
 				effLocPerKey() * cfg.keysPerSec + autoTypeLoc + calcAutoLoc() + aiLoc;
-			const execCap = sim.aiUnlocked
-				? flops * sim.flopSlider
-				: flops;
+			const execCap = sim.aiUnlocked ? flops * sim.flopSlider : flops;
 			const bottlenecked = totalLocS > execCap;
 
 			let best: {
@@ -1022,9 +1023,7 @@ export function runBalanceSim(
 
 		// ── Snapshot every 10s ──
 		if (t % 10 === 0) {
-			const snapExecFlops = sim.aiUnlocked
-				? flops * sim.flopSlider
-				: flops;
+			const snapExecFlops = sim.aiUnlocked ? flops * sim.flopSlider : flops;
 			snapshots.push({
 				time: t,
 				cash: sim.totalCash,
@@ -1035,6 +1034,7 @@ export function runBalanceSim(
 				cashPerSec:
 					Math.min(manualLoc + autoTypeLoc + autoLoc + aiLoc, snapExecFlops) *
 					cashPerLoc(),
+				tokensPerSec: humanOutput,
 				tier: sim.currentTier,
 			});
 		}

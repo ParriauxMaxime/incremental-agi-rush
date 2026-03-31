@@ -1,6 +1,6 @@
 import { css } from "@emotion/react";
 import type { SimSnapshot } from "@flopsed/engine";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const containerCss = css({
 	background: "#161b22",
@@ -9,37 +9,119 @@ const containerCss = css({
 	padding: 16,
 });
 
+const legendCss = css({
+	display: "flex",
+	gap: 12,
+	marginBottom: 8,
+	flexWrap: "wrap",
+});
+
+const legendItemCss = css({
+	display: "flex",
+	alignItems: "center",
+	gap: 4,
+	fontSize: 11,
+	cursor: "pointer",
+	userSelect: "none",
+	padding: "2px 6px",
+	borderRadius: 3,
+	"&:hover": { background: "#1e2630" },
+});
+
 const CHART_W = 700;
-const CHART_H = 200;
+const CHART_H = 250;
 const PAD = { top: 10, right: 10, bottom: 30, left: 60 };
 
-function formatFlops(v: number): string {
+function formatValue(v: number): string {
+	if (v >= 1e12) return `${(v / 1e12).toFixed(0)}T`;
 	if (v >= 1e9) return `${(v / 1e9).toFixed(0)}B`;
 	if (v >= 1e6) return `${(v / 1e6).toFixed(0)}M`;
 	if (v >= 1e3) return `${(v / 1e3).toFixed(0)}K`;
 	return `${v.toFixed(0)}`;
 }
 
+interface Series {
+	key: string;
+	label: string;
+	color: string;
+	dash?: string;
+	getValue: (s: SimSnapshot) => number;
+}
+
+const ALL_SERIES: Series[] = [
+	{
+		key: "cash",
+		label: "Cash",
+		color: "#e5c07b",
+		getValue: (s) => s.cash,
+	},
+	{
+		key: "flops",
+		label: "FLOPS",
+		color: "#c678dd",
+		getValue: (s) => s.flops,
+	},
+	{
+		key: "locPerSec",
+		label: "LoC/s",
+		color: "#61afef",
+		dash: "4 2",
+		getValue: (s) => s.locPerSec,
+	},
+	{
+		key: "cashPerSec",
+		label: "Cash/s",
+		color: "#e5c07b",
+		dash: "2 2",
+		getValue: (s) => s.cashPerSec,
+	},
+	{
+		key: "tokensPerSec",
+		label: "Tokens/s",
+		color: "#e5a54b",
+		dash: "6 3",
+		getValue: (s) => s.tokensPerSec,
+	},
+];
+
+const DEFAULT_ENABLED = new Set(["cash", "flops", "locPerSec", "tokensPerSec"]);
+
 interface FlopsChartProps {
 	snapshots: SimSnapshot[];
 }
 
 export function FlopsChart({ snapshots }: FlopsChartProps) {
-	const { flopsPoints, locPoints, xTicks, yTicks } = useMemo(() => {
+	const [enabled, setEnabled] = useState<Set<string>>(DEFAULT_ENABLED);
+
+	const toggle = (key: string) => {
+		setEnabled((prev) => {
+			const next = new Set(prev);
+			if (next.has(key)) next.delete(key);
+			else next.add(key);
+			return next;
+		});
+	};
+
+	const { seriesPoints, xTicks, yTicks } = useMemo(() => {
 		if (snapshots.length === 0)
-			return { flopsPoints: "", locPoints: "", xTicks: [], yTicks: [] };
+			return { seriesPoints: {}, xTicks: [], yTicks: [] };
 
+		const activeSeries = ALL_SERIES.filter((s) => enabled.has(s.key));
 		const mTime = snapshots[snapshots.length - 1].time;
-		const allValues = snapshots.flatMap((s) => [s.flops, s.locPerSec]).filter(
-			(v) => v > 0,
-		);
-		if (allValues.length === 0)
-			return { flopsPoints: "", locPoints: "", xTicks: [], yTicks: [] };
 
-		const minLog = Math.floor(Math.log10(Math.max(Math.min(...allValues), 1)));
-		const maxLog = Math.ceil(
-			Math.log10(Math.max(Math.max(...allValues), 1)),
-		);
+		// Collect all positive values across all enabled series for axis range
+		const allValues: number[] = [];
+		for (const series of activeSeries) {
+			for (const snap of snapshots) {
+				const v = series.getValue(snap);
+				if (v > 0) allValues.push(v);
+			}
+		}
+		if (allValues.length === 0)
+			return { seriesPoints: {}, xTicks: [], yTicks: [] };
+
+		const minLog = Math.floor(Math.log10(Math.min(...allValues)));
+		const maxLog = Math.ceil(Math.log10(Math.max(...allValues)));
 		const logRange = Math.max(maxLog - minLog, 1);
 
 		const innerW = CHART_W - PAD.left - PAD.right;
@@ -52,15 +134,13 @@ export function FlopsChart({ snapshots }: FlopsChartProps) {
 			return `${x},${y}`;
 		};
 
-		const fPts = snapshots
-			.filter((s) => s.flops > 0)
-			.map((s) => toPoint(s.time, s.flops))
-			.join(" ");
-
-		const lPts = snapshots
-			.filter((s) => s.locPerSec > 0)
-			.map((s) => toPoint(s.time, s.locPerSec))
-			.join(" ");
+		const pts: Record<string, string> = {};
+		for (const series of activeSeries) {
+			pts[series.key] = snapshots
+				.filter((s) => series.getValue(s) > 0)
+				.map((s) => toPoint(s.time, series.getValue(s)))
+				.join(" ");
+		}
 
 		const xT = Array.from({ length: 5 }, (_, i) => {
 			const t = (mTime / 4) * i;
@@ -75,17 +155,38 @@ export function FlopsChart({ snapshots }: FlopsChartProps) {
 			const logY = (exp - minLog) / logRange;
 			yT.push({
 				y: PAD.top + innerH - logY * innerH,
-				label: formatFlops(10 ** exp),
+				label: formatValue(10 ** exp),
 			});
 		}
 
-		return { flopsPoints: fPts, locPoints: lPts, xTicks: xT, yTicks: yT };
-	}, [snapshots]);
+		return { seriesPoints: pts, xTicks: xT, yTicks: yT };
+	}, [snapshots, enabled]);
 
 	if (snapshots.length === 0) return null;
 
 	return (
 		<div css={containerCss}>
+			<div css={legendCss}>
+				{ALL_SERIES.map((s) => (
+					<div
+						key={s.key}
+						css={legendItemCss}
+						style={{ opacity: enabled.has(s.key) ? 1 : 0.35 }}
+						onClick={() => toggle(s.key)}
+					>
+						<span
+							style={{
+								display: "inline-block",
+								width: 14,
+								height: 3,
+								background: s.color,
+								borderRadius: 1,
+							}}
+						/>
+						<span style={{ color: s.color }}>{s.label}</span>
+					</div>
+				))}
+			</div>
 			<svg
 				viewBox={`0 0 ${CHART_W} ${CHART_H}`}
 				width="100%"
@@ -126,53 +227,16 @@ export function FlopsChart({ snapshots }: FlopsChartProps) {
 						{t.label}
 					</text>
 				))}
-				<polyline
-					fill="none"
-					stroke="#c678dd"
-					strokeWidth={2}
-					points={flopsPoints}
-				/>
-				<polyline
-					fill="none"
-					stroke="#61afef"
-					strokeWidth={1.5}
-					strokeDasharray="4 2"
-					points={locPoints}
-				/>
-				{/* Legend */}
-				<line
-					x1={PAD.left + 10}
-					x2={PAD.left + 30}
-					y1={PAD.top + 8}
-					y2={PAD.top + 8}
-					stroke="#c678dd"
-					strokeWidth={2}
-				/>
-				<text
-					x={PAD.left + 34}
-					y={PAD.top + 12}
-					fill="#c678dd"
-					fontSize={9}
-				>
-					FLOPS
-				</text>
-				<line
-					x1={PAD.left + 80}
-					x2={PAD.left + 100}
-					y1={PAD.top + 8}
-					y2={PAD.top + 8}
-					stroke="#61afef"
-					strokeWidth={1.5}
-					strokeDasharray="4 2"
-				/>
-				<text
-					x={PAD.left + 104}
-					y={PAD.top + 12}
-					fill="#61afef"
-					fontSize={9}
-				>
-					LoC/s
-				</text>
+				{ALL_SERIES.filter((s) => enabled.has(s.key)).map((s) => (
+					<polyline
+						key={s.key}
+						fill="none"
+						stroke={s.color}
+						strokeWidth={s.dash ? 1.5 : 2}
+						strokeDasharray={s.dash}
+						points={seriesPoints[s.key] ?? ""}
+					/>
+				))}
 			</svg>
 		</div>
 	);
