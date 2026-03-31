@@ -1,7 +1,8 @@
 import { css } from "@emotion/react";
 import { TapToCode } from "@modules/editor";
 import { useGameStore } from "@modules/game";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useIdeTheme } from "../hooks/use-ide-theme";
 import { MobileResourceBar } from "./mobile-resource-bar";
 import { MobileSettingsOverlay } from "./mobile-settings-overlay";
 import { MobileShopTab } from "./mobile-shop-tab";
@@ -28,6 +29,9 @@ const contentCss = css({
 export function MobileShell() {
 	const [activeTab, setActiveTab] = useState<MobileTabEnum>(MobileTabEnum.code);
 	const [settingsOpen, setSettingsOpen] = useState(false);
+	const theme = useIdeTheme();
+
+	const handleKeystroke = useCallback(() => {}, []);
 
 	// Auto-run on mobile — no Run/Stop button
 	useEffect(() => {
@@ -41,7 +45,9 @@ export function MobileShell() {
 		<div css={shellCss}>
 			<MobileResourceBar onOpenSettings={() => setSettingsOpen(true)} />
 			<div css={contentCss}>
-				{activeTab === MobileTabEnum.code && <TapToCode />}
+				{activeTab === MobileTabEnum.code && (
+					<TapToCode theme={theme} onKeystroke={handleKeystroke} />
+				)}
 				{activeTab === MobileTabEnum.tree && <TechTreePage />}
 				{activeTab === MobileTabEnum.shop && <MobileShopTab />}
 			</div>
