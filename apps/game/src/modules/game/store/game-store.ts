@@ -20,7 +20,6 @@ import {
 } from "@flopsed/engine";
 import { sfx } from "@modules/audio";
 import { useEventStore } from "@modules/event";
-import { match } from "ts-pattern";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -124,6 +123,8 @@ export interface GameState {
 	prevTickTotalCash: number;
 	prevTickTotalLoc: number;
 	prevTickTotalExecLoc: number;
+	_visualTick: number;
+	editorStreamingMode: boolean;
 }
 
 export interface GodModeOverrides {
@@ -151,6 +152,7 @@ export interface GameActions {
 	recalc: () => void;
 	setFlopSlider: (value: number) => void;
 	toggleAutoArbitrage: () => void;
+	toggleAutoExecute: () => void;
 	applyEventReward: (cashDelta: number, locDelta: number) => void;
 }
 
@@ -217,6 +219,8 @@ const initialState: GameState = {
 	prevTickTotalCash: 0,
 	prevTickTotalLoc: 0,
 	prevTickTotalExecLoc: 0,
+	_visualTick: 0,
+	editorStreamingMode: false,
 };
 
 function getEffectiveMax(upgrade: Upgrade, state?: GameState): number {
@@ -278,135 +282,150 @@ function recalcDerivedStats(state: GameState): void {
 	const unlockedModels: Record<string, boolean> = {};
 	let singularity = false;
 
+	// Fast lookup table replaces ts-pattern match() — ~30 patterns checked
+	// per effect would create closures/objects on every call. With 120+ effects
+	// at T3, this saves significant allocation in the recalc hot path.
 	function applyEffect(effect: UpgradeEffect, owned: number) {
 		const val = effect.value as number;
-		match(effect)
-			.with({ type: "locPerKey", op: "add" }, () => {
+		const key = `${effect.type}:${effect.op}`;
+
+		switch (key) {
+			// ── LoC production ──
+			case "locPerKey:add":
 				locPerKey += val * owned;
-			})
-			.with({ type: "locPerKey", op: "multiply" }, () => {
+				break;
+			case "locPerKey:multiply":
 				locPerKey *= val ** owned;
-			})
-			.with({ type: "autoLoc", op: "add" }, () => {
+				break;
+			case "autoLoc:add":
 				devLoc += val * owned;
-			})
-			.with({ type: "freelancerLoc", op: "add" }, () => {
+				break;
+			case "freelancerLoc:add":
 				freelancerLoc += val * owned;
-			})
-			.with({ type: "internLoc", op: "add" }, () => {
+				break;
+			case "internLoc:add":
 				internLoc += val * owned;
-			})
-			.with({ type: "devLoc", op: "add" }, () => {
+				break;
+			case "devLoc:add":
 				devLoc += val * owned;
-			})
-			.with({ type: "teamLoc", op: "add" }, () => {
+				break;
+			case "teamLoc:add":
 				teamLoc += val * owned;
-			})
-			.with({ type: "managerLoc", op: "add" }, () => {
+				break;
+			case "managerLoc:add":
 				managerCount += val * owned;
-			})
-			.with({ type: "flops", op: "add" }, () => {
-				baseFlops += val * owned;
-			})
-			.with({ type: "cpuFlops", op: "add" }, () => {
-				cpuFlops += val * owned;
-			})
-			.with({ type: "ramFlops", op: "add" }, () => {
-				ramFlops += val * owned;
-			})
-			.with({ type: "storageFlops", op: "add" }, () => {
-				storageFlops += val * owned;
-			})
-			.with({ type: "locProductionSpeed", op: "multiply" }, () => {
-				locProductionMultiplier *= val ** owned;
-			})
-			.with({ type: "cashMultiplier", op: "multiply" }, () => {
-				cashMultiplier *= val ** owned;
-			})
-			.with({ type: "devSpeed", op: "multiply" }, () => {
-				devSpeedMultiplier *= val ** owned;
-			})
-			.with({ type: "freelancerLocMultiplier", op: "multiply" }, () => {
-				freelancerLocMultiplier *= val ** owned;
-			})
-			.with({ type: "internLocMultiplier", op: "multiply" }, () => {
-				internLocMultiplier *= val ** owned;
-			})
-			.with({ type: "devLocMultiplier", op: "multiply" }, () => {
-				devLocMultiplier *= val ** owned;
-			})
-			.with({ type: "teamLocMultiplier", op: "multiply" }, () => {
-				teamLocMultiplier *= val ** owned;
-			})
-			.with({ type: "managerMultiplier", op: "multiply" }, () => {
-				managerMultiplier *= val ** owned;
-			})
-			.with({ type: "freelancerCostDiscount", op: "multiply" }, () => {
-				freelancerCostDiscount *= val ** owned;
-			})
-			.with({ type: "internCostDiscount", op: "multiply" }, () => {
-				internCostDiscount *= val ** owned;
-			})
-			.with({ type: "devCostDiscount", op: "multiply" }, () => {
-				devCostDiscount *= val ** owned;
-			})
-			.with({ type: "teamCostDiscount", op: "multiply" }, () => {
-				teamCostDiscount *= val ** owned;
-			})
-			.with({ type: "managerCostDiscount", op: "multiply" }, () => {
-				managerCostDiscount *= val ** owned;
-			})
-			.with({ type: "llmLoc", op: "add" }, () => {
+				break;
+			case "llmLoc:add":
 				llmLoc += val * owned;
-			})
-			.with({ type: "agentLoc", op: "add" }, () => {
+				break;
+			case "agentLoc:add":
 				agentLoc += val * owned;
-			})
-			.with({ type: "llmLocMultiplier", op: "multiply" }, () => {
+				break;
+
+			// ── FLOPS ──
+			case "flops:add":
+				baseFlops += val * owned;
+				break;
+			case "cpuFlops:add":
+				cpuFlops += val * owned;
+				break;
+			case "ramFlops:add":
+				ramFlops += val * owned;
+				break;
+			case "storageFlops:add":
+				storageFlops += val * owned;
+				break;
+
+			// ── Multipliers ──
+			case "locProductionSpeed:multiply":
+				locProductionMultiplier *= val ** owned;
+				break;
+			case "cashMultiplier:multiply":
+				cashMultiplier *= val ** owned;
+				break;
+			case "devSpeed:multiply":
+				devSpeedMultiplier *= val ** owned;
+				break;
+			case "freelancerLocMultiplier:multiply":
+				freelancerLocMultiplier *= val ** owned;
+				break;
+			case "internLocMultiplier:multiply":
+				internLocMultiplier *= val ** owned;
+				break;
+			case "devLocMultiplier:multiply":
+				devLocMultiplier *= val ** owned;
+				break;
+			case "teamLocMultiplier:multiply":
+				teamLocMultiplier *= val ** owned;
+				break;
+			case "managerMultiplier:multiply":
+				managerMultiplier *= val ** owned;
+				break;
+			case "llmLocMultiplier:multiply":
 				llmLocMultiplier *= val ** owned;
-			})
-			.with({ type: "agentLocMultiplier", op: "multiply" }, () => {
+				break;
+			case "agentLocMultiplier:multiply":
 				agentLocMultiplier *= val ** owned;
-			})
-			.with({ type: "llmCostDiscount", op: "multiply" }, () => {
+				break;
+
+			// ── Cost discounts ──
+			case "freelancerCostDiscount:multiply":
+				freelancerCostDiscount *= val ** owned;
+				break;
+			case "internCostDiscount:multiply":
+				internCostDiscount *= val ** owned;
+				break;
+			case "devCostDiscount:multiply":
+				devCostDiscount *= val ** owned;
+				break;
+			case "teamCostDiscount:multiply":
+				teamCostDiscount *= val ** owned;
+				break;
+			case "managerCostDiscount:multiply":
+				managerCostDiscount *= val ** owned;
+				break;
+			case "llmCostDiscount:multiply":
 				llmCostDiscount *= val ** owned;
-			})
-			.with({ type: "agentCostDiscount", op: "multiply" }, () => {
+				break;
+			case "agentCostDiscount:multiply":
 				agentCostDiscount *= val ** owned;
-			})
-			.with({ type: "freelancerMaxBonus", op: "add" }, () => {
+				break;
+
+			// ── Max bonuses ──
+			case "freelancerMaxBonus:add":
 				freelancerMaxBonus += val * owned;
-			})
-			.with({ type: "internMaxBonus", op: "add" }, () => {
+				break;
+			case "internMaxBonus:add":
 				internMaxBonus += val * owned;
-			})
-			.with({ type: "teamMaxBonus", op: "add" }, () => {
+				break;
+			case "teamMaxBonus:add":
 				teamMaxBonus += val * owned;
-			})
-			.with({ type: "managerMaxBonus", op: "add" }, () => {
+				break;
+			case "managerMaxBonus:add":
 				managerMaxBonus += val * owned;
-			})
-			.with({ type: "llmMaxBonus", op: "add" }, () => {
+				break;
+			case "llmMaxBonus:add":
 				llmMaxBonus += val * owned;
-			})
-			.with({ type: "llmHostSlot", op: "add" }, () => {
-				llmHostSlots += val * owned;
-			})
-			.with({ type: "agentMaxBonus", op: "add" }, () => {
+				break;
+			case "agentMaxBonus:add":
 				agentMaxBonus += val * owned;
-			})
-			.with({ type: "tierUnlock", op: "set" }, () => {
+				break;
+			case "llmHostSlot:add":
+				llmHostSlots += val * owned;
+				break;
+
+			// ── Special ──
+			case "tierUnlock:set":
 				tierIndex = Math.max(tierIndex, val);
-			})
-			.with({ type: "modelUnlock", op: "enable" }, () => {
+				break;
+			case "modelUnlock:enable":
 				unlockedModels[effect.value as string] = true;
-			})
-			.with({ type: "autoPoke", op: "enable" }, () => {})
-			.with({ type: "autoArbitrage", op: "enable" }, () => {})
-			.with({ type: "singularity", op: "enable" }, () => {
+				break;
+			case "singularity:enable":
 				singularity = true;
-			})
-			.otherwise(() => {});
+				break;
+			// autoPoke:enable, autoArbitrage:enable — no-op (handled elsewhere)
+		}
 	}
 
 	const eventMods = useEventStore.getState().getEventModifiers();
@@ -448,6 +467,9 @@ function recalcDerivedStats(state: GameState): void {
 	state.locPerKey = locPerKey;
 	state.autoLocPerSec =
 		totalAutoLoc * locProductionMultiplier * eventMods.autoLocMultiplier;
+	if (!state.editorStreamingMode && state.autoLocPerSec > locPerKey * 8) {
+		state.editorStreamingMode = true;
+	}
 	state.freelancerLocPerSec =
 		freelancerLoc *
 		freelancerLocMultiplier *
@@ -621,16 +643,21 @@ export const useGameStore = create<GameState & GameActions>()(
 					loc = Math.max(0, loc);
 
 					// ── 3. Visual block queue (capped, for editor only) ──
-					// Skip at T4+ — editor is replaced by CLI prompt
+					// Skip at T4+ (CLI prompt) and T2+ streaming mode
 					let blockQueue = s.blockQueue;
-					if (!aiUnlocked) {
+					const visualTick = (s._visualTick ?? 0) + 1;
+					if (aiUnlocked || s.editorStreamingMode) {
+						// T4+ or streaming: no block tracking needed
+						if (blockQueue.length > 0) blockQueue = [];
+					} else {
 						const visualProduced = Math.floor(humanOutput + aiProduced);
-						if (visualProduced > 0) {
-							blockQueue = blockQueue.slice(-99);
-							blockQueue.push({ lines: [], loc: visualProduced });
+						if (visualProduced > 0 && visualTick % 5 === 0) {
+							blockQueue =
+								blockQueue.length >= 100
+									? blockQueue.slice(-99)
+									: [...blockQueue];
+							blockQueue.push({ lines: [], loc: visualProduced * 5 });
 						}
-					} else if (blockQueue.length > 0) {
-						blockQueue = [];
 					}
 
 					const next: Partial<GameState> = {
@@ -643,17 +670,21 @@ export const useGameStore = create<GameState & GameActions>()(
 						totalTokens,
 						blockQueue,
 						manualExecAccum,
+						_visualTick: visualTick,
 					};
 
-					const newMilestones: string[] = [];
+					let newMilestones: string[] | null = null;
 					for (const m of allMilestones) {
 						if (s.reachedMilestones.includes(m.id)) continue;
 						let reached = false;
 						if (m.metric === "totalLoc") reached = totalLoc >= m.threshold;
 						if (m.metric === "totalCash") reached = totalCash >= m.threshold;
-						if (reached) newMilestones.push(m.id);
+						if (reached) {
+							newMilestones ??= [];
+							newMilestones.push(m.id);
+						}
 					}
-					if (newMilestones.length > 0) {
+					if (newMilestones !== null) {
 						next.reachedMilestones = [...s.reachedMilestones, ...newMilestones];
 						// Award cash bonuses and show toasts for new milestones
 						for (const mid of newMilestones) {
@@ -891,6 +922,11 @@ export const useGameStore = create<GameState & GameActions>()(
 			toggleAutoArbitrage: () => {
 				set((s) => ({
 					autoArbitrageEnabled: !s.autoArbitrageEnabled,
+				}));
+			},
+			toggleAutoExecute: () => {
+				set((s) => ({
+					autoExecuteEnabled: !s.autoExecuteEnabled,
 				}));
 			},
 
