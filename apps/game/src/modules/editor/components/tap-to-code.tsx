@@ -1,8 +1,8 @@
 import { css, keyframes } from "@emotion/react";
-import type { EditorTheme } from "../data/editor-themes";
 import { useGameStore } from "@modules/game";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { EditorTheme } from "../data/editor-themes";
 
 interface FloatingIndicator {
 	id: number;
