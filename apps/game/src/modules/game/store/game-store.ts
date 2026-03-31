@@ -110,6 +110,10 @@ export interface GameState {
 	autoTypeEnabled: boolean;
 	autoExecuteEnabled: boolean;
 	autoPokeEnabled: boolean;
+	flopSlider: number;
+	autoArbitrageEnabled: boolean;
+	autoArbitrageOverride: boolean;
+	autoArbitrageOverrideAt: number;
 	running: boolean;
 	manualExecAccum: number;
 	singularity: boolean;
@@ -147,6 +151,7 @@ export interface GameActions {
 	godSet: (overrides: GodModeOverrides) => void;
 	reset: () => void;
 	recalc: () => void;
+	setFlopSlider: (value: number) => void;
 	applyEventReward: (cashDelta: number, locDelta: number) => void;
 }
 
@@ -199,6 +204,10 @@ const initialState: GameState = {
 	autoTypeEnabled: false,
 	autoExecuteEnabled: false,
 	autoPokeEnabled: false,
+	flopSlider: 0.7,
+	autoArbitrageEnabled: false,
+	autoArbitrageOverride: false,
+	autoArbitrageOverrideAt: 0,
 	running: true,
 	manualExecAccum: 0,
 	singularity: false,
@@ -772,6 +781,7 @@ export const useGameStore = create<GameState & GameActions>()(
 					if (node.id === "auto_type") newState.autoTypeEnabled = true;
 					if (node.id === "auto_execute") newState.autoExecuteEnabled = true;
 					if (node.id === "auto_poke") newState.autoPokeEnabled = true;
+					if (node.id === "auto_arbitrage") newState.autoArbitrageEnabled = true;
 					recalcDerivedStats(newState);
 					return newState;
 				});
@@ -838,6 +848,14 @@ export const useGameStore = create<GameState & GameActions>()(
 				});
 			},
 
+			setFlopSlider: (value: number) => {
+				set({
+					flopSlider: Math.min(1, Math.max(0, value)),
+					autoArbitrageOverride: true,
+					autoArbitrageOverrideAt: performance.now(),
+				});
+			},
+
 			applyEventReward: (cashDelta: number, locDelta: number) => {
 				set((s) => ({
 					cash: s.cash + cashDelta,
@@ -865,6 +883,8 @@ export const useGameStore = create<GameState & GameActions>()(
 				autoTypeEnabled: state.autoTypeEnabled,
 				autoExecuteEnabled: state.autoExecuteEnabled,
 				autoPokeEnabled: state.autoPokeEnabled,
+				flopSlider: state.flopSlider,
+				autoArbitrageEnabled: state.autoArbitrageEnabled,
 				reachedMilestones: state.reachedMilestones,
 			}),
 			onRehydrateStorage: () => (state) => {
