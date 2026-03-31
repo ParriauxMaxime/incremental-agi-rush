@@ -59,7 +59,9 @@
 		"exec_flops": "Exec {{count}} FLOPS",
 		"ai_flops": "IA {{count}} FLOPS",
 		"exec_rate": "{{count}} loc/s exéc.",
-		"ai_rate": "{{count}} loc/s gén."
+		"ai_rate": "{{count}} loc/s gén.",
+		"auto_arbitrage_active": "Auto-Arbitrage actif",
+		"targeting": "cible {{pct}}%"
 	},
 	"sidebar": {
 		"title": "Explorateur",

@@ -261,6 +261,10 @@
 		"name": "Auto-Prompt",
 		"description": "Les modèles IA génèrent des prompts automatiquement."
 	},
+	"auto_arbitrage": {
+		"name": "Auto-Arbitrage",
+		"description": "Optimise automatiquement l'allocation FLOPS pour maximiser les revenus."
+	},
 	"outsourcing": {
 		"name": "Externalisation",
 		"description": "Débloque le recrutement de freelances sur Malt."

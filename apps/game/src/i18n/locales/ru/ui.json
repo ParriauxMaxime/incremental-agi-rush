@@ -59,7 +59,9 @@
 		"exec_flops": "Выполн. {{count}} FLOPS",
 		"ai_flops": "AI {{count}} FLOPS",
 		"exec_rate": "{{count}} loc/s выполн.",
-		"ai_rate": "{{count}} loc/s генер."
+		"ai_rate": "{{count}} loc/s генер.",
+		"auto_arbitrage_active": "Авто-арбитраж активен",
+		"targeting": "цель {{pct}}%"
 	},
 	"sidebar": {
 		"title": "Проводник",

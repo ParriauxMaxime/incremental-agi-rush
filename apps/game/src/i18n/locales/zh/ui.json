@@ -59,7 +59,9 @@
 		"exec_flops": "执行 {{count}} FLOPS",
 		"ai_flops": "AI {{count}} FLOPS",
 		"exec_rate": "{{count}} loc/s 执行",
-		"ai_rate": "{{count}} loc/s 生成"
+		"ai_rate": "{{count}} loc/s 生成",
+		"auto_arbitrage_active": "自动套利已启用",
+		"targeting": "目标 {{pct}}%"
 	},
 	"sidebar": {
 		"title": "资源管理器",

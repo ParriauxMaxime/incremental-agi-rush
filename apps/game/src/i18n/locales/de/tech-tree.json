@@ -261,6 +261,10 @@
 		"name": "Auto-Prompt",
 		"description": "KI-Modelle generieren automatisch Prompts."
 	},
+	"auto_arbitrage": {
+		"name": "Auto-Arbitrage",
+		"description": "Optimiert automatisch die FLOPS-Zuweisung für maximalen Cashflow."
+	},
 	"outsourcing": {
 		"name": "Outsourcing",
 		"description": "Freelancer-Einstellung auf Malt freischalten."
