@@ -1,6 +1,5 @@
 import { EditorPanel } from "@components/editor-panel";
 import { GodModePage } from "@components/god-mode-page";
-import { PerfProfiler } from "@components/perf-profiler";
 import { RotateNudge } from "@components/rotate-nudge";
 import { SidebarTree } from "@components/sidebar-tree";
 import { StatsPanel } from "@components/stats-panel";
@@ -815,7 +814,6 @@ export function App() {
 				<StatusBar />
 			</div>
 			<EventToast />
-			<PerfProfiler />
 			{singularity && <SingularitySequence animate={singularityAnimate} />}
 		</>
 	);
