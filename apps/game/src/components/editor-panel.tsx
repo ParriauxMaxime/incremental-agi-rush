@@ -57,9 +57,7 @@ export function EditorPanel() {
 			<div css={wrapperCss} data-tutorial="editor">
 				<div css={editorAreaCss} style={{ flex: 1 }}>
 					<StreamingEditor />
-					{isTouch && (
-						<TapToCode theme={theme} onKeystroke={onKeystroke} />
-					)}
+					{isTouch && <TapToCode theme={theme} onKeystroke={onKeystroke} />}
 				</div>
 			</div>
 		);
@@ -69,9 +67,7 @@ export function EditorPanel() {
 		<div css={wrapperCss} data-tutorial="editor">
 			<div css={editorAreaCss} style={{ flex: 1 }}>
 				<Editor keystrokeCallbackRef={keystrokeCallbackRef} />
-				{isTouch && (
-					<TapToCode theme={theme} onKeystroke={onKeystroke} />
-				)}
+				{isTouch && <TapToCode theme={theme} onKeystroke={onKeystroke} />}
 			</div>
 		</div>
 	);

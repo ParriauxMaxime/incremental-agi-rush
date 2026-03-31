@@ -687,8 +687,23 @@ export function App() {
 							title={t("sidebar.show")}
 						>
 							<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-								<rect x="1.5" y="2.5" width="13" height="11" rx="1" stroke="currentColor" strokeWidth="1.2" />
-								<line x1="5" y1="3" x2="5" y2="13" stroke="currentColor" strokeWidth="1.2" />
+								<rect
+									x="1.5"
+									y="2.5"
+									width="13"
+									height="11"
+									rx="1"
+									stroke="currentColor"
+									strokeWidth="1.2"
+								/>
+								<line
+									x1="5"
+									y1="3"
+									x2="5"
+									y2="13"
+									stroke="currentColor"
+									strokeWidth="1.2"
+								/>
 							</svg>
 						</button>
 					)}
@@ -774,8 +789,23 @@ export function App() {
 							title={t("tabs.show_stats")}
 						>
 							<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-								<rect x="1.5" y="2.5" width="13" height="11" rx="1" stroke="currentColor" strokeWidth="1.2" />
-								<line x1="11" y1="3" x2="11" y2="13" stroke="currentColor" strokeWidth="1.2" />
+								<rect
+									x="1.5"
+									y="2.5"
+									width="13"
+									height="11"
+									rx="1"
+									stroke="currentColor"
+									strokeWidth="1.2"
+								/>
+								<line
+									x1="11"
+									y1="3"
+									x2="11"
+									y2="13"
+									stroke="currentColor"
+									strokeWidth="1.2"
+								/>
 							</svg>
 						</button>
 					)}

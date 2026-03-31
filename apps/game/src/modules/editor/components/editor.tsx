@@ -3,6 +3,7 @@ import { sfx } from "@modules/audio";
 import { allEvents, useEventStore } from "@modules/event";
 import { useGameStore, useUiStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
+import type { MutableRefObject } from "react";
 import {
 	memo,
 	useCallback,
@@ -12,7 +13,6 @@ import {
 	useRef,
 	useState,
 } from "react";
-import type { MutableRefObject } from "react";
 import { EDITOR_THEMES } from "../data/editor-themes";
 import { useAutoType } from "../hooks/use-auto-type";
 import { useCodeTyping } from "../hooks/use-code-typing";
