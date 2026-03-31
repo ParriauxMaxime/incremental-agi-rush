@@ -7,7 +7,6 @@ export type {
 	UpgradeEffect,
 } from "@flopsed/domain";
 export { aiModels } from "@flopsed/domain";
-export { SingularitySequence } from "./components/singularity-sequence";
 export { useGameLoop } from "./hooks/use-game-loop";
 export type {
 	GameActions,

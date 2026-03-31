@@ -1,9 +1,13 @@
-import * as Tone from "tone";
+import type * as ToneNs from "tone";
 
 /**
  * Stem-based music engine. Each tier fades in additional stems.
  * Supports multiple music packs (stem sets) that can be hot-swapped.
+ *
+ * Tone.js is loaded dynamically on first use to keep it out of the main bundle.
  */
+
+let Tone: typeof ToneNs;
 
 export const MusicStyleEnum = {
 	chiptune: "chiptune",
@@ -50,8 +54,8 @@ const PACKS: Record<MusicStyleEnum, StemPack> = {
 const FADE_DURATION = 2; // seconds
 
 interface StemPlayer {
-	player: Tone.Player;
-	gain: Tone.Gain;
+	player: ToneNs.Player;
+	gain: ToneNs.Gain;
 }
 
 const stems: Map<string, StemPlayer> = new Map();
@@ -99,6 +103,7 @@ function clearStems() {
 }
 
 export async function initMusic(style?: MusicStyleEnum) {
+	Tone = await import("tone");
 	await Tone.start();
 	currentStyle = style ?? MusicStyleEnum.chiptune;
 	await loadPack(currentStyle);

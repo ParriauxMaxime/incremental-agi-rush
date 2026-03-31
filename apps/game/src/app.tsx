@@ -4,7 +4,6 @@ import { RotateNudge } from "@components/rotate-nudge";
 import { SidebarTree } from "@components/sidebar-tree";
 import { StatsPanel } from "@components/stats-panel";
 import { StatusBar } from "@components/status-bar";
-import { TechTreePage } from "@components/tech-tree-page";
 import {
 	TutorialTip,
 	useKeyboardShortcuts,
@@ -16,18 +15,23 @@ import { useAudioEvents } from "@modules/audio/use-audio-events";
 import type { EditorTheme } from "@modules/editor";
 import { EDITOR_THEMES, type EditorThemeEnum } from "@modules/editor";
 import { EventToast } from "@modules/event/components/event-toast";
-import {
-	PageEnum,
-	SingularitySequence,
-	useGameLoop,
-	useGameStore,
-	useUiStore,
-} from "@modules/game";
-import { useEffect, useRef } from "react";
+import { PageEnum, useGameLoop, useGameStore, useUiStore } from "@modules/game";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { match } from "ts-pattern";
 import { useIdeTheme } from "./hooks/use-ide-theme";
 import { supportedLanguages } from "./i18n";
+
+const TechTreePage = lazy(() =>
+	import("@components/tech-tree-page").then((m) => ({
+		default: m.TechTreePage,
+	})),
+);
+const SingularitySequence = lazy(() =>
+	import("@modules/game/components/singularity-sequence").then((m) => ({
+		default: m.SingularitySequence,
+	})),
+);
 
 const globalStyles = css({
 	"*": {
@@ -449,7 +453,11 @@ const splitBtnCss = css({
 function PageContent({ page }: { page: PageEnum }) {
 	return match(page)
 		.with(PageEnum.game, () => <EditorPanel />)
-		.with(PageEnum.tech_tree, () => <TechTreePage />)
+		.with(PageEnum.tech_tree, () => (
+			<Suspense fallback={null}>
+				<TechTreePage />
+			</Suspense>
+		))
 		.with(PageEnum.settings, () => <SettingsPage />)
 		.with(PageEnum.god_mode, () => <GodModePage />)
 		.exhaustive();
@@ -814,7 +822,11 @@ export function App() {
 				<StatusBar />
 			</div>
 			<EventToast />
-			{singularity && <SingularitySequence animate={singularityAnimate} />}
+			{singularity && (
+				<Suspense fallback={null}>
+					<SingularitySequence animate={singularityAnimate} />
+				</Suspense>
+			)}
 		</>
 	);
 }
