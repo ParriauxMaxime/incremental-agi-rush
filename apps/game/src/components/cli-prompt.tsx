@@ -12,10 +12,18 @@ import {
 // ── Types ──
 
 interface LogEntry {
-	kind: "prompt" | "model-header" | "file-header" | "diff-line" | "blank";
+	kind:
+		| "prompt"
+		| "text"
+		| "tool-header"
+		| "tool-summary"
+		| "diff-line"
+		| "status"
+		| "blank";
 	text: string;
 	color?: string;
 	diffType?: DiffLine["type"];
+	lineNum?: number;
 }
 
 type StreamState =
@@ -26,6 +34,7 @@ type StreamState =
 			color: string;
 			snippet: DiffSnippet;
 			lineIdx: number;
+			startTime: number;
 	  }
 	| { phase: "done" };
 
@@ -43,7 +52,7 @@ const logCss = css({
 	overflowY: "auto",
 	padding: "8px 12px",
 	fontSize: 13,
-	lineHeight: 1.6,
+	lineHeight: 1.7,
 	fontFamily: "'Courier New', monospace",
 	"&::-webkit-scrollbar": { width: 4 },
 	"&::-webkit-scrollbar-track": { background: "transparent" },
@@ -87,6 +96,32 @@ const spinnerCss = css({
 		content: '"⠋"',
 		animation: `${spin} 0.8s steps(1) infinite`,
 	},
+});
+
+const dotCss = css({
+	display: "inline-block",
+	width: 8,
+	height: 8,
+	borderRadius: "50%",
+	marginRight: 8,
+	verticalAlign: "middle",
+});
+
+const diffLineCss = css({
+	display: "flex",
+	fontSize: 12,
+	lineHeight: 1.6,
+	borderRadius: 2,
+	margin: "0 0 0 16px",
+});
+
+const lineNumCss = css({
+	display: "inline-block",
+	width: 32,
+	textAlign: "right",
+	paddingRight: 8,
+	userSelect: "none",
+	flexShrink: 0,
 });
 
 // ── Prompt suggestions ──
@@ -135,19 +170,57 @@ function getModelColor(family: string): string {
 	return colors[family] ?? "#8b949e";
 }
 
-function diffLinePrefix(type: DiffLine["type"]): string {
-	if (type === "add") return "+ ";
-	if (type === "remove") return "- ";
-	return "  ";
+function diffBg(type: DiffLine["type"]): string {
+	if (type === "add") return "rgba(46, 160, 67, 0.15)";
+	if (type === "remove") return "rgba(248, 81, 73, 0.15)";
+	return "transparent";
 }
 
-function diffLineColor(
+function diffFg(
 	type: DiffLine["type"],
 	theme: { success: string; textMuted: string },
 ): string {
 	if (type === "add") return theme.success;
 	if (type === "remove") return "#f85149";
 	return theme.textMuted;
+}
+
+function diffPrefix(type: DiffLine["type"]): string {
+	if (type === "add") return "+";
+	if (type === "remove") return "-";
+	return " ";
+}
+
+function countDiffLines(snippet: DiffSnippet): {
+	added: number;
+	removed: number;
+} {
+	let added = 0;
+	let removed = 0;
+	for (const l of snippet.lines) {
+		if (l.type === "add") added++;
+		if (l.type === "remove") removed++;
+	}
+	return { added, removed };
+}
+
+// ── Thinking verbs (Claude Code style) ──
+
+const THINKING_VERBS = [
+	"Reasoning",
+	"Analyzing",
+	"Thinking",
+	"Planning",
+	"Evaluating",
+	"Considering",
+	"Processing",
+	"Synthesizing",
+	"Examining",
+	"Reviewing",
+];
+
+function pickThinkingVerb(): string {
+	return THINKING_VERBS[Math.floor(Math.random() * THINKING_VERBS.length)];
 }
 
 // ── Max visible log entries ──
@@ -196,18 +269,30 @@ export function CliPrompt() {
 			const snippet = pickDiffSnippet();
 			const modelLabel = `${model.name} ${model.version}`;
 			const color = getModelColor(model.family);
+			const { added, removed } = countDiffLines(snippet);
 
-			// Show model header + file after a short delay
+			// Show thinking text, then tool header + summary after a short delay
 			setTimeout(
 				() => {
 					addEntry({
-						kind: "model-header",
-						text: modelLabel,
+						kind: "text",
+						text: `${pickThinkingVerb()}...`,
+						color,
+					});
+				},
+				100 + Math.random() * 150,
+			);
+
+			setTimeout(
+				() => {
+					addEntry({
+						kind: "tool-header",
+						text: `Update(${snippet.file})`,
 						color,
 					});
 					addEntry({
-						kind: "file-header",
-						text: snippet.file,
+						kind: "tool-summary",
+						text: `Added ${added} lines, removed ${removed} lines`,
 					});
 					setStream({
 						phase: "streaming",
@@ -215,9 +300,10 @@ export function CliPrompt() {
 						color,
 						snippet,
 						lineIdx: 0,
+						startTime: performance.now(),
 					});
 				},
-				200 + Math.random() * 300,
+				400 + Math.random() * 300,
 			);
 		},
 		[activeModels, addEntry],
@@ -230,14 +316,24 @@ export function CliPrompt() {
 		const { snippet, lineIdx } = stream;
 
 		if (lineIdx >= snippet.lines.length) {
-			// Done streaming — add blank line and go idle
+			// Done streaming — add completion text and go idle
+			const elapsed = Math.round((performance.now() - stream.startTime) / 1000);
+			const tokenCount = Math.round(
+				snippet.lines.length * (40 + Math.random() * 60),
+			);
+			addEntry({ kind: "blank", text: "" });
+			addEntry({
+				kind: "text",
+				text: `Done (${elapsed}s · ↑ ${tokenCount} tokens)`,
+				color: stream.color,
+			});
 			addEntry({ kind: "blank", text: "" });
 			setStream({ phase: "done" });
 			return;
 		}
 
 		const line = snippet.lines[lineIdx];
-		// Speed scales with AI FLOPS share: slider=0 → full AI (speed x1), slider=0.9 → almost no AI (speed x0.1)
+		// Speed scales with AI FLOPS share
 		const aiShare = Math.max(0.05, 1 - flopSlider);
 		const baseDelay =
 			line.type === "context"
@@ -245,11 +341,19 @@ export function CliPrompt() {
 				: 100 + Math.random() * 150;
 		const delay = baseDelay / aiShare;
 
+		// Compute a fake line number starting from a random base
+		const baseLineNum =
+			snippet.lines.length > 0 ? 42 + Math.floor(Math.random() * 200) : 42;
+		const contextOffset = snippet.lines
+			.slice(0, lineIdx)
+			.filter((l) => l.type !== "remove").length;
+
 		const timer = setTimeout(() => {
 			addEntry({
 				kind: "diff-line",
-				text: `${diffLinePrefix(line.type)}${line.text}`,
+				text: `${diffPrefix(line.type)} ${line.text}`,
 				diffType: line.type,
+				lineNum: baseLineNum + contextOffset,
 			});
 			setStream((prev) =>
 				prev.phase === "streaming"
@@ -259,7 +363,7 @@ export function CliPrompt() {
 		}, delay);
 
 		return () => clearTimeout(timer);
-	}, [stream, addEntry]);
+	}, [stream, addEntry, flopSlider]);
 
 	// ── After streaming done, go back to idle (allow auto-poke) ──
 	useEffect(() => {
@@ -279,7 +383,7 @@ export function CliPrompt() {
 	useEffect(() => {
 		if (stream.phase !== "idle") return;
 		if (activeModels.length === 0) return;
-		if (!hasAiFlops) return; // slider at 100% exec → frozen
+		if (!hasAiFlops) return;
 
 		const aiShare = Math.max(0.05, 1 - flopSlider);
 		const baseDelay = autoPokeEnabled
@@ -290,13 +394,20 @@ export function CliPrompt() {
 			startPrompt(pickPrompt());
 		}, delay);
 		return () => clearTimeout(timer);
-	}, [autoPokeEnabled, stream.phase, activeModels.length, startPrompt, hasAiFlops]);
+	}, [
+		autoPokeEnabled,
+		stream.phase,
+		activeModels.length,
+		startPrompt,
+		hasAiFlops,
+		flopSlider,
+	]);
 
 	// ── Manual submit ──
 	const handleSubmit = useCallback(() => {
 		const text = input.trim();
 		if (!text || activeModels.length === 0 || !hasAiFlops) return;
-		if (stream.phase === "streaming") return; // don't interrupt
+		if (stream.phase === "streaming") return;
 		setInput("");
 		startPrompt(text);
 	}, [input, activeModels, stream.phase, startPrompt, hasAiFlops]);
@@ -312,6 +423,13 @@ export function CliPrompt() {
 
 	const isStreaming = stream.phase === "streaming";
 
+	// ── Status line for active streaming ──
+	const statusText = useMemo(() => {
+		if (stream.phase !== "streaming") return null;
+		const elapsed = Math.round((performance.now() - stream.startTime) / 1000);
+		return `${pickThinkingVerb()}… (${elapsed}s)`;
+	}, [stream]);
+
 	return (
 		<div css={wrapperCss} style={{ background: theme.panelBg }}>
 			<div ref={logRef} css={logCss} style={{ color: theme.textMuted }}>
@@ -323,56 +441,133 @@ export function CliPrompt() {
 					</div>
 				)}
 				{log.map((entry, i) => (
-					<div key={i}>
+					<div
+						key={i}
+						style={{
+							marginTop:
+								entry.kind === "text" || entry.kind === "tool-header" ? 4 : 0,
+						}}
+					>
 						{entry.kind === "prompt" && (
 							<>
-								<span style={{ color: theme.textMuted }}>{"$ "}</span>
+								<span
+									style={{
+										color: theme.accent,
+										fontWeight: "bold",
+										marginRight: 6,
+									}}
+								>
+									{"❯"}
+								</span>
 								<span style={{ color: theme.foreground }}>{entry.text}</span>
 							</>
 						)}
-						{entry.kind === "model-header" && (
+						{entry.kind === "text" && (
 							<>
-								<span css={spinnerCss} style={{ color: entry.color }} />{" "}
+								<span
+									css={dotCss}
+									style={{ background: entry.color ?? theme.success }}
+								/>
+								<span style={{ color: theme.foreground }}>{entry.text}</span>
+							</>
+						)}
+						{entry.kind === "tool-header" && (
+							<>
+								<span
+									css={dotCss}
+									style={{ background: entry.color ?? theme.success }}
+								/>
 								<span
 									style={{
-										color: entry.color,
+										color: theme.foreground,
 										fontWeight: "bold",
 									}}
 								>
 									{entry.text}
 								</span>
-								<span style={{ color: theme.textMuted }}> editing...</span>
 							</>
 						)}
-						{entry.kind === "file-header" && (
+						{entry.kind === "tool-summary" && (
 							<span
 								style={{
-									color: theme.accent,
+									color: theme.textMuted,
 									fontSize: 12,
-									opacity: 0.7,
+									marginLeft: 18,
 								}}
 							>
-								{"  "}
+								{"└ "}
 								{entry.text}
 							</span>
 						)}
 						{entry.kind === "diff-line" && (
-							<span
+							<div
+								css={diffLineCss}
 								style={{
-									color: diffLineColor(entry.diffType ?? "context", theme),
-									fontSize: 12,
+									background: diffBg(entry.diffType ?? "context"),
 								}}
 							>
-								{"    "}
-								{entry.text}
-							</span>
+								<span
+									css={lineNumCss}
+									style={{
+										color:
+											entry.diffType === "remove"
+												? "#f8514966"
+												: theme.lineNumbers,
+									}}
+								>
+									{entry.diffType === "remove" ? "" : entry.lineNum}
+								</span>
+								<span
+									style={{
+										color: diffFg(entry.diffType ?? "context", theme),
+									}}
+								>
+									{entry.text}
+								</span>
+							</div>
+						)}
+						{entry.kind === "status" && (
+							<>
+								<span
+									css={spinnerCss}
+									style={{ color: entry.color ?? "#e5c07b" }}
+								/>
+								<span
+									style={{
+										color: theme.textMuted,
+										fontSize: 12,
+										marginLeft: 6,
+									}}
+								>
+									{entry.text}
+								</span>
+							</>
 						)}
 						{entry.kind === "blank" && <br />}
 					</div>
 				))}
 				{isStreaming && (
-					<div>
-						<span css={cursorCss} style={{ background: theme.accent }} />
+					<div style={{ marginTop: 4 }}>
+						<span
+							css={spinnerCss}
+							style={{
+								color:
+									stream.phase === "streaming" ? stream.color : theme.accent,
+							}}
+						/>
+						<span
+							style={{
+								color: theme.textMuted,
+								fontSize: 12,
+								marginLeft: 6,
+							}}
+						>
+							{statusText}
+						</span>
+						<span
+							css={cursorCss}
+							style={{ background: theme.accent, marginLeft: 4 }}
+						/>
 					</div>
 				)}
 			</div>
@@ -384,10 +579,10 @@ export function CliPrompt() {
 				}}
 			>
 				<span
-					css={{ fontSize: 13, userSelect: "none" }}
-					style={{ color: theme.textMuted }}
+					css={{ fontSize: 13, userSelect: "none", fontWeight: "bold" }}
+					style={{ color: theme.accent }}
 				>
-					{"$"}
+					{"❯"}
 				</span>
 				<input
 					css={{
