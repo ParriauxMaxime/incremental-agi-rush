@@ -757,9 +757,7 @@ export const useGameStore = create<GameState & GameActions>()(
 						// Ideal split: give AI what it needs, rest to exec
 						// Target AI fraction = demand / total FLOPS (capped)
 						const idealAiFraction =
-							s.flops > 0
-								? Math.min(0.9, totalAiDemand / s.flops)
-								: 0.3;
+							s.flops > 0 ? Math.min(0.9, totalAiDemand / s.flops) : 0.3;
 						let targetSlider = 1 - idealAiFraction;
 
 						// Queue pressure bias

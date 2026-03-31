@@ -9,11 +9,11 @@
 		"server": "tsx server.ts"
 	},
 	"dependencies": {
+		"@dagrejs/dagre": "^3.0.0",
+		"@emotion/react": "^11.14.0",
 		"@flopsed/design-system": "*",
 		"@flopsed/domain": "*",
 		"@flopsed/engine": "*",
-		"@dagrejs/dagre": "^3.0.0",
-		"@emotion/react": "^11.14.0",
 		"@xyflow/react": "^12.0.0",
 		"cors": "^2.8.5",
 		"express": "^5.1.0",

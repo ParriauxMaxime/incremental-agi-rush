@@ -701,10 +701,7 @@ export function runBalanceSim(
 				totalFlopsDemand > 0 ? Math.min(1, aiFlops / totalFlopsDemand) : 0;
 			for (const m of activeModels) {
 				aiLoc +=
-					m.locPerSec *
-					sim.aiLocMultiplier *
-					tokenEfficiency *
-					flopSaturation;
+					m.locPerSec * sim.aiLocMultiplier * tokenEfficiency * flopSaturation;
 			}
 
 			sim.loc += directLoc + aiLoc;
@@ -907,7 +904,9 @@ export function runBalanceSim(
 		// Don't spend more than 50% of current cash on any item — lets savings
 		// grow naturally while still investing in FLOPS.
 		const cashCap =
-			useCashWin && sim.currentTier >= 5 ? sim.cash * 0.5 : Number.POSITIVE_INFINITY;
+			useCashWin && sim.currentTier >= 5
+				? sim.cash * 0.5
+				: Number.POSITIVE_INFINITY;
 		let boughtThisTick = false;
 		for (let b = 0; b < 5; b++) {
 			const avail = upgrades.filter((u) => {

@@ -576,7 +576,6 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 	// ── Render helpers ──
 
 	const showCli = phaseAtLeast(phase, PhaseEnum.cli_fade_in);
-	const cliOpacity = phase === PhaseEnum.cli_fade_in && animate ? 0 : 1;
 	const showReconnected = phaseAtLeast(phase, PhaseEnum.comeback_typing);
 	const showError = phaseAtLeast(phase, PhaseEnum.error_display);
 	const errorStruck = phaseAtLeast(phase, PhaseEnum.comeback_typing);

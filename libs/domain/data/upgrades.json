@@ -10,9 +10,7 @@
 			"costMultiplier": 1.8,
 			"max": 5,
 			"costCategory": "freelancer",
-			"requires": [
-				"outsourcing"
-			],
+			"requires": ["outsourcing"],
 			"effects": [
 				{
 					"type": "freelancerLoc",
@@ -82,9 +80,7 @@
 			"costMultiplier": 1.2,
 			"max": 10,
 			"costCategory": "intern",
-			"requires": [
-				"interns"
-			],
+			"requires": ["interns"],
 			"effects": [
 				{
 					"type": "internLoc",
@@ -110,9 +106,7 @@
 					"value": 200
 				}
 			],
-			"requires": [
-				"teams_gate"
-			]
+			"requires": ["teams_gate"]
 		},
 		{
 			"id": "manager",
@@ -131,9 +125,7 @@
 					"value": 1
 				}
 			],
-			"requires": [
-				"management_gate"
-			]
+			"requires": ["management_gate"]
 		},
 		{
 			"id": "gpu_cluster",
@@ -247,9 +239,7 @@
 			"costMultiplier": 1.8,
 			"max": 5,
 			"costCategory": "llm",
-			"requires": [
-				"llm_gate"
-			],
+			"requires": ["llm_gate"],
 			"effects": [
 				{
 					"type": "llmHostSlot",

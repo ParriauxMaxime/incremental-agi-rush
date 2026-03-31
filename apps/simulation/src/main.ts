@@ -227,7 +227,9 @@ function printHuman(results: ProfileResult[]): void {
 
 		// AGI time
 		if (r.agiMinutes === null) {
-			console.log(`  FAIL: AGI never reached in ${validation.agiMaxMinutes} minutes!`);
+			console.log(
+				`  FAIL: AGI never reached in ${validation.agiMaxMinutes} minutes!`,
+			);
 		} else if (
 			r.agiMinutes < validation.agiMinMinutes ||
 			r.agiMinutes > validation.agiMaxMinutes

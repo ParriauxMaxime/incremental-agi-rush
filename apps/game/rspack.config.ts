@@ -6,8 +6,6 @@ import {
 	type RspackPluginFunction,
 } from "@rspack/core";
 
-const isProd = process.env.NODE_ENV === "production";
-
 export default defineConfig({
 	experiments: {
 		css: true,

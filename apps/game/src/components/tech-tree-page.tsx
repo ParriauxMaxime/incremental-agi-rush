@@ -456,7 +456,7 @@ export function TechTreePage() {
 	const leaveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
 	const handleNodeClick = useCallback(
-		(e: React.MouseEvent, node: Node) => {
+		(_e: React.MouseEvent, node: Node) => {
 			const techNode = allTechNodes.find((n) => n.id === node.id);
 			if (!techNode) return;
 			const owned = ownedTechNodes[techNode.id] ?? 0;
@@ -518,7 +518,7 @@ export function TechTreePage() {
 				translateExtent={translateExtent}
 				proOptions={{ hideAttribution: true }}
 			>
-					<BundledEdges
+				<BundledEdges
 					edges={edgeDefs}
 					flowNodes={flowNodes}
 					color={theme.textMuted}

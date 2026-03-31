@@ -340,8 +340,7 @@ export function StatsPanelResources() {
 		const aiFlops = flops * (1 - flopSlider);
 		let totalDemand = 0;
 		for (const m of activeModels) totalDemand += m.flopsCost;
-		const saturation =
-			totalDemand > 0 ? Math.min(1, aiFlops / totalDemand) : 0;
+		const saturation = totalDemand > 0 ? Math.min(1, aiFlops / totalDemand) : 0;
 		const rows = activeModels.map((model) => ({
 			name: `${model.name} ${model.version}`,
 			locPerSec: model.tokenCost * saturation,
@@ -640,22 +639,19 @@ export function StatsPanelResources() {
 										css={aiDividerCss}
 										style={{ background: theme.border }}
 									/>
-									<div
-										css={sourcesHeaderCss}
-										style={{ marginBottom: 2 }}
-									>
-										<span
-											css={sectionLabelCss}
-											style={{ fontSize: 10 }}
-										>
-											🔥 {t("stats_panel.token_consumers", { defaultValue: "Token Consumers" })}
+									<div css={sourcesHeaderCss} style={{ marginBottom: 2 }}>
+										<span css={sectionLabelCss} style={{ fontSize: 10 }}>
+											🔥{" "}
+											{t("stats_panel.token_consumers", {
+												defaultValue: "Token Consumers",
+											})}
 										</span>
-										<span css={sourcesTotalCss} style={{ color: theme.tokenColor }}>
+										<span
+											css={sourcesTotalCss}
+											style={{ color: theme.tokenColor }}
+										>
 											{formatNumber(
-												aiSources.reduce(
-													(sum, s) => sum + s.locPerSec,
-													0,
-												),
+												aiSources.reduce((sum, s) => sum + s.locPerSec, 0),
 											)}{" "}
 											tok/s
 										</span>
@@ -708,10 +704,7 @@ export function StatsPanelResources() {
 													}}
 												/>
 											</div>
-											<span
-												css={sourceValueCss}
-												style={{ color: s.color }}
-											>
+											<span css={sourceValueCss} style={{ color: s.color }}>
 												{formatNumber(s.locOutput ?? 0)}/s
 												<span
 													style={{
