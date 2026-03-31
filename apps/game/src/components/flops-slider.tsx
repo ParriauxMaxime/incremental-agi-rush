@@ -68,6 +68,28 @@ const arbitrageCss = css({
 	gap: 8,
 	marginTop: 6,
 	padding: "4px 0",
+	cursor: "pointer",
+	userSelect: "none",
+	"&:hover": { opacity: 0.8 },
+});
+
+const toggleCss = css({
+	width: 28,
+	height: 14,
+	borderRadius: 7,
+	position: "relative" as const,
+	transition: "background 0.2s",
+	flexShrink: 0,
+	"&::after": {
+		content: '""',
+		position: "absolute" as const,
+		top: 2,
+		width: 10,
+		height: 10,
+		borderRadius: "50%",
+		background: "#e6edf3",
+		transition: "left 0.2s",
+	},
 });
 
 export function FlopsSlider() {
@@ -78,12 +100,16 @@ export function FlopsSlider() {
 	const unlockedModels = useGameStore((s) => s.unlockedModels);
 	const llmHostSlots = useGameStore((s) => s.llmHostSlots);
 	const autoArbitrageEnabled = useGameStore((s) => s.autoArbitrageEnabled);
+	const autoArbitrageUnlocked = useGameStore(
+		(s) => (s.ownedTechNodes.auto_arbitrage ?? 0) > 0,
+	);
 	const setFlopSlider = useGameStore((s) => s.setFlopSlider);
+	const toggleAutoArbitrage = useGameStore((s) => s.toggleAutoArbitrage);
 
 	const { aiLocPerSec } = useMemo(() => {
 		const active = aiModels
 			.filter((m) => unlockedModels[m.id])
-			.sort((a, b) => b.locPerSec - a.locPerSec)
+			.sort((a, b) => a.flopsCost - b.flopsCost)
 			.slice(0, llmHostSlots);
 		const aiFlops = flops * (1 - flopSlider);
 		let totalLoc = 0;
@@ -149,21 +175,48 @@ export function FlopsSlider() {
 					})}
 				</span>
 			</div>
-			{autoArbitrageEnabled && (
-				<div css={arbitrageCss}>
+			{autoArbitrageUnlocked && (
+				<div css={arbitrageCss} onClick={toggleAutoArbitrage}>
 					<span style={{ fontSize: 14 }}>{"⚖️"}</span>
-					<span style={{ fontSize: 11, color: "#e5c07b" }}>
-						{t("flops_slider.auto_arbitrage_active")}
-					</span>
 					<span
 						style={{
-							marginLeft: "auto",
-							fontSize: 10,
-							color: "#484e58",
+							fontSize: 11,
+							color: autoArbitrageEnabled ? "#e5c07b" : "#484e58",
 						}}
 					>
-						{t("flops_slider.targeting", { pct: execPct })}
+						{t("flops_slider.auto_arbitrage_active")}
 					</span>
+					<div
+						css={toggleCss}
+						style={{
+							background: autoArbitrageEnabled ? "#e5c07b" : "#30363d",
+						}}
+					>
+						<span
+							style={{
+								position: "absolute",
+								top: 2,
+								left: autoArbitrageEnabled ? 16 : 2,
+								width: 10,
+								height: 10,
+								borderRadius: "50%",
+								background: "#e6edf3",
+								transition: "left 0.2s",
+								display: "block",
+							}}
+						/>
+					</div>
+					{autoArbitrageEnabled && (
+						<span
+							style={{
+								marginLeft: "auto",
+								fontSize: 10,
+								color: "#484e58",
+							}}
+						>
+							{t("flops_slider.targeting", { pct: execPct })}
+						</span>
+					)}
 				</div>
 			)}
 		</div>

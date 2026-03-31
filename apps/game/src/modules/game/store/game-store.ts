@@ -112,8 +112,6 @@ export interface GameState {
 	autoPokeEnabled: boolean;
 	flopSlider: number;
 	autoArbitrageEnabled: boolean;
-	autoArbitrageOverride: boolean;
-	autoArbitrageOverrideAt: number;
 	running: boolean;
 	manualExecAccum: number;
 	singularity: boolean;
@@ -152,6 +150,7 @@ export interface GameActions {
 	reset: () => void;
 	recalc: () => void;
 	setFlopSlider: (value: number) => void;
+	toggleAutoArbitrage: () => void;
 	applyEventReward: (cashDelta: number, locDelta: number) => void;
 }
 
@@ -206,8 +205,6 @@ const initialState: GameState = {
 	autoPokeEnabled: false,
 	flopSlider: 0.7,
 	autoArbitrageEnabled: false,
-	autoArbitrageOverride: false,
-	autoArbitrageOverrideAt: 0,
 	running: true,
 	manualExecAccum: 0,
 	singularity: false,
@@ -559,7 +556,7 @@ export const useGameStore = create<GameState & GameActions>()(
 						// Compute AI token demand
 						const activeModels = aiModels
 							.filter((m) => s.unlockedModels[m.id])
-							.sort((a, b) => b.locPerSec - a.locPerSec)
+							.sort((a, b) => a.flopsCost - b.flopsCost)
 							.slice(0, s.llmHostSlots);
 
 						let totalTokenDemand = 0;
@@ -696,18 +693,14 @@ export const useGameStore = create<GameState & GameActions>()(
 					}
 
 					// ── 5. Auto-arbitrage (smooth slider adjustment) ──
-					if (
-						s.autoArbitrageEnabled &&
-						!s.autoArbitrageOverride &&
-						aiUnlocked
-					) {
+					if (s.autoArbitrageEnabled && aiUnlocked) {
 						// Compute AI production rate at current slider
 						const currentAiFlops = s.flops * (1 - s.flopSlider);
 						let aiLocRate = 0;
 						let remainingForCalc = currentAiFlops;
 						const activeForCalc = aiModels
 							.filter((m) => s.unlockedModels[m.id])
-							.sort((a, b) => b.locPerSec - a.locPerSec)
+							.sort((a, b) => a.flopsCost - b.flopsCost)
 							.slice(0, s.llmHostSlots);
 						for (const model of activeForCalc) {
 							const mf = Math.min(model.flopsCost, remainingForCalc);
@@ -734,14 +727,6 @@ export const useGameStore = create<GameState & GameActions>()(
 						const newSlider =
 							s.flopSlider + (targetSlider - s.flopSlider) * 0.02;
 						next.flopSlider = Math.min(0.95, Math.max(0.1, newSlider));
-					}
-
-					// Auto-arbitrage override timeout (10s)
-					if (
-						s.autoArbitrageOverride &&
-						performance.now() - s.autoArbitrageOverrideAt > 10000
-					) {
-						next.autoArbitrageOverride = false;
 					}
 
 					return next;
@@ -895,9 +880,13 @@ export const useGameStore = create<GameState & GameActions>()(
 			setFlopSlider: (value: number) => {
 				set({
 					flopSlider: Math.min(1, Math.max(0, value)),
-					autoArbitrageOverride: true,
-					autoArbitrageOverrideAt: performance.now(),
+					autoArbitrageEnabled: false,
 				});
+			},
+			toggleAutoArbitrage: () => {
+				set((s) => ({
+					autoArbitrageEnabled: !s.autoArbitrageEnabled,
+				}));
 			},
 
 			applyEventReward: (cashDelta: number, locDelta: number) => {
