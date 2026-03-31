@@ -1511,7 +1511,7 @@
 				"openai_gpt4"
 			],
 			"max": 1,
-			"baseCost": 20000000000,
+			"baseCost": 40000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1592,7 +1592,7 @@
 				"anthropic_sonnet"
 			],
 			"max": 1,
-			"baseCost": 5000000000,
+			"baseCost": 10000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1673,7 +1673,7 @@
 				"google_gemini_pro"
 			],
 			"max": 1,
-			"baseCost": 50000000000,
+			"baseCost": 100000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1808,7 +1808,7 @@
 				"deepseek_v2"
 			],
 			"max": 1,
-			"baseCost": 250000000000,
+			"baseCost": 500000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1835,7 +1835,7 @@
 				"openai_gpt5"
 			],
 			"max": 1,
-			"baseCost": 150000000000,
+			"baseCost": 300000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1862,7 +1862,7 @@
 				"openai_gpt6"
 			],
 			"max": 1,
-			"baseCost": 2500000000000,
+			"baseCost": 5000000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1889,7 +1889,7 @@
 				"anthropic_opus"
 			],
 			"max": 1,
-			"baseCost": 1000000000000,
+			"baseCost": 2000000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1916,7 +1916,7 @@
 				"anthropic_mythos"
 			],
 			"max": 1,
-			"baseCost": 10000000000000,
+			"baseCost": 20000000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1943,7 +1943,7 @@
 				"google_gemini_ultra"
 			],
 			"max": 1,
-			"baseCost": 2500000000000,
+			"baseCost": 5000000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
