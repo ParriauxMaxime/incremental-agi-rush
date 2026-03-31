@@ -1,5 +1,6 @@
 import { css, keyframes } from "@emotion/react";
 import { aiModels, useGameStore } from "@modules/game";
+import { formatNumber } from "@utils/format";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
@@ -35,6 +36,7 @@ type StreamState =
 			snippet: DiffSnippet;
 			lineIdx: number;
 			startTime: number;
+			tokenScale: number;
 	  }
 	| { phase: "done" };
 
@@ -271,6 +273,10 @@ export function CliPrompt() {
 			const color = getModelColor(model.family);
 			const { added, removed } = countDiffLines(snippet);
 
+			// Token scale based on model power: GPT-3 (500) → ~1K, Universe (50M) → ~500M
+			const logPower = Math.log10(Math.max(1, model.locPerSec));
+			const tokenScale = 10 ** (logPower * 1.1 + 0.2);
+
 			// Show thinking text, then tool header + summary after a short delay
 			setTimeout(
 				() => {
@@ -301,6 +307,7 @@ export function CliPrompt() {
 						snippet,
 						lineIdx: 0,
 						startTime: performance.now(),
+						tokenScale,
 					});
 				},
 				400 + Math.random() * 300,
@@ -319,12 +326,12 @@ export function CliPrompt() {
 			// Done streaming — add completion text and go idle
 			const elapsed = Math.round((performance.now() - stream.startTime) / 1000);
 			const tokenCount = Math.round(
-				snippet.lines.length * (40 + Math.random() * 60),
+				stream.tokenScale * (0.8 + Math.random() * 0.4),
 			);
 			addEntry({ kind: "blank", text: "" });
 			addEntry({
 				kind: "text",
-				text: `Done (${elapsed}s · ↑ ${tokenCount} tokens)`,
+				text: `Done (${elapsed}s · ↑ ${formatNumber(tokenCount)} tokens)`,
 				color: stream.color,
 			});
 			addEntry({ kind: "blank", text: "" });
