@@ -10,7 +10,7 @@
 			"cost": 25000000,
 			"locPerSec": 1500,
 			"flopsCost": 800000,
-			"tokenCost": 150,
+			"tokenCost": 30,
 			"codeQuality": 70,
 			"special": {
 				"id": "tab_complete",
@@ -28,7 +28,7 @@
 			"cost": 20000000,
 			"locPerSec": 800,
 			"flopsCost": 500000,
-			"tokenCost": 80,
+			"tokenCost": 15,
 			"codeQuality": 82,
 			"special": {
 				"id": "fast_cheap",
@@ -46,7 +46,7 @@
 			"cost": 80000000,
 			"locPerSec": 5000,
 			"flopsCost": 2500000,
-			"tokenCost": 500,
+			"tokenCost": 80,
 			"codeQuality": 95,
 			"requires": "claude_haiku",
 			"special": {
@@ -86,7 +86,7 @@
 			"cost": 15000000,
 			"locPerSec": 500,
 			"flopsCost": 400000,
-			"tokenCost": 50,
+			"tokenCost": 10,
 			"codeQuality": 70,
 			"special": {
 				"id": "verbose",
@@ -106,7 +106,7 @@
 			"cost": 30000000,
 			"locPerSec": 1500,
 			"flopsCost": 1000000,
-			"tokenCost": 150,
+			"tokenCost": 25,
 			"codeQuality": 78,
 			"requires": "gpt_3",
 			"special": {
@@ -127,7 +127,7 @@
 			"cost": 100000000,
 			"locPerSec": 8000,
 			"flopsCost": 2000000,
-			"tokenCost": 800,
+			"tokenCost": 120,
 			"codeQuality": 85,
 			"requires": "gpt_35",
 			"special": {
@@ -148,7 +148,7 @@
 			"cost": 200000000,
 			"locPerSec": 10000,
 			"flopsCost": 2500000,
-			"tokenCost": 1000,
+			"tokenCost": 150,
 			"codeQuality": 88,
 			"requires": "gpt_4",
 			"special": {
@@ -188,7 +188,7 @@
 			"cost": 60000000,
 			"locPerSec": 6000,
 			"flopsCost": 1500000,
-			"tokenCost": 600,
+			"tokenCost": 90,
 			"codeQuality": 80,
 			"special": {
 				"id": "multimodal",
@@ -227,7 +227,7 @@
 			"cost": 35000000,
 			"locPerSec": 3000,
 			"flopsCost": 600000,
-			"tokenCost": 300,
+			"tokenCost": 50,
 			"codeQuality": 75,
 			"special": {
 				"id": "open_source",
@@ -246,7 +246,7 @@
 			"cost": 250000000,
 			"locPerSec": 25000,
 			"flopsCost": 4000000,
-			"tokenCost": 2500,
+			"tokenCost": 400,
 			"codeQuality": 78,
 			"requires": "llama_70b",
 			"special": {
@@ -268,7 +268,7 @@
 			"cost": 50000000,
 			"locPerSec": 4000,
 			"flopsCost": 1000000,
-			"tokenCost": 400,
+			"tokenCost": 60,
 			"codeQuality": 82,
 			"special": {
 				"id": "le_code",
@@ -290,7 +290,7 @@
 			"cost": 150000000,
 			"locPerSec": 12000,
 			"flopsCost": 3000000,
-			"tokenCost": 1200,
+			"tokenCost": 180,
 			"codeQuality": 70,
 			"special": {
 				"id": "chaotic",
