@@ -237,11 +237,13 @@ export function CliPrompt() {
 		}
 
 		const line = snippet.lines[lineIdx];
-		// Base delay ~100-250ms per line, faster for context lines
-		const delay =
+		// Speed scales with AI FLOPS share: slider=0 → full AI (speed x1), slider=0.9 → almost no AI (speed x0.1)
+		const aiShare = Math.max(0.05, 1 - flopSlider);
+		const baseDelay =
 			line.type === "context"
 				? 60 + Math.random() * 80
 				: 100 + Math.random() * 150;
+		const delay = baseDelay / aiShare;
 
 		const timer = setTimeout(() => {
 			addEntry({
@@ -262,14 +264,15 @@ export function CliPrompt() {
 	// ── After streaming done, go back to idle (allow auto-poke) ──
 	useEffect(() => {
 		if (stream.phase !== "done") return;
+		const aiShare = Math.max(0.05, 1 - flopSlider);
 		const timer = setTimeout(
 			() => {
 				setStream({ phase: "idle" });
 			},
-			1000 + Math.random() * 1000,
+			(500 + Math.random() * 500) / aiShare,
 		);
 		return () => clearTimeout(timer);
-	}, [stream.phase]);
+	}, [stream.phase, flopSlider]);
 
 	// ── Auto-prompt: AI models produce when active + AI FLOPS available ──
 	const hasAiFlops = flopSlider < 1;
@@ -278,9 +281,11 @@ export function CliPrompt() {
 		if (activeModels.length === 0) return;
 		if (!hasAiFlops) return; // slider at 100% exec → frozen
 
-		const delay = autoPokeEnabled
+		const aiShare = Math.max(0.05, 1 - flopSlider);
+		const baseDelay = autoPokeEnabled
 			? 500 + Math.random() * 1000
 			: 3000 + Math.random() * 4000;
+		const delay = baseDelay / aiShare;
 		const timer = setTimeout(() => {
 			startPrompt(pickPrompt());
 		}, delay);
