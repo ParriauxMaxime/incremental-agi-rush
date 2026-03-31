@@ -112,6 +112,8 @@ export function runBalanceSim(
 		aiUnlocked: false,
 		autoTypeEnabled: false,
 		autoExecuteEnabled: false,
+		autoArbitrageEnabled: false,
+		flopSlider: 0.7,
 		manualExecCooldown: 0,
 	};
 
@@ -406,6 +408,11 @@ export function runBalanceSim(
 				sim.autoTypeEnabled = true;
 			if (e.type === "autoExecute" && e.op === "enable")
 				sim.autoExecuteEnabled = true;
+			if (e.type === "autoArbitrage" && e.op === "enable")
+				sim.autoArbitrageEnabled = true;
+			if (e.type === "autoPoke" && e.op === "enable") {
+				/* cosmetic only in sim */
+			}
 			if (e.type === "tierUnlock" && e.op === "set")
 				tierIndex = Math.max(tierIndex, val);
 			if (e.type === "modelUnlock" && e.op === "enable")
@@ -637,13 +644,12 @@ export function runBalanceSim(
 		const autoLoc = calcAutoLoc();
 		const humanOutput = manualLoc + autoTypeLoc + autoLoc;
 
-		// ── AI + token split + execution ──
+		// ── AI + token split + FLOPS slider + execution ──
 		let aiLoc = 0;
-		let aiFlopsCost = 0;
 		if (sim.aiUnlocked) {
 			const activeModels = aiModels
 				.filter((m) => sim.ownedModels[m.id])
-				.sort((a, b) => b.locPerSec - a.locPerSec)
+				.sort((a, b) => a.flopsCost - b.flopsCost)
 				.slice(0, sim.llmHostSlots);
 
 			// Token split: humans produce tokens for AI, surplus → direct LoC
@@ -656,12 +662,15 @@ export function runBalanceSim(
 			const tokenEfficiency =
 				totalTokenDemand > 0 ? tokensProduced / totalTokenDemand : 0;
 
-			// AI LoC (gated by tokens AND FLOPS)
-			let remainingFlops = flops;
+			// FLOPS slider split
+			const aiFlops = flops * (1 - sim.flopSlider);
+			const execFlops = flops * sim.flopSlider;
+
+			// AI LoC (gated by tokens AND slider-allocated FLOPS, cheapest first)
+			let remainingAiFlops = aiFlops;
 			for (const m of activeModels) {
-				const modelFlops = Math.min(m.flopsCost, remainingFlops);
-				aiFlopsCost += modelFlops;
-				remainingFlops -= modelFlops;
+				const modelFlops = Math.min(m.flopsCost, remainingAiFlops);
+				remainingAiFlops -= modelFlops;
 				const ratio = m.flopsCost > 0 ? modelFlops / m.flopsCost : 0;
 				aiLoc +=
 					m.locPerSec *
@@ -672,11 +681,21 @@ export function runBalanceSim(
 
 			sim.loc += directLoc + aiLoc;
 			sim.totalLoc += directLoc + aiLoc;
-			const execFlops = Math.max(0, flops - aiFlopsCost);
 			const executed = Math.min(sim.loc, execFlops);
 			sim.cash += executed * cashPerLoc();
 			sim.totalCash += executed * cashPerLoc();
 			sim.loc -= executed;
+
+			// Auto-arbitrage: adjust slider for next tick
+			if (sim.autoArbitrageEnabled) {
+				let targetSlider = flops > 0 ? aiLoc / flops : 0.7;
+				// Queue pressure bias
+				if (sim.loc > execFlops * 5) targetSlider += 0.05;
+				else if (sim.loc < execFlops * 1) targetSlider -= 0.05;
+				targetSlider = Math.min(0.95, Math.max(0.1, targetSlider));
+				sim.flopSlider += (targetSlider - sim.flopSlider) * 0.1;
+				sim.flopSlider = Math.min(0.95, Math.max(0.1, sim.flopSlider));
+			}
 		} else if (sim.autoExecuteEnabled) {
 			sim.loc += humanOutput;
 			sim.totalLoc += humanOutput;
@@ -876,7 +895,9 @@ export function runBalanceSim(
 
 			const totalLocS =
 				effLocPerKey() * cfg.keysPerSec + autoTypeLoc + calcAutoLoc() + aiLoc;
-			const execCap = Math.max(0, flops - aiFlopsCost);
+			const execCap = sim.aiUnlocked
+				? flops * sim.flopSlider
+				: flops;
 			const bottlenecked = totalLocS > execCap;
 
 			let best: {
@@ -1001,6 +1022,9 @@ export function runBalanceSim(
 
 		// ── Snapshot every 10s ──
 		if (t % 10 === 0) {
+			const snapExecFlops = sim.aiUnlocked
+				? flops * sim.flopSlider
+				: flops;
 			snapshots.push({
 				time: t,
 				cash: sim.totalCash,
@@ -1009,7 +1033,7 @@ export function runBalanceSim(
 				quality: sim.codeQuality,
 				locPerSec: manualLoc + autoTypeLoc + autoLoc + aiLoc,
 				cashPerSec:
-					Math.min(manualLoc + autoTypeLoc + autoLoc + aiLoc, flops) *
+					Math.min(manualLoc + autoTypeLoc + autoLoc + aiLoc, snapExecFlops) *
 					cashPerLoc(),
 				tier: sim.currentTier,
 			});
