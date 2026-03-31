@@ -6,11 +6,13 @@ import { formatNumber } from "@utils/format";
 import {
 	memo,
 	useCallback,
+	useEffect,
 	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from "react";
+import type { MutableRefObject } from "react";
 import { EDITOR_THEMES } from "../data/editor-themes";
 import { useAutoType } from "../hooks/use-auto-type";
 import { useCodeTyping } from "../hooks/use-code-typing";
@@ -169,7 +171,11 @@ function buildLineList(
 	return result;
 }
 
-export function Editor() {
+interface EditorProps {
+	keystrokeCallbackRef?: MutableRefObject<(() => void) | null>;
+}
+
+export function Editor({ keystrokeCallbackRef }: EditorProps) {
 	const totalLoc = useGameStore((s) => s.totalLoc);
 	const locPerKey = useGameStore((s) => s.locPerKey);
 	const blockQueue = useGameStore((s) => s.blockQueue);
@@ -198,6 +204,17 @@ export function Editor() {
 			}
 		}
 	}, [advanceTokens, locPerKey, running]);
+
+	useEffect(() => {
+		if (keystrokeCallbackRef) {
+			keystrokeCallbackRef.current = onKeystroke;
+		}
+		return () => {
+			if (keystrokeCallbackRef) {
+				keystrokeCallbackRef.current = null;
+			}
+		};
+	}, [keystrokeCallbackRef, onKeystroke]);
 
 	useKeyboardInput(editorRef, onKeystroke);
 	useEditorFocus(editorRef);
