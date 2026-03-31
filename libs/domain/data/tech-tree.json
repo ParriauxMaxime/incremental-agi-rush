@@ -1153,6 +1153,26 @@
 			"y": 1020
 		},
 		{
+			"id": "auto_arbitrage",
+			"name": "Auto-Arbitrage",
+			"description": "Automatically optimizes FLOPS allocation for maximum cash flow.",
+			"icon": "⚖️",
+			"requires": ["gpu_farm"],
+			"max": 1,
+			"baseCost": 50000000,
+			"costMultiplier": 1,
+			"currency": "cash",
+			"effects": [
+				{
+					"type": "autoArbitrage",
+					"op": "enable",
+					"value": 1
+				}
+			],
+			"x": 146,
+			"y": 1000
+		},
+		{
 			"id": "outsourcing",
 			"name": "Outsourcing",
 			"description": "Unlock freelance hiring on Malt.",

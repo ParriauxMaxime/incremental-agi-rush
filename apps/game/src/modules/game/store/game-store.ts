@@ -404,6 +404,8 @@ function recalcDerivedStats(state: GameState): void {
 			.with({ type: "modelUnlock", op: "enable" }, () => {
 				unlockedModels[effect.value as string] = true;
 			})
+			.with({ type: "autoPoke", op: "enable" }, () => {})
+			.with({ type: "autoArbitrage", op: "enable" }, () => {})
 			.with({ type: "singularity", op: "enable" }, () => {
 				singularity = true;
 			})
