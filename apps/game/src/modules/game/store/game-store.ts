@@ -575,12 +575,13 @@ export const useGameStore = create<GameState & GameActions>()(
 						const tokenEfficiency =
 							totalTokenDemand > 0 ? tokensProduced / totalTokenDemand : 0;
 
-						// AI LoC output (gated by tokens AND FLOPS)
-						let remainingFlops = s.flops;
+						// AI LoC output (gated by tokens AND slider-allocated FLOPS)
+						const aiFlops = s.flops * (1 - s.flopSlider);
+						let remainingAiFlops = aiFlops;
 						for (const model of activeModels) {
-							const modelFlops = Math.min(model.flopsCost, remainingFlops);
+							const modelFlops = Math.min(model.flopsCost, remainingAiFlops);
 							aiFlopsCost += modelFlops;
-							remainingFlops -= modelFlops;
+							remainingAiFlops -= modelFlops;
 							const flopRatio =
 								model.flopsCost > 0 ? modelFlops / model.flopsCost : 0;
 							aiProduced +=
@@ -598,7 +599,9 @@ export const useGameStore = create<GameState & GameActions>()(
 					}
 
 					// ── 2. Execution ──
-					const execFlops = Math.max(0, s.flops - aiFlopsCost);
+					const execFlops = aiUnlocked
+						? s.flops * s.flopSlider
+						: s.flops;
 					let manualExecAccum = s.manualExecAccum;
 					let execCapacity: number;
 					if (s.autoExecuteEnabled && s.running) {
@@ -811,14 +814,9 @@ export const useGameStore = create<GameState & GameActions>()(
 			executeManual: () => {
 				const s = get();
 				if (s.autoExecuteEnabled || s.flops <= 0) return;
-				// Remaining FLOPS after AI models consume their share
-				let aiFlopsCost = 0;
-				if (s.aiUnlocked) {
-					for (const model of aiModels) {
-						if (s.unlockedModels[model.id]) aiFlopsCost += model.flopsCost;
-					}
-				}
-				const execFlops = Math.max(0, s.flops - Math.min(aiFlopsCost, s.flops));
+				const execFlops = s.aiUnlocked
+					? s.flops * s.flopSlider
+					: s.flops;
 				if (execFlops <= 0) return;
 				set({ manualExecAccum: s.manualExecAccum + execFlops });
 			},
