@@ -149,7 +149,9 @@
 		"auto_type": "Auto-Tippen",
 		"on": "AN",
 		"off": "AUS",
-		"reset_game": "Spiel zurücksetzen"
+		"reset_game": "Spiel zurücksetzen",
+		"rotate_device": "Drehe dein Gerät für ein besseres Erlebnis",
+		"tap_or_hold": "Tippen oder halten zum Coden"
 	},
 	"cli": {
 		"header": "$ ai-lab --interactive",

@@ -149,7 +149,9 @@
 		"auto_type": "Escritura auto",
 		"on": "ON",
 		"off": "OFF",
-		"reset_game": "Reiniciar juego"
+		"reset_game": "Reiniciar juego",
+		"rotate_device": "Gira tu dispositivo para una mejor experiencia",
+		"tap_or_hold": "Toca o mantén pulsado para programar"
 	},
 	"cli": {
 		"header": "$ ai-lab --interactive",

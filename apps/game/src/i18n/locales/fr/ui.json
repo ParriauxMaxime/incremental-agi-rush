@@ -149,7 +149,9 @@
 		"auto_type": "Frappe auto",
 		"on": "ON",
 		"off": "OFF",
-		"reset_game": "Réinitialiser le jeu"
+		"reset_game": "Réinitialiser le jeu",
+		"rotate_device": "Tournez votre appareil pour une meilleure expérience",
+		"tap_or_hold": "Appuyez ou maintenez pour coder"
 	},
 	"cli": {
 		"header": "$ ai-lab --interactive",

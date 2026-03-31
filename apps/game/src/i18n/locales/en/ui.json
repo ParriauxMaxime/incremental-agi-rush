@@ -149,7 +149,9 @@
 		"auto_type": "Auto-type",
 		"on": "ON",
 		"off": "OFF",
-		"reset_game": "Reset Game"
+		"reset_game": "Reset Game",
+		"rotate_device": "Rotate your device for the best experience",
+		"tap_or_hold": "Tap or hold to code"
 	},
 	"cli": {
 		"header": "$ ai-lab --interactive",
