@@ -1,4 +1,4 @@
-const CACHE_NAME = "flopsed-v1";
+const CACHE_NAME = "flopsed-__BUILD_HASH__";
 
 self.addEventListener("install", (event) => {
 	self.skipWaiting();
