@@ -7,9 +7,16 @@ export function useEditorFocus(ref: RefObject<HTMLElement | null>) {
 
 		function handleClick(e: MouseEvent) {
 			const target = e.target as HTMLElement;
-			if (!target.closest("[data-sidebar]")) {
-				ref.current?.focus();
+			// Don't steal focus from interactive areas
+			if (
+				target.closest("[data-sidebar]") ||
+				target.closest("[data-terminal]") ||
+				target.closest("input") ||
+				target.closest("button")
+			) {
+				return;
 			}
+			ref.current?.focus();
 		}
 
 		document.addEventListener("click", handleClick);

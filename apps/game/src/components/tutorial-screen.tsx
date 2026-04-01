@@ -555,6 +555,7 @@ export function TutorialTip() {
 	if (!terminalOpen) {
 		return (
 			<div
+				data-terminal
 				css={{
 					display: "flex",
 					alignItems: "center",
@@ -593,6 +594,7 @@ export function TutorialTip() {
 	// Expanded: full terminal with header, log, input — takes 30% height
 	return (
 		<div
+			data-terminal
 			css={panelCss}
 			style={{
 				borderTop: `1px solid ${theme.border}`,
