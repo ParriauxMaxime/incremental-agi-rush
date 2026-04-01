@@ -102,6 +102,23 @@ const timerCss = css({
 	marginLeft: 8,
 });
 
+const dismissBtnCss = css({
+	flexShrink: 0,
+	alignSelf: "center",
+	marginLeft: 8,
+	background: "transparent",
+	border: "1px solid #484f58",
+	borderRadius: 4,
+	color: "#8b949e",
+	fontSize: 12,
+	fontFamily: "'Courier New', monospace",
+	fontVariantNumeric: "tabular-nums",
+	padding: "4px 8px",
+	cursor: "pointer",
+	transition: "all 0.15s",
+	"&:hover": { background: "#484f58", color: "#e0e0e0" },
+});
+
 const choiceRowCss = css({
 	display: "flex",
 	gap: 8,
@@ -189,6 +206,7 @@ export function EventToast() {
 	const milestoneToast = useEventStore((s) => s.milestoneToast);
 	const handleChoice = useEventStore((s) => s.handleChoice);
 	const dismissToast = useEventStore((s) => s.dismissToast);
+	const toastCountdown = useEventStore((s) => s.toastDismissCountdown);
 	const cash = useGameStore((s) => s.cash);
 	const loc = useGameStore((s) => s.loc);
 	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
@@ -265,9 +283,21 @@ export function EventToast() {
 									</div>
 								)}
 							</div>
-							{hasDuration && !isChoice && (
-								<div css={timerCss}>{Math.ceil(remainingDuration)}s</div>
-							)}
+							{!isChoice &&
+								(hasDuration ? (
+									<div css={timerCss}>{Math.ceil(remainingDuration)}s</div>
+								) : (
+									<button
+										type="button"
+										css={dismissBtnCss}
+										onClick={(e) => {
+											e.stopPropagation();
+											dismissToast();
+										}}
+									>
+										{Math.ceil(toastCountdown)}s
+									</button>
+								))}
 						</div>
 					);
 				})()}

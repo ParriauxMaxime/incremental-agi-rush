@@ -176,7 +176,7 @@ interface EventActions {
 }
 
 const LOG_CAP = 20;
-const TOAST_AUTO_DISMISS = 4;
+const TOAST_AUTO_DISMISS = 5;
 const CHOICE_TIMEOUT = 60;
 
 const initialState: EventState = {
