@@ -85,6 +85,10 @@ export function StatsTokensSection() {
 		totalAiLocPerSec,
 		saturation,
 		tokenEfficiency,
+		tokenProduction,
+		tokenDemand,
+		tokensConsumed,
+		surplusAsLoc,
 	} = useMemo(() => {
 		if (!aiUnlocked)
 			return {
@@ -93,6 +97,10 @@ export function StatsTokensSection() {
 				totalAiLocPerSec: 0,
 				saturation: 0,
 				tokenEfficiency: 0,
+				tokenProduction: 0,
+				tokenDemand: 0,
+				tokensConsumed: 0,
+				surplusAsLoc: 0,
 			};
 		const activeModels = aiModels
 			.filter((m) => unlockedModels[m.id])
@@ -103,10 +111,12 @@ export function StatsTokensSection() {
 		for (const m of activeModels) td += m.flopsCost;
 		const sat = td > 0 ? Math.min(1, af / td) : 0;
 
-		// Token efficiency: how well human output feeds AI demand
+		// Token economy: human output → split between tokens (for AI) and direct LoC
 		let totalTokenDemand = 0;
 		for (const m of activeModels) totalTokenDemand += m.tokenCost;
 		const humanTokenOutput = autoLocPerSec * tokenMultiplier;
+		const tokensConsumed = Math.min(humanTokenOutput, totalTokenDemand);
+		const surplusAsLoc = humanTokenOutput - tokensConsumed;
 		const tokEff =
 			totalTokenDemand > 0
 				? Math.min(1, humanTokenOutput / totalTokenDemand)
@@ -128,6 +138,10 @@ export function StatsTokensSection() {
 			totalAiLocPerSec: totalLoc,
 			saturation: sat,
 			tokenEfficiency: tokEff,
+			tokenProduction: humanTokenOutput,
+			tokenDemand: totalTokenDemand,
+			tokensConsumed,
+			surplusAsLoc,
 		};
 	}, [
 		aiUnlocked,
@@ -156,51 +170,109 @@ export function StatsTokensSection() {
 			collapsible={true}
 			defaultOpen={true}
 		>
-			{/* Conversion summary */}
+			{/* Token pipeline */}
 			<div
 				style={{
 					fontSize: 10,
 					marginBottom: 8,
 					display: "flex",
 					flexDirection: "column",
-					gap: 3,
+					gap: 4,
 				}}
 			>
+				{/* Production → Demand bar */}
 				<div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-					<span style={{ color: TOKEN_COLOR }}>
-						🪙 {formatNumber(totalTokenPerSec)}/s
+					<span style={{ color: theme.textMuted }}>Produced</span>
+					<span style={{ color: TOKEN_COLOR, fontWeight: 600 }}>
+						{formatNumber(tokenProduction)}/s
 					</span>
-					<span style={{ color: theme.textMuted }}>→</span>
-					<span style={{ color: theme.locColor }}>
+				</div>
+				<div
+					style={{
+						height: 6,
+						borderRadius: 3,
+						background: theme.border,
+						overflow: "hidden",
+						display: "flex",
+					}}
+				>
+					{/* Consumed portion */}
+					<div
+						style={{
+							width: `${tokenProduction > 0 ? (tokensConsumed / tokenProduction) * 100 : 0}%`,
+							background: TOKEN_COLOR,
+							borderRadius: "3px 0 0 3px",
+							transition: "width 0.3s ease",
+						}}
+					/>
+					{/* Surplus portion */}
+					<div
+						style={{
+							flex: 1,
+							background: `${theme.locColor}40`,
+							borderRadius: "0 3px 3px 0",
+						}}
+					/>
+				</div>
+				<div
+					style={{
+						display: "flex",
+						justifyContent: "space-between",
+						gap: 4,
+					}}
+				>
+					<span style={{ color: TOKEN_COLOR }}>
+						🪙 {formatNumber(tokensConsumed)}/s →{" "}
 						{formatNumber(totalAiLocPerSec)} LoC/s
 					</span>
+					{surplusAsLoc > 0 && (
+						<span style={{ color: theme.locColor }}>
+							+{formatNumber(surplusAsLoc)} direct
+						</span>
+					)}
 				</div>
-				<div style={{ display: "flex", gap: 8 }}>
-					<span
+				{/* Demand vs supply */}
+				{tokenDemand > 0 && (
+					<div
 						style={{
-							color:
-								tokenEfficiency < 0.5
-									? "#f44336"
-									: tokenEfficiency < 0.9
-										? "#fbbf24"
-										: theme.success,
+							display: "flex",
+							gap: 8,
+							color: theme.textMuted,
 						}}
 					>
-						Tokens {Math.round(tokenEfficiency * 100)}%
-					</span>
-					<span
-						style={{
-							color:
-								saturation < 0.5
-									? "#f44336"
-									: saturation < 0.9
-										? "#fbbf24"
-										: theme.success,
-						}}
-					>
-						FLOPS {Math.round(saturation * 100)}%
-					</span>
-				</div>
+						<span>
+							Demand:{" "}
+							<span
+								style={{
+									color:
+										tokenEfficiency < 0.5
+											? "#f44336"
+											: tokenEfficiency < 0.9
+												? "#fbbf24"
+												: theme.success,
+								}}
+							>
+								{formatNumber(tokenDemand)}/s (
+								{Math.round(tokenEfficiency * 100)}%)
+							</span>
+						</span>
+						<span>
+							FLOPS:{" "}
+							<span
+								style={{
+									color:
+										saturation < 0.5
+											? "#f44336"
+											: saturation < 0.9
+												? "#fbbf24"
+												: theme.success,
+								}}
+							>
+								{Math.round(saturation * 100)}%
+							</span>
+						</span>
+					</div>
+				)}
 			</div>
 			{/* AI model rows */}
 			{aiSources.map((s) => (
