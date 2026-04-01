@@ -73,6 +73,13 @@ interface SimResultsProps {
 }
 
 export function SimResults({ result }: SimResultsProps) {
+	const agi = result.agiTime;
+	const snapshots =
+		agi !== null
+			? result.snapshots.filter((s) => s.time <= agi)
+			: result.snapshots;
+	const endTime = result.agiTime ?? result.endTime;
+
 	return (
 		<div>
 			<div css={bannerCss(result.passed)}>
@@ -155,15 +162,15 @@ export function SimResults({ result }: SimResultsProps) {
 			</div>
 
 			<div css={sectionTitleCss}>Cash Over Time</div>
-			<CashChart snapshots={result.snapshots} />
+			<CashChart snapshots={snapshots} />
 
 			<div css={sectionTitleCss}>Economy Over Time</div>
-			<FlopsChart snapshots={result.snapshots} />
+			<FlopsChart snapshots={snapshots} />
 
 			<div css={sectionTitleCss}>Tier Timeline</div>
 			<TierTimeline
 				tierTimes={result.tierTimes}
-				endTime={result.endTime}
+				endTime={endTime}
 				purchases={result.purchases}
 			/>
 		</div>
