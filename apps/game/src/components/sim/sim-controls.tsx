@@ -61,7 +61,7 @@ export function SimControls({ onRun, running }: SimControlsProps) {
 	const [keysPerSec, setKeysPerSec] = useState(6);
 	const [skill, setSkill] = useState(0.8);
 	const [aiStrategy, setAiStrategy] = useState<AiStrategyEnum>(
-		AiStrategyEnum.balanced,
+		AiStrategyEnum.greedy,
 	);
 	const [maxMinutes, setMaxMinutes] = useState(60);
 
@@ -107,9 +107,10 @@ export function SimControls({ onRun, running }: SimControlsProps) {
 					value={aiStrategy}
 					onChange={(e) => setAiStrategy(e.target.value as AiStrategyEnum)}
 				>
-					<option value={AiStrategyEnum.balanced}>Balanced (50/50)</option>
-					<option value={AiStrategyEnum.exec_heavy}>Exec Heavy (70/30)</option>
-					<option value={AiStrategyEnum.ai_heavy}>AI Heavy (30/70)</option>
+					<option value={AiStrategyEnum.greedy}>Greedy</option>
+					<option value={AiStrategyEnum.balanced}>Balanced</option>
+					<option value={AiStrategyEnum.exec_heavy}>Exec Heavy</option>
+					<option value={AiStrategyEnum.ai_heavy}>AI Heavy</option>
 				</select>
 			</div>
 			<div css={groupCss}>
