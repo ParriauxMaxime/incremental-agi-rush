@@ -4,6 +4,7 @@ import { formatNumber } from "@utils/format";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
+import { shellEngine } from "../modules/terminal";
 import {
 	type DiffLine,
 	type DiffSnippet,
@@ -413,11 +414,25 @@ export function CliPrompt() {
 	// ── Manual submit ──
 	const handleSubmit = useCallback(() => {
 		const text = input.trim();
-		if (!text || activeModels.length === 0 || !hasAiFlops) return;
+		if (!text) return;
+
+		if (text.startsWith("!")) {
+			const cmd = text.slice(1).trim();
+			if (!cmd) return;
+			setInput("");
+			addEntry({ kind: "prompt", text: `! ${cmd}` });
+			const result = shellEngine.execute(cmd);
+			for (const line of result.lines) {
+				addEntry({ kind: "text", text: line.text });
+			}
+			return;
+		}
+
+		if (activeModels.length === 0 || !hasAiFlops) return;
 		if (stream.phase === "streaming") return;
 		setInput("");
 		startPrompt(text);
-	}, [input, activeModels, stream.phase, startPrompt, hasAiFlops]);
+	}, [input, activeModels, stream.phase, startPrompt, hasAiFlops, addEntry]);
 
 	// ── Auto-scroll ──
 	// biome-ignore lint/correctness/useExhaustiveDependencies: log triggers scroll
