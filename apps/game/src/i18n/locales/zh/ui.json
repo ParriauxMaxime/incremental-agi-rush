@@ -23,18 +23,16 @@
 		"per_sec": "/秒",
 		"managers": "管理者",
 		"manager_bonus": "+{{bonus}}% 团队产出",
-		"auto_exec": "⚡ 自动 — +${{rate}}/s",
+		"auto_exec": "⚡ ${{rate}}/s",
 		"execute": "⚡ 执行 {{loc}} → ${{earn}}",
-		"tab_resources": "资源",
-		"tab_timeline": "时间线",
-		"tab_graphs": "图表",
 		"tier_progression": "层级进度",
-		"rates_vs_30s": "速率（对比30秒前）",
 		"cash_per_sec": "现金/秒",
-		"recent_purchases": "最近购买",
 		"graphs_collecting": "正在收集数据...",
 		"produced_vs_executed": "生产 vs 执行",
-		"utilization": "利用率"
+		"utilization": "利用率",
+		"history": "历史记录",
+		"no_purchases": "暂无购买记录",
+		"exec_ai_split": "执行 / AI 分配"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} 代币",
