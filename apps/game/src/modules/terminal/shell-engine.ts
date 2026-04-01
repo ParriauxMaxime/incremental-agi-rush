@@ -3,7 +3,13 @@ import { tiers } from "@flopsed/domain";
 import { allMilestones, useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { autocomplete } from "./autocomplete";
-import { cmdBuy, cmdResearch, cmdStatus } from "./commands/game-actions";
+import {
+	cmdAutoExecute,
+	cmdBuy,
+	cmdExecute,
+	cmdResearch,
+	cmdStatus,
+} from "./commands/game-actions";
 import { cmdCat, cmdCd, cmdLs, cmdPwd, cmdTree } from "./commands/nav";
 import {
 	cmdClear,
@@ -49,6 +55,8 @@ const COMMANDS: Record<string, CommandFn> = {
 	tree: cmdTree,
 	buy: cmdBuy,
 	research: cmdResearch,
+	execute: cmdExecute,
+	"auto-execute": cmdAutoExecute,
 	status: cmdStatus,
 	help: cmdHelp,
 	clear: cmdClear,

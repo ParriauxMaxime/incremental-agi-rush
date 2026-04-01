@@ -13,10 +13,15 @@ type GameState = {
 	tokens: number;
 	currentTierIndex: number;
 	aiUnlocked: boolean;
+	autoExecuteEnabled: boolean;
 	ownedUpgrades: Record<string, number>;
 	ownedTechNodes: Record<string, number>;
+	cashMultiplier: number;
+	flopSlider: number;
 	buyUpgrade: (upgrade: Upgrade) => void;
 	researchNode: (node: TechNode) => void;
+	executeManual: () => void;
+	toggleAutoExecute: () => void;
 };
 
 function getGameStore(): GameState {
@@ -219,5 +224,95 @@ export function cmdStatus(
 			type: ShellLineTypeEnum.output,
 			text,
 		})),
+	};
+}
+
+export function cmdExecute(
+	_args: string[],
+	_cwd: string,
+	_root: FsNode,
+): CommandResult {
+	const state = getGameStore();
+
+	if (state.autoExecuteEnabled) {
+		return {
+			lines: [
+				{
+					type: ShellLineTypeEnum.output,
+					text: "Auto-execute is enabled. Use `auto-execute` to toggle.",
+				},
+			],
+		};
+	}
+
+	const {
+		loc,
+		flops,
+		cash,
+		currentTierIndex,
+		aiUnlocked,
+		flopSlider,
+		cashMultiplier,
+	} = state;
+	const tier = tiers[currentTierIndex];
+	const cashPerLoc = tier?.cashPerLoc ?? 0.1;
+	const execFlops = aiUnlocked ? flops * flopSlider : flops;
+	const execLoc = Math.min(Math.floor(execFlops), Math.floor(loc));
+
+	if (execLoc <= 0) {
+		return {
+			lines: [
+				{
+					type: ShellLineTypeEnum.error,
+					text: "Nothing to execute. Queue is empty or no FLOPS available.",
+				},
+			],
+		};
+	}
+
+	const earned = execLoc * cashPerLoc * cashMultiplier;
+	state.executeManual();
+
+	return {
+		lines: [
+			{
+				type: ShellLineTypeEnum.output,
+				text: `✓ Executed ${formatNumber(execLoc)} LoC → +$${formatNumber(earned, true)}`,
+				color: "#4ec9b0",
+			},
+		],
+	};
+}
+
+export function cmdAutoExecute(
+	_args: string[],
+	_cwd: string,
+	_root: FsNode,
+): CommandResult {
+	const state = getGameStore();
+	const autoExecUnlocked = (state.ownedTechNodes.auto_execute ?? 0) > 0;
+
+	if (!autoExecUnlocked) {
+		return {
+			lines: [
+				{
+					type: ShellLineTypeEnum.error,
+					text: "auto-execute not yet researched. Research 'auto_execute' first.",
+				},
+			],
+		};
+	}
+
+	state.toggleAutoExecute();
+	const newState = getGameStore();
+
+	return {
+		lines: [
+			{
+				type: ShellLineTypeEnum.output,
+				text: `✓ Auto-execute: ${newState.autoExecuteEnabled ? "ON" : "OFF"}`,
+				color: "#4ec9b0",
+			},
+		],
 	};
 }

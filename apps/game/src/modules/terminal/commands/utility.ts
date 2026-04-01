@@ -16,6 +16,11 @@ const COMMAND_HELP: Record<string, { usage: string; desc: string }> = {
 		usage: "research <tech_node_id>",
 		desc: "Research a tech node",
 	},
+	execute: { usage: "execute", desc: "Execute queued LoC for cash" },
+	"auto-execute": {
+		usage: "auto-execute",
+		desc: "Toggle auto-execution on/off",
+	},
 	status: { usage: "status", desc: "Show current resources and tier" },
 	help: {
 		usage: "help [command]",

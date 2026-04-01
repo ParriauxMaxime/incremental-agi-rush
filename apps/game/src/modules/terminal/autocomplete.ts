@@ -11,6 +11,8 @@ const COMMANDS = [
 	"tree",
 	"buy",
 	"research",
+	"execute",
+	"auto-execute",
 	"status",
 	"help",
 	"clear",
