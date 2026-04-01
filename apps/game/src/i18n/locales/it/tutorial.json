@@ -29,7 +29,7 @@
 	},
 	"singularity_hint": {
 		"header": "tutorial.endgame()",
-		"body": "La Singolarità è a portata di mano.\nControlla `cat agi.py` per un indizio..."
+		"body": "La Singolarità sta arrivando."
 	},
 	"terminal_label": "Terminale",
 	"terminal_shortcut": "Ctrl+T",

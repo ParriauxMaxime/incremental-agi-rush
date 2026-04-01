@@ -29,7 +29,7 @@
 	},
 	"singularity_hint": {
 		"header": "tutorial.endgame()",
-		"body": "Die Singularität ist zum Greifen nah.\nSchau in `cat agi.py` für einen Hinweis..."
+		"body": "Die Singularität kommt."
 	},
 	"terminal_label": "Terminal",
 	"terminal_shortcut": "Ctrl+T",

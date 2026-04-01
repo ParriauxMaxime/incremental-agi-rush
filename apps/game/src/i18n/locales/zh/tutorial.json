@@ -29,7 +29,7 @@
 	},
 	"singularity_hint": {
 		"header": "tutorial.endgame()",
-		"body": "奇点触手可及。\n查看 `cat agi.py` 获取提示..."
+		"body": "奇点即将来临。"
 	},
 	"terminal_label": "终端",
 	"terminal_shortcut": "Ctrl+T",
