@@ -16,6 +16,7 @@ const panelCss = css({
 	flexDirection: "column",
 	width: 280,
 	minWidth: 280,
+	height: "100%",
 	flexShrink: 0,
 	overflow: "hidden",
 });
