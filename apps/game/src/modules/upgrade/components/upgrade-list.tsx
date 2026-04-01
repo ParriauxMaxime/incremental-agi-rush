@@ -1,4 +1,4 @@
-import { css, keyframes } from "@emotion/react";
+import { css } from "@emotion/react";
 import type { Upgrade } from "@modules/game";
 import {
 	allUpgrades,
@@ -8,6 +8,7 @@ import {
 	useGameStore,
 } from "@modules/game";
 import { formatNumber } from "@utils/format";
+import { useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 const upgradeStyle = css({
@@ -26,15 +27,6 @@ const upgradeStyle = css({
 	transition: "all 0.15s",
 	position: "relative",
 	"&:hover": { borderColor: "#58a6ff", background: "#1a2030" },
-});
-
-const purchaseFlash = keyframes({
-	"0%": { borderColor: "#3fb950", background: "rgba(63, 185, 80, 0.2)" },
-	"100%": { borderColor: "#1e2630", background: "#161b22" },
-});
-
-const flashStyle = css({
-	animation: `${purchaseFlash} 0.3s ease-out`,
 });
 
 const lockedStyle = css({
@@ -85,23 +77,36 @@ function UpgradeCard({ upgrade }: { upgrade: Upgrade }) {
 	const buyUpgrade = useGameStore((s) => s.buyUpgrade);
 	const state = useGameStore((s) => s);
 
+	const btnRef = useRef<HTMLButtonElement>(null);
 	const cost = getUpgradeCost(upgrade, owned, state);
 	const effectiveMax = getEffectiveMax(upgrade, state);
 	const canAfford = cash >= cost;
 	const maxed = owned >= effectiveMax;
 
+	const handleBuy = useCallback(() => {
+		if (!canAfford || maxed) return;
+		buyUpgrade(upgrade);
+		const el = btnRef.current;
+		if (el) {
+			el.style.borderColor = "#3fb950";
+			el.style.background = "rgba(63, 185, 80, 0.2)";
+			setTimeout(() => {
+				el.style.borderColor = "";
+				el.style.background = "";
+			}, 200);
+		}
+	}, [canAfford, maxed, buyUpgrade, upgrade]);
+
 	return (
 		<button
+			ref={btnRef}
 			type="button"
 			css={[
 				upgradeStyle,
 				!canAfford && !maxed && lockedStyle,
 				maxed && maxedStyle,
-				owned > 0 && !maxed && flashStyle,
 			]}
-			onClick={() => {
-				if (canAfford && !maxed) buyUpgrade(upgrade);
-			}}
+			onClick={handleBuy}
 			disabled={maxed || !canAfford}
 		>
 			<div css={nameStyle}>
@@ -152,10 +157,7 @@ export function UpgradeList() {
 	return (
 		<div>
 			{sorted.map((upgrade) => (
-				<UpgradeCard
-					key={`${upgrade.id}-${state.ownedUpgrades[upgrade.id] ?? 0}`}
-					upgrade={upgrade}
-				/>
+				<UpgradeCard key={upgrade.id} upgrade={upgrade} />
 			))}
 		</div>
 	);
