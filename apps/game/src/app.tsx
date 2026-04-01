@@ -688,36 +688,37 @@ function TabbedPane({
 								}}
 							/>
 							<span css={{ fontFamily: "inherit" }}>{tab.filename}</span>
-							{closable && (
-								<button
-									type="button"
-									css={{
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										width: 20,
-										height: 20,
-										border: "none",
-										background: "transparent",
-										color: active ? theme.textMuted : "transparent",
-										borderRadius: 3,
-										cursor: "pointer",
-										fontSize: 14,
-										lineHeight: 1,
-										fontFamily: "inherit",
-										"&:hover": {
-											background: theme.border,
-											color: theme.foreground,
-										},
-									}}
-									onClick={(e) => {
-										e.stopPropagation();
-										onCloseTab(tab.page);
-									}}
-								>
-									×
-								</button>
-							)}
+							<button
+								type="button"
+								css={{
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+									width: 20,
+									height: 20,
+									border: "none",
+									background: "transparent",
+									color: closable && active ? theme.textMuted : "transparent",
+									borderRadius: 3,
+									cursor: closable ? "pointer" : "default",
+									fontSize: 14,
+									lineHeight: 1,
+									fontFamily: "inherit",
+									"&:hover": closable
+										? {
+												background: theme.border,
+												color: theme.foreground,
+											}
+										: {},
+								}}
+								onClick={(e) => {
+									e.stopPropagation();
+									if (closable) onCloseTab(tab.page);
+								}}
+								tabIndex={closable ? 0 : -1}
+							>
+								×
+							</button>
 						</div>
 					);
 				})}
