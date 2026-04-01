@@ -1,4 +1,5 @@
 import { music, useAudioStore } from "@modules/audio";
+import { allEvents, useEventStore } from "@modules/event";
 import type { GodModeOverrides } from "@modules/game";
 import {
 	allTechNodes,
@@ -474,6 +475,40 @@ export function GodModePage() {
 					>
 						{t("god_mode.data_editor")}
 					</a>
+				</div>
+			</Section>
+
+			<Section title="Events" defaultOpen={false}>
+				<div css={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+					{allEvents.map((ev) => (
+						<button
+							key={ev.id}
+							type="button"
+							css={{
+								fontSize: 11,
+								padding: "4px 10px",
+								border: `1px solid ${theme.border}`,
+								borderRadius: 3,
+								background: "transparent",
+								color: theme.foreground,
+								cursor: "pointer",
+								fontFamily: "inherit",
+								"&:hover": {
+									background: theme.border,
+								},
+							}}
+							onClick={() => {
+								const gs = useGameStore.getState();
+								useEventStore.getState().spawnEvent(ev.id, {
+									currentCash: gs.cash,
+									currentLoc: gs.loc,
+									currentLocPerSec: gs.autoLocPerSec,
+								});
+							}}
+						>
+							{ev.icon} {ev.name}
+						</button>
+					))}
 				</div>
 			</Section>
 
