@@ -38,6 +38,10 @@
 		"name": "Раунд B",
 		"description": "Мгновенное вливание $500M наличными"
 	},
+	"tpu_pod": {
+		"name": "TPU-кластер",
+		"description": "+5M FLOPS"
+	},
 	"ai_agent": {
 		"name": "AI-агент",
 		"description": "Автономный агент — пишет 100,000 LoC/s"

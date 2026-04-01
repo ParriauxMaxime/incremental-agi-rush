@@ -59,6 +59,10 @@
 		"name": "Series B Funding",
 		"description": "Immediate $500M cash injection"
 	},
+	"tpu_pod": {
+		"name": "TPU Pod",
+		"description": "+5M FLOPS"
+	},
 	"ai_agent": {
 		"name": "AI Agent",
 		"description": "Autonomous agent — writes 100,000 LoC/s"

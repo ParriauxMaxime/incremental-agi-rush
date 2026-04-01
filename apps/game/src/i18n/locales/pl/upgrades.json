@@ -44,6 +44,10 @@
 		"name": "Finansowanie Serii B",
 		"description": "Natychmiastowy zastrzyk $500M gotówki"
 	},
+	"tpu_pod": {
+		"name": "Pod TPU",
+		"description": "+5M FLOPS"
+	},
 	"ai_agent": {
 		"name": "Agent AI",
 		"description": "Autonomiczny agent — pisze 100 000 LoC/s"

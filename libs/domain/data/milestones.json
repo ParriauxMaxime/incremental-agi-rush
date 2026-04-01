@@ -43,7 +43,7 @@
 			"condition": "totalLoc >= 1000",
 			"threshold": 1000,
 			"metric": "totalLoc",
-			"cashBonus": 150
+			"cashBonus": 100
 		},
 		{
 			"id": "yc_application",
@@ -52,7 +52,7 @@
 			"condition": "totalLoc >= 5000",
 			"threshold": 5000,
 			"metric": "totalLoc",
-			"cashBonus": 500
+			"cashBonus": 250
 		},
 		{
 			"id": "open_source_fame",
@@ -61,7 +61,7 @@
 			"condition": "totalLoc >= 25000",
 			"threshold": 25000,
 			"metric": "totalLoc",
-			"cashBonus": 5000
+			"cashBonus": 2000
 		},
 		{
 			"id": "big_tech",
@@ -70,7 +70,7 @@
 			"condition": "totalLoc >= 100000",
 			"threshold": 100000,
 			"metric": "totalLoc",
-			"cashBonus": 50000
+			"cashBonus": 10000
 		},
 		{
 			"id": "ml_paper",
@@ -79,7 +79,7 @@
 			"condition": "totalLoc >= 500000",
 			"threshold": 500000,
 			"metric": "totalLoc",
-			"cashBonus": 500000
+			"cashBonus": 50000
 		},
 		{
 			"id": "llm_training",
@@ -88,7 +88,7 @@
 			"condition": "totalLoc >= 2000000",
 			"threshold": 2000000,
 			"metric": "totalLoc",
-			"cashBonus": 5000000
+			"cashBonus": 500000
 		},
 		{
 			"id": "emergent_behavior",
@@ -97,7 +97,7 @@
 			"condition": "totalLoc >= 10000000",
 			"threshold": 10000000,
 			"metric": "totalLoc",
-			"cashBonus": 50000000
+			"cashBonus": 5000000
 		},
 		{
 			"id": "agi",
@@ -106,7 +106,7 @@
 			"condition": "totalLoc >= 200000000",
 			"threshold": 200000000,
 			"metric": "totalLoc",
-			"cashBonus": 1000000000
+			"cashBonus": 50000000
 		}
 	]
 }

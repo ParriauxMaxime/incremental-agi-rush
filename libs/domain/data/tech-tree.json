@@ -253,7 +253,7 @@
 			"icon": "💼",
 			"requires": ["computer"],
 			"max": 1,
-			"baseCost": 80,
+			"baseCost": 200,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -791,7 +791,7 @@
 			"icon": "🌀",
 			"requires": ["tier_ai_lab"],
 			"max": 1,
-			"baseCost": 5000000000,
+			"baseCost": 30000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [

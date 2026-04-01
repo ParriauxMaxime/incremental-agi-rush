@@ -199,7 +199,7 @@
 			"id": "rlhf",
 			"tier": "ai_lab",
 			"name": "RLHF Training",
-			"description": "x1.3 LLM output per level",
+			"description": "x1.2 LLM output per level",
 			"icon": "🧠",
 			"baseCost": 100000000,
 			"costMultiplier": 1.6,
@@ -208,7 +208,7 @@
 				{
 					"type": "llmLocMultiplier",
 					"op": "multiply",
-					"value": 1.3
+					"value": 1.2
 				}
 			]
 		},
@@ -216,7 +216,7 @@
 			"id": "ml_pipeline",
 			"tier": "ai_lab",
 			"name": "ML Pipeline",
-			"description": "x1.2 cash per LoC",
+			"description": "x1.15 cash per LoC",
 			"icon": "🔬",
 			"baseCost": 150000000,
 			"costMultiplier": 2,
@@ -225,7 +225,7 @@
 				{
 					"type": "cashMultiplier",
 					"op": "multiply",
-					"value": 1.2
+					"value": 1.15
 				}
 			]
 		},
@@ -262,6 +262,23 @@
 					"type": "instantCash",
 					"op": "add",
 					"value": 500000000
+				}
+			]
+		},
+		{
+			"id": "tpu_pod",
+			"tier": "ai_lab",
+			"name": "TPU Pod",
+			"description": "+5M FLOPS",
+			"icon": "⚡",
+			"baseCost": 50000000,
+			"costMultiplier": 1.6,
+			"max": 5,
+			"effects": [
+				{
+					"type": "flops",
+					"op": "add",
+					"value": 5000000
 				}
 			]
 		},

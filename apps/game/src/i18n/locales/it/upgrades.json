@@ -41,6 +41,10 @@
 		"name": "Finanziamento Serie B",
 		"description": "Iniezione immediata di 500M$ in cash"
 	},
+	"tpu_pod": {
+		"name": "Pod TPU",
+		"description": "+5M FLOPS"
+	},
 	"ai_agent": {
 		"name": "Agente IA",
 		"description": "Agente autonomo — scrive 100.000 LoC/s"

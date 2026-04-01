@@ -41,6 +41,10 @@
 		"name": "Serie-B-Finanzierung",
 		"description": "Sofortige Cash-Spritze von 500M$"
 	},
+	"tpu_pod": {
+		"name": "TPU-Pod",
+		"description": "+5M FLOPS"
+	},
 	"ai_agent": {
 		"name": "KI-Agent",
 		"description": "Autonomer Agent — schreibt 100.000 LoC/s"

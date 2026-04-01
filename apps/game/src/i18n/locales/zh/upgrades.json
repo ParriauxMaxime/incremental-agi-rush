@@ -20,6 +20,7 @@
 		"description": "托管 1 个 AI 模型——自动选择最优可用模型"
 	},
 	"series_b": { "name": "B 轮融资", "description": "立即注入 $500M 现金" },
+	"tpu_pod": { "name": "TPU 集群", "description": "+5M FLOPS" },
 	"ai_agent": {
 		"name": "AI 代理",
 		"description": "自主代理——每秒写 100,000 LoC"

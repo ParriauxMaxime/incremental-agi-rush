@@ -18,7 +18,7 @@
 			"cashPerLoc": 0.25,
 			"locRequired": 800,
 			"cashRequired": 500,
-			"cost": 80
+			"cost": 200
 		},
 		{
 			"id": "startup",
@@ -58,7 +58,7 @@
 			"cashPerLoc": 100.0,
 			"locRequired": 5000000,
 			"cashRequired": 50000000,
-			"cost": 5000000000
+			"cost": 30000000000
 		}
 	]
 }
