@@ -224,26 +224,26 @@ export const useEventStore = create<EventState & EventActions>()(
 				updatedEvents = next;
 			}
 
-			// Tick down toast dismiss countdown (only set changed when toast expires)
+			// Tick down toast dismiss countdown
 			let { toastEvent, toastDismissCountdown } = state;
 			if (toastEvent !== null) {
 				toastDismissCountdown -= dt;
 				if (toastDismissCountdown <= 0) {
 					toastEvent = null;
 					toastDismissCountdown = 0;
-					changed = true;
 				}
+				changed = true;
 			}
 
-			// Tick down milestone toast (only set changed when it expires)
+			// Tick down milestone toast
 			let { milestoneToast, milestoneDismissCountdown } = state;
 			if (milestoneToast !== null) {
 				milestoneDismissCountdown -= dt;
 				if (milestoneDismissCountdown <= 0) {
 					milestoneToast = null;
 					milestoneDismissCountdown = 0;
-					changed = true;
 				}
+				changed = true;
 			}
 
 			// Spawn check: only when running and no non-synthetic active event
