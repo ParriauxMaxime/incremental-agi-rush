@@ -328,7 +328,6 @@ const panelCss = css({
 	flexDirection: "column",
 	flexShrink: 0,
 	overflow: "hidden",
-	maxHeight: "30%",
 	minHeight: 80,
 	boxShadow: "0 -2px 6px rgba(0,0,0,0.15)",
 	zIndex: 1,
@@ -581,17 +580,20 @@ export function TutorialTip() {
 		[input, historyIndex],
 	);
 
-	if (!terminalOpen || terminalLog.length === 0) return null;
+	if (terminalLog.length === 0) return null;
 
 	return (
 		<div css={panelCss} style={{ borderTop: `1px solid ${theme.border}` }}>
-			{/* Tab header */}
+			{/* Tab header — always visible */}
 			<div
 				css={tabBarCss}
 				style={{
 					background: theme.tabBarBg,
-					borderBottom: `1px solid ${theme.border}`,
+					borderBottom: terminalOpen ? `1px solid ${theme.border}` : "none",
+					cursor: terminalOpen ? "default" : "pointer",
 				}}
+				onClick={terminalOpen ? undefined : toggleTerminal}
+				onKeyDown={undefined}
 			>
 				<span
 					css={tabCss}
@@ -616,62 +618,76 @@ export function TutorialTip() {
 							"&:hover": { color: theme.foreground },
 						},
 					]}
-					onClick={toggleTerminal}
+					onClick={(e) => {
+						e.stopPropagation();
+						toggleTerminal();
+					}}
 					title={tTutorial("close_terminal", { defaultValue: "Close" })}
 				>
-					x
+					{terminalOpen ? "×" : "▲"}
 				</button>
 			</div>
 
-			{/* Scrollable log */}
+			{/* Collapsible content area */}
 			<div
-				ref={logRef}
-				css={logCss}
-				style={{ background: theme.panelBg, color: theme.textMuted }}
-				onScroll={handleScroll}
-			>
-				<ShellLineRenderer lines={terminalLog} theme={theme} />
-			</div>
-
-			{/* New content indicator */}
-			{hasNew && (
-				<div
-					css={newIndicatorCss}
-					style={{ background: theme.accent, color: theme.background }}
-					onClick={scrollToBottom}
-					onKeyDown={(e) => e.key === "Enter" && scrollToBottom()}
-					role="button"
-					tabIndex={0}
-				>
-					{"↓ new"}
-				</div>
-			)}
-
-			{/* Prompt + input */}
-			<div
-				css={inputRowCss}
-				style={{
-					background: theme.panelBg,
-					color: theme.foreground,
-					borderTop: `1px solid ${theme.border}`,
+				css={{
+					overflow: "hidden",
+					transition: "max-height 0.25s ease",
+					maxHeight: terminalOpen ? "30vh" : 0,
+					display: "flex",
+					flexDirection: "column",
 				}}
-				onClick={() => inputRef.current?.focus()}
-				onKeyDown={() => {}}
-				role="textbox"
-				tabIndex={-1}
 			>
-				<PromptDisplay />
-				<span style={{ color: theme.success, marginLeft: 4 }}>{"$ "}</span>
-				<input
-					ref={inputRef}
-					css={inputCss}
-					style={{ color: theme.foreground }}
-					value={input}
-					onChange={(e) => setInput(e.target.value)}
-					onKeyDown={handleKeyDown}
-					spellCheck={false}
-					autoComplete="off"
-				/>
+				{/* Scrollable log */}
+				<div
+					ref={logRef}
+					css={logCss}
+					style={{ background: theme.panelBg, color: theme.textMuted }}
+					onScroll={handleScroll}
+				>
+					<ShellLineRenderer lines={terminalLog} theme={theme} />
+				</div>
+
+				{/* New content indicator */}
+				{hasNew && (
+					<div
+						css={newIndicatorCss}
+						style={{ background: theme.accent, color: theme.background }}
+						onClick={scrollToBottom}
+						onKeyDown={(e) => e.key === "Enter" && scrollToBottom()}
+						role="button"
+						tabIndex={0}
+					>
+						{"↓ new"}
+					</div>
+				)}
+
+				{/* Prompt + input */}
+				<div
+					css={inputRowCss}
+					style={{
+						background: theme.panelBg,
+						color: theme.foreground,
+						borderTop: `1px solid ${theme.border}`,
+					}}
+					onClick={() => inputRef.current?.focus()}
+					onKeyDown={() => {}}
+					role="textbox"
+					tabIndex={-1}
+				>
+					<PromptDisplay />
+					<span style={{ color: theme.success, marginLeft: 4 }}>{"$ "}</span>
+					<input
+						ref={inputRef}
+						css={inputCss}
+						style={{ color: theme.foreground }}
+						value={input}
+						onChange={(e) => setInput(e.target.value)}
+						onKeyDown={handleKeyDown}
+						spellCheck={false}
+						autoComplete="off"
+					/>
+				</div>
 			</div>
 		</div>
 	);
