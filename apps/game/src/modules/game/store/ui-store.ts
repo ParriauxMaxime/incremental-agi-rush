@@ -25,6 +25,13 @@ export const EditorThemeEnum = {
 export type EditorThemeEnum =
 	(typeof EditorThemeEnum)[keyof typeof EditorThemeEnum];
 
+export const PaneEnum = {
+	left: "left",
+	right: "right",
+} as const;
+
+export type PaneEnum = (typeof PaneEnum)[keyof typeof PaneEnum];
+
 interface TechTreeViewport {
 	x: number;
 	y: number;
@@ -34,8 +41,10 @@ interface TechTreeViewport {
 interface UiState {
 	page: PageEnum;
 	openTabs: PageEnum[];
-	splitEnabled: boolean;
 	rightPage: PageEnum;
+	rightOpenTabs: PageEnum[];
+	lastActivePane: PaneEnum;
+	splitEnabled: boolean;
 	editorTheme: EditorThemeEnum;
 	seenTips: string[];
 	terminalLog: ShellLine[];
@@ -48,6 +57,11 @@ interface UiState {
 	openTab: (page: PageEnum) => void;
 	closeTab: (page: PageEnum) => void;
 	setRightPage: (page: PageEnum) => void;
+	openRightTab: (page: PageEnum) => void;
+	closeRightTab: (page: PageEnum) => void;
+	focusPane: (pane: PaneEnum) => void;
+	/** Opens a tab in the last-focused pane */
+	openInActivePane: (page: PageEnum) => void;
 	toggleSplit: () => void;
 	toggleSidebar: () => void;
 	toggleStatsPanel: () => void;
@@ -60,13 +74,31 @@ interface UiState {
 	setTechTreeViewport: (viewport: TechTreeViewport) => void;
 }
 
+function addToTabs(tabs: PageEnum[], page: PageEnum): PageEnum[] {
+	return tabs.includes(page) ? tabs : [...tabs, page];
+}
+
+function removeFromTabs(
+	tabs: PageEnum[],
+	page: PageEnum,
+	activePage: PageEnum,
+): { tabs: PageEnum[]; newActive: PageEnum } {
+	const next = tabs.filter((t) => t !== page);
+	const safe = next.length === 0 ? [PageEnum.game] : next;
+	const newActive =
+		activePage === page ? (safe[safe.length - 1] ?? PageEnum.game) : activePage;
+	return { tabs: safe, newActive };
+}
+
 export const useUiStore = create<UiState>()(
 	persist(
 		(set, get) => ({
 			page: PageEnum.game,
 			openTabs: [PageEnum.game],
-			splitEnabled: false,
 			rightPage: PageEnum.tech_tree,
+			rightOpenTabs: [PageEnum.tech_tree],
+			lastActivePane: PaneEnum.left,
+			splitEnabled: false,
 			editorTheme: EditorThemeEnum.one_dark,
 			seenTips: [],
 			terminalLog: [],
@@ -79,26 +111,60 @@ export const useUiStore = create<UiState>()(
 			uiZoom: 100,
 			sidebarCollapsed: true,
 			statsPanelCollapsed: true,
-			setPage: (page) => set({ page }),
+
+			// Left pane
+			setPage: (page) => set({ page, lastActivePane: PaneEnum.left }),
 			openTab: (page) =>
 				set((s) => ({
-					openTabs: s.openTabs.includes(page)
-						? s.openTabs
-						: [...s.openTabs, page],
+					openTabs: addToTabs(s.openTabs, page),
 					page,
+					lastActivePane: PaneEnum.left,
 				})),
 			closeTab: (page) =>
 				set((s) => {
-					const tabs = s.openTabs.filter((t) => t !== page);
-					return {
-						openTabs: tabs.length === 0 ? [PageEnum.game] : tabs,
-						page:
-							s.page === page
-								? (tabs[tabs.length - 1] ?? PageEnum.game)
-								: s.page,
-					};
+					const { tabs, newActive } = removeFromTabs(s.openTabs, page, s.page);
+					return { openTabs: tabs, page: newActive };
 				}),
-			setRightPage: (page) => set({ rightPage: page }),
+
+			// Right pane
+			setRightPage: (page) =>
+				set({ rightPage: page, lastActivePane: PaneEnum.right }),
+			openRightTab: (page) =>
+				set((s) => ({
+					rightOpenTabs: addToTabs(s.rightOpenTabs, page),
+					rightPage: page,
+					lastActivePane: PaneEnum.right,
+				})),
+			closeRightTab: (page) =>
+				set((s) => {
+					const { tabs, newActive } = removeFromTabs(
+						s.rightOpenTabs,
+						page,
+						s.rightPage,
+					);
+					return { rightOpenTabs: tabs, rightPage: newActive };
+				}),
+
+			focusPane: (pane) => set({ lastActivePane: pane }),
+
+			// Sidebar: open in whichever pane was last touched
+			openInActivePane: (page) => {
+				const s = get();
+				if (s.splitEnabled && s.lastActivePane === PaneEnum.right) {
+					set({
+						rightOpenTabs: addToTabs(s.rightOpenTabs, page),
+						rightPage: page,
+						lastActivePane: PaneEnum.right,
+					});
+				} else {
+					set({
+						openTabs: addToTabs(s.openTabs, page),
+						page,
+						lastActivePane: PaneEnum.left,
+					});
+				}
+			},
+
 			toggleSplit: () => set((s) => ({ splitEnabled: !s.splitEnabled })),
 			toggleSidebar: () =>
 				set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
@@ -125,8 +191,10 @@ export const useUiStore = create<UiState>()(
 					terminalOpen: true,
 					page: PageEnum.game,
 					openTabs: [PageEnum.game],
-					splitEnabled: false,
 					rightPage: PageEnum.tech_tree,
+					rightOpenTabs: [PageEnum.tech_tree],
+					lastActivePane: PaneEnum.left,
+					splitEnabled: false,
 					sidebarCollapsed: true,
 					statsPanelCollapsed: true,
 					techTreeViewport: {
@@ -144,8 +212,10 @@ export const useUiStore = create<UiState>()(
 			partialize: (state) => ({
 				page: state.page,
 				openTabs: state.openTabs,
-				splitEnabled: state.splitEnabled,
 				rightPage: state.rightPage,
+				rightOpenTabs: state.rightOpenTabs,
+				lastActivePane: state.lastActivePane,
+				splitEnabled: state.splitEnabled,
 				sidebarCollapsed: state.sidebarCollapsed,
 				statsPanelCollapsed: state.statsPanelCollapsed,
 				techTreeViewport: state.techTreeViewport,

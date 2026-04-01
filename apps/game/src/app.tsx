@@ -514,6 +514,7 @@ function TabbedPane({
 	tabs,
 	openTabs,
 	onCloseTab,
+	onPaneFocus,
 	showSplitBtn,
 	splitActive,
 	onToggleSplit,
@@ -523,6 +524,7 @@ function TabbedPane({
 	tabs: TabDef[];
 	openTabs: PageEnum[];
 	onCloseTab: (page: PageEnum) => void;
+	onPaneFocus?: () => void;
 	showSplitBtn?: boolean;
 	splitActive?: boolean;
 	onToggleSplit?: () => void;
@@ -532,7 +534,7 @@ function TabbedPane({
 	const visibleTabs = tabs.filter((tab) => openTabs.includes(tab.page));
 
 	return (
-		<div css={[panelCss, { flex: 1 }]}>
+		<div css={[panelCss, { flex: 1 }]} onClick={onPaneFocus}>
 			<div
 				css={{
 					display: "flex",
@@ -652,6 +654,9 @@ export function App() {
 	const splitEnabled = useUiStore((s) => s.splitEnabled);
 	const rightPage = useUiStore((s) => s.rightPage);
 	const setRightPage = useUiStore((s) => s.setRightPage);
+	const rightOpenTabs = useUiStore((s) => s.rightOpenTabs);
+	const closeRightTab = useUiStore((s) => s.closeRightTab);
+	const focusPane = useUiStore((s) => s.focusPane);
 	const toggleSplit = useUiStore((s) => s.toggleSplit);
 	const uiZoom = useUiStore((s) => s.uiZoom);
 	const sidebarCollapsed = useUiStore((s) => s.sidebarCollapsed);
@@ -800,6 +805,7 @@ export function App() {
 								tabs={middleTabs}
 								openTabs={openTabs}
 								onCloseTab={closeTab}
+								onPaneFocus={() => focusPane("left")}
 								showSplitBtn
 								splitActive={splitEnabled}
 								onToggleSplit={toggleSplit}
@@ -817,8 +823,9 @@ export function App() {
 										activePage={rightPage}
 										onSetPage={setRightPage}
 										tabs={middleTabs}
-										openTabs={openTabs}
-										onCloseTab={closeTab}
+										openTabs={rightOpenTabs}
+										onCloseTab={closeRightTab}
+										onPaneFocus={() => focusPane("right")}
 									/>
 								</>
 							)}
