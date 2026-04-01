@@ -27,7 +27,6 @@ export interface SimSnapshot {
 	cash: number;
 	loc: number;
 	flops: number;
-	quality: number;
 	locPerSec: number;
 	cashPerSec: number;
 	tokensPerSec: number;
@@ -50,7 +49,6 @@ export interface SimPurchaseSnapshot {
 	locPerSec: number;
 	cashPerSec: number;
 	tier: number;
-	quality: number;
 }
 
 export interface SimPurchase {
@@ -87,7 +85,6 @@ export interface SimResult {
 	totalCash: number;
 	totalLoc: number;
 	finalTier: number;
-	finalQuality: number;
 	aiModelsOwned: number;
 	passed: boolean;
 	failures: string[];

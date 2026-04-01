@@ -62,10 +62,6 @@ export function SimSummary({ result }: { result: SimResult }) {
 				label="Lifetime Cash"
 			/>
 			<Card value={formatNumber(result.totalLoc)} label="Lifetime LoC" />
-			<Card
-				value={`${Math.round(result.finalQuality)}%`}
-				label="Final Quality"
-			/>
 			<Card value={`${result.aiModelsOwned}`} label="AI Models" />
 			<Card
 				value={agiReached ? "YES" : "NO"}

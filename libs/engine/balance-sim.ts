@@ -106,7 +106,6 @@ export function runBalanceSim(
 		llmMaxBonus: 0,
 		agentMaxBonus: 0,
 		llmHostSlots: 0,
-		codeQuality: 100,
 		currentTier: 0,
 		owned: {} as Record<string, number>,
 		ownedTech: {} as Record<string, number>,
@@ -139,6 +138,7 @@ export function runBalanceSim(
 	let eventLocProductionMultiplier = 1;
 	let eventLocPerKeyMultiplier = 1;
 	let eventAutoLocMultiplier = 1;
+	let eventTokenProductionMultiplier = 1;
 
 	const tierIdToIndex: Record<string, number> = {};
 	for (let i = 0; i < tiers.length; i++) {
@@ -184,6 +184,7 @@ export function runBalanceSim(
 		eventLocProductionMultiplier = 1;
 		eventLocPerKeyMultiplier = 1;
 		eventAutoLocMultiplier = 1;
+		eventTokenProductionMultiplier = 1;
 	}
 
 	function applySimEventModifiers(): void {
@@ -227,15 +228,12 @@ export function runBalanceSim(
 			)
 				eventCashMultiplier *= eff.value;
 			if (
-				eff.type === "codeQuality" &&
-				eff.op === "add" &&
+				eff.type === "tokenProduction" &&
+				eff.op === "multiply" &&
 				typeof eff.value === "number"
 			)
-				sim.codeQuality = Math.max(
-					0,
-					Math.min(100, sim.codeQuality + eff.value),
-				);
-			// disableUpgrade: skip in sim (minor effect, upgrade temporarily disabled)
+				eventTokenProductionMultiplier *= eff.value;
+			// disableUpgrade, codeQuality: skip in sim (not implemented in game)
 		}
 	}
 
@@ -298,8 +296,7 @@ export function runBalanceSim(
 		return (
 			tiers[sim.currentTier].cashPerLoc *
 			sim.cashMultiplier *
-			eventCashMultiplier *
-			(sim.codeQuality / 100)
+			eventCashMultiplier
 		);
 	}
 
@@ -491,7 +488,6 @@ export function runBalanceSim(
 			locPerSec: totalLocS,
 			cashPerSec: Math.min(totalLocS, fl) * cashPerLoc(),
 			tier: sim.currentTier,
-			quality: sim.codeQuality,
 		};
 	}
 
@@ -530,10 +526,7 @@ export function runBalanceSim(
 		if (activeSimEvent) {
 			if (
 				activeSimEvent.effects.some(
-					(e) =>
-						e.type !== "choice" &&
-						e.type !== "disableUpgrade" &&
-						e.type !== "codeQuality",
+					(e) => e.type !== "choice" && e.type !== "disableUpgrade",
 				)
 			) {
 				// Mash events: reduce duration by keysPerSec * reductionPerKey per second
@@ -567,16 +560,6 @@ export function runBalanceSim(
 							const amount = resolveSimExpression(eff.value);
 							sim.loc += amount;
 							sim.totalLoc += amount;
-						}
-						if (
-							eff.type === "codeQuality" &&
-							eff.op === "add" &&
-							typeof eff.value === "number"
-						) {
-							sim.codeQuality = Math.max(
-								0,
-								Math.min(100, sim.codeQuality + eff.value),
-							);
 						}
 						if (
 							eff.type === "conditionalCash" &&
@@ -616,16 +599,6 @@ export function runBalanceSim(
 								const amount = resolveSimExpression(chosenEff.value);
 								sim.cash += amount;
 								sim.totalCash += amount;
-							}
-							if (
-								chosenEff.type === "codeQuality" &&
-								chosenEff.op === "add" &&
-								typeof chosenEff.value === "number"
-							) {
-								sim.codeQuality = Math.max(
-									0,
-									Math.min(100, sim.codeQuality + chosenEff.value),
-								);
 							}
 							// If choice option has a duration, spawn as timed buff
 							if (chosenEff.duration && chosenEff.duration > 0) {
@@ -681,7 +654,8 @@ export function runBalanceSim(
 				.slice(0, sim.llmHostSlots);
 
 			// Token split: humans produce tokens for AI, surplus → direct LoC
-			const adjustedHumanOutput = humanOutput * sim.tokenMultiplier;
+			const adjustedHumanOutput =
+				humanOutput * sim.tokenMultiplier * eventTokenProductionMultiplier;
 			let totalTokenDemand = 0;
 			for (const m of activeModels) {
 				totalTokenDemand += m.tokenCost;
@@ -1080,7 +1054,6 @@ export function runBalanceSim(
 				cash: sim.totalCash,
 				loc: sim.totalLoc,
 				flops: totalFlops(),
-				quality: sim.codeQuality,
 				locPerSec: manualLoc + autoTypeLoc + autoLoc + aiLoc,
 				cashPerSec:
 					Math.min(manualLoc + autoTypeLoc + autoLoc + aiLoc, snapExecFlops) *
@@ -1168,7 +1141,6 @@ export function runBalanceSim(
 		totalCash: sim.totalCash,
 		totalLoc: sim.totalLoc,
 		finalTier: sim.currentTier,
-		finalQuality: sim.codeQuality,
 		aiModelsOwned: Object.values(sim.ownedModels).filter(Boolean).length,
 		passed: failures.length === 0,
 		failures,
