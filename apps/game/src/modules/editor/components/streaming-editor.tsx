@@ -128,7 +128,7 @@ const StaticLines = memo(function StaticLines({
 		<>
 			{STATIC_LINES.map((line, i) => (
 				<div css={lineCss} key={i}>
-					<span css={lineNumCss} style={{ color: lineNumberColor }}>
+					<span css={lineNumCss} style={{ color: lineNumberColor }} data-ln={i}>
 						{(i % HALF) + 1}
 					</span>
 					<span dangerouslySetInnerHTML={{ __html: line || "&nbsp;" }} />
@@ -165,7 +165,11 @@ export function StreamingEditor() {
 	useKeyboardInput(editorRef, onKeystroke);
 	useEditorFocus(editorRef);
 
-	// ── Animation speed + fill bar: updated via store subscription + refs (no re-renders) ──
+	// ── Animation speed + fill bar + line numbers: updated via store subscription + refs (no re-renders) ──
+	const virtualLineRef = useRef(1);
+	const prevLocRef = useRef(0);
+	const lineSpansRef = useRef<NodeListOf<HTMLElement> | null>(null);
+
 	useEffect(() => {
 		const unsub = useGameStore.subscribe((state) => {
 			const el = linesRef.current;
@@ -189,11 +193,48 @@ export function StreamingEditor() {
 					} else {
 						// Scale: 10→6x, 100→14x, 500→20x, 1000→23x, 10000→39x
 						const v = Math.max(1, totalLocPerSec);
-						const rate = Math.max(
-							1,
-							Math.log10(v) * 6 + Math.sqrt(v) * 0.15,
-						);
+						const rate = Math.max(1, Math.log10(v) * 6 + Math.sqrt(v) * 0.15);
 						anim.playbackRate = rate;
+					}
+				}
+
+				// ── Dynamic line numbers ──
+				// Virtual line tracks loc buffer: goes up with production, down with execution
+				if (state.loc <= 0) {
+					virtualLineRef.current = 1;
+				} else {
+					const delta = state.loc - prevLocRef.current;
+					virtualLineRef.current = Math.max(
+						1,
+						virtualLineRef.current + delta * 0.1,
+					);
+				}
+				prevLocRef.current = state.loc;
+
+				// Cache line spans on first use
+				if (!lineSpansRef.current) {
+					lineSpansRef.current = el.querySelectorAll("[data-ln]");
+				}
+				const spans = lineSpansRef.current;
+				if (spans.length > 0) {
+					// Get current scroll offset from animation to determine visible range
+					const anim2 = el.getAnimations()[0];
+					let scrollLine = 0;
+					if (anim2) {
+						const t =
+							((anim2.currentTime as number) ?? 0) /
+							((anim2.effect?.getComputedTiming().duration as number) ??
+								BASE_DURATION * 1000);
+						const frac = t % 1;
+						scrollLine = Math.floor(frac * HALF);
+					}
+					const base = Math.max(
+						1,
+						Math.floor(virtualLineRef.current) - VISIBLE_LINES,
+					);
+					for (let i = 0; i < spans.length; i++) {
+						const visibleIdx = (((i - scrollLine) % HALF) + HALF) % HALF;
+						spans[i].textContent = String(base + visibleIdx);
 					}
 				}
 			}
