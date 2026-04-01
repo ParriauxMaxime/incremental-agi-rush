@@ -52,12 +52,12 @@ const tooltipCss = css({
 });
 
 const TIER_COLORS = [
-	"#3fb950",
-	"#58a6ff",
-	"#c678dd",
-	"#e5c07b",
-	"#e06c75",
-	"#56b6c2",
+	"#5c6b8a",
+	"#2a9d8f",
+	"#2d8a4e",
+	"#d4782f",
+	"#9a5cd0",
+	"#d63a4a",
 ];
 
 const PURCHASE_COLORS: Record<string, string> = {

@@ -12,10 +12,10 @@ import { Sparkline } from "./sparkline";
 
 // ── Tier colors for human sources ──
 const SOURCE_COLORS = {
-	you: "#6272a4",
-	malt_freelancer: "#8be9fd",
-	intern: "#8be9fd",
-	dev_team: "#3fb950",
+	you: "#5c6b8a",
+	malt_freelancer: "#2a9d8f",
+	intern: "#2a9d8f",
+	dev_team: "#2d8a4e",
 } as const;
 
 // ── Styles ──

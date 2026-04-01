@@ -31,12 +31,12 @@ const timeLabelsCss = css({
 });
 
 const TIER_COLORS = [
-	"#3b4048",
-	"#6272a4",
-	"#61afef",
-	"#c678dd",
-	"#e5c07b",
-	"#e06c75",
+	"#5c6b8a",
+	"#2a9d8f",
+	"#2d8a4e",
+	"#d4782f",
+	"#9a5cd0",
+	"#d63a4a",
 ];
 
 const TIER_NAMES = [

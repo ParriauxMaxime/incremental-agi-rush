@@ -53,12 +53,12 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 const TIER_COLORS: Record<string, string> = {
-	garage: "#8b949e",
-	freelancing: "#3794ff",
-	startup: "#3fb950",
-	tech_company: "#d29922",
-	ai_lab: "#bc8cff",
-	agi_race: "#f78166",
+	garage: "#5c6b8a",
+	freelancing: "#2a9d8f",
+	startup: "#2d8a4e",
+	tech_company: "#d4782f",
+	ai_lab: "#9a5cd0",
+	agi_race: "#d63a4a",
 };
 
 // ── Styles ──

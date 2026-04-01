@@ -1,10 +1,10 @@
 export const tierColors: Record<string, string> = {
-	garage: "#6272a4",
-	freelancing: "#8be9fd",
-	startup: "#3fb950",
-	tech_company: "#d19a66",
-	ai_lab: "#c678dd",
-	agi_race: "#e94560",
+	garage: "#5c6b8a",
+	freelancing: "#2a9d8f",
+	startup: "#2d8a4e",
+	tech_company: "#d4782f",
+	ai_lab: "#9a5cd0",
+	agi_race: "#d63a4a",
 };
 
 export const colors = {
