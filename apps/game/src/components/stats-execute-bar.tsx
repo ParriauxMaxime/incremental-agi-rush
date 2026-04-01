@@ -13,6 +13,7 @@ const wrapCss = css({
 
 const btnCss = css({
 	flex: 1,
+	width: "100%",
 	padding: "9px 0",
 	fontSize: 13,
 	fontWeight: "bold",
