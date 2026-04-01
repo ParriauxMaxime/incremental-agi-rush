@@ -537,16 +537,18 @@ function TabbedPane({
 	const theme = useIdeTheme();
 	const { t } = useTranslation();
 	const moveTab = useUiStore((s) => s.moveTab);
+	const splitEnabled = useUiStore((s) => s.splitEnabled);
 	const visibleTabs = tabs.filter((tab) => openTabs.includes(tab.page));
 	const isEmpty = visibleTabs.length === 0;
-	const [dragOver, setDragOver] = useState(false);
+	const [dragZone, setDragZone] = useState<false | "center" | "right">(false);
 	const dragCountRef = useRef(0);
+	const paneRef = useRef<HTMLDivElement>(null);
 
 	const handleDragEnter = (e: React.DragEvent) => {
 		if (e.dataTransfer.types.includes("application/x-tab")) {
 			e.preventDefault();
 			dragCountRef.current++;
-			setDragOver(true);
+			setDragZone("center");
 		}
 	};
 
@@ -554,26 +556,51 @@ function TabbedPane({
 		dragCountRef.current--;
 		if (dragCountRef.current <= 0) {
 			dragCountRef.current = 0;
-			setDragOver(false);
+			setDragZone(false);
 		}
 	};
 
 	const handleDragOver = (e: React.DragEvent) => {
-		if (e.dataTransfer.types.includes("application/x-tab")) {
-			e.preventDefault();
-			e.dataTransfer.dropEffect = "move";
+		if (!e.dataTransfer.types.includes("application/x-tab")) return;
+		e.preventDefault();
+		e.dataTransfer.dropEffect = "move";
+		// Detect right-edge zone for split-on-drop (only in single panel mode)
+		if (!splitEnabled && paneRef.current) {
+			const rect = paneRef.current.getBoundingClientRect();
+			const x = e.clientX - rect.left;
+			setDragZone(x > rect.width * 0.6 ? "right" : "center");
 		}
 	};
 
 	const handleDrop = (e: React.DragEvent) => {
+		const zone = dragZone;
 		dragCountRef.current = 0;
-		setDragOver(false);
+		setDragZone(false);
 		const data = e.dataTransfer.getData("application/x-tab");
 		if (!data) return;
 		const { page: draggedPage, from } = JSON.parse(data) as {
 			page: PageEnum;
 			from: "left" | "right";
 		};
+
+		if (!splitEnabled && zone === "right" && from === paneId) {
+			// Split: remove tab from left, open in new right pane
+			const store = useUiStore.getState();
+			const remaining = store.openTabs.filter((t) => t !== draggedPage);
+			useUiStore.setState({
+				openTabs: remaining.length === 0 ? [PageEnum.game] : remaining,
+				page:
+					store.page === draggedPage
+						? (remaining[remaining.length - 1] ?? PageEnum.game)
+						: store.page,
+				rightOpenTabs: [draggedPage],
+				rightPage: draggedPage,
+				splitEnabled: true,
+				lastActivePane: "right",
+			});
+			return;
+		}
+
 		if (from !== paneId) {
 			moveTab(draggedPage, from, paneId);
 		}
@@ -581,6 +608,7 @@ function TabbedPane({
 
 	return (
 		<div
+			ref={paneRef}
 			css={[panelCss, { flex: 1, position: "relative" }]}
 			onClick={onPaneFocus}
 			onDragEnter={handleDragEnter}
@@ -726,7 +754,7 @@ function TabbedPane({
 					<PageContent page={activePage} />
 				)}
 			</div>
-			{dragOver && (
+			{dragZone === "center" && (
 				<div
 					css={{
 						position: "absolute",
@@ -750,6 +778,36 @@ function TabbedPane({
 						}}
 					>
 						Drop here
+					</span>
+				</div>
+			)}
+			{dragZone === "right" && (
+				<div
+					css={{
+						position: "absolute",
+						top: 0,
+						right: 0,
+						bottom: 0,
+						width: "40%",
+						background: "rgba(88, 166, 255, 0.12)",
+						borderLeft: "2px dashed rgba(88, 166, 255, 0.5)",
+						borderRadius: "0 4px 4px 0",
+						zIndex: 5,
+						pointerEvents: "none",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+					}}
+				>
+					<span
+						css={{
+							color: "#58a6ff",
+							fontSize: 13,
+							fontWeight: 600,
+							opacity: 0.8,
+						}}
+					>
+						Split right
 					</span>
 				</div>
 			)}
