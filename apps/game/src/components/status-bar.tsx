@@ -79,6 +79,8 @@ export function StatusBar() {
 	const statsPanelUnlocked = useGameStore(
 		(s) => (s.ownedTechNodes.unlock_stats_panel ?? 0) > 0,
 	);
+	const prestigeCount = useGameStore((s) => s.prestigeCount);
+	const prestigeMultiplier = useGameStore((s) => s.prestigeMultiplier);
 	const toggleSidebar = useUiStore((s) => s.toggleSidebar);
 	const toggleStatsPanel = useUiStore((s) => s.toggleStatsPanel);
 	const theme = useIdeTheme();
@@ -95,7 +97,21 @@ export function StatusBar() {
 			}}
 		>
 			<div css={leftCss}>
-				<span css={statCss}>⚡ {tier?.name ?? "—"}</span>
+				<span css={statCss}>
+					⚡ {tier?.name ?? "—"}
+					{prestigeCount > 0 && (
+						<span
+							css={{
+								marginLeft: 8,
+								color: "#d29922",
+								fontWeight: "bold",
+								fontSize: 11,
+							}}
+						>
+							{"★".repeat(prestigeCount)} {prestigeMultiplier.toFixed(1)}x
+						</span>
+					)}
+				</span>
 				<span css={statCss}>${formatNumber(cash, true)}</span>
 				{aiUnlocked && (
 					<span css={statCss}>
