@@ -93,5 +93,18 @@ export default defineConfig({
 	devServer: {
 		port: 3000,
 		hot: true,
+		client: {
+			overlay: {
+				errors: true,
+				warnings: false,
+				runtimeErrors: (error: Error) => {
+					// Suppress benign ResizeObserver loop error (React Flow)
+					if (error.message?.includes("ResizeObserver loop")) {
+						return false;
+					}
+					return true;
+				},
+			},
+		},
 	},
 });
