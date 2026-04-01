@@ -27,6 +27,10 @@ const upgradeStyle = css({
 	transition: "all 0.15s",
 	position: "relative",
 	"&:hover": { borderColor: "#58a6ff", background: "#1a2030" },
+	'&[data-flash="true"]': {
+		borderColor: "#3fb950 !important",
+		background: "rgba(63, 185, 80, 0.2) !important",
+	},
 });
 
 const lockedStyle = css({
@@ -85,16 +89,12 @@ function UpgradeCard({ upgrade }: { upgrade: Upgrade }) {
 
 	const handleBuy = useCallback(() => {
 		if (!canAfford || maxed) return;
-		buyUpgrade(upgrade);
 		const el = btnRef.current;
 		if (el) {
-			el.style.borderColor = "#3fb950";
-			el.style.background = "rgba(63, 185, 80, 0.2)";
-			setTimeout(() => {
-				el.style.borderColor = "";
-				el.style.background = "";
-			}, 200);
+			el.setAttribute("data-flash", "true");
+			setTimeout(() => el.removeAttribute("data-flash"), 200);
 		}
+		buyUpgrade(upgrade);
 	}, [canAfford, maxed, buyUpgrade, upgrade]);
 
 	return (
