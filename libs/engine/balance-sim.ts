@@ -694,9 +694,10 @@ export function runBalanceSim(
 				let targetSlider = 1 - idealAiFraction;
 				if (sim.loc > execFlops * 5) targetSlider += 0.05;
 				else if (sim.loc < execFlops * 1) targetSlider -= 0.05;
-				targetSlider = Math.min(0.95, Math.max(0.1, targetSlider));
-				sim.flopSlider += (targetSlider - sim.flopSlider) * 0.1;
-				sim.flopSlider = Math.min(0.95, Math.max(0.1, sim.flopSlider));
+				targetSlider = Math.min(0.9, Math.max(0.1, targetSlider));
+				// Game lerps at 0.02/frame (~60fps) ≈ 70% convergence/sec
+				sim.flopSlider += (targetSlider - sim.flopSlider) * 0.7;
+				sim.flopSlider = Math.min(0.9, Math.max(0.1, sim.flopSlider));
 			}
 		} else if (sim.autoExecuteEnabled) {
 			sim.loc += humanOutput;
