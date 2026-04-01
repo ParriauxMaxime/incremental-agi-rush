@@ -764,22 +764,8 @@ function TabbedPane({
 						borderRadius: 4,
 						zIndex: 5,
 						pointerEvents: "none",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
 					}}
-				>
-					<span
-						css={{
-							color: "#58a6ff",
-							fontSize: 14,
-							fontWeight: 600,
-							opacity: 0.7,
-						}}
-					>
-						Drop here
-					</span>
-				</div>
+				/>
 			)}
 			{dragZone === "right" && (
 				<div
@@ -794,22 +780,8 @@ function TabbedPane({
 						borderRadius: "0 4px 4px 0",
 						zIndex: 5,
 						pointerEvents: "none",
-						display: "flex",
-						alignItems: "center",
-						justifyContent: "center",
 					}}
-				>
-					<span
-						css={{
-							color: "#58a6ff",
-							fontSize: 13,
-							fontWeight: 600,
-							opacity: 0.8,
-						}}
-					>
-						Split right
-					</span>
-				</div>
+				/>
 			)}
 		</div>
 	);

@@ -18,7 +18,7 @@
 				}
 			],
 			"x": 980,
-			"y": 580
+			"y": 500
 		},
 		{
 			"id": "auto_type",
@@ -478,7 +478,7 @@
 			"currency": "cash",
 			"effects": [],
 			"x": 980,
-			"y": 500
+			"y": 580
 		},
 		{
 			"id": "unlock_stats_panel",
