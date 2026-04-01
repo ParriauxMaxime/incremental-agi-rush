@@ -38,7 +38,7 @@ const slideIn = keyframes({
 
 const toastWrapperCss = css({
 	position: "fixed",
-	top: 12,
+	top: 48,
 	left: "50%",
 	transform: "translateX(-50%)",
 	zIndex: 1000,
