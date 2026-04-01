@@ -163,6 +163,7 @@ interface EventActions {
 		ctx: ExpressionContext,
 	): void;
 	handleMashKey(eventId: string): void;
+	dismissToast(): void;
 	getEventModifiers(): EventModifiers;
 	getActiveInteractiveEvent(): ActiveEvent | null;
 	showMilestoneToast(
@@ -429,6 +430,10 @@ export const useEventStore = create<EventState & EventActions>()(
 
 				return { activeEvents: filtered };
 			});
+		},
+
+		dismissToast(): void {
+			set({ toastEvent: null, toastDismissCountdown: 0 });
 		},
 
 		getEventModifiers(): EventModifiers {

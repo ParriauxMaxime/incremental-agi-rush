@@ -188,6 +188,7 @@ export function EventToast() {
 	const toastEvent = useEventStore((s) => s.toastEvent);
 	const milestoneToast = useEventStore((s) => s.milestoneToast);
 	const handleChoice = useEventStore((s) => s.handleChoice);
+	const dismissToast = useEventStore((s) => s.dismissToast);
 	const cash = useGameStore((s) => s.cash);
 	const loc = useGameStore((s) => s.loc);
 	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
@@ -225,7 +226,16 @@ export function EventToast() {
 					const hasDuration = remainingDuration > 0;
 
 					return (
-						<div css={toastBodyCss(sentiment)}>
+						<div
+							css={[
+								toastBodyCss(sentiment),
+								!isChoice && { cursor: "pointer" },
+							]}
+							onClick={!isChoice ? dismissToast : undefined}
+							onKeyDown={undefined}
+							role={!isChoice ? "button" : undefined}
+							tabIndex={!isChoice ? 0 : undefined}
+						>
 							<div css={iconCss}>{def.icon}</div>
 							<div css={contentCss}>
 								<div css={nameCss}>{tEvents(`${def.id}.name`)}</div>
