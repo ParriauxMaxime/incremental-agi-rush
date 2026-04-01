@@ -15,7 +15,7 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const domainDir = path.dirname(require.resolve("@flopsed/domain/package.json"));
 const SPECS_DIR = path.join(domainDir, "data");
-const BALANCE_CHECK = path.resolve(__dirname, "../../specs/balance-check.js");
+const PROJECT_ROOT = path.resolve(__dirname, "../..");
 
 const ALLOWED_FILES = new Set([
 	"tiers",
@@ -67,9 +67,9 @@ app.put("/api/data/:file", async (req, res) => {
 
 app.post("/api/balance-check", (_req, res) => {
 	execFile(
-		"node",
-		[BALANCE_CHECK],
-		{ timeout: 30_000, cwd: path.dirname(BALANCE_CHECK) },
+		"npm",
+		["run", "sim", "--", "--verbose"],
+		{ timeout: 30_000, cwd: PROJECT_ROOT },
 		(err, stdout, stderr) => {
 			const exitCode =
 				err && "status" in err
