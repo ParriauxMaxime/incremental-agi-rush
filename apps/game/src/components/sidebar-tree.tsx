@@ -498,18 +498,26 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 				{milestonesOpen &&
 					allMilestones
 						.filter((m) => reachedMilestones.includes(m.id))
-						.map((m) => (
-							<div
-								key={m.id}
-								css={milestoneCss}
-								style={{ color: theme.success }}
-							>
-								{t("sidebar.milestone_item", {
-									name: t(`${m.id}.name`, { ns: "milestones" }),
-									threshold: formatNumber(m.threshold),
-								})}
-							</div>
-						))}
+						.map((m) => {
+							const isCash = m.metric === "totalCash";
+							const color = isCash ? theme.cashColor : theme.locColor;
+							return (
+								<div
+									key={m.id}
+									css={milestoneCss}
+									style={{ color: theme.success }}
+								>
+									{"✓ "}
+									{t(`${m.id}.name`, { ns: "milestones" })}
+									{" — "}
+									<span style={{ color }}>
+										{isCash ? "$" : ""}
+										{formatNumber(m.threshold)}
+										{isCash ? "" : " LoC"}
+									</span>
+								</div>
+							);
+						})}
 			</div>
 		</div>
 	);
