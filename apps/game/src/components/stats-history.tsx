@@ -62,6 +62,9 @@ const timeCss = css({
 const overflowCss = css({
 	overflow: "hidden",
 	transition: "max-height 0.25s ease",
+	"&::-webkit-scrollbar": { width: 4 },
+	"&::-webkit-scrollbar-track": { background: "transparent" },
+	"&::-webkit-scrollbar-thumb": { borderRadius: 2 },
 });
 
 function formatAgo(secondsAgo: number): string {
@@ -233,7 +236,14 @@ export function StatsHistory() {
 			{hasOverflow && (
 				<>
 					<div
-						css={overflowCss}
+						css={[
+							overflowCss,
+							{
+								"&::-webkit-scrollbar-thumb": {
+									background: theme.border,
+								},
+							},
+						]}
 						style={{
 							maxHeight: expanded ? 500 : 0,
 							overflowY: expanded ? "auto" : "hidden",
