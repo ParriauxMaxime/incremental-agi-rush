@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="80" fill="#0d1117"/>
-  <text x="64" y="170" font-family="monospace" font-size="78" font-weight="bold" fill="#3fb950">$_</text>
-  <text x="64" y="270" font-family="monospace" font-size="56" fill="#58a6ff">while(true){</text>
-  <text x="64" y="345" font-family="monospace" font-size="56" fill="#d19a66">  flops++;</text>
-  <text x="64" y="420" font-family="monospace" font-size="56" fill="#58a6ff">}</text>
-</svg>
