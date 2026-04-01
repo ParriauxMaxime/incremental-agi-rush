@@ -38,8 +38,12 @@ export function useGameLoop() {
 			const dt = elapsed / 1000;
 			lastTickRef.current = now;
 
-			// Tick events
+			// Stop everything during singularity sequence
 			const gameState = useGameStore.getState();
+			if (gameState.singularity) {
+				rafId = requestAnimationFrame(loop);
+				return;
+			}
 			const eventStore = useEventStore.getState();
 			ctx.currentCash = gameState.cash;
 			ctx.currentLoc = gameState.loc;
