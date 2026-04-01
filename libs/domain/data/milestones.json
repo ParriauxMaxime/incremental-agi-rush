@@ -16,7 +16,7 @@
 			"condition": "totalLoc >= 100",
 			"threshold": 100,
 			"metric": "totalLoc",
-			"cashBonus": 20
+			"cashBonus": 10
 		},
 		{
 			"id": "first_dollar",
@@ -25,7 +25,7 @@
 			"condition": "totalCash >= 1",
 			"threshold": 1,
 			"metric": "totalCash",
-			"cashBonus": 10
+			"cashBonus": 5
 		},
 		{
 			"id": "side_project",
