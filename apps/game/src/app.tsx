@@ -159,6 +159,8 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 
 declare const __GIT_SHA__: string | undefined;
 
+const SAVE_KEYS = ["flopsed-save", "flopsed-ui", "flopsed-audio"];
+
 function SettingsPage() {
 	const { t, i18n } = useTranslation();
 	const editorTheme = useUiStore((s) => s.editorTheme);
@@ -171,7 +173,14 @@ function SettingsPage() {
 	const setSfxVolume = useAudioStore((s) => s.setSfxVolume);
 	const musicStyle = useAudioStore((s) => s.musicStyle);
 	const setMusicStyle = useAudioStore((s) => s.setMusicStyle);
+	const reset = useGameStore((s) => s.reset);
+	const resetAll = useUiStore((s) => s.resetAll);
 	const theme = useIdeTheme();
+	const [modal, setModal] = useState<"reset" | "export" | "import" | null>(
+		null,
+	);
+	const [importText, setImportText] = useState("");
+	const [importError, setImportError] = useState("");
 
 	return (
 		<div
@@ -443,6 +452,334 @@ function SettingsPage() {
 					</div>
 				</div>
 			</div>
+			{/* ── Data ── */}
+			<SectionHeading>
+				{t("settings.data", { defaultValue: "Data" })}
+			</SectionHeading>
+			<div css={{ padding: "4px 20px 16px", display: "flex", gap: 8 }}>
+				<button
+					type="button"
+					onClick={() => {
+						const data: Record<string, string | null> = {};
+						for (const key of SAVE_KEYS) {
+							data[key] = localStorage.getItem(key);
+						}
+						navigator.clipboard.writeText(JSON.stringify(data));
+						setModal("export");
+					}}
+					css={{
+						fontSize: 12,
+						padding: "6px 14px",
+						borderRadius: 4,
+						border: `1px solid ${theme.border}`,
+						background: "transparent",
+						color: theme.foreground,
+						cursor: "pointer",
+						fontFamily: "inherit",
+						"&:hover": { borderColor: theme.accent },
+					}}
+				>
+					{t("settings.export_save", { defaultValue: "Export Save" })}
+				</button>
+				<button
+					type="button"
+					onClick={() => {
+						setImportText("");
+						setImportError("");
+						setModal("import");
+					}}
+					css={{
+						fontSize: 12,
+						padding: "6px 14px",
+						borderRadius: 4,
+						border: `1px solid ${theme.border}`,
+						background: "transparent",
+						color: theme.foreground,
+						cursor: "pointer",
+						fontFamily: "inherit",
+						"&:hover": { borderColor: theme.accent },
+					}}
+				>
+					{t("settings.import_save", { defaultValue: "Import Save" })}
+				</button>
+				<button
+					type="button"
+					onClick={() => setModal("reset")}
+					css={{
+						fontSize: 12,
+						padding: "6px 14px",
+						borderRadius: 4,
+						border: "1px solid #e06c75",
+						background: "transparent",
+						color: "#e06c75",
+						cursor: "pointer",
+						fontFamily: "inherit",
+						marginLeft: "auto",
+						"&:hover": { background: "#e06c75", color: "#fff" },
+					}}
+				>
+					{t("settings.reset_game", { defaultValue: "Reset Game" })}
+				</button>
+			</div>
+
+			{/* ── Modals ── */}
+			{modal && (
+				<div
+					css={{
+						position: "fixed",
+						inset: 0,
+						zIndex: 10000,
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						background: "rgba(0,0,0,0.6)",
+					}}
+					onClick={() => setModal(null)}
+					onKeyDown={undefined}
+				>
+					<div
+						css={{
+							padding: 24,
+							borderRadius: 8,
+							border: `1px solid ${theme.border}`,
+							maxWidth: 480,
+							width: "90%",
+						}}
+						style={{ background: theme.sidebarBg, color: theme.foreground }}
+						onClick={(e) => e.stopPropagation()}
+						onKeyDown={undefined}
+					>
+						{modal === "reset" && (
+							<>
+								<div css={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
+									{t("settings.reset_confirm_title", {
+										defaultValue: "Reset Game?",
+									})}
+								</div>
+								<div
+									css={{
+										fontSize: 13,
+										color: theme.textMuted,
+										marginBottom: 20,
+										lineHeight: 1.5,
+									}}
+								>
+									{t("settings.reset_confirm_body", {
+										defaultValue:
+											"This will erase all progress and start from scratch. This action cannot be undone.",
+									})}
+								</div>
+								<div
+									css={{ display: "flex", gap: 8, justifyContent: "flex-end" }}
+								>
+									<button
+										type="button"
+										onClick={() => setModal(null)}
+										css={{
+											fontSize: 12,
+											padding: "6px 14px",
+											borderRadius: 4,
+											border: `1px solid ${theme.border}`,
+											background: "transparent",
+											color: theme.foreground,
+											cursor: "pointer",
+											fontFamily: "inherit",
+										}}
+									>
+										{t("settings.cancel", { defaultValue: "Cancel" })}
+									</button>
+									<button
+										type="button"
+										onClick={() => {
+											reset();
+											resetAll();
+											window.location.reload();
+										}}
+										css={{
+											fontSize: 12,
+											padding: "6px 14px",
+											borderRadius: 4,
+											border: "1px solid #e06c75",
+											background: "#e06c75",
+											color: "#fff",
+											cursor: "pointer",
+											fontFamily: "inherit",
+											"&:hover": { background: "#d63a4a" },
+										}}
+									>
+										{t("settings.reset_confirm", {
+											defaultValue: "Reset Everything",
+										})}
+									</button>
+								</div>
+							</>
+						)}
+
+						{modal === "export" && (
+							<>
+								<div css={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
+									{t("settings.export_title", {
+										defaultValue: "Save Exported",
+									})}
+								</div>
+								<div
+									css={{
+										fontSize: 13,
+										color: theme.textMuted,
+										marginBottom: 16,
+										lineHeight: 1.5,
+									}}
+								>
+									{t("settings.export_body", {
+										defaultValue:
+											"Your save data has been copied to the clipboard. Paste it somewhere safe to back it up.",
+									})}
+								</div>
+								<div css={{ display: "flex", justifyContent: "flex-end" }}>
+									<button
+										type="button"
+										onClick={() => setModal(null)}
+										css={{
+											fontSize: 12,
+											padding: "6px 14px",
+											borderRadius: 4,
+											border: `1px solid ${theme.accent}`,
+											background: theme.accent,
+											color: "#fff",
+											cursor: "pointer",
+											fontFamily: "inherit",
+										}}
+									>
+										{t("settings.done", { defaultValue: "Done" })}
+									</button>
+								</div>
+							</>
+						)}
+
+						{modal === "import" && (
+							<>
+								<div css={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
+									{t("settings.import_title", { defaultValue: "Import Save" })}
+								</div>
+								<div
+									css={{
+										fontSize: 13,
+										color: theme.textMuted,
+										marginBottom: 12,
+										lineHeight: 1.5,
+									}}
+								>
+									{t("settings.import_body", {
+										defaultValue:
+											"Paste your exported save data below. This will replace your current progress.",
+									})}
+								</div>
+								<textarea
+									value={importText}
+									onChange={(e) => {
+										setImportText(e.target.value);
+										setImportError("");
+									}}
+									placeholder='{"flopsed-save": ...}'
+									css={{
+										width: "100%",
+										height: 100,
+										fontSize: 11,
+										fontFamily: "'Courier New', monospace",
+										borderRadius: 4,
+										border: `1px solid ${importError ? "#e06c75" : theme.border}`,
+										background: theme.background,
+										color: theme.foreground,
+										padding: 8,
+										resize: "vertical",
+										outline: "none",
+										"&:focus": { borderColor: theme.accent },
+									}}
+								/>
+								{importError && (
+									<div css={{ fontSize: 11, color: "#e06c75", marginTop: 4 }}>
+										{importError}
+									</div>
+								)}
+								<div
+									css={{
+										display: "flex",
+										gap: 8,
+										justifyContent: "flex-end",
+										marginTop: 12,
+									}}
+								>
+									<button
+										type="button"
+										onClick={() => setModal(null)}
+										css={{
+											fontSize: 12,
+											padding: "6px 14px",
+											borderRadius: 4,
+											border: `1px solid ${theme.border}`,
+											background: "transparent",
+											color: theme.foreground,
+											cursor: "pointer",
+											fontFamily: "inherit",
+										}}
+									>
+										{t("settings.cancel", { defaultValue: "Cancel" })}
+									</button>
+									<button
+										type="button"
+										onClick={() => {
+											try {
+												const data = JSON.parse(importText);
+												if (typeof data !== "object" || !data["flopsed-save"]) {
+													setImportError(
+														t("settings.import_invalid", {
+															defaultValue: "Invalid save data format",
+														}),
+													);
+													return;
+												}
+												for (const key of SAVE_KEYS) {
+													if (data[key] != null) {
+														localStorage.setItem(
+															key,
+															typeof data[key] === "string"
+																? data[key]
+																: JSON.stringify(data[key]),
+														);
+													}
+												}
+												window.location.reload();
+											} catch {
+												setImportError(
+													t("settings.import_invalid", {
+														defaultValue: "Invalid save data format",
+													}),
+												);
+											}
+										}}
+										css={{
+											fontSize: 12,
+											padding: "6px 14px",
+											borderRadius: 4,
+											border: `1px solid ${theme.accent}`,
+											background: theme.accent,
+											color: "#fff",
+											cursor: "pointer",
+											fontFamily: "inherit",
+											"&:hover": { opacity: 0.9 },
+										}}
+									>
+										{t("settings.import_confirm", {
+											defaultValue: "Import & Reload",
+										})}
+									</button>
+								</div>
+							</>
+						)}
+					</div>
+				</div>
+			)}
+
 			<div
 				css={{
 					textAlign: "right",
