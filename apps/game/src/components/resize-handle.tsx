@@ -28,32 +28,31 @@ interface ResizeHandleProps {
 export function ResizeHandle({ onResize }: ResizeHandleProps) {
 	const theme = useIdeTheme();
 	const startXRef = useRef(0);
+	const onResizeRef = useRef(onResize);
+	onResizeRef.current = onResize;
 
-	const handleMouseDown = useCallback(
-		(e: React.MouseEvent) => {
-			e.preventDefault();
-			startXRef.current = e.clientX;
+	const handleMouseDown = useCallback((e: React.MouseEvent) => {
+		e.preventDefault();
+		startXRef.current = e.clientX;
 
-			const handleMouseMove = (ev: MouseEvent) => {
-				const delta = ev.clientX - startXRef.current;
-				startXRef.current = ev.clientX;
-				onResize(delta);
-			};
+		const handleMouseMove = (ev: MouseEvent) => {
+			const delta = ev.clientX - startXRef.current;
+			startXRef.current = ev.clientX;
+			onResizeRef.current(delta);
+		};
 
-			const handleMouseUp = () => {
-				document.removeEventListener("mousemove", handleMouseMove);
-				document.removeEventListener("mouseup", handleMouseUp);
-				document.body.style.cursor = "";
-				document.body.style.userSelect = "";
-			};
+		const handleMouseUp = () => {
+			document.removeEventListener("mousemove", handleMouseMove);
+			document.removeEventListener("mouseup", handleMouseUp);
+			document.body.style.cursor = "";
+			document.body.style.userSelect = "";
+		};
 
-			document.addEventListener("mousemove", handleMouseMove);
-			document.addEventListener("mouseup", handleMouseUp);
-			document.body.style.cursor = "col-resize";
-			document.body.style.userSelect = "none";
-		},
-		[onResize],
-	);
+		document.addEventListener("mousemove", handleMouseMove);
+		document.addEventListener("mouseup", handleMouseUp);
+		document.body.style.cursor = "col-resize";
+		document.body.style.userSelect = "none";
+	}, []);
 
 	return (
 		<div

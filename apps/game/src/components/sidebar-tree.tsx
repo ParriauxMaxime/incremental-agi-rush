@@ -21,8 +21,8 @@ import { useIdeTheme } from "../hooks/use-ide-theme";
 const sidebarCss = css({
 	display: "flex",
 	flexDirection: "column",
-	width: 260,
-	minWidth: 260,
+	width: "100%",
+	minWidth: 0,
 	height: "100%",
 	overflow: "hidden",
 	flexShrink: 0,
