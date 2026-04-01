@@ -321,7 +321,7 @@ const IS_DEV = location.hostname === "localhost";
 
 export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 	const page = useUiStore((s) => s.page);
-	const setPage = useUiStore((s) => s.setPage);
+	const openTab = useUiStore((s) => s.openTab);
 	const currentTierIndex = useGameStore((s) => s.currentTierIndex);
 	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
 	const reachedMilestones = useGameStore((s) => s.reachedMilestones);
@@ -424,9 +424,9 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 									color: theme.foreground,
 								},
 							}}
-							onClick={() => setPage(f.page)}
+							onClick={() => openTab(f.page)}
 							onKeyDown={(e) => {
-								if (e.key === "Enter") setPage(f.page);
+								if (e.key === "Enter") openTab(f.page);
 							}}
 							role="button"
 							tabIndex={0}

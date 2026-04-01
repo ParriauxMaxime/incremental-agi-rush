@@ -512,6 +512,8 @@ function TabbedPane({
 	activePage,
 	onSetPage,
 	tabs,
+	openTabs,
+	onCloseTab,
 	showSplitBtn,
 	splitActive,
 	onToggleSplit,
@@ -519,12 +521,15 @@ function TabbedPane({
 	activePage: PageEnum;
 	onSetPage: (page: PageEnum) => void;
 	tabs: TabDef[];
+	openTabs: PageEnum[];
+	onCloseTab: (page: PageEnum) => void;
 	showSplitBtn?: boolean;
 	splitActive?: boolean;
 	onToggleSplit?: () => void;
 }) {
 	const theme = useIdeTheme();
 	const { t } = useTranslation();
+	const visibleTabs = tabs.filter((tab) => openTabs.includes(tab.page));
 
 	return (
 		<div css={[panelCss, { flex: 1 }]}>
@@ -540,28 +545,25 @@ function TabbedPane({
 					position: "relative",
 				}}
 			>
-				{tabs.map((t) => {
+				{visibleTabs.map((t) => {
 					const active = t.page === activePage;
 					return (
-						<button
+						<div
 							key={t.page}
-							type="button"
 							css={{
-								padding: "0 16px",
+								padding: "0 4px 0 16px",
 								display: "flex",
 								alignItems: "center",
-								gap: 8,
+								gap: 6,
 								fontSize: 13,
 								color: active ? theme.foreground : theme.textMuted,
 								background: active ? theme.tabActiveBg : theme.tabInactiveBg,
-								border: "none",
 								borderRight: `1px solid ${theme.border}`,
 								borderBottom: active
 									? `1px solid ${theme.tabActiveBg}`
 									: "none",
 								marginBottom: active ? -1 : 0,
 								cursor: "pointer",
-								fontFamily: "inherit",
 								whiteSpace: "nowrap",
 								transition: "all 0.15s",
 								"&:hover": {
@@ -569,6 +571,11 @@ function TabbedPane({
 								},
 							}}
 							onClick={() => onSetPage(t.page)}
+							onKeyDown={(e) => {
+								if (e.key === "Enter") onSetPage(t.page);
+							}}
+							role="tab"
+							tabIndex={0}
 						>
 							<span
 								css={{
@@ -579,8 +586,36 @@ function TabbedPane({
 									flexShrink: 0,
 								}}
 							/>
-							{t.filename}
-						</button>
+							<span css={{ fontFamily: "inherit" }}>{t.filename}</span>
+							<button
+								type="button"
+								css={{
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+									width: 20,
+									height: 20,
+									border: "none",
+									background: "transparent",
+									color: active ? theme.textMuted : "transparent",
+									borderRadius: 3,
+									cursor: "pointer",
+									fontSize: 14,
+									lineHeight: 1,
+									fontFamily: "inherit",
+									"&:hover": {
+										background: theme.border,
+										color: theme.foreground,
+									},
+								}}
+								onClick={(e) => {
+									e.stopPropagation();
+									onCloseTab(t.page);
+								}}
+							>
+								×
+							</button>
+						</div>
 					);
 				})}
 				{showSplitBtn && onToggleSplit && (
@@ -612,6 +647,8 @@ export function App() {
 	const { t } = useTranslation();
 	const page = useUiStore((s) => s.page);
 	const setPage = useUiStore((s) => s.setPage);
+	const openTabs = useUiStore((s) => s.openTabs);
+	const closeTab = useUiStore((s) => s.closeTab);
 	const splitEnabled = useUiStore((s) => s.splitEnabled);
 	const rightPage = useUiStore((s) => s.rightPage);
 	const setRightPage = useUiStore((s) => s.setRightPage);
@@ -761,6 +798,8 @@ export function App() {
 								activePage={page}
 								onSetPage={setPage}
 								tabs={middleTabs}
+								openTabs={openTabs}
+								onCloseTab={closeTab}
 								showSplitBtn
 								splitActive={splitEnabled}
 								onToggleSplit={toggleSplit}
@@ -778,6 +817,8 @@ export function App() {
 										activePage={rightPage}
 										onSetPage={setRightPage}
 										tabs={middleTabs}
+										openTabs={openTabs}
+										onCloseTab={closeTab}
 									/>
 								</>
 							)}

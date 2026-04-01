@@ -124,6 +124,7 @@ export const useUiStore = create<UiState>()(
 					terminalLog: [],
 					terminalOpen: true,
 					page: PageEnum.game,
+					openTabs: [PageEnum.game],
 					splitEnabled: false,
 					rightPage: PageEnum.tech_tree,
 					sidebarCollapsed: true,
@@ -142,6 +143,7 @@ export const useUiStore = create<UiState>()(
 			name: "flopsed-ui",
 			partialize: (state) => ({
 				page: state.page,
+				openTabs: state.openTabs,
 				splitEnabled: state.splitEnabled,
 				rightPage: state.rightPage,
 				sidebarCollapsed: state.sidebarCollapsed,
