@@ -187,10 +187,11 @@ export function StreamingEditor() {
 					if (totalLocPerSec <= 0) {
 						anim.playbackRate = 0;
 					} else {
-						// Scale: 10 LoC/s → 6x, 100 → 12x, 1000 → 18x, 10000 → 24x
+						// Scale: 10→6x, 100→14x, 500→20x, 1000→23x, 10000→39x
+						const v = Math.max(1, totalLocPerSec);
 						const rate = Math.max(
 							1,
-							Math.log10(Math.max(1, totalLocPerSec)) * 6,
+							Math.log10(v) * 6 + Math.sqrt(v) * 0.15,
 						);
 						anim.playbackRate = rate;
 					}
