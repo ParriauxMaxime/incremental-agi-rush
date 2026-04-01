@@ -26,6 +26,12 @@ const upgradeStyle = css({
 	transition: "all 0.15s",
 	position: "relative",
 	"&:hover": { borderColor: "#58a6ff", background: "#1a2030" },
+	"&:active:not(:disabled)": {
+		transform: "scale(0.97)",
+		background: "rgba(63, 185, 80, 0.15)",
+		borderColor: "#3fb950",
+		transition: "all 0.05s",
+	},
 });
 
 const lockedStyle = css({

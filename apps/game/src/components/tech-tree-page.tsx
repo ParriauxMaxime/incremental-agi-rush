@@ -514,6 +514,18 @@ export function TechTreePage() {
 
 			if (!maxed && canAfford) {
 				researchNode(techNode);
+				// Flash the node for tactile feedback
+				const el = document.querySelector(
+					`[data-id="${node.id}"]`,
+				) as HTMLElement | null;
+				if (el) {
+					el.style.transform = "scale(0.95)";
+					el.style.boxShadow = "0 0 12px rgba(63, 185, 80, 0.5)";
+					setTimeout(() => {
+						el.style.transform = "";
+						el.style.boxShadow = "";
+					}, 50);
+				}
 				if (isMobile) setHovered(null);
 			} else if (isMobile) {
 				setHovered(techNode);
