@@ -126,6 +126,8 @@ export interface GameState {
 	prevTickTotalExecLoc: number;
 	_visualTick: number;
 	editorStreamingMode: boolean;
+	prestigeCount: number;
+	prestigeMultiplier: number;
 }
 
 export interface GodModeOverrides {
@@ -155,6 +157,7 @@ export interface GameActions {
 	toggleAutoArbitrage: () => void;
 	toggleAutoExecute: () => void;
 	applyEventReward: (cashDelta: number, locDelta: number) => void;
+	prestige: () => void;
 }
 
 const initialState: GameState = {
@@ -223,6 +226,8 @@ const initialState: GameState = {
 	prevTickTotalExecLoc: 0,
 	_visualTick: 0,
 	editorStreamingMode: false,
+	prestigeCount: 0,
+	prestigeMultiplier: 1,
 };
 
 function getEffectiveMax(upgrade: Upgrade, state?: GameState): number {
@@ -456,6 +461,7 @@ function recalcDerivedStats(state: GameState): void {
 	locPerKey *= eventMods.locPerKeyMultiplier;
 	locProductionMultiplier *= eventMods.locProductionMultiplier;
 	cashMultiplier *= eventMods.cashMultiplier;
+	cashMultiplier *= state.prestigeMultiplier;
 
 	const hardwareFlops = Math.min(cpuFlops, ramFlops) + storageFlops;
 	const managerTeamBonus = 1 + managerCount * 0.5 * managerMultiplier;
@@ -901,7 +907,25 @@ export const useGameStore = create<GameState & GameActions>()(
 			},
 
 			reset: () => {
-				set(initialState);
+				const { prestigeCount, prestigeMultiplier } = get();
+				set({ ...initialState, prestigeCount, prestigeMultiplier });
+				localStorage.removeItem("flopsed-editor");
+				useEventStore.getState().reset();
+			},
+
+			prestige: () => {
+				const s = get();
+				if (s.prestigeCount >= 5) return;
+				const keptCash = s.cash * 0.05;
+				const newCount = s.prestigeCount + 1;
+				const newMult = 1.7 ** newCount;
+				set({
+					...initialState,
+					prestigeCount: newCount,
+					prestigeMultiplier: newMult,
+					cash: keptCash,
+					totalCash: keptCash,
+				});
 				localStorage.removeItem("flopsed-editor");
 				useEventStore.getState().reset();
 			},
