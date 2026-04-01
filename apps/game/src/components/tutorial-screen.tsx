@@ -401,6 +401,9 @@ export function TutorialTip() {
 	const panelRef = useRef<HTMLDivElement>(null);
 	const [input, setInput] = useState("");
 	const [historyIndex, setHistoryIndex] = useState(-1);
+	const tabMatches = useRef<string[]>([]);
+	const tabIndex = useRef(-1);
+	const tabOriginal = useRef("");
 	const [isNearBottom, setIsNearBottom] = useState(true);
 	const [hasNew, setHasNew] = useState(false);
 	const prevLogLen = useRef(terminalLog.length);
@@ -489,6 +492,13 @@ export function TutorialTip() {
 		(e: React.KeyboardEvent<HTMLInputElement>) => {
 			const { sfxVolume, muted } = useAudioStore.getState();
 
+			// Reset tab cycling on any key that isn't Tab
+			if (e.key !== "Tab") {
+				tabOriginal.current = "";
+				tabMatches.current = [];
+				tabIndex.current = -1;
+			}
+
 			if (e.key === "Enter") {
 				e.preventDefault();
 				const value = input.trim();
@@ -543,20 +553,32 @@ export function TutorialTip() {
 
 			if (e.key === "Tab") {
 				e.preventDefault();
-				const matches = shellEngine.autocomplete(input);
-				if (matches.length === 1) {
-					// Replace last word with the match
-					const parts = input.split(/\s+/);
-					parts[parts.length - 1] = matches[0];
-					setInput(parts.join(" "));
-				} else if (matches.length > 1) {
-					// Show matches as output
-					const matchLines: ShellLine[] = matches.map((m) => ({
-						type: ShellLineTypeEnum.output,
-						text: `  ${m}`,
-					}));
-					useUiStore.getState().pushTerminalLines(matchLines);
+
+				// First tab press or input changed — build match list
+				if (tabOriginal.current !== input) {
+					tabOriginal.current = input;
+					tabMatches.current = shellEngine.autocomplete(input);
+					tabIndex.current = -1;
 				}
+
+				const matches = tabMatches.current;
+				if (matches.length === 0) return;
+
+				// Cycle to next match
+				tabIndex.current = (tabIndex.current + 1) % matches.length;
+				const match = matches[tabIndex.current];
+
+				// Rebuild input: keep everything up to the last word,
+				// then append the match with its parent path prefix
+				const parts = input.split(/\s+/);
+				const lastWord = parts[parts.length - 1] ?? "";
+
+				// Preserve parent path prefix for path completions
+				const slashIdx = lastWord.lastIndexOf("/");
+				const prefix = slashIdx >= 0 ? lastWord.slice(0, slashIdx + 1) : "";
+
+				parts[parts.length - 1] = prefix + match;
+				setInput(parts.join(" "));
 				return;
 			}
 
