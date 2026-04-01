@@ -358,11 +358,10 @@ const blockHeaderCss = css({
 const inputRowCss = css({
 	display: "flex",
 	alignItems: "center",
-	padding: "4px 16px 8px",
+	padding: "4px 0",
 	fontFamily: "'Courier New', monospace",
 	fontSize: 13,
 	gap: 4,
-	flexShrink: 0,
 });
 
 const inputCss = css({
@@ -640,55 +639,53 @@ export function TutorialTip() {
 				</button>
 			</div>
 
-			{/* Scrollable log */}
+			{/* Scrollable log + prompt (prompt inside scroll area) */}
 			<div
 				ref={logRef}
 				css={logCss}
 				style={{ background: theme.panelBg, color: theme.textMuted }}
 				onScroll={handleScroll}
-			>
-				<ShellLineRenderer lines={terminalLog} theme={theme} />
-			</div>
-
-			{/* New content indicator */}
-			{hasNew && (
-				<div
-					css={newIndicatorCss}
-					style={{ background: theme.accent, color: theme.background }}
-					onClick={scrollToBottom}
-					onKeyDown={(e) => e.key === "Enter" && scrollToBottom()}
-					role="button"
-					tabIndex={0}
-				>
-					{"↓ new"}
-				</div>
-			)}
-
-			{/* Prompt + input */}
-			<div
-				css={inputRowCss}
-				style={{
-					background: theme.panelBg,
-					color: theme.foreground,
-					borderTop: `1px solid ${theme.border}`,
-				}}
 				onClick={() => inputRef.current?.focus()}
 				onKeyDown={() => {}}
 				role="textbox"
 				tabIndex={-1}
 			>
-				<PromptDisplay />
-				<span style={{ color: theme.success, marginLeft: 4 }}>{"$ "}</span>
-				<input
-					ref={inputRef}
-					css={inputCss}
-					style={{ color: theme.foreground }}
-					value={input}
-					onChange={(e) => setInput(e.target.value)}
-					onKeyDown={handleKeyDown}
-					spellCheck={false}
-					autoComplete="off"
-				/>
+				<ShellLineRenderer lines={terminalLog} theme={theme} />
+
+				{/* New content indicator */}
+				{hasNew && (
+					<div
+						css={newIndicatorCss}
+						style={{ background: theme.accent, color: theme.background }}
+						onClick={scrollToBottom}
+						onKeyDown={(e) => e.key === "Enter" && scrollToBottom()}
+						role="button"
+						tabIndex={0}
+					>
+						{"↓ new"}
+					</div>
+				)}
+
+				{/* Prompt + input — inside the scroll area, right after content */}
+				<div
+					css={inputRowCss}
+					style={{
+						color: theme.foreground,
+					}}
+				>
+					<PromptDisplay />
+					<span style={{ color: theme.success, marginLeft: 4 }}>{"$ "}</span>
+					<input
+						ref={inputRef}
+						css={inputCss}
+						style={{ color: theme.foreground }}
+						value={input}
+						onChange={(e) => setInput(e.target.value)}
+						onKeyDown={handleKeyDown}
+						spellCheck={false}
+						autoComplete="off"
+					/>
+				</div>
 			</div>
 		</div>
 	);
