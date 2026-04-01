@@ -740,123 +740,129 @@ export function runBalanceSim(
 
 		// ── Purchase AI ──
 		if (cfg.aiStrategy === AiStrategyEnum.greedy) {
-			// Greedy: buy cheapest affordable thing each tick
+			// Greedy: buy cheapest affordable, with human-like reaction delay
 			const PLANETARY_DC_CAP = 10;
+			// Human reaction: browse UI, find item, tap buy
+			const PURCHASE_COOLDOWN = 5 - cfg.skill * 2; // casual=3.8s, avg=3.4s, fast=3.1s
 			let boughtThisTick = false;
 
-			// Tech: buy all affordable (cheapest first, cascade)
-			for (let b = 0; b < 10; b++) {
-				let bought = false;
-				const availTech = techNodes.filter((n) => {
-					const owned = sim.ownedTech[n.id] ?? 0;
-					if (owned >= n.max) return false;
-					return n.requires.every((r) => (sim.ownedTech[r] ?? 0) > 0);
-				});
-				const affordable = availTech
-					.map((n) => {
-						const cost = getTechCost(n);
-						const useLoc = n.currency === "loc";
-						return { n, cost, useLoc };
-					})
-					.filter((x) =>
-						x.useLoc ? sim.totalLoc >= x.cost : sim.cash >= x.cost,
-					)
-					.sort((a, b) => a.cost - b.cost);
-
-				for (const { n, cost, useLoc } of affordable) {
-					if (useLoc) sim.loc -= Math.min(sim.loc, cost);
-					else sim.cash -= cost;
-					sim.ownedTech[n.id] = (sim.ownedTech[n.id] ?? 0) + 1;
-					recalcSimStats();
-					applyInstantEffects(n.effects);
-					purchaseCount++;
-					const isTier = n.effects.some((e) => e.type === "tierUnlock");
-					const isModel = n.effects.some((e) => e.type === "modelUnlock");
-					purchases.push({
-						time: t,
-						type: isTier
-							? PurchaseTypeEnum.tier
-							: isModel
-								? PurchaseTypeEnum.ai
-								: PurchaseTypeEnum.tech,
-						name: n.name,
-						cost,
-						currency: n.currency,
-						snapshot: capturePurchaseSnapshot(),
+			if (t - lastPurchaseTime < PURCHASE_COOLDOWN) {
+				// Still "thinking" — skip purchases this tick
+			} else {
+				// Tech: buy all affordable (cheapest first, cascade)
+				for (let b = 0; b < 10; b++) {
+					let bought = false;
+					const availTech = techNodes.filter((n) => {
+						const owned = sim.ownedTech[n.id] ?? 0;
+						if (owned >= n.max) return false;
+						return n.requires.every((r) => (sim.ownedTech[r] ?? 0) > 0);
 					});
-					bought = true;
-					boughtThisTick = true;
-					break;
+					const affordable = availTech
+						.map((n) => {
+							const cost = getTechCost(n);
+							const useLoc = n.currency === "loc";
+							return { n, cost, useLoc };
+						})
+						.filter((x) =>
+							x.useLoc ? sim.totalLoc >= x.cost : sim.cash >= x.cost,
+						)
+						.sort((a, b) => a.cost - b.cost);
+
+					for (const { n, cost, useLoc } of affordable) {
+						if (useLoc) sim.loc -= Math.min(sim.loc, cost);
+						else sim.cash -= cost;
+						sim.ownedTech[n.id] = (sim.ownedTech[n.id] ?? 0) + 1;
+						recalcSimStats();
+						applyInstantEffects(n.effects);
+						purchaseCount++;
+						const isTier = n.effects.some((e) => e.type === "tierUnlock");
+						const isModel = n.effects.some((e) => e.type === "modelUnlock");
+						purchases.push({
+							time: t,
+							type: isTier
+								? PurchaseTypeEnum.tier
+								: isModel
+									? PurchaseTypeEnum.ai
+									: PurchaseTypeEnum.tech,
+							name: n.name,
+							cost,
+							currency: n.currency,
+							snapshot: capturePurchaseSnapshot(),
+						});
+						bought = true;
+						boughtThisTick = true;
+						break;
+					}
+					if (!bought) break;
 				}
-				if (!bought) break;
-			}
 
-			// Upgrades: buy cheapest affordable (cap planetary_datacenter)
-			for (let b = 0; b < 5; b++) {
-				const avail = upgrades
-					.filter((u) => {
-						const tier = tiers.find((t2) => t2.id === u.tier);
-						if (!tier || tier.index > sim.currentTier) return false;
-						const owned = sim.owned[u.id] ?? 0;
-						if (owned >= getEffMax(u)) return false;
-						if (u.id === "planetary_datacenter" && owned >= PLANETARY_DC_CAP)
-							return false;
-						return true;
-					})
-					.map((u) => ({ u, cost: getCost(u) }))
-					.filter((x) => x.cost <= sim.cash)
-					.sort((a, b) => a.cost - b.cost);
+				// Upgrades: buy cheapest affordable (cap planetary_datacenter)
+				for (let b = 0; b < 5; b++) {
+					const avail = upgrades
+						.filter((u) => {
+							const tier = tiers.find((t2) => t2.id === u.tier);
+							if (!tier || tier.index > sim.currentTier) return false;
+							const owned = sim.owned[u.id] ?? 0;
+							if (owned >= getEffMax(u)) return false;
+							if (u.id === "planetary_datacenter" && owned >= PLANETARY_DC_CAP)
+								return false;
+							return true;
+						})
+						.map((u) => ({ u, cost: getCost(u) }))
+						.filter((x) => x.cost <= sim.cash)
+						.sort((a, b) => a.cost - b.cost);
 
-				if (avail.length === 0) break;
-				const { u, cost } = avail[0];
-				sim.cash -= cost;
-				sim.owned[u.id] = (sim.owned[u.id] ?? 0) + 1;
-				recalcSimStats();
-				applyInstantEffects(u.effects);
-				purchases.push({
-					time: t,
-					type: PurchaseTypeEnum.upgrade,
-					name: u.name,
-					cost,
-					currency: "cash",
-					snapshot: capturePurchaseSnapshot(),
-				});
-				purchaseCount++;
-				boughtThisTick = true;
-			}
-
-			// AI models: buy cheapest affordable
-			if (sim.currentTier >= 4) {
-				const availModels = aiModels.filter((m) => {
-					if (sim.ownedModels[m.id]) return false;
-					if (m.requires && !sim.ownedModels[m.requires]) return false;
-					const gateNode = techGatedModels[m.id];
-					if (gateNode && !(sim.ownedTech[gateNode] ?? 0)) return false;
-					return m.cost <= sim.cash;
-				});
-				const cheapest = availModels.sort((a, b) => a.cost - b.cost)[0];
-				if (cheapest) {
-					sim.cash -= cheapest.cost;
-					sim.ownedModels[cheapest.id] = true;
+					if (avail.length === 0) break;
+					const { u, cost } = avail[0];
+					sim.cash -= cost;
+					sim.owned[u.id] = (sim.owned[u.id] ?? 0) + 1;
 					recalcSimStats();
+					applyInstantEffects(u.effects);
 					purchases.push({
 						time: t,
-						type: PurchaseTypeEnum.ai,
-						name: `${cheapest.name} ${cheapest.version}`,
-						cost: cheapest.cost,
+						type: PurchaseTypeEnum.upgrade,
+						name: u.name,
+						cost,
 						currency: "cash",
 						snapshot: capturePurchaseSnapshot(),
 					});
 					purchaseCount++;
 					boughtThisTick = true;
 				}
-			}
 
-			if (boughtThisTick) {
-				const wait = t - lastPurchaseTime;
-				if (wait > longestWait) longestWait = wait;
-				lastPurchaseTime = t;
-			}
+				// AI models: buy cheapest affordable
+				if (sim.currentTier >= 4) {
+					const availModels = aiModels.filter((m) => {
+						if (sim.ownedModels[m.id]) return false;
+						if (m.requires && !sim.ownedModels[m.requires]) return false;
+						const gateNode = techGatedModels[m.id];
+						if (gateNode && !(sim.ownedTech[gateNode] ?? 0)) return false;
+						return m.cost <= sim.cash;
+					});
+					const cheapest = availModels.sort((a, b) => a.cost - b.cost)[0];
+					if (cheapest) {
+						sim.cash -= cheapest.cost;
+						sim.ownedModels[cheapest.id] = true;
+						recalcSimStats();
+						purchases.push({
+							time: t,
+							type: PurchaseTypeEnum.ai,
+							name: `${cheapest.name} ${cheapest.version}`,
+							cost: cheapest.cost,
+							currency: "cash",
+							snapshot: capturePurchaseSnapshot(),
+						});
+						purchaseCount++;
+						boughtThisTick = true;
+					}
+				}
+
+				if (boughtThisTick) {
+					const wait = t - lastPurchaseTime;
+					if (wait > longestWait) longestWait = wait;
+					lastPurchaseTime = t;
+				}
+			} // end cooldown else
 		} else {
 			// ── Balanced: value-based purchase AI ──
 
