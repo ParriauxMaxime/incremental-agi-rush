@@ -973,9 +973,21 @@ export const useGameStore = create<GameState & GameActions>()(
 				autoArbitrageEnabled: state.autoArbitrageEnabled,
 				reachedMilestones: state.reachedMilestones,
 				editorStreamingMode: state.editorStreamingMode,
+				tierTransitions: state.tierTransitions,
+				purchaseLog: state.purchaseLog,
+				/** Persist elapsed seconds so the session timer survives reload */
+				_savedElapsed: (performance.now() - state.sessionStartTime) / 1000,
 			}),
 			onRehydrateStorage: () => (state) => {
-				if (state) recalcDerivedStats(state);
+				if (state) {
+					// Restore sessionStartTime from persisted elapsed time
+					const saved = (state as unknown as Record<string, unknown>)
+						._savedElapsed as number | undefined;
+					if (saved != null && saved > 0) {
+						state.sessionStartTime = performance.now() - saved * 1000;
+					}
+					recalcDerivedStats(state);
+				}
 			},
 		},
 	),
