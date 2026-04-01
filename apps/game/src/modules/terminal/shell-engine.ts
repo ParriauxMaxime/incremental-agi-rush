@@ -10,7 +10,7 @@ import {
 	cmdResearch,
 	cmdStatus,
 } from "./commands/game-actions";
-import { cmdCat, cmdCd, cmdLs, cmdPwd, cmdTree } from "./commands/nav";
+import { cmdCat, cmdCd, cmdLl, cmdLs, cmdPwd, cmdTree } from "./commands/nav";
 import {
 	cmdClear,
 	cmdFind,
@@ -49,6 +49,7 @@ type CommandFn = (
 
 const COMMANDS: Record<string, CommandFn> = {
 	ls: cmdLs,
+	ll: cmdLl,
 	cd: cmdCd,
 	cat: cmdCat,
 	pwd: cmdPwd,

@@ -5,6 +5,7 @@ import { listChildren } from "./virtual-fs";
 
 const COMMANDS = [
 	"ls",
+	"ll",
 	"cd",
 	"cat",
 	"pwd",
@@ -22,7 +23,7 @@ const COMMANDS = [
 ];
 
 /** Path-completing commands */
-const PATH_COMMANDS = new Set(["ls", "cd", "cat", "tree", "grep"]);
+const PATH_COMMANDS = new Set(["ls", "ll", "cd", "cat", "tree", "grep"]);
 
 export function autocomplete(
 	input: string,

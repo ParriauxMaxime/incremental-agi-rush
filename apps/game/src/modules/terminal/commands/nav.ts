@@ -46,6 +46,56 @@ export function cmdLs(
 	return { lines };
 }
 
+/** ls -l style: one entry per line with type indicator and content count */
+export function cmdLl(
+	args: string[],
+	cwd: string,
+	root: FsNode,
+): CommandResult {
+	const target = args[0] ?? ".";
+	const node = resolvePath(root, cwd, target);
+	if (!node) {
+		return {
+			lines: [
+				{
+					type: ShellLineTypeEnum.error,
+					text: `ll: cannot access '${target}': No such file or directory`,
+				},
+			],
+		};
+	}
+	if (node.kind === FsNodeKindEnum.file) {
+		const lineCount = node.content?.length ?? 0;
+		return {
+			lines: [
+				{
+					type: ShellLineTypeEnum.file,
+					text: `  -rw-r--r--  ${String(lineCount).padStart(3)} lines  ${node.name}`,
+				},
+			],
+		};
+	}
+	if (!node.children || node.children.length === 0) {
+		return { lines: [] };
+	}
+	const sorted = [...node.children].sort((a, b) => {
+		if (a.kind !== b.kind) return a.kind === FsNodeKindEnum.dir ? -1 : 1;
+		return a.name.localeCompare(b.name);
+	});
+	const lines: ShellLine[] = [];
+	for (const child of sorted) {
+		const isDir = child.kind === FsNodeKindEnum.dir;
+		const count = isDir
+			? `${child.children?.length ?? 0} items`
+			: `${String(child.content?.length ?? 0).padStart(3)} lines`;
+		lines.push({
+			type: isDir ? ShellLineTypeEnum.dir : ShellLineTypeEnum.file,
+			text: `  ${isDir ? "drwxr-xr-x" : "-rw-r--r--"}  ${count.padStart(8)}  ${child.name}`,
+		});
+	}
+	return { lines };
+}
+
 export function cmdCd(
 	args: string[],
 	cwd: string,

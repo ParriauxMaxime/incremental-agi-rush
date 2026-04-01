@@ -4,6 +4,7 @@ import { resolvePath } from "../virtual-fs";
 
 const COMMAND_HELP: Record<string, { usage: string; desc: string }> = {
 	ls: { usage: "ls [path]", desc: "List directory contents" },
+	ll: { usage: "ll [path]", desc: "Detailed list with permissions and sizes" },
 	cd: { usage: "cd <path>", desc: "Change directory" },
 	cat: { usage: "cat <file>", desc: "Display file contents" },
 	pwd: { usage: "pwd", desc: "Print working directory" },
