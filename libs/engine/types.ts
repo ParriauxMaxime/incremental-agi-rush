@@ -266,4 +266,11 @@ export interface SimData {
 			}>;
 		}>;
 	};
+	milestones: Array<{
+		id: string;
+		name: string;
+		threshold: number;
+		metric: string;
+		cashBonus?: number;
+	}>;
 }

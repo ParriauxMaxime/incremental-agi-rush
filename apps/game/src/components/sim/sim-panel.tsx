@@ -4,6 +4,7 @@ import {
 	aiModelsJson,
 	balanceJson,
 	eventsJson,
+	milestonesJson,
 	techTreeJson,
 	tiersJson,
 	upgradesJson,
@@ -29,6 +30,7 @@ const bundledData: SimData = {
 	techTree: techTreeJson as SimData["techTree"],
 	tiers: tiersJson as SimData["tiers"],
 	upgrades: upgradesJson as SimData["upgrades"],
+	milestones: milestonesJson.milestones as SimData["milestones"],
 };
 
 function runBalanceSim(config?: Partial<SimConfig>) {

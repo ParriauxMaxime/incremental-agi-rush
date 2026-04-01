@@ -269,7 +269,7 @@
 		"maxPurchases": 600,
 		"minTiers": 6,
 		"tierMinDuration": {
-			"garage": 30,
+			"garage": 15,
 			"freelancing": 60,
 			"startup": 120,
 			"tech_company": 150,

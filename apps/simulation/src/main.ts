@@ -2,6 +2,7 @@ import {
 	aiModelsJson,
 	balanceJson,
 	eventsJson,
+	milestonesJson,
 	techTreeJson,
 	tiers,
 	tiersJson,
@@ -79,6 +80,7 @@ const simData: SimData = {
 	techTree: techTreeJson as unknown as SimData["techTree"],
 	tiers: tiersJson as unknown as SimData["tiers"],
 	upgrades: upgradesJson as unknown as SimData["upgrades"],
+	milestones: milestonesJson.milestones as SimData["milestones"],
 };
 
 // ── Run simulation and validate ──

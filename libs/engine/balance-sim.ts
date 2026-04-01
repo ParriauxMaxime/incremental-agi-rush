@@ -59,6 +59,7 @@ export function runBalanceSim(
 	const upgrades = data.upgrades.upgrades as UpgradeData[];
 	const techNodes = data.techTree.nodes as TechNodeData[];
 	const aiModels: AiModel[] = data.aiModels;
+	const milestones = data.milestones;
 	const { core } = data.balance;
 
 	const sim = {
@@ -116,6 +117,7 @@ export function runBalanceSim(
 		autoArbitrageEnabled: false,
 		flopSlider: 0.7,
 		manualExecCooldown: 0,
+		reachedMilestones: new Set<string>(),
 	};
 
 	// ── Event simulation state ──
@@ -745,6 +747,21 @@ export function runBalanceSim(
 			}
 		}
 		sim.loc = Math.max(0, sim.loc);
+
+		// ── Milestone cash bonuses ──
+		for (const m of milestones) {
+			if (sim.reachedMilestones.has(m.id)) continue;
+			let reached = false;
+			if (m.metric === "totalLoc") reached = sim.totalLoc >= m.threshold;
+			if (m.metric === "totalCash") reached = sim.totalCash >= m.threshold;
+			if (reached) {
+				sim.reachedMilestones.add(m.id);
+				if (m.cashBonus) {
+					sim.cash += m.cashBonus;
+					sim.totalCash += m.cashBonus;
+				}
+			}
+		}
 
 		// ── Research tech nodes ──
 		for (let b = 0; b < 5; b++) {
