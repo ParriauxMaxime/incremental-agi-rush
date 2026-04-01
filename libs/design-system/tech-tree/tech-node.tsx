@@ -215,8 +215,10 @@ export function TechNodeComponent({ data, selected }: NodeProps) {
 				cursor: style.cursor,
 				opacity: style.opacity,
 				filter: style.filter,
-				transition: "opacity 0.2s, border-color 0.2s, filter 0.2s",
+				transition:
+					"opacity 0.2s, border-color 0.2s, filter 0.2s, box-shadow 0.2s",
 				position: "relative",
+				boxShadow: `0 1px 3px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.26), inset 0 1px 0 rgba(255,255,255,0.04)`,
 			})}
 		>
 			<Handle type="target" position={Position.Top} id="top" />
