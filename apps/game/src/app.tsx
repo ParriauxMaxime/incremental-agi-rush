@@ -147,7 +147,7 @@ function SectionHeading({ children }: { children: React.ReactNode }) {
 	);
 }
 
-declare const __GIT_SHA__: string;
+declare const __GIT_SHA__: string | undefined;
 
 function SettingsPage() {
 	const { t, i18n } = useTranslation();
@@ -443,7 +443,7 @@ function SettingsPage() {
 					fontFamily: "'Courier New', monospace",
 				}}
 			>
-				{__GIT_SHA__}
+				{typeof __GIT_SHA__ !== "undefined" ? __GIT_SHA__ : "dev"}
 			</div>
 		</div>
 	);

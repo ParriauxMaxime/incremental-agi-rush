@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./i18n";
 import { App } from "./app";
 
-declare const __BUILD_HASH__: string;
+declare const __BUILD_HASH__: string | undefined;
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Root element not found");
@@ -15,5 +15,6 @@ createRoot(root).render(
 );
 
 if ("serviceWorker" in navigator && location.hostname !== "localhost") {
-	navigator.serviceWorker.register(`/sw.js?v=${__BUILD_HASH__}`);
+	const v = typeof __BUILD_HASH__ !== "undefined" ? __BUILD_HASH__ : "0";
+	navigator.serviceWorker.register(`/sw.js?v=${v}`);
 }
