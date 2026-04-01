@@ -340,6 +340,7 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 	const openTabs = useUiStore((s) => s.openTabs);
 	const rightOpenTabs = useUiStore((s) => s.rightOpenTabs);
 	const splitEnabled = useUiStore((s) => s.splitEnabled);
+	const rightPage = useUiStore((s) => s.rightPage);
 	const openInActivePane = useUiStore((s) => s.openInActivePane);
 	const currentTierIndex = useGameStore((s) => s.currentTierIndex);
 	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
@@ -353,7 +354,6 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 		...openTabs,
 		...(splitEnabled ? rightOpenTabs : []),
 	]);
-	const openEditorFiles = allPageFiles.filter((f) => allOpenPages.has(f.page));
 	const { t } = useTranslation();
 	const theme = useIdeTheme();
 	const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
@@ -425,53 +425,98 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 					{`.sidebar-scroll::-webkit-scrollbar-thumb { background: ${theme.border}; border-radius: 3px; }`}
 				</style>
 				{/* Open Editors */}
-				{openEditorFiles.length > 0 && (
-					<>
-						<div css={sectionHeaderBaseCss} style={{ color: theme.textMuted }}>
-							&#9662; {t("sidebar.open_editors")}
-						</div>
-						{openEditorFiles.map((f) => {
-							const active = f.page === page;
-							return (
-								<div
-									key={f.page}
+				{(() => {
+					const leftFiles = allPageFiles.filter((f) =>
+						openTabs.includes(f.page),
+					);
+					const rightFiles = splitEnabled
+						? allPageFiles.filter((f) => rightOpenTabs.includes(f.page))
+						: [];
+					if (leftFiles.length === 0 && rightFiles.length === 0) return null;
+
+					const renderEditorFile = (f: FileEntry, activePage: PageEnum) => {
+						const active = f.page === activePage;
+						return (
+							<div
+								key={f.page}
+								css={{
+									padding: "2px 8px 2px 28px",
+									display: "flex",
+									alignItems: "center",
+									gap: 6,
+									fontSize: 13,
+									height: 22,
+									cursor: "pointer",
+									background: active ? theme.activeBg : "transparent",
+									color: active ? theme.foreground : theme.textMuted,
+									"&:hover": {
+										background: theme.activeBg,
+										color: theme.foreground,
+									},
+								}}
+								onClick={() => openInActivePane(f.page)}
+								onKeyDown={(e) => {
+									if (e.key === "Enter") openInActivePane(f.page);
+								}}
+								role="button"
+								tabIndex={0}
+							>
+								<span
 									css={{
-										padding: "2px 8px 2px 28px",
-										display: "flex",
-										alignItems: "center",
-										gap: 6,
-										fontSize: 13,
-										height: 22,
-										cursor: "pointer",
-										background: active ? theme.activeBg : "transparent",
-										color: active ? theme.foreground : theme.textMuted,
-										"&:hover": {
-											background: theme.activeBg,
-											color: theme.foreground,
-										},
+										width: 6,
+										height: 6,
+										borderRadius: "50%",
+										background: f.dotColor,
+										flexShrink: 0,
 									}}
-									onClick={() => openInActivePane(f.page)}
-									onKeyDown={(e) => {
-										if (e.key === "Enter") openInActivePane(f.page);
-									}}
-									role="button"
-									tabIndex={0}
-								>
-									<span
+								/>
+								{f.folder ? `${f.folder}/${f.filename}` : f.filename}
+							</div>
+						);
+					};
+
+					return (
+						<>
+							<div
+								css={sectionHeaderBaseCss}
+								style={{ color: theme.textMuted }}
+							>
+								&#9662; {t("sidebar.open_editors")}
+							</div>
+							{!splitEnabled && leftFiles.map((f) => renderEditorFile(f, page))}
+							{splitEnabled && (
+								<>
+									<div
 										css={{
-											width: 6,
-											height: 6,
-											borderRadius: "50%",
-											background: f.dotColor,
-											flexShrink: 0,
+											padding: "2px 8px 2px 16px",
+											fontSize: 10,
+											color: theme.textMuted,
+											textTransform: "uppercase",
+											letterSpacing: 0.5,
+											marginTop: 2,
 										}}
-									/>
-									{f.filename}
-								</div>
-							);
-						})}
-					</>
-				)}
+									>
+										Left
+									</div>
+									{leftFiles.map((f) => renderEditorFile(f, page))}
+									<div
+										css={{
+											padding: "2px 8px 2px 16px",
+											fontSize: 10,
+											color: theme.textMuted,
+											textTransform: "uppercase",
+											letterSpacing: 0.5,
+											marginTop: 4,
+										}}
+									>
+										Right
+									</div>
+									{rightFiles.map((f) => renderEditorFile(f, rightPage))}
+								</>
+							)}
+						</>
+					);
+				})()}
 
 				{/* All files — grouped by folder */}
 				{(() => {
