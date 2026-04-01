@@ -28,6 +28,35 @@ import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 import { useIsMobile } from "../hooks/use-is-mobile";
 
+// ── Color helpers ──
+
+function parseHex(hex: string): [number, number, number] {
+	const h = hex.replace("#", "");
+	return [
+		Number.parseInt(h.slice(0, 2), 16),
+		Number.parseInt(h.slice(2, 4), 16),
+		Number.parseInt(h.slice(4, 6), 16),
+	];
+}
+
+function isLightColor(hex: string): boolean {
+	const [r, g, b] = parseHex(hex);
+	// Relative luminance approximation
+	return (r * 299 + g * 587 + b * 114) / 1000 > 128;
+}
+
+function lighten(hex: string, amount: number): string {
+	const [r, g, b] = parseHex(hex);
+	const clamp = (v: number) => Math.min(255, Math.max(0, Math.round(v)));
+	return `#${[r, g, b]
+		.map((c) =>
+			clamp(c + (255 - c) * amount)
+				.toString(16)
+				.padStart(2, "0"),
+		)
+		.join("")}`;
+}
+
 // ── Node types ──
 
 const nodeTypes = { techNode: TechNodeComponent };
@@ -406,17 +435,20 @@ export function TechTreePage() {
 	const cachedNodes = useRef<Node[]>([]);
 	const prevOwned = useRef(ownedTechNodes);
 
-	const nodeTheme = useMemo(
-		(): TechNodeTheme => ({
-			nodeBg: theme.panelBg,
-			nodeBgLocked: theme.background,
+	const nodeTheme = useMemo((): TechNodeTheme => {
+		// Detect light theme: if background luminance is high, cards should be
+		// lighter (white-ish); if dark, cards should be slightly lighter than bg.
+		const bg = theme.background;
+		const isLight = isLightColor(bg);
+		return {
+			nodeBg: isLight ? lighten(bg, 0.5) : lighten(bg, 0.08),
+			nodeBgLocked: isLight ? theme.sidebarBg : theme.background,
 			nodeBorder: theme.border,
 			nameColor: theme.foreground,
 			effectColor: theme.success,
 			badgeColor: theme.textMuted,
-		}),
-		[theme],
-	);
+		};
+	}, [theme]);
 
 	const flowNodes = useMemo(() => {
 		const now = Date.now();
