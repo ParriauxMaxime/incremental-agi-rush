@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { ShellLine } from "../../terminal/types";
 
 export const PageEnum = {
 	game: "game",
@@ -36,7 +37,7 @@ interface UiState {
 	rightPage: PageEnum;
 	editorTheme: EditorThemeEnum;
 	seenTips: string[];
-	terminalLog: string[];
+	terminalLog: ShellLine[];
 	terminalOpen: boolean;
 	techTreeViewport: TechTreeViewport;
 	uiZoom: number;
@@ -51,8 +52,7 @@ interface UiState {
 	setEditorTheme: (theme: EditorThemeEnum) => void;
 	setUiZoom: (size: number) => void;
 	showTip: (id: string) => void;
-	pushTerminalLine: (line: string) => void;
-	resolveLoadingLine: (replacement: string) => void;
+	pushTerminalLines: (lines: ShellLine[]) => void;
 	resetAll: () => void;
 	setTechTreeViewport: (viewport: TechTreeViewport) => void;
 }
@@ -91,22 +91,11 @@ export const useUiStore = create<UiState>()(
 				if (seenTips.includes(id)) return;
 				set({ seenTips: [...seenTips, id] });
 			},
-			pushTerminalLine: (line) => {
+			pushTerminalLines: (lines) =>
 				set((s) => ({
-					terminalLog: [...s.terminalLog, line],
+					terminalLog: [...s.terminalLog, ...lines],
 					terminalOpen: true,
-				}));
-			},
-			resolveLoadingLine: (replacement) => {
-				set((s) => {
-					const log = [...s.terminalLog];
-					const idx = log.findIndex((l) => l.startsWith("$ loading "));
-					if (idx >= 0) {
-						log[idx] = replacement;
-					}
-					return { terminalLog: log };
-				});
-			},
+				})),
 			resetAll: () => {
 				set({
 					seenTips: [],
@@ -139,8 +128,6 @@ export const useUiStore = create<UiState>()(
 				editorTheme: state.editorTheme,
 				uiZoom: state.uiZoom,
 				seenTips: state.seenTips,
-				terminalLog: state.terminalLog,
-				terminalOpen: state.terminalOpen,
 			}),
 		},
 	),
