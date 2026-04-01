@@ -3,11 +3,13 @@ import { useGameStore } from "@modules/game";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
-import { StatsPanelGraphs } from "./stats-panel-graphs";
-import { StatsPanelResources } from "./stats-panel-resources";
-import { StatsPanelTimeline } from "./stats-panel-timeline";
-
-// ── Layout-only styles (no colors) ──
+import { StatsCashSection } from "./stats-cash-section";
+import { StatsExecuteBar } from "./stats-execute-bar";
+import { StatsFlopsSection } from "./stats-flops-section";
+import { StatsHistory } from "./stats-history";
+import { StatsLocSection } from "./stats-loc-section";
+import { StatsTierBar } from "./stats-tier-bar";
+import { StatsTokensSection } from "./stats-tokens-section";
 
 const panelCss = css({
 	display: "flex",
@@ -24,28 +26,27 @@ const headerCss = css({
 	display: "flex",
 	alignItems: "center",
 	gap: 8,
-	fontSize: 11,
+	fontSize: 12,
 	fontWeight: 600,
 	textTransform: "uppercase",
 	letterSpacing: 0.5,
 	flexShrink: 0,
 });
 
+const bodyCss = css({
+	flex: 1,
+	overflowY: "auto",
+	overflowX: "hidden",
+	"&::-webkit-scrollbar": { width: 6 },
+	"&::-webkit-scrollbar-track": { background: "transparent" },
+	"&::-webkit-scrollbar-thumb": { borderRadius: 3 },
+});
+
 export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 	const { t } = useTranslation();
 	const theme = useIdeTheme();
-
-	const timelineUnlocked = useGameStore(
-		(s) => (s.ownedTechNodes.unlock_session_timeline ?? 0) > 0,
-	);
-	const graphsUnlocked = useGameStore(
-		(s) => (s.ownedTechNodes.unlock_perf_graphs ?? 0) > 0,
-	);
 	const sessionStartTime = useGameStore((s) => s.sessionStartTime);
 
-	const [activeTab, setActiveTab] = useState<
-		"resources" | "timeline" | "graphs"
-	>("resources");
 	const [elapsed, setElapsed] = useState(0);
 
 	useEffect(() => {
@@ -74,13 +75,13 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 					color: theme.textMuted,
 				}}
 			>
-				<span style={{ fontSize: 13 }}>⚡</span>
-				<span css={{ flex: 1 }}>{t("stats_panel.title")}</span>
+				<span style={{ fontSize: 14, color: theme.flopsColor }}>⚡</span>
+				<span style={{ flex: 1 }}>{t("stats_panel.title")}</span>
 				<span
 					style={{
 						fontSize: 10,
 						background: theme.hoverBg,
-						padding: "1px 5px",
+						padding: "2px 6px",
 						borderRadius: 3,
 						fontWeight: 400,
 					}}
@@ -116,53 +117,23 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 				)}
 			</div>
 
-			{/* Inner tab bar (visible when timeline is unlocked) */}
-			{timelineUnlocked && (
-				<div
-					css={{
-						display: "flex",
-						flexShrink: 0,
-						borderBottom: `1px solid ${theme.border}`,
-						background: theme.tabBarBg,
-					}}
-				>
-					{[
-						"resources" as const,
-						"timeline" as const,
-						...(graphsUnlocked ? (["graphs"] as const) : ([] as const)),
-					].map((tab) => (
-						<button
-							key={tab}
-							type="button"
-							onClick={() => setActiveTab(tab)}
-							css={{
-								flex: 1,
-								padding: "6px 0",
-								fontSize: 11,
-								cursor: "pointer",
-								background:
-									activeTab === tab ? theme.background : "transparent",
-								color: activeTab === tab ? theme.foreground : theme.textMuted,
-								borderBottom:
-									activeTab === tab
-										? "2px solid #519aba"
-										: "2px solid transparent",
-								border: "none",
-								borderTop: "none",
-								fontFamily: "inherit",
-								"&:hover": { color: theme.foreground },
-							}}
-						>
-							{t(`stats_panel.tab_${tab}`)}
-						</button>
-					))}
-				</div>
-			)}
+			{/* Scrollable body */}
+			<div
+				css={[
+					bodyCss,
+					{ "&::-webkit-scrollbar-thumb": { background: theme.border } },
+				]}
+			>
+				<StatsCashSection />
+				<StatsLocSection />
+				<StatsTokensSection />
+				<StatsFlopsSection />
+				<StatsTierBar />
+				<StatsHistory />
+			</div>
 
-			{/* Body */}
-			{activeTab === "resources" && <StatsPanelResources />}
-			{activeTab === "timeline" && <StatsPanelTimeline />}
-			{activeTab === "graphs" && <StatsPanelGraphs />}
+			{/* Sticky execute */}
+			<StatsExecuteBar />
 		</div>
 	);
 }
