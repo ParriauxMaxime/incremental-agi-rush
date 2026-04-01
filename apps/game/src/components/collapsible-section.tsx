@@ -95,7 +95,6 @@ export function CollapsibleSection({
 					cursor: collapsible ? "pointer" : "default",
 				}}
 				onClick={handleClick}
-				onKeyDown={undefined}
 			>
 				{collapsible ? (
 					<span

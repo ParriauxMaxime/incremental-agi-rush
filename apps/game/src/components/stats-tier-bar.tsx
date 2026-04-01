@@ -1,17 +1,23 @@
-import { css } from "@emotion/react";
+import { css, keyframes } from "@emotion/react";
+import { tierColors } from "@flopsed/design-system";
 import { useGameStore } from "@modules/game";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 
 const TIER_COLORS = [
-	"#6272a4",
-	"#8be9fd",
-	"#3fb950",
-	"#d19a66",
-	"#c678dd",
-	"#e94560",
+	tierColors.garage,
+	tierColors.freelancing,
+	tierColors.startup,
+	tierColors.tech_company,
+	tierColors.ai_lab,
+	tierColors.agi_race,
 ];
+
+const tierPulse = keyframes({
+	"0%, 100%": { opacity: 1 },
+	"50%": { opacity: 0.5 },
+});
 
 const barCss = css({
 	display: "flex",
@@ -83,7 +89,7 @@ export function StatsTierBar() {
 								background: TIER_COLORS[td.tierIndex],
 								color: td.tierIndex <= 1 ? "#c9d1d9" : "rgba(0,0,0,0.7)",
 								...(isLast
-									? { animation: "tier-pulse 2s ease-in-out infinite" }
+									? { animation: `${tierPulse} 2s ease-in-out infinite` }
 									: {}),
 							}}
 						>

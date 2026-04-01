@@ -32,7 +32,9 @@
 		"utilization": "загрузка",
 		"history": "История",
 		"no_purchases": "Покупок пока нет",
-		"exec_ai_split": "Распределение Exec / ИИ"
+		"exec_ai_split": "Распределение Exec / ИИ",
+		"exec_label": "Exec",
+		"ai_label": "ИИ"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} токенов",

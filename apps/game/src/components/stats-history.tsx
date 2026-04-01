@@ -1,16 +1,17 @@
 import { css } from "@emotion/react";
+import { tierColors } from "@flopsed/design-system";
 import { useGameStore } from "@modules/game";
 import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 
 const TIER_COLORS = [
-	"#6272a4",
-	"#8be9fd",
-	"#3fb950",
-	"#d19a66",
-	"#c678dd",
-	"#e94560",
+	tierColors.garage,
+	tierColors.freelancing,
+	tierColors.startup,
+	tierColors.tech_company,
+	tierColors.ai_lab,
+	tierColors.agi_race,
 ];
 
 const VISIBLE_COUNT = 5;

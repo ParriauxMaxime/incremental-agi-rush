@@ -32,7 +32,9 @@
 		"utilization": "利用率",
 		"history": "历史记录",
 		"no_purchases": "暂无购买记录",
-		"exec_ai_split": "执行 / AI 分配"
+		"exec_ai_split": "执行 / AI 分配",
+		"exec_label": "执行",
+		"ai_label": "AI"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} 代币",

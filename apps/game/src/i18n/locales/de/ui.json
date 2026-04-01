@@ -32,7 +32,9 @@
 		"utilization": "Auslastung",
 		"history": "Verlauf",
 		"no_purchases": "Noch keine Käufe",
-		"exec_ai_split": "Exec / KI-Zuteilung"
+		"exec_ai_split": "Exec / KI-Zuteilung",
+		"exec_label": "Exec",
+		"ai_label": "KI"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} Token",

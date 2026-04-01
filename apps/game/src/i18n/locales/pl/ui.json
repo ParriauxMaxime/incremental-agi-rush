@@ -32,7 +32,9 @@
 		"utilization": "wykorzystanie",
 		"history": "Historia",
 		"no_purchases": "Brak zakupów",
-		"exec_ai_split": "Przydział Exec / IA"
+		"exec_ai_split": "Przydział Exec / IA",
+		"exec_label": "Exec",
+		"ai_label": "IA"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} tokenów",

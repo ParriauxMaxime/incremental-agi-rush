@@ -177,7 +177,8 @@ export function StatsTokensSection() {
 						/>
 					</div>
 					<span css={sourceValueCss} style={{ color: s.color }}>
-						{formatNumber(s.tokenPerSec)}/s
+						{formatNumber(s.tokenPerSec)}
+						{t("stats_panel.per_sec")}
 					</span>
 				</div>
 			))}

@@ -1,9 +1,11 @@
 import { css } from "@emotion/react";
 import { useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
+import { useKeypressRate } from "../hooks/use-keypress-rate";
+import { useRatePerSec } from "../hooks/use-rate-per-sec";
 import { CollapsibleSection } from "./collapsible-section";
 import { RollingNumber } from "./rolling-number";
 import { Sparkline } from "./sparkline";
@@ -15,86 +17,6 @@ const SOURCE_COLORS = {
 	intern: "#8be9fd",
 	dev_team: "#3fb950",
 } as const;
-
-// ── Rate trackers (moved from stats-panel-resources) ──
-
-function useRatePerSec(value: number): number {
-	const valueRef = useRef(value);
-	valueRef.current = value;
-	const prevRef = useRef(value);
-	const [rate, setRate] = useState(0);
-
-	useEffect(() => {
-		const id = setInterval(() => {
-			setRate(Math.max(0, valueRef.current - prevRef.current));
-			prevRef.current = valueRef.current;
-		}, 1000);
-		return () => clearInterval(id);
-	}, []);
-
-	return rate;
-}
-
-const IGNORED_KEYS = new Set([
-	"Shift",
-	"Control",
-	"Alt",
-	"Meta",
-	"Tab",
-	"Escape",
-	"CapsLock",
-]);
-const HELD_CAP = 12;
-const IDLE_TIMEOUT = 3000;
-
-function useKeypressRate(): number {
-	const pressTimestamps = useRef<number[]>([]);
-	const heldRef = useRef(false);
-	const lastKeyTime = useRef(0);
-	const [rate, setRate] = useState(0);
-
-	useEffect(() => {
-		function onKeyDown(e: KeyboardEvent) {
-			if (IGNORED_KEYS.has(e.key)) return;
-			lastKeyTime.current = performance.now();
-			if (e.repeat) {
-				heldRef.current = true;
-			} else {
-				heldRef.current = false;
-				pressTimestamps.current.push(performance.now());
-			}
-		}
-		function onKeyUp() {
-			heldRef.current = false;
-		}
-
-		window.addEventListener("keydown", onKeyDown);
-		window.addEventListener("keyup", onKeyUp);
-
-		const id = setInterval(() => {
-			const now = performance.now();
-			if (now - lastKeyTime.current > IDLE_TIMEOUT) {
-				pressTimestamps.current.length = 0;
-				setRate(0);
-			} else if (heldRef.current) {
-				setRate(HELD_CAP);
-			} else {
-				const cutoff = now - IDLE_TIMEOUT;
-				const ts = pressTimestamps.current;
-				while (ts.length > 0 && ts[0] < cutoff) ts.shift();
-				setRate(ts.length / 3);
-			}
-		}, 500);
-
-		return () => {
-			window.removeEventListener("keydown", onKeyDown);
-			window.removeEventListener("keyup", onKeyUp);
-			clearInterval(id);
-		};
-	}, []);
-
-	return rate;
-}
 
 // ── Styles ──
 

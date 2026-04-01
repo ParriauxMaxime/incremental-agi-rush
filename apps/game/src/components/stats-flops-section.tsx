@@ -98,10 +98,10 @@ export function StatsFlopsSection() {
 					</div>
 					<div css={splitLegendCss}>
 						<span style={{ color: theme.success }}>
-							● Exec {formatNumber(execFlops)}
+							● {t("stats_panel.exec_label")} {formatNumber(execFlops)}
 						</span>
 						<span style={{ color: theme.flopsColor }}>
-							● AI {formatNumber(aiFlops)}
+							● {t("stats_panel.ai_label")} {formatNumber(aiFlops)}
 						</span>
 					</div>
 				</div>

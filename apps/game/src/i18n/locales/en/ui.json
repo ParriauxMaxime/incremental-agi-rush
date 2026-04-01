@@ -32,7 +32,9 @@
 		"utilization": "utilization",
 		"history": "History",
 		"no_purchases": "No purchases yet",
-		"exec_ai_split": "Exec / AI allocation"
+		"exec_ai_split": "Exec / AI allocation",
+		"exec_label": "Exec",
+		"ai_label": "AI"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} tokens",

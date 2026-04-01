@@ -1,26 +1,9 @@
 import { css } from "@emotion/react";
 import { tiers, useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
-import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
-
-function useRatePerSec(value: number): number {
-	const valueRef = useRef(value);
-	valueRef.current = value;
-	const prevRef = useRef(value);
-	const [rate, setRate] = useState(0);
-
-	useEffect(() => {
-		const id = setInterval(() => {
-			setRate(Math.max(0, valueRef.current - prevRef.current));
-			prevRef.current = valueRef.current;
-		}, 1000);
-		return () => clearInterval(id);
-	}, []);
-
-	return rate;
-}
+import { useRatePerSec } from "../hooks/use-rate-per-sec";
 
 const wrapCss = css({
 	display: "flex",
