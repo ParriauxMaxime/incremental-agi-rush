@@ -70,7 +70,7 @@ export function StatsTierBar() {
 					fontSize: 10,
 					textTransform: "uppercase",
 					letterSpacing: 0.5,
-					color: theme.lineNumbers,
+					color: theme.textMuted,
 					marginBottom: 6,
 				}}
 			>

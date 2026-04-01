@@ -98,7 +98,7 @@ export function CollapsibleSection({
 					<span
 						css={chevronCss}
 						style={{
-							color: theme.lineNumbers,
+							color: theme.textMuted,
 							transform: open ? "rotate(90deg)" : "none",
 						}}
 					>

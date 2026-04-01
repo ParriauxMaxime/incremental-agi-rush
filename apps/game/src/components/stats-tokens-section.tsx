@@ -147,7 +147,7 @@ export function StatsTokensSection() {
 				<span style={{ color: theme.flopsColor }}>
 					⚡ {formatNumber(aiFlops)}
 				</span>
-				<span style={{ color: theme.lineNumbers }}>/</span>
+				<span style={{ color: theme.textMuted }}>/</span>
 				<span
 					style={{
 						color:

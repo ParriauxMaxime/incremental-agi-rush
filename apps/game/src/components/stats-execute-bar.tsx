@@ -135,7 +135,7 @@ export function StatsExecuteBar() {
 				css={toggleTrackCss}
 				onClick={toggleAutoExecute}
 				style={{
-					background: autoExec ? theme.success : theme.lineNumbers,
+					background: autoExec ? theme.success : theme.textMuted,
 				}}
 			>
 				<span css={toggleThumbCss} style={{ left: autoExec ? 16 : 2 }} />

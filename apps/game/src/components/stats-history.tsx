@@ -127,12 +127,12 @@ export function StatsHistory() {
 					<span style={{ color: TIER_COLORS[entry.tier], fontWeight: 600 }}>
 						t{entry.tier}
 					</span>
-					<span style={{ color: theme.lineNumbers }}>{entry.sha.slice(2)}</span>
+					<span style={{ color: theme.textMuted }}>{entry.sha.slice(2)}</span>
 				</span>
 				<span css={nameCss} style={{ color: theme.foreground }}>
 					{entry.name}
 				</span>
-				<span css={timeCss} style={{ color: theme.lineNumbers }}>
+				<span css={timeCss} style={{ color: theme.textMuted }}>
 					{formatAgo(entry.ago)}
 				</span>
 			</div>
@@ -159,7 +159,7 @@ export function StatsHistory() {
 						fontSize: 10,
 						textTransform: "uppercase",
 						letterSpacing: 0.5,
-						color: theme.lineNumbers,
+						color: theme.textMuted,
 						marginBottom: 8,
 					}}
 				>
@@ -167,7 +167,7 @@ export function StatsHistory() {
 				</div>
 				<div
 					style={{
-						color: theme.lineNumbers,
+						color: theme.textMuted,
 						fontStyle: "italic",
 						textAlign: "center",
 						padding: "12px 0",
@@ -195,7 +195,7 @@ export function StatsHistory() {
 								fontSize: 10,
 								textTransform: "uppercase",
 								letterSpacing: 0.5,
-								color: theme.lineNumbers,
+								color: theme.textMuted,
 								marginBottom: 8,
 							}
 				}
@@ -204,7 +204,7 @@ export function StatsHistory() {
 					<span
 						css={chevronCss}
 						style={{
-							color: theme.lineNumbers,
+							color: theme.textMuted,
 							transform: expanded ? "rotate(90deg)" : "none",
 						}}
 					>
@@ -216,7 +216,7 @@ export function StatsHistory() {
 						fontSize: 10,
 						textTransform: "uppercase",
 						letterSpacing: 0.5,
-						color: theme.lineNumbers,
+						color: theme.textMuted,
 					}}
 				>
 					{t("stats_panel.history", { defaultValue: "History" })}
@@ -247,7 +247,7 @@ export function StatsHistory() {
 						<div
 							style={{
 								marginLeft: 5,
-								color: theme.lineNumbers,
+								color: theme.textMuted,
 								fontSize: 13,
 							}}
 						>

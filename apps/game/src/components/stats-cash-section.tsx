@@ -45,7 +45,7 @@ export function StatsCashSection() {
 							display: "flex",
 							justifyContent: "space-between",
 							fontSize: 10,
-							color: theme.lineNumbers,
+							color: theme.textMuted,
 							marginBottom: 4,
 						}}
 					>

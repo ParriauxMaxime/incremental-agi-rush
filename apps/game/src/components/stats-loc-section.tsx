@@ -175,7 +175,7 @@ export function StatsLocSection() {
 							display: "flex",
 							justifyContent: "space-between",
 							fontSize: 10,
-							color: theme.lineNumbers,
+							color: theme.textMuted,
 							marginBottom: 4,
 						}}
 					>
@@ -184,7 +184,7 @@ export function StatsLocSection() {
 							<span style={{ color: theme.locColor }}>
 								{formatNumber(latest.locProducedPerSec)}
 							</span>
-							<span style={{ color: theme.lineNumbers }}> / </span>
+							<span style={{ color: theme.textMuted }}> / </span>
 							<span style={{ color: theme.flopsColor }}>
 								{formatNumber(latest.locExecutedPerSec)}
 							</span>
@@ -206,7 +206,7 @@ export function StatsLocSection() {
 					<span css={sourceNameCss} style={{ color: theme.textMuted }}>
 						{s.name}
 						{s.count !== undefined && (
-							<span style={{ color: theme.lineNumbers }}> x{s.count}</span>
+							<span style={{ color: theme.textMuted }}> x{s.count}</span>
 						)}
 					</span>
 					<div css={barTrackCss} style={{ background: theme.border }}>
@@ -225,7 +225,7 @@ export function StatsLocSection() {
 				</div>
 			))}
 			{managerBonus > 1 && (
-				<div style={{ fontSize: 10, color: theme.lineNumbers, marginTop: 3 }}>
+				<div style={{ fontSize: 10, color: theme.textMuted, marginTop: 3 }}>
 					{t("stats_panel.manager_bonus", {
 						bonus: Math.round((managerBonus - 1) * 100),
 					})}

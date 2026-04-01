@@ -66,7 +66,7 @@ export function StatsFlopsSection() {
 							display: "flex",
 							justifyContent: "space-between",
 							fontSize: 10,
-							color: theme.lineNumbers,
+							color: theme.textMuted,
 							marginBottom: 4,
 						}}
 					>
@@ -114,7 +114,7 @@ export function StatsFlopsSection() {
 							display: "flex",
 							justifyContent: "space-between",
 							fontSize: 10,
-							color: theme.lineNumbers,
+							color: theme.textMuted,
 							marginBottom: 4,
 						}}
 					>
