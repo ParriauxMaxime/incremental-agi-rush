@@ -21,6 +21,9 @@ const profileFlag = args.includes("--profile")
 	? args[args.indexOf("--profile") + 1]
 	: null;
 const greedyMode = args.includes("--greedy");
+const prestigeLevel = args.includes("--prestige")
+	? Number(args[args.indexOf("--prestige") + 1]) || 0
+	: 0;
 
 // ── Validation thresholds from balance.json ──
 
@@ -112,6 +115,7 @@ function validateProfile(profile: Profile): ProfileResult {
 		skill: profile.skill,
 		maxMinutes: 90,
 		...(greedyMode && { aiStrategy: AiStrategyEnum.greedy }),
+		...(prestigeLevel > 0 && { prestigeMultiplier: 1.7 ** prestigeLevel }),
 	});
 
 	const failures: string[] = [];
@@ -357,6 +361,7 @@ if (traceOutput) {
 			skill: p.skill,
 			maxMinutes: 90,
 			...(greedyMode && { aiStrategy: AiStrategyEnum.greedy }),
+			...(prestigeLevel > 0 && { prestigeMultiplier: 1.7 ** prestigeLevel }),
 		});
 		return {
 			profile: p.name,

@@ -45,6 +45,7 @@ export type EventEffect =
 	| { type: "conditionalCash"; threshold: string; reward: string }
 	| { type: "tokenProduction"; op: "multiply"; value: number }
 	| { type: "disableUpgrade"; upgradeId: string }
+	| { type: "prestige"; op: "trigger"; value: boolean }
 	| { type: "choice"; options: EventChoiceOption[] };
 
 export interface EventChoiceOption {

@@ -53,7 +53,7 @@
 	},
 	"acquihire_offer": {
 		"name": "Acqui-hire Offer",
-		"description": "Big Tech wants to buy you out. Take the cash or keep grinding?",
+		"description": "Big Tech wants to buy you out. Sell for a permanent edge, or stay indie?",
 		"options": {
 			"sell_out": "Sell out",
 			"stay_indie": "Stay indie"

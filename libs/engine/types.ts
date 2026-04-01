@@ -21,6 +21,7 @@ export interface SimConfig {
 	skill: number;
 	aiStrategy: AiStrategyEnum;
 	maxMinutes: number;
+	prestigeMultiplier?: number;
 }
 
 export interface SimSnapshot {

@@ -49,9 +49,12 @@
 		"description": "Il data center si è spento. Nessun FLOP per 15s. La digitazione manuale funziona ancora."
 	},
 	"acquihire_offer": {
-		"name": "Offerta di acqui-hire",
-		"description": "Un big tech vuole comprarti. Prendi i soldi o continui a sgobbare?",
-		"options": { "sell_out": "Vendi", "stay_indie": "Resto indie" }
+		"name": "Offerta Acqui-hire",
+		"description": "La Big Tech vuole comprarti. Vendi per un vantaggio permanente o rimani indipendente?",
+		"options": {
+			"sell_out": "Vendere",
+			"stay_indie": "Restare indipendente"
+		}
 	},
 	"dev_burnout": {
 		"name": "Burnout dev",

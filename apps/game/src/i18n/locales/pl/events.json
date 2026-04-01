@@ -50,8 +50,11 @@
 	},
 	"acquihire_offer": {
 		"name": "Oferta przejęcia",
-		"description": "Wielka firma technologiczna chce cię kupić. Brać gotówkę czy dalej walczyć?",
-		"options": { "sell_out": "Sprzedaj się", "stay_indie": "Zostań niezależny" }
+		"description": "Big Tech chce cię kupić. Sprzedaj się za stałą przewagę lub zostań niezależny?",
+		"options": {
+			"sell_out": "Sprzedać się",
+			"stay_indie": "Zostać niezależnym"
+		}
 	},
 	"dev_burnout": {
 		"name": "Wypalenie deweloperów",

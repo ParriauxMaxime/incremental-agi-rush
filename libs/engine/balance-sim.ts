@@ -51,6 +51,7 @@ export function runBalanceSim(
 	config: Partial<SimConfig> = {},
 ): SimResult {
 	const cfg = { ...DEFAULT_CONFIG, ...config };
+	const prestigeMult = cfg.prestigeMultiplier ?? 1;
 
 	// ── Extract data ──
 	const simEvents = data.events.events as SimEvent[];
@@ -296,7 +297,8 @@ export function runBalanceSim(
 		return (
 			tiers[sim.currentTier].cashPerLoc *
 			sim.cashMultiplier *
-			eventCashMultiplier
+			eventCashMultiplier *
+			prestigeMult
 		);
 	}
 

@@ -49,9 +49,12 @@
 		"description": "Das Rechenzentrum ist ausgefallen. Keine FLOPS für 15s. Manuelles Tippen funktioniert noch."
 	},
 	"acquihire_offer": {
-		"name": "Acqui-hire-Angebot",
-		"description": "Ein Tech-Gigant will dich aufkaufen. Cash nehmen oder weitermachen?",
-		"options": { "sell_out": "Verkaufen", "stay_indie": "Indie bleiben" }
+		"name": "Acqui-hire Angebot",
+		"description": "Big Tech will dich kaufen. Verkaufe für einen permanenten Vorteil oder bleib unabhängig?",
+		"options": {
+			"sell_out": "Verkaufen",
+			"stay_indie": "Unabhängig bleiben"
+		}
 	},
 	"dev_burnout": {
 		"name": "Entwickler-Burnout",

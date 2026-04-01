@@ -52,8 +52,8 @@
 		"description": "数据中心断电了。15 秒内没有 FLOPS。手动打字仍然有效。"
 	},
 	"acquihire_offer": {
-		"name": "收购邀约",
-		"description": "大厂想买断你。接受现金还是继续拼搏？",
+		"name": "收购要约",
+		"description": "大厂想收购你。卖掉获得永久加成，还是保持独立？",
 		"options": {
 			"sell_out": "卖掉",
 			"stay_indie": "保持独立"

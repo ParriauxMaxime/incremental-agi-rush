@@ -13,6 +13,7 @@ import {
 } from "@flopsed/domain";
 import { resolveExpression } from "@flopsed/engine";
 import { sfx } from "@modules/audio";
+import { useGameStore } from "@modules/game";
 import { match } from "ts-pattern";
 import { create } from "zustand";
 
@@ -29,10 +30,12 @@ function randomInterval(): number {
 }
 
 function pickWeightedEvent(tierIndex: number): EventDefinition | null {
+	const prestigeCount = useGameStore.getState().prestigeCount;
 	const eligible = allEvents.filter(
 		(e) =>
 			TIER_INDEX[e.minTier] <= tierIndex &&
-			(e.maxTier == null || TIER_INDEX[e.maxTier] >= tierIndex),
+			(e.maxTier == null || TIER_INDEX[e.maxTier] >= tierIndex) &&
+			!(e.id === "acquihire_offer" && prestigeCount >= 5),
 	);
 	if (eligible.length === 0) return null;
 

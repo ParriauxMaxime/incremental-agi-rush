@@ -50,8 +50,11 @@
 	},
 	"acquihire_offer": {
 		"name": "Offre d'acqui-hire",
-		"description": "Un géant du web veut vous racheter. Prenez le cash ou continuez à galérer ?",
-		"options": { "sell_out": "Vendre", "stay_indie": "Rester indie" }
+		"description": "La Big Tech veut vous racheter. Vendez pour un avantage permanent, ou restez indépendant ?",
+		"options": {
+			"sell_out": "Vendre",
+			"stay_indie": "Rester indépendant"
+		}
 	},
 	"dev_burnout": {
 		"name": "Burn-out dev",

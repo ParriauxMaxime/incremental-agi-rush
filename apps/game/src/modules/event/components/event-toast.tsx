@@ -307,8 +307,18 @@ export function EventToast() {
 												type="button"
 												css={choiceBtnCss(sentiment)}
 												onClick={() => {
+													const chosenEffect = opt.effect;
+													if (
+														chosenEffect.type === "prestige" &&
+														"op" in chosenEffect &&
+														chosenEffect.op === "trigger"
+													) {
+														handleChoice(displayId, i, ctx);
+														useGameStore.getState().prestige();
+														return;
+													}
 													const { cashDelta, locDelta } = resolveChoiceEffects(
-														opt.effect,
+														chosenEffect,
 														ctx,
 													);
 													handleChoice(displayId, i, ctx);

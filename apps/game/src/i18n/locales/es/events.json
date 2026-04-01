@@ -49,9 +49,12 @@
 		"description": "El centro de datos se quedó sin luz. Sin FLOPS durante 15s. El tecleo manual sigue funcionando."
 	},
 	"acquihire_offer": {
-		"name": "Oferta de adquisición",
-		"description": "Una gran tecnológica quiere comprarte. ¿Te llevas el dinero o sigues en la lucha?",
-		"options": { "sell_out": "Vender", "stay_indie": "Seguir independiente" }
+		"name": "Oferta de Acqui-hire",
+		"description": "Big Tech quiere comprarte. ¿Vendes por una ventaja permanente o sigues independiente?",
+		"options": {
+			"sell_out": "Vender",
+			"stay_indie": "Seguir independiente"
+		}
 	},
 	"dev_burnout": {
 		"name": "Agotamiento del equipo",
