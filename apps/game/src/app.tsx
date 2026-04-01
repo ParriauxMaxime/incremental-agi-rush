@@ -17,7 +17,7 @@ import { EDITOR_THEMES, type EditorThemeEnum } from "@modules/editor";
 import { useEventStore } from "@modules/event";
 import { EventToast } from "@modules/event/components/event-toast";
 import { PageEnum, useGameLoop, useGameStore, useUiStore } from "@modules/game";
-import { lazy, Suspense, useEffect, useRef } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { match } from "ts-pattern";
 import { useIdeTheme } from "./hooks/use-ide-theme";
@@ -539,6 +539,24 @@ function TabbedPane({
 	const moveTab = useUiStore((s) => s.moveTab);
 	const visibleTabs = tabs.filter((tab) => openTabs.includes(tab.page));
 	const isEmpty = visibleTabs.length === 0;
+	const [dragOver, setDragOver] = useState(false);
+	const dragCountRef = useRef(0);
+
+	const handleDragEnter = (e: React.DragEvent) => {
+		if (e.dataTransfer.types.includes("application/x-tab")) {
+			e.preventDefault();
+			dragCountRef.current++;
+			setDragOver(true);
+		}
+	};
+
+	const handleDragLeave = () => {
+		dragCountRef.current--;
+		if (dragCountRef.current <= 0) {
+			dragCountRef.current = 0;
+			setDragOver(false);
+		}
+	};
 
 	const handleDragOver = (e: React.DragEvent) => {
 		if (e.dataTransfer.types.includes("application/x-tab")) {
@@ -548,6 +566,8 @@ function TabbedPane({
 	};
 
 	const handleDrop = (e: React.DragEvent) => {
+		dragCountRef.current = 0;
+		setDragOver(false);
 		const data = e.dataTransfer.getData("application/x-tab");
 		if (!data) return;
 		const { page: draggedPage, from } = JSON.parse(data) as {
@@ -561,8 +581,10 @@ function TabbedPane({
 
 	return (
 		<div
-			css={[panelCss, { flex: 1 }]}
+			css={[panelCss, { flex: 1, position: "relative" }]}
 			onClick={onPaneFocus}
+			onDragEnter={handleDragEnter}
+			onDragLeave={handleDragLeave}
 			onDragOver={handleDragOver}
 			onDrop={handleDrop}
 		>
@@ -704,6 +726,33 @@ function TabbedPane({
 					<PageContent page={activePage} />
 				)}
 			</div>
+			{dragOver && (
+				<div
+					css={{
+						position: "absolute",
+						inset: 0,
+						background: "rgba(88, 166, 255, 0.08)",
+						border: "2px dashed rgba(88, 166, 255, 0.4)",
+						borderRadius: 4,
+						zIndex: 5,
+						pointerEvents: "none",
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+					}}
+				>
+					<span
+						css={{
+							color: "#58a6ff",
+							fontSize: 14,
+							fontWeight: 600,
+							opacity: 0.7,
+						}}
+					>
+						Drop here
+					</span>
+				</div>
+			)}
 		</div>
 	);
 }
