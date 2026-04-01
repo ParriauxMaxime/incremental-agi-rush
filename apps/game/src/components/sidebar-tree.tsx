@@ -357,6 +357,9 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 	const { t } = useTranslation();
 	const theme = useIdeTheme();
 	const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+	const [editorsOpen, setEditorsOpen] = useState(false);
+	const [filesOpen, setFilesOpen] = useState(true);
+	const [upgradesOpen, setUpgradesOpen] = useState(true);
 	const [milestonesOpen, setMilestonesOpen] = useState(false);
 
 	const toggle = (id: string) =>
@@ -478,13 +481,21 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 					return (
 						<>
 							<div
-								css={sectionHeaderBaseCss}
+								css={[sectionHeaderBaseCss, { cursor: "pointer" }]}
 								style={{ color: theme.textMuted }}
+								onClick={() => setEditorsOpen(!editorsOpen)}
+								onKeyDown={(e) => {
+									if (e.key === "Enter") setEditorsOpen(!editorsOpen);
+								}}
+								role="button"
+								tabIndex={0}
 							>
-								&#9662; {t("sidebar.open_editors")}
+								{editorsOpen ? "▾" : "▸"} {t("sidebar.open_editors")}
 							</div>
-							{!splitEnabled && leftFiles.map((f) => renderEditorFile(f, page))}
-							{splitEnabled && (
+							{editorsOpen &&
+								!splitEnabled &&
+								leftFiles.map((f) => renderEditorFile(f, page))}
+							{editorsOpen && splitEnabled && (
 								<>
 									<div
 										css={{
@@ -518,143 +529,164 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 					);
 				})()}
 
-				{/* All files — grouped by folder */}
-				{(() => {
-					const folders = new Map<string, FileEntry[]>();
-					const rootFiles: FileEntry[] = [];
-					for (const f of allPageFiles) {
-						if (f.folder) {
-							if (!folders.has(f.folder)) folders.set(f.folder, []);
-							folders.get(f.folder)?.push(f);
-						} else {
-							rootFiles.push(f);
-						}
-					}
-					// Sort folders alphabetically, root files after
-					const sortedFolders = [...folders.entries()].sort((a, b) =>
-						a[0].localeCompare(b[0]),
-					);
-
-					const renderFile = (f: FileEntry, indent: number) => {
-						const active = f.page === page;
-						const isOpen = allOpenPages.has(f.page);
-						return (
-							<div
-								key={`file-${f.page}`}
-								css={{
-									padding: `2px 8px 2px ${indent}px`,
-									display: "flex",
-									alignItems: "center",
-									gap: 6,
-									fontSize: 13,
-									height: 22,
-									cursor: "pointer",
-									background: active ? theme.activeBg : "transparent",
-									color: isOpen ? theme.foreground : theme.textMuted,
-									"&:hover": {
-										background: theme.activeBg,
-										color: theme.foreground,
-									},
-								}}
-								onClick={() => openInActivePane(f.page)}
-								onKeyDown={(e) => {
-									if (e.key === "Enter") openInActivePane(f.page);
-								}}
-								role="button"
-								tabIndex={0}
-							>
-								<span
-									css={{
-										width: 6,
-										height: 6,
-										borderRadius: "50%",
-										background: isOpen ? f.dotColor : "transparent",
-										border: isOpen ? "none" : `1px solid ${f.dotColor}`,
-										flexShrink: 0,
-									}}
-								/>
-								{f.filename}
-							</div>
-						);
-					};
-
-					return (
-						<>
-							{sortedFolders.map(([folder, files]) => (
-								<div key={folder}>
-									<div
-										css={{
-											padding: "2px 8px 2px 16px",
-											fontSize: 13,
-											height: 22,
-											display: "flex",
-											alignItems: "center",
-											gap: 4,
-											color: theme.textMuted,
-										}}
-									>
-										<span style={{ fontSize: 11 }}>📁</span>
-										{folder}/
-									</div>
-									{files.map((f) => renderFile(f, 36))}
-								</div>
-							))}
-							{rootFiles.map((f) => renderFile(f, 16))}
-						</>
-					);
-				})()}
-
-				{/* Upgrades */}
+				{/* Files */}
 				<div
-					css={sectionHeaderBaseCss}
+					css={[sectionHeaderBaseCss, { cursor: "pointer" }]}
 					style={{ color: theme.textMuted, marginTop: 8 }}
+					onClick={() => setFilesOpen(!filesOpen)}
+					onKeyDown={(e) => {
+						if (e.key === "Enter") setFilesOpen(!filesOpen);
+					}}
+					role="button"
+					tabIndex={0}
 				>
-					&#9662; {t("sidebar.upgrades")}
+					{filesOpen ? "▾" : "▸"}{" "}
+					{t("sidebar.files", { defaultValue: "Files" })}
 				</div>
-				{tiers
-					.filter((tier) => tier.index <= currentTierIndex)
-					.map((tier) => {
-						const isOpen = !collapsed[tier.id];
-						const tierUpgrades = allUpgrades.filter(
-							(u) =>
-								u.tier === tier.id &&
-								(!u.requires ||
-									u.requires.every((id) => (ownedTechNodes[id] ?? 0) > 0)),
+				{filesOpen &&
+					(() => {
+						const folders = new Map<string, FileEntry[]>();
+						const rootFiles: FileEntry[] = [];
+						for (const f of allPageFiles) {
+							if (f.folder) {
+								if (!folders.has(f.folder)) folders.set(f.folder, []);
+								folders.get(f.folder)?.push(f);
+							} else {
+								rootFiles.push(f);
+							}
+						}
+						// Sort folders alphabetically, root files after
+						const sortedFolders = [...folders.entries()].sort((a, b) =>
+							a[0].localeCompare(b[0]),
 						);
 
-						return (
-							<div key={tier.id}>
+						const renderFile = (f: FileEntry, indent: number) => {
+							const active = f.page === page;
+							const isOpen = allOpenPages.has(f.page);
+							return (
 								<div
-									css={folderRowBaseCss}
-									style={{
-										color: theme.foreground,
+									key={`file-${f.page}`}
+									css={{
+										padding: `2px 8px 2px ${indent}px`,
+										display: "flex",
+										alignItems: "center",
+										gap: 6,
+										fontSize: 13,
+										height: 22,
+										cursor: "pointer",
+										background: active ? theme.activeBg : "transparent",
+										color: isOpen ? theme.foreground : theme.textMuted,
+										"&:hover": {
+											background: theme.activeBg,
+											color: theme.foreground,
+										},
 									}}
-									onMouseEnter={(e) => {
-										e.currentTarget.style.background = theme.hoverBg;
-									}}
-									onMouseLeave={(e) => {
-										e.currentTarget.style.background = "transparent";
-									}}
-									onClick={() => toggle(tier.id)}
+									onClick={() => openInActivePane(f.page)}
 									onKeyDown={(e) => {
-										if (e.key === "Enter") toggle(tier.id);
+										if (e.key === "Enter") openInActivePane(f.page);
 									}}
 									role="button"
 									tabIndex={0}
 								>
-									<span style={{ fontSize: 10, width: 12 }}>
-										{isOpen ? "▾" : "▸"}
-									</span>
-									<span>📂</span>
-									<span>{tier.id}/</span>
+									<span
+										css={{
+											width: 6,
+											height: 6,
+											borderRadius: "50%",
+											background: isOpen ? f.dotColor : "transparent",
+											border: isOpen ? "none" : `1px solid ${f.dotColor}`,
+											flexShrink: 0,
+										}}
+									/>
+									{f.filename}
 								</div>
-								{isOpen &&
-									tierUpgrades.map((u) => (
-										<UpgradeItem key={u.id} upgrade={u} />
-									))}
-							</div>
+							);
+						};
+
+						return (
+							<>
+								{sortedFolders.map(([folder, files]) => (
+									<div key={folder}>
+										<div
+											css={{
+												padding: "2px 8px 2px 16px",
+												fontSize: 13,
+												height: 22,
+												display: "flex",
+												alignItems: "center",
+												gap: 4,
+												color: theme.textMuted,
+											}}
+										>
+											<span style={{ fontSize: 11 }}>📁</span>
+											{folder}/
+										</div>
+										{files.map((f) => renderFile(f, 36))}
+									</div>
+								))}
+								{rootFiles.map((f) => renderFile(f, 16))}
+							</>
 						);
-					})}
+					})()}
+
+				{/* Upgrades */}
+				<div
+					css={[sectionHeaderBaseCss, { cursor: "pointer" }]}
+					style={{ color: theme.textMuted, marginTop: 8 }}
+					onClick={() => setUpgradesOpen(!upgradesOpen)}
+					onKeyDown={(e) => {
+						if (e.key === "Enter") setUpgradesOpen(!upgradesOpen);
+					}}
+					role="button"
+					tabIndex={0}
+				>
+					{upgradesOpen ? "▾" : "▸"} {t("sidebar.upgrades")}
+				</div>
+				{upgradesOpen &&
+					tiers
+						.filter((tier) => tier.index <= currentTierIndex)
+						.map((tier) => {
+							const isOpen = !collapsed[tier.id];
+							const tierUpgrades = allUpgrades.filter(
+								(u) =>
+									u.tier === tier.id &&
+									(!u.requires ||
+										u.requires.every((id) => (ownedTechNodes[id] ?? 0) > 0)),
+							);
+
+							return (
+								<div key={tier.id}>
+									<div
+										css={folderRowBaseCss}
+										style={{
+											color: theme.foreground,
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.background = theme.hoverBg;
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.background = "transparent";
+										}}
+										onClick={() => toggle(tier.id)}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") toggle(tier.id);
+										}}
+										role="button"
+										tabIndex={0}
+									>
+										<span style={{ fontSize: 10, width: 12 }}>
+											{isOpen ? "▾" : "▸"}
+										</span>
+										<span>📂</span>
+										<span>{tier.id}/</span>
+									</div>
+									{isOpen &&
+										tierUpgrades.map((u) => (
+											<UpgradeItem key={u.id} upgrade={u} />
+										))}
+								</div>
+							);
+						})}
 
 				{/* Milestones section */}
 				<div
