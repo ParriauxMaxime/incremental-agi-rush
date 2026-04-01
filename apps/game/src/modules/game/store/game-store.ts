@@ -128,6 +128,7 @@ export interface GameState {
 	editorStreamingMode: boolean;
 	prestigeCount: number;
 	prestigeMultiplier: number;
+	hasReachedSingularity: boolean;
 }
 
 export interface GodModeOverrides {
@@ -228,6 +229,7 @@ const initialState: GameState = {
 	editorStreamingMode: false,
 	prestigeCount: 0,
 	prestigeMultiplier: 1,
+	hasReachedSingularity: false,
 };
 
 function getEffectiveMax(upgrade: Upgrade, state?: GameState): number {
@@ -550,6 +552,7 @@ function recalcDerivedStats(state: GameState): void {
 		llmHostSlots > 0 && Object.values(unlockedModels).some(Boolean);
 	state.singularity = singularity;
 	if (singularity) {
+		state.hasReachedSingularity = true;
 		state.running = false;
 	}
 }
@@ -907,8 +910,14 @@ export const useGameStore = create<GameState & GameActions>()(
 			},
 
 			reset: () => {
-				const { prestigeCount, prestigeMultiplier } = get();
-				set({ ...initialState, prestigeCount, prestigeMultiplier });
+				const { prestigeCount, prestigeMultiplier, hasReachedSingularity } =
+					get();
+				set({
+					...initialState,
+					prestigeCount,
+					prestigeMultiplier,
+					hasReachedSingularity,
+				});
 				localStorage.removeItem("flopsed-editor");
 				useEventStore.getState().reset();
 			},

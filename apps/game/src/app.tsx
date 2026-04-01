@@ -83,12 +83,12 @@ interface TabDef {
 	filename: string;
 }
 
-const middleTabs: TabDef[] = [
+const baseTabs: TabDef[] = [
 	{ page: PageEnum.game, filename: "agi.py" },
 	{ page: PageEnum.tech_tree, filename: "tech-tree.svg" },
 	{ page: PageEnum.settings, filename: "settings.json" },
-	{ page: PageEnum.god_mode, filename: "godmode.ts" },
 ];
+const godModeTab: TabDef = { page: PageEnum.god_mode, filename: "godmode.ts" };
 
 // ── Settings page ──
 
@@ -511,12 +511,14 @@ function SplitIcon({ active }: { active?: boolean }) {
 function TabbedPane({
 	activePage,
 	onSetPage,
+	tabs,
 	showSplitBtn,
 	splitActive,
 	onToggleSplit,
 }: {
 	activePage: PageEnum;
 	onSetPage: (page: PageEnum) => void;
+	tabs: TabDef[];
 	showSplitBtn?: boolean;
 	splitActive?: boolean;
 	onToggleSplit?: () => void;
@@ -538,7 +540,7 @@ function TabbedPane({
 					position: "relative",
 				}}
 			>
-				{middleTabs.map((t) => {
+				{tabs.map((t) => {
 					const active = t.page === activePage;
 					return (
 						<button
@@ -626,6 +628,10 @@ export function App() {
 		(s) => (s.ownedTechNodes.unlock_stats_panel ?? 0) > 0,
 	);
 	const singularity = useGameStore((s) => s.singularity);
+	const hasReachedSingularity = useGameStore((s) => s.hasReachedSingularity);
+	const showGodMode =
+		hasReachedSingularity || location.hostname === "localhost";
+	const middleTabs = showGodMode ? [...baseTabs, godModeTab] : baseTabs;
 	const theme = useIdeTheme();
 	const shellRef = useRef<HTMLDivElement>(null);
 	const singularityOnMount = useRef(useGameStore.getState().singularity);
@@ -754,6 +760,7 @@ export function App() {
 							<TabbedPane
 								activePage={page}
 								onSetPage={setPage}
+								tabs={middleTabs}
 								showSplitBtn
 								splitActive={splitEnabled}
 								onToggleSplit={toggleSplit}
@@ -767,7 +774,11 @@ export function App() {
 											flexShrink: 0,
 										}}
 									/>
-									<TabbedPane activePage={rightPage} onSetPage={setRightPage} />
+									<TabbedPane
+										activePage={rightPage}
+										onSetPage={setRightPage}
+										tabs={middleTabs}
+									/>
 								</>
 							)}
 						</div>

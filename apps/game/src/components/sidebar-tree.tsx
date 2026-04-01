@@ -297,17 +297,27 @@ const UpgradeItem = memo(function UpgradeItem({
 
 // ── Main sidebar ──
 
-const pageFiles: Array<{ page: PageEnum; filename: string; dotColor: string }> =
-	[
-		{ page: PageEnum.game, filename: "agi.py", dotColor: "#519aba" },
-		{
-			page: PageEnum.tech_tree,
-			filename: "tech-tree.svg",
-			dotColor: "#f1c542",
-		},
-		{ page: PageEnum.settings, filename: "settings.json", dotColor: "#cbcb41" },
-		{ page: PageEnum.god_mode, filename: "godmode.ts", dotColor: "#519aba" },
-	];
+const basePageFiles: Array<{
+	page: PageEnum;
+	filename: string;
+	dotColor: string;
+}> = [
+	{ page: PageEnum.game, filename: "agi.py", dotColor: "#519aba" },
+	{
+		page: PageEnum.tech_tree,
+		filename: "tech-tree.svg",
+		dotColor: "#f1c542",
+	},
+	{ page: PageEnum.settings, filename: "settings.json", dotColor: "#cbcb41" },
+];
+
+const godModeEntry = {
+	page: PageEnum.god_mode,
+	filename: "godmode.ts",
+	dotColor: "#519aba",
+};
+
+const IS_DEV = location.hostname === "localhost";
 
 export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 	const page = useUiStore((s) => s.page);
@@ -315,6 +325,11 @@ export function SidebarTree({ onCollapse }: { onCollapse?: () => void }) {
 	const currentTierIndex = useGameStore((s) => s.currentTierIndex);
 	const ownedTechNodes = useGameStore((s) => s.ownedTechNodes);
 	const reachedMilestones = useGameStore((s) => s.reachedMilestones);
+	const hasReachedSingularity = useGameStore((s) => s.hasReachedSingularity);
+	const pageFiles =
+		IS_DEV || hasReachedSingularity
+			? [...basePageFiles, godModeEntry]
+			: basePageFiles;
 	const { t } = useTranslation();
 	const theme = useIdeTheme();
 	const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
