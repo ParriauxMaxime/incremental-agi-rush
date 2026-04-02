@@ -43,16 +43,6 @@ const h2Css = css({
 	paddingBottom: 6,
 });
 
-const blockCss = css({
-	fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
-	fontSize: 12,
-	padding: "12px 16px",
-	borderRadius: 6,
-	marginBottom: 16,
-	lineHeight: 1.8,
-	overflowX: "auto",
-});
-
 const collaboratorsCss = css({
 	display: "flex",
 	gap: 16,
@@ -79,6 +69,22 @@ const linkRowCss = css({
 	gap: 10,
 	marginTop: 6,
 });
+
+function GithubIcon({ size = 14 }: { size?: number }) {
+	return (
+		<svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor">
+			<path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+		</svg>
+	);
+}
+
+function LinkIcon({ size = 12 }: { size?: number }) {
+	return (
+		<svg width={size} height={size} viewBox="0 0 16 16" fill="currentColor">
+			<path d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-.025 9.45a.75.75 0 01-1.06-1.06l-1.25 1.25a2 2 0 01-2.83-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25z" />
+		</svg>
+	);
+}
 
 export function ReadmePage() {
 	const theme = useIdeTheme();
@@ -131,9 +137,16 @@ export function ReadmePage() {
 					target="_blank"
 					rel="noreferrer"
 					css={linkCss}
-					style={{ color: theme.accent, fontSize: 13 }}
+					style={{
+						color: theme.accent,
+						fontSize: 13,
+						display: "inline-flex",
+						alignItems: "center",
+						gap: 6,
+					}}
 				>
-					github.com/ParriauxMaxime/flopsed
+					<GithubIcon size={16} />
+					ParriauxMaxime/flopsed
 				</a>
 			</p>
 
@@ -178,18 +191,28 @@ export function ReadmePage() {
 							target="_blank"
 							rel="noreferrer"
 							css={linkCss}
-							style={{ color: theme.accent }}
+							style={{
+								color: theme.accent,
+								display: "inline-flex",
+								alignItems: "center",
+								gap: 4,
+							}}
 						>
-							GitHub
+							<GithubIcon /> GitHub
 						</a>
 						<a
 							href="https://parriauxmaxime.github.io/"
 							target="_blank"
 							rel="noreferrer"
 							css={linkCss}
-							style={{ color: theme.accent }}
+							style={{
+								color: theme.accent,
+								display: "inline-flex",
+								alignItems: "center",
+								gap: 4,
+							}}
 						>
-							Website
+							<LinkIcon /> Website
 						</a>
 					</div>
 				</div>
@@ -219,13 +242,32 @@ export function ReadmePage() {
 					</div>
 					<div css={linkRowCss}>
 						<a
+							href="https://github.com/noemaireamiot"
+							target="_blank"
+							rel="noreferrer"
+							css={linkCss}
+							style={{
+								color: theme.accent,
+								display: "inline-flex",
+								alignItems: "center",
+								gap: 4,
+							}}
+						>
+							<GithubIcon /> GitHub
+						</a>
+						<a
 							href="https://noemaireamiot.com/"
 							target="_blank"
 							rel="noreferrer"
 							css={linkCss}
-							style={{ color: theme.accent }}
+							style={{
+								color: theme.accent,
+								display: "inline-flex",
+								alignItems: "center",
+								gap: 4,
+							}}
 						>
-							Website
+							<LinkIcon /> Website
 						</a>
 					</div>
 				</div>
@@ -259,13 +301,52 @@ export function ReadmePage() {
 							target="_blank"
 							rel="noreferrer"
 							css={linkCss}
-							style={{ color: theme.accent }}
+							style={{
+								color: theme.accent,
+								display: "inline-flex",
+								alignItems: "center",
+								gap: 4,
+							}}
 						>
-							claude.ai
+							<LinkIcon /> claude.ai
 						</a>
 					</div>
 				</div>
 			</div>
+
+			<div
+				css={h2Css}
+				style={{
+					borderBottom: `1px solid ${theme.border}`,
+					color: theme.accent,
+				}}
+			>
+				## Support
+			</div>
+
+			<p css={pCss}>
+				<a
+					href="https://buymeacoffee.com/parriauxmaxime"
+					target="_blank"
+					rel="noreferrer"
+					css={{
+						display: "inline-flex",
+						alignItems: "center",
+						gap: 8,
+						padding: "8px 16px",
+						borderRadius: 6,
+						background: "#FFDD00",
+						color: "#000",
+						fontSize: 13,
+						fontWeight: 600,
+						textDecoration: "none",
+						transition: "opacity 0.15s",
+						"&:hover": { opacity: 0.85 },
+					}}
+				>
+					☕ Buy me a coffee
+				</a>
+			</p>
 
 			<div
 				css={h2Css}

@@ -79,6 +79,12 @@ The game is fully translated into 8 languages. Language is selectable in-game vi
 
 🇬🇧 English · 🇫🇷 Français · 🇮🇹 Italiano · 🇩🇪 Deutsch · 🇪🇸 Español · 🇵🇱 Polski · 🇨🇳 中文 · 🇷🇺 Русский
 
+## Support
+
+If you enjoyed the game, consider buying me a coffee:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/parriauxmaxime)
+
 ## License
 
 [MIT](LICENSE)
