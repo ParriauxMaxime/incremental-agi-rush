@@ -127,7 +127,7 @@ export function ReadmePage() {
 
 			<p css={pCss}>
 				Type code. Execute it for cash. Scale from a garage to building AGI.
-				Every upgrade brings you closer to making yourself obsolete.
+				Every upgrade brings you closer to making yourself deprecated.
 			</p>
 
 			<p css={pCss}>
