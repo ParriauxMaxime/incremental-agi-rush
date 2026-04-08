@@ -6,7 +6,7 @@
 		"ticksPerSecond": 10,
 		"startingCash": 0,
 		"startingFlops": 0,
-		"startingLocPerKey": 0.5,
+		"startingLocPerKey": 0.2,
 		"manualTypingQuality": 100,
 		"agiLocTarget": 500000000,
 		"_note": "1 FLOP + Computer(+2) = 3 FLOPS total. 3 LoC/key @ 6keys/s = 18 LoC/s produced, 3 executed. Editor fills up fast. First minute is about watching code pile up, then buying auto-type."
