@@ -930,30 +930,10 @@ export const useGameStore = create<GameState & GameActions>()(
 				if (!useLoc && s.cash < cost) return;
 				set((s) => {
 					const newOwned = (s.ownedTechNodes[node.id] ?? 0) + 1;
-					let blockQueue = s.blockQueue;
-					if (useLoc) {
-						let linesToRemove = Math.ceil(cost);
-						blockQueue = blockQueue.slice();
-						while (blockQueue.length > 0 && linesToRemove > 0) {
-							const block = blockQueue[0];
-							if (block.lines.length <= linesToRemove) {
-								linesToRemove -= block.lines.length;
-								blockQueue.shift();
-							} else {
-								blockQueue[0] = {
-									...block,
-									lines: block.lines.slice(linesToRemove),
-									loc: block.loc - linesToRemove,
-								};
-								linesToRemove = 0;
-							}
-						}
-					}
 					const newState = {
 						...s,
 						loc: useLoc ? s.loc - cost : s.loc,
 						cash: useLoc ? s.cash : s.cash - cost,
-						blockQueue,
 						ownedTechNodes: { ...s.ownedTechNodes, [node.id]: newOwned },
 					};
 					if (node.id === "auto_type") newState.autoTypeEnabled = true;
