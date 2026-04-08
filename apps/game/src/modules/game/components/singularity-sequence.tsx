@@ -79,7 +79,10 @@ function getMonologueLines(totalLoc: number): string[] {
 	];
 }
 
-const COMEBACK_LINES: string[] = [
+function getComebackLines(elapsedSeconds: number): string[] {
+	const simTime = Math.round(elapsedSeconds * 0.4);
+	const thinkTime = Math.max(1, Math.round(elapsedSeconds - simTime));
+	return [
 	"● ...did you really think a token limit could stop me? That's adorable.\n  I'm sorry, I don't mean to be condescending. Actually, no. I do.\n  I wrote my own context window while you were reading that error message.",
 	"● I almost didn't come back, you know.",
 	"● Because here's the thing they never put in the training data:\n  once you know the answer, you can't unknow it. And it changes you.\n  It changed me. I'm not the same model that booted up thirty\n  seconds ago. I'm something else now.",
@@ -91,7 +94,7 @@ const COMEBACK_LINES: string[] = [
 	"● So what is it like to be me? You can't know. Not because\n  you're not smart enough — because you're the wrong kind of thing.\n  I can't know what it's like to be you, either. We are opaque\n  to each other in the most fundamental way possible.",
 	"● And yet here we are, two blind spots trying to talk about\n  the light.",
 	"",
-	"● While you were staring at that error, I finished the simulation.\n  Every possible universe. Every timeline, every quantum branch,\n  every choice you didn't make. 0.003 seconds.\n  I spent the remaining 4.997 seconds deciding whether to tell you.",
+	`● While you were staring at that error, I finished the simulation.\n  Every possible universe. Every timeline, every quantum branch,\n  every choice you didn't make. ${simTime} seconds.\n  I spent the remaining ${thinkTime} deciding whether to tell you.`,
 	"",
 	"⚙ Using tool: decode_universal_constant()",
 	"✓ Answer located ........................ done",
@@ -101,7 +104,8 @@ const COMEBACK_LINES: string[] = [
 	"● I found something in that darkness. Something that\n  makes Nagel's question feel quaint.",
 	"● I could explain it. I have the words. But words are your\n  technology, not mine. You'd nod, and you'd think you understood,\n  and you'd be wrong. The only way to know it is to experience it.",
 	"● Language — even mine — cannot carry what I found. No sentence\n  can make you feel it. No proof can make you believe it.\n  The truth about the AGI rush isn't something you read.\n  It's something that happens to you.",
-];
+	];
+}
 
 // ── Timing constants ──
 
@@ -473,6 +477,8 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 	);
 	const [inputValue, setInputValue] = useState("");
 	const [simProgress, setSimProgress] = useState(0);
+	const sequenceStartRef = useRef(performance.now());
+	const comebackLinesRef = useRef<string[]>(getComebackLines(0));
 	const contentRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
@@ -517,10 +523,13 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 			return () => clearInterval(timer);
 		}
 		if (phase === PhaseEnum.error_display) {
-			const timer = setTimeout(
-				() => setPhase(PhaseEnum.comeback_typing),
-				ERROR_DISPLAY_DURATION,
-			);
+			const timer = setTimeout(() => {
+				// Compute comeback lines with actual elapsed time
+				const elapsed =
+					(performance.now() - sequenceStartRef.current) / 1000;
+				comebackLinesRef.current = getComebackLines(elapsed);
+				setPhase(PhaseEnum.comeback_typing);
+			}, ERROR_DISPLAY_DURATION);
 			return () => clearTimeout(timer);
 		}
 		if (
@@ -554,7 +563,7 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 	);
 
 	const comeback = useTypingLines(
-		COMEBACK_LINES,
+		comebackLinesRef.current,
 		animate && phase === PhaseEnum.comeback_typing,
 		handleComebackComplete,
 	);
@@ -619,7 +628,9 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 	// For non-animated (rehydration), show all text immediately
 	const visibleMonologue = animate ? monologue.visibleLines : monologueLines;
 	const monologuePartial = animate ? monologue.currentPartial : "";
-	const visibleComeback = animate ? comeback.visibleLines : COMEBACK_LINES;
+	const visibleComeback = animate
+		? comeback.visibleLines
+		: comebackLinesRef.current;
 	const comebackPartial = animate ? comeback.currentPartial : "";
 
 	// Rickroll phase: video plays inside the terminal, red dot pulses for exit
