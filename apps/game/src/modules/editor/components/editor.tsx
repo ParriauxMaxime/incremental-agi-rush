@@ -178,6 +178,7 @@ interface EditorProps {
 export function Editor({ keystrokeCallbackRef }: EditorProps) {
 	const totalLoc = useGameStore((s) => s.totalLoc);
 	const locPerKey = useGameStore((s) => s.locPerKey);
+	const effectiveLocPerKey = useGameStore((s) => s.effectiveLocPerKey);
 	const blockQueue = useGameStore((s) => s.blockQueue);
 	const editorTheme = useUiStore((s) => s.editorTheme);
 	const editorRef = useRef<HTMLDivElement>(null);
@@ -395,7 +396,7 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 			</div>
 			<div css={statusBarStyle}>
 				<span>{formatNumber(totalLoc)} lines</span>
-				<span>{locPerKey} LoC/key</span>
+				<span>{Math.round(effectiveLocPerKey * 10) / 10} LoC/key</span>
 			</div>
 		</>
 	);
