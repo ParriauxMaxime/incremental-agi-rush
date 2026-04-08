@@ -586,44 +586,12 @@ export const useGameStore = create<GameState & GameActions>()(
 			addLoc: (amount: number) => {
 				set((s) => {
 					const gained = amount * s.locProductionMultiplier;
-					if (!s.editorStreamingMode) {
-						// Block mode: add LoC to the last block in the queue.
-						// This LoC represents tokens being typed into the current block.
-						const blockQueue = s.blockQueue.length > 0
-							? s.blockQueue.slice()
-							: [{ lines: [], loc: 0 }];
-						const last = blockQueue[blockQueue.length - 1];
-						blockQueue[blockQueue.length - 1] = {
-							...last,
-							loc: last.loc + gained,
-						};
-						const loc = blockQueue.reduce((sum, b) => sum + b.loc, 0);
-						return { blockQueue, loc, totalLoc: s.totalLoc + gained };
-					}
 					return { loc: s.loc + gained, totalLoc: s.totalLoc + gained };
 				});
 			},
 
-			enqueueBlock: (block: QueuedBlock) => {
-				set((s) => {
-					const queue = s.blockQueue.slice();
-					// The last block is a "typing accumulator" (no lines, just loc)
-					// created by addLoc. Take its loc and merge with the visual block.
-					let accumulatedLoc = 0;
-					if (queue.length > 0) {
-						const last = queue[queue.length - 1];
-						if (last.lines.length === 0) {
-							accumulatedLoc = last.loc;
-							queue.pop();
-						}
-					}
-					queue.push({ lines: block.lines, loc: accumulatedLoc });
-					if (!s.editorStreamingMode) {
-						const loc = queue.reduce((sum, b) => sum + b.loc, 0);
-						return { blockQueue: queue, loc };
-					}
-					return { blockQueue: queue };
-				});
+			enqueueBlock: (_block: QueuedBlock) => {
+				// No-op: editor is now driven purely by loc counter
 			},
 
 			tick: (dt: number) => {
@@ -687,23 +655,13 @@ export const useGameStore = create<GameState & GameActions>()(
 						totalLoc += directLoc + aiProduced;
 						tokens += tokensProduced;
 						totalTokens += tokensProduced;
-					} else if (s.editorStreamingMode) {
-						// Streaming mode: direct counter
+					} else {
+						// Pre-T4: all human output goes to LoC directly
 						loc += humanOutput;
 						totalLoc += humanOutput;
 					}
-					// ── 2. Block queue management ──
-					let blockQueue = s.blockQueue;
-					const visualTick = (s._visualTick ?? 0) + 1;
 
-					if (s.editorStreamingMode || aiUnlocked) {
-						// Streaming/AI mode: no block tracking
-						if (blockQueue.length > 0) blockQueue = [];
-					}
-					// Block mode: production goes through addLoc/enqueueBlock from
-					// the typing hooks. The tick does NOT add production — only execution.
-
-					// ── 3. Execution ──
+					// ── 2. Execution ──
 					const execFlops = aiUnlocked ? s.flops * s.flopSlider : s.flops;
 					let manualExecAccum = s.manualExecAccum;
 					let execCapacity: number;
@@ -716,48 +674,14 @@ export const useGameStore = create<GameState & GameActions>()(
 						execCapacity = 0;
 					}
 
-					// In block mode, loc is derived from blockQueue
-					if (!s.editorStreamingMode && !aiUnlocked) {
-						loc = blockQueue.reduce((sum, b) => sum + b.loc, 0);
-					}
-
 					const executed = Math.min(execCapacity, loc);
 					if (executed > 0) {
 						const earnRate = tier.cashPerLoc * s.cashMultiplier;
 						cash += executed * earnRate;
 						totalCash += executed * earnRate;
+						loc -= executed;
 						totalExecutedLoc += executed;
 						sfx.execute();
-
-						if (s.editorStreamingMode || aiUnlocked) {
-							// Streaming: subtract from counter directly
-							loc -= executed;
-						} else {
-							// Block mode: drain blocks from front
-							let toRemove = executed;
-							blockQueue = blockQueue.slice();
-							while (blockQueue.length > 0 && toRemove > 0) {
-								const block = blockQueue[0];
-								if (block.loc <= toRemove) {
-									toRemove -= block.loc;
-									blockQueue.shift();
-								} else {
-									// Trim lines proportionally
-									const fraction = toRemove / block.loc;
-									const linesToTrim = Math.max(
-										1,
-										Math.round(fraction * block.lines.length),
-									);
-									blockQueue[0] = {
-										lines: block.lines.slice(linesToTrim),
-										loc: block.loc - toRemove,
-									};
-									toRemove = 0;
-								}
-							}
-							// Derive loc from updated queue
-							loc = blockQueue.reduce((sum, b) => sum + b.loc, 0);
-						}
 					}
 
 					loc = Math.max(0, loc);
@@ -770,9 +694,7 @@ export const useGameStore = create<GameState & GameActions>()(
 						totalExecutedLoc,
 						tokens,
 						totalTokens,
-						blockQueue,
 						manualExecAccum,
-						_visualTick: visualTick,
 					};
 
 					let newMilestones: string[] | null = null;
