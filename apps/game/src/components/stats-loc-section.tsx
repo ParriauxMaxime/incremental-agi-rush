@@ -80,7 +80,7 @@ export function StatsLocSection() {
 	const devLocPerSec = useGameStore((s) => s.devLocPerSec);
 	const teamLocPerSec = useGameStore((s) => s.teamLocPerSec);
 	const managerBonus = useGameStore((s) => s.managerBonus);
-	const locPerKey = useGameStore((s) => s.locPerKey);
+	const effectiveLocPerKey = useGameStore((s) => s.effectiveLocPerKey);
 	const autoTypeEnabled = useGameStore((s) => s.autoTypeEnabled);
 	const rateSnapshots = useGameStore((s) => s.rateSnapshots);
 	const tierTransitions = useGameStore((s) => s.tierTransitions);
@@ -89,7 +89,8 @@ export function StatsLocSection() {
 	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
 	const keysPerSec = useKeypressRate();
 	const autoTypeKeysPerSec = autoTypeEnabled ? 5 : 0;
-	const typingLocPerSec = Math.max(keysPerSec, autoTypeKeysPerSec) * locPerKey;
+	const typingLocPerSec =
+		Math.max(keysPerSec, autoTypeKeysPerSec) * effectiveLocPerKey;
 	const locRate = autoLocPerSec + typingLocPerSec;
 	const elapsed = (performance.now() - sessionStartTime) / 1000;
 
@@ -126,7 +127,7 @@ export function StatsLocSection() {
 		const effectiveKeysPerSec = Math.max(keysPerSec, autoTypeKeysPerSec);
 		rows.push({
 			name: t("stats_panel.you"),
-			locPerSec: effectiveKeysPerSec * locPerKey,
+			locPerSec: effectiveKeysPerSec * effectiveLocPerKey,
 			color: SOURCE_COLORS.you,
 		});
 		rows.sort((a, b) => b.locPerSec - a.locPerSec);
@@ -137,7 +138,7 @@ export function StatsLocSection() {
 		internLocPerSec,
 		devLocPerSec,
 		teamLocPerSec,
-		locPerKey,
+		effectiveLocPerKey,
 		autoTypeEnabled,
 		keysPerSec,
 		t,

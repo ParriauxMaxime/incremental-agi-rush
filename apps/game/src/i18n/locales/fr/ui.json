@@ -34,7 +34,12 @@
 		"no_purchases": "Aucun achat pour l'instant",
 		"exec_ai_split": "Allocation Exec / IA",
 		"exec_label": "Exec",
-		"ai_label": "IA"
+		"ai_label": "IA",
+		"ai_diagnostic_starving": "L'IA est affamée — embauchez plus de travailleurs",
+		"ai_diagnostic_needs_tokens": "L'IA a besoin de plus de tokens",
+		"ai_diagnostic_needs_compute": "L'IA a besoin de plus de puissance — ajustez le slider FLOPS",
+		"ai_diagnostic_needs_flops": "L'IA a besoin de plus de FLOPS",
+		"ai_diagnostic_full_capacity": "L'IA fonctionne à pleine capacité"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} tokens",
@@ -56,10 +61,10 @@
 		"flops_detail": "— {{flops}} FLOPS < {{locPerSec}} LoC/s"
 	},
 	"flops_slider": {
-		"exec_flops": "Exec {{count}} FLOPS",
-		"ai_flops": "IA {{count}} FLOPS",
-		"exec_rate": "{{count}} loc/s exéc.",
-		"ai_rate": "{{count}} loc/s gén.",
+		"exec_flops": "Exécuter LoC {{count}} FLOPS",
+		"ai_flops": "Générer LoC {{count}} FLOPS",
+		"exec_rate": "{{count}} LoC/s exécutés",
+		"ai_rate": "{{count}} LoC/s générés",
 		"auto_arbitrage_active": "Auto-Arbitrage actif",
 		"targeting": "cible {{pct}}%"
 	},

@@ -25,7 +25,7 @@
 	},
 	"ai_lab": {
 		"header": "tutorial.ai_lab()",
-		"body": "Laboratorium AI online. Pracownicy teraz produkują tokeny zamiast LoC.\nModele AI zużywają tokeny + FLOPS → masowy LoC."
+		"body": "Era pisania kodu dobiegła końca.\n\nTwoi pracownicy produkują teraz tokeny — atomowe jednostki, które modele AI konsumują, aby generować LoC na ogromną skalę.\n\nPodziel swoją moc: FLOPS wykonują kod w kolejce za cash lub zasilają modele AI, aby generować więcej kodu."
 	},
 	"singularity_hint": {
 		"header": "tutorial.endgame()",

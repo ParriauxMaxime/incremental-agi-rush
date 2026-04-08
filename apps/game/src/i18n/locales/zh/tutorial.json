@@ -25,7 +25,7 @@
 	},
 	"ai_lab": {
 		"header": "tutorial.ai_lab()",
-		"body": "AI 实验室上线。工人现在生产代币而非 LoC。\nAI 模型消耗代币 + FLOPS → 大量 LoC 输出。"
+		"body": "编写代码的时代已经结束。\n\n你的工人现在生产代币 — AI 模型消耗这些原子单位来大规模生成 LoC。\n\n分配你的算力：FLOPS 执行排队代码换取现金，或驱动 AI 模型生成更多代码。"
 	},
 	"singularity_hint": {
 		"header": "tutorial.endgame()",

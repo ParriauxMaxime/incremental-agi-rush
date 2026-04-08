@@ -25,7 +25,7 @@
 	},
 	"ai_lab": {
 		"header": "tutorial.ai_lab()",
-		"body": "KI-Labor online. Arbeiter produzieren jetzt Token statt LoC.\nKI-Modelle verbrauchen Token + FLOPS → massenhaft LoC."
+		"body": "Das Zeitalter des Code-Schreibens ist vorbei.\n\nIhre Arbeiter produzieren jetzt Tokens — die atomaren Einheiten, die KI-Modelle verbrauchen, um LoC in großem Maßstab zu generieren.\n\nTeilen Sie Ihre Rechenleistung auf: FLOPS führen wartenden Code für Cash aus oder treiben KI-Modelle an, um mehr Code zu generieren."
 	},
 	"singularity_hint": {
 		"header": "tutorial.endgame()",

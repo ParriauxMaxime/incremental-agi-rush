@@ -25,7 +25,7 @@
 	},
 	"ai_lab": {
 		"header": "tutorial.ai_lab()",
-		"body": "AI Lab online. Workers now produce tokens instead of LoC.\nAI models consume tokens + FLOPS → massive LoC output."
+		"body": "The age of writing code is over.\n\nYour workers now produce tokens — the atomic units AI models consume to generate LoC at massive scale.\n\nSplit your compute: FLOPS execute queued code into cash, or power AI models to generate more code."
 	},
 	"singularity_hint": {
 		"header": "tutorial.endgame()",

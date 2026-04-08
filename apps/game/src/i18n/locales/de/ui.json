@@ -34,7 +34,12 @@
 		"no_purchases": "Noch keine Käufe",
 		"exec_ai_split": "Exec / KI-Zuteilung",
 		"exec_label": "Exec",
-		"ai_label": "KI"
+		"ai_label": "KI",
+		"ai_diagnostic_starving": "KI hungert — mehr Arbeiter einstellen",
+		"ai_diagnostic_needs_tokens": "KI braucht mehr Tokens",
+		"ai_diagnostic_needs_compute": "KI braucht mehr Rechenleistung — FLOPS-Slider anpassen",
+		"ai_diagnostic_needs_flops": "KI braucht mehr FLOPS",
+		"ai_diagnostic_full_capacity": "KI läuft auf voller Kapazität"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} Token",
@@ -56,10 +61,10 @@
 		"flops_detail": "— {{flops}} FLOPS < {{locPerSec}} LoC/s"
 	},
 	"flops_slider": {
-		"exec_flops": "Exec {{count}} FLOPS",
-		"ai_flops": "KI {{count}} FLOPS",
-		"exec_rate": "{{count}} loc/s Ausf.",
-		"ai_rate": "{{count}} loc/s Gen.",
+		"exec_flops": "LoC ausführen {{count}} FLOPS",
+		"ai_flops": "LoC generieren {{count}} FLOPS",
+		"exec_rate": "{{count}} LoC/s ausgeführt",
+		"ai_rate": "{{count}} LoC/s generiert",
 		"auto_arbitrage_active": "Auto-Arbitrage aktiv",
 		"targeting": "Ziel {{pct}}%"
 	},

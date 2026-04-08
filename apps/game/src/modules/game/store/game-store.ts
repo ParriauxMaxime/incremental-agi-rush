@@ -75,6 +75,7 @@ export interface GameState {
 	blockQueue: QueuedBlock[];
 	executionProgress: number;
 	locPerKey: number;
+	effectiveLocPerKey: number;
 	autoLocPerSec: number;
 	freelancerLocPerSec: number;
 	internLocPerSec: number;
@@ -155,6 +156,7 @@ export interface GameActions {
 	reset: () => void;
 	recalc: () => void;
 	setFlopSlider: (value: number) => void;
+	setEffectiveLocPerKey: (value: number) => void;
 	toggleAutoArbitrage: () => void;
 	toggleAutoExecute: () => void;
 	applyEventReward: (cashDelta: number, locDelta: number) => void;
@@ -176,6 +178,7 @@ const initialState: GameState = {
 	blockQueue: [],
 	executionProgress: 0,
 	locPerKey: core.startingLocPerKey,
+	effectiveLocPerKey: core.startingLocPerKey,
 	autoLocPerSec: 0,
 	freelancerLocPerSec: 0,
 	internLocPerSec: 0,
@@ -484,6 +487,7 @@ function recalcDerivedStats(state: GameState): void {
 	if (!state.editorStreamingMode && state.autoLocPerSec > locPerKey * 8) {
 		state.editorStreamingMode = true;
 	}
+	state.effectiveLocPerKey = locPerKey;
 	state.freelancerLocPerSec =
 		freelancerLoc *
 		freelancerLocMultiplier *
@@ -963,6 +967,9 @@ export const useGameStore = create<GameState & GameActions>()(
 					flopSlider: Math.min(1, Math.max(0, value)),
 					autoArbitrageEnabled: false,
 				});
+			},
+			setEffectiveLocPerKey: (value: number) => {
+				set({ effectiveLocPerKey: value });
 			},
 			toggleAutoArbitrage: () => {
 				set((s) => ({

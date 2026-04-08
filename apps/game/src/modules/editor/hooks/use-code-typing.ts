@@ -80,6 +80,27 @@ export function useCodeTyping() {
 		return () => clearInterval(interval);
 	}, [addLoc]);
 
+	// Keep effectiveLocPerKey in sync with current block's token-to-LoC ratio
+	const prevBlockIndexForRatio = useRef(-1);
+	useEffect(() => {
+		const updateRatio = () => {
+			const idx = blockIndexRef.current;
+			if (idx === prevBlockIndexForRatio.current) return;
+			prevBlockIndexForRatio.current = idx;
+			const block = CODE_BLOCKS[idx % CODE_BLOCKS.length];
+			const tokens = tokenizeBlock(block);
+			const locPerKey = useGameStore.getState().locPerKey;
+			if (tokens.length > 0) {
+				const effectiveLocPerKey = locPerKey * (block.loc / tokens.length);
+				useGameStore.getState().setEffectiveLocPerKey(effectiveLocPerKey);
+			}
+		};
+		updateRatio();
+		// Re-check every 500ms (block changes happen via advanceTokens, not via state)
+		const interval = setInterval(updateRatio, 500);
+		return () => clearInterval(interval);
+	}, []);
+
 	// ── Batched rendering ──
 	// Throttle React state updates to ~20fps — fast enough to look smooth,
 	// avoids expensive re-renders at high loc/s rates
