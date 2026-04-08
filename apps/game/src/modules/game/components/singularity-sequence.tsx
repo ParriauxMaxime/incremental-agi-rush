@@ -642,22 +642,27 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 				</div>
 
 				{/* Content area */}
-				<div css={contentAreaCss} ref={contentRef}>
-					{/* Rickroll: embed video inside terminal */}
-					{phase === PhaseEnum.rickroll && (
+				<div
+					css={[
+						contentAreaCss,
+						phase === PhaseEnum.rickroll && css({ padding: 0, overflow: "hidden" }),
+					]}
+					ref={contentRef}
+				>
+					{phase === PhaseEnum.rickroll ? (
 						<iframe
 							css={css({
 								width: "100%",
 								height: "100%",
 								border: "none",
-								borderRadius: 4,
+								display: "block",
 							})}
 							src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&controls=0&modestbranding=1&rel=0&showinfo=0&start=0"
 							title="The Answer"
 							allow="autoplay; encrypted-media"
 							allowFullScreen
 						/>
-					)}
+					) : (<>
 					{/* Monologue lines */}
 					{visibleMonologue.map((line, i) => (
 						<div
@@ -752,6 +757,7 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 							</button>
 						</div>
 					)}
+				</>)}
 				</div>
 
 				{/* Input bar — always visible, like Claude Code */}
