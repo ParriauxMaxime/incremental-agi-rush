@@ -1,5 +1,6 @@
 import { css, keyframes } from "@emotion/react";
 import { sfx } from "@modules/audio";
+import { allEvents, useEventStore } from "@modules/event";
 import { useGameStore, useUiStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { memo, useCallback, useEffect, useMemo, useRef } from "react";
@@ -161,6 +162,18 @@ export function StreamingEditor() {
 		sfx.typing();
 		addLoc(locPerKey);
 		keystrokeTimestamps.current.push(performance.now());
+
+		// Check for mash-key event interaction
+		const eventStore = useEventStore.getState();
+		const interactive = eventStore.getActiveInteractiveEvent();
+		if (interactive) {
+			const definition = allEvents.find(
+				(e) => e.id === interactive.definitionId,
+			);
+			if (definition?.interaction?.type === "mash_keys") {
+				eventStore.handleMashKey(interactive.definitionId);
+			}
+		}
 	}, [addLoc, locPerKey, running]);
 
 	useKeyboardInput(editorRef, onKeystroke);
