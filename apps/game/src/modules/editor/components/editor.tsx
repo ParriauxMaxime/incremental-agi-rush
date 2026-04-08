@@ -337,8 +337,8 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 				tabIndex={0}
 				onScroll={onScroll}
 			>
-				<div style={{ height: contentHeight, position: "relative" }}>
-					{flatLines.length === 0 && (
+				<div style={{ height: loc <= 0 ? "auto" : contentHeight, position: "relative" }}>
+					{(flatLines.length === 0 || loc <= 0) && (
 						<div css={hintCss} style={{ color: theme.comment }}>
 							<span
 								css={lineNumberLayoutCss}
@@ -353,6 +353,7 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 					)}
 					<div
 						style={{
+							display: loc <= 0 ? "none" : undefined,
 							position: "absolute",
 							top: startIdx * LINE_HEIGHT,
 							left: 0,
@@ -401,7 +402,7 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 				</div>
 			</div>
 			<div css={statusBarStyle}>
-				<span>{formatNumber(totalLoc)} lines</span>
+				<span>{formatNumber(Math.round(loc))} LoC queued</span>
 				<span>{Math.round(effectiveLocPerKey * 10) / 10} LoC/key</span>
 			</div>
 		</>
