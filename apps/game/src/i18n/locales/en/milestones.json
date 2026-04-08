@@ -42,9 +42,5 @@
 	"emergent_behavior": {
 		"name": "Emergent Behavior",
 		"description": "10M LoC. It said something you didn't expect."
-	},
-	"agi": {
-		"name": "AGI Achieved",
-		"description": "200M LoC. \"Hello, world.\" — it said back."
 	}
 }

@@ -324,16 +324,23 @@ export function CliPrompt() {
 		const { snippet, lineIdx } = stream;
 
 		if (lineIdx >= snippet.lines.length) {
-			// Done streaming — add completion text and go idle
+			// Done streaming — show LoC result as primary, tokens secondary
 			const elapsed = Math.round((performance.now() - stream.startTime) / 1000);
 			const tokenCount = Math.round(
 				stream.tokenScale * (0.8 + Math.random() * 0.4),
 			);
+			const { added, removed } = countDiffLines(snippet);
+			const net = added - removed;
 			addEntry({ kind: "blank", text: "" });
 			addEntry({
 				kind: "text",
-				text: `Done (${elapsed}s · ↑ ${formatNumber(tokenCount)} tokens)`,
+				text: `✓ +${net} LoC (${elapsed}s)`,
 				color: stream.color,
+			});
+			addEntry({
+				kind: "text",
+				text: `  ↑ ${formatNumber(tokenCount)} tokens`,
+				color: "#6272a4",
 			});
 			addEntry({ kind: "blank", text: "" });
 			setStream({ phase: "done" });

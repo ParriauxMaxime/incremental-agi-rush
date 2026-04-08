@@ -14,6 +14,8 @@
 		"resources": "Ресурсы",
 		"cash": "Деньги",
 		"loc": "LoC",
+		"token_producers": "Производители токенов",
+		"ai_output": "Выход ИИ",
 		"flops": "FLOPS",
 		"tokens": "Токены",
 		"token_sources": "Источники токенов",
@@ -62,10 +64,10 @@
 		"flops_detail": "— {{flops}} FLOPS < {{locPerSec}} LoC/s"
 	},
 	"flops_slider": {
-		"exec_flops": "Выполнить LoC {{count}} FLOPS",
-		"ai_flops": "Сгенерировать LoC {{count}} FLOPS",
-		"exec_rate": "{{count}} LoC/s выполнено",
-		"ai_rate": "{{count}} LoC/s сгенерировано",
+		"exec_flops": "Выполнить → $ {{count}} FLOPS",
+		"ai_flops": "Сгенерировать → LoC {{count}} FLOPS",
+		"exec_rate": "{{count}} LoC/s → $",
+		"ai_rate": "ИИ: {{count}} LoC/s",
 		"auto_arbitrage_active": "Авто-арбитраж активен",
 		"targeting": "цель {{pct}}%"
 	},

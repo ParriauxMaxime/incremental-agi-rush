@@ -98,15 +98,6 @@
 			"threshold": 10000000,
 			"metric": "totalLoc",
 			"cashBonus": 5000000
-		},
-		{
-			"id": "agi",
-			"name": "AGI Achieved",
-			"description": "200M LoC. \"Hello, world.\" — it said back.",
-			"condition": "totalLoc >= 200000000",
-			"threshold": 200000000,
-			"metric": "totalLoc",
-			"cashBonus": 50000000
 		}
 	]
 }

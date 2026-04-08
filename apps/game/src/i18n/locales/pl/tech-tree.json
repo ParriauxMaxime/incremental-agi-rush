@@ -255,7 +255,7 @@
 	},
 	"llm_capacity": {
 		"name": "Przydział GPU",
-		"description": "+5 maksymalnych instancji LLM za poziom"
+		"description": "+4 maksymalnych slotów LLM za poziom"
 	},
 	"agent_capacity": {
 		"name": "Rój agentów",

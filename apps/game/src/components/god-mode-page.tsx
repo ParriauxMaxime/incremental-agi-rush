@@ -221,7 +221,7 @@ export function GodModePage() {
 	const theme = useIdeTheme();
 	const { t } = useTranslation();
 	const godSet = useGameStore((s) => s.godSet);
-	const reset = useGameStore((s) => s.reset);
+	const fullReset = useGameStore((s) => s.fullReset);
 	const resetAll = useUiStore((s) => s.resetAll);
 	const recalc = useGameStore((s) => s.recalc);
 	const state = useGameStore(
@@ -531,7 +531,7 @@ export function GodModePage() {
 							"&:hover": { background: "#e94560", color: "#fff" },
 						}}
 						onClick={() => {
-							reset();
+							fullReset();
 							resetAll();
 							window.location.reload();
 						}}

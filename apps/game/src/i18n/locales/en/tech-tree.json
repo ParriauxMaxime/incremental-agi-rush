@@ -255,7 +255,7 @@
 	},
 	"llm_capacity": {
 		"name": "GPU Allocation",
-		"description": "+5 max LLM instances per level"
+		"description": "+4 max LLM slots per level"
 	},
 	"agent_capacity": {
 		"name": "Agent Swarm",

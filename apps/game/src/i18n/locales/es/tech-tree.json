@@ -255,7 +255,7 @@
 	},
 	"llm_capacity": {
 		"name": "Asignación de GPU",
-		"description": "+5 instancias máximas de LLM por nivel"
+		"description": "+4 slots LLM máximos por nivel"
 	},
 	"agent_capacity": {
 		"name": "Enjambre de agentes",

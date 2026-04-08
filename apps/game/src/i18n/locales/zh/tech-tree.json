@@ -255,7 +255,7 @@
 	},
 	"llm_capacity": {
 		"name": "GPU 分配",
-		"description": "每级最大 LLM 实例 +5"
+		"description": "每级最大 LLM 插槽 +4"
 	},
 	"agent_capacity": {
 		"name": "代理集群",

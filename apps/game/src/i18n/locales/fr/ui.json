@@ -14,6 +14,8 @@
 		"resources": "Ressources",
 		"cash": "Cash",
 		"loc": "LoC",
+		"token_producers": "Producteurs de tokens",
+		"ai_output": "Production IA",
 		"flops": "FLOPS",
 		"tokens": "Tokens",
 		"token_sources": "Sources de tokens",
@@ -62,10 +64,10 @@
 		"flops_detail": "— {{flops}} FLOPS < {{locPerSec}} LoC/s"
 	},
 	"flops_slider": {
-		"exec_flops": "Exécuter LoC {{count}} FLOPS",
-		"ai_flops": "Générer LoC {{count}} FLOPS",
-		"exec_rate": "{{count}} LoC/s exécutés",
-		"ai_rate": "{{count}} LoC/s générés",
+		"exec_flops": "Exécuter → $ {{count}} FLOPS",
+		"ai_flops": "Générer → LoC {{count}} FLOPS",
+		"exec_rate": "{{count}} LoC/s → $",
+		"ai_rate": "IA : {{count}} LoC/s",
 		"auto_arbitrage_active": "Auto-Arbitrage actif",
 		"targeting": "cible {{pct}}%"
 	},

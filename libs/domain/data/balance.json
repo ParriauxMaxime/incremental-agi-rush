@@ -263,7 +263,7 @@
 
 	"validation": {
 		"agiMinMinutes": 20,
-		"agiMaxMinutes": 75,
+		"agiMaxMinutes": 95,
 		"maxWaitSeconds": 1500,
 		"minPurchases": 80,
 		"maxPurchases": 600,
@@ -278,7 +278,7 @@
 		},
 		"tierMaxDuration": {
 			"garage": 300,
-			"freelancing": 800,
+			"freelancing": 850,
 			"startup": 900,
 			"tech_company": 900,
 			"ai_lab": 1600,

@@ -255,7 +255,7 @@
 	},
 	"llm_capacity": {
 		"name": "Allocation GPU",
-		"description": "+5 instances LLM max par niveau"
+		"description": "+4 slots LLM max par niveau"
 	},
 	"agent_capacity": {
 		"name": "Essaim d'agents",

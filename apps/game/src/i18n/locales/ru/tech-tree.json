@@ -255,7 +255,7 @@
 	},
 	"llm_capacity": {
 		"name": "Распределение GPU",
-		"description": "+5 максимум LLM-экземпляров за уровень"
+		"description": "+4 максимум LLM-слотов за уровень"
 	},
 	"agent_capacity": {
 		"name": "Рой агентов",

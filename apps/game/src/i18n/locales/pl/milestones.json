@@ -42,9 +42,5 @@
 	"emergent_behavior": {
 		"name": "Zachowanie emergentne",
 		"description": "10M LoC. Powiedział coś, czego się nie spodziewałeś."
-	},
-	"agi": {
-		"name": "AGI osiągnięte",
-		"description": "200M LoC. Hello, world. — odpowiedział."
 	}
 }

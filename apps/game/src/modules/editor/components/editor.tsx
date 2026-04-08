@@ -220,9 +220,13 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 
 	// Editor is a pure display of the loc counter. O(1) — no array allocation.
 	// 1 LoC = 1 line. Partial line for the fractional part.
+	// Cap displayed lines to avoid hitting browser scrollHeight limits (~33M px).
+	const MAX_DISPLAY_LINES = 5000;
 	const fullLines = Math.max(0, Math.floor(loc));
 	const fraction = loc > 0 ? loc - fullLines : 0;
-	const lineCount = fullLines + (fraction > 0 ? 1 : 0);
+	const rawLineCount = fullLines + (fraction > 0 ? 1 : 0);
+	const lineCount = Math.min(rawLineCount, MAX_DISPLAY_LINES);
+	const lineOffset = Math.max(0, rawLineCount - MAX_DISPLAY_LINES);
 	const totalLines = lineCount + 1; // +1 for cursor line
 
 	// Compute partial line HTML (only for the fractional last line)
@@ -253,18 +257,19 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 		return partial;
 	}, [fullLines, fraction]);
 
-	/** Look up a line by index — O(1), no array needed */
+	/** Look up a line by display index — O(1), offset into the pool */
 	const getLine = useCallback(
-		(idx: number): { html: string; lineNumber: number } => {
-			if (idx === fullLines && fraction > 0) {
-				return { html: partialHtml, lineNumber: idx + 1 };
+		(displayIdx: number): { html: string; lineNumber: number } => {
+			const realIdx = displayIdx + lineOffset;
+			if (realIdx === fullLines && fraction > 0) {
+				return { html: partialHtml, lineNumber: realIdx + 1 };
 			}
 			return {
-				html: ALL_CODE_LINES[idx % ALL_CODE_LINES.length],
-				lineNumber: idx + 1,
+				html: ALL_CODE_LINES[realIdx % ALL_CODE_LINES.length],
+				lineNumber: realIdx + 1,
 			};
 		},
-		[fullLines, fraction, partialHtml],
+		[fullLines, fraction, partialHtml, lineOffset],
 	);
 
 	// ── Virtualization state ──
@@ -314,8 +319,8 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 	const visibleCount = Math.ceil(viewportHeight / LINE_HEIGHT) + OVERSCAN * 2;
 	const endIdx = Math.min(totalLines, startIdx + visibleCount);
 
-	const currentLineIdx = lineCount;
-	const currentLineNumber = lineCount + 1;
+	const currentLineIdx = lineCount; // cursor is after last displayed line
+	const currentLineNumber = lineOffset + lineCount + 1;
 
 	return (
 		<>

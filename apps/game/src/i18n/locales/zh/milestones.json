@@ -42,9 +42,5 @@
 	"emergent_behavior": {
 		"name": "涌现行为",
 		"description": "10M LoC。它说了一些你没料到的话。"
-	},
-	"agi": {
-		"name": "AGI 实现",
-		"description": "200M LoC。你好，世界。——它回应道。"
 	}
 }

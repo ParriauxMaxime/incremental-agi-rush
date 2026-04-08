@@ -1,5 +1,5 @@
 import { css } from "@emotion/react";
-import { useGameStore } from "@modules/game";
+import { aiModels, useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -88,6 +88,8 @@ export function StatsLocSection() {
 
 	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
 	const autoTypeLocPerSec = useGameStore((s) => s.autoTypeLocPerSec);
+	const aiUnlocked = useGameStore((s) => s.aiUnlocked);
+	const tokenMultiplier = useGameStore((s) => s.tokenMultiplier);
 	const keysPerSec = useKeypressRate();
 
 	// "You" = max(physical typing, auto-type) + auto-type base
@@ -95,38 +97,41 @@ export function StatsLocSection() {
 	const locRate = autoLocPerSec + youLocPerSec;
 	const elapsed = (performance.now() - sessionStartTime) / 1000;
 
+	// When AI is unlocked, workers become "token producers" — show tokens/s
+	const tokenScale = aiUnlocked ? tokenMultiplier : 1;
+
 	const humanSources = useMemo((): SourceRow[] => {
 		const rows: SourceRow[] = [];
 		if ((ownedUpgrades.malt_freelancer ?? 0) > 0)
 			rows.push({
 				name: t("malt_freelancer.name", { ns: "upgrades" }),
-				locPerSec: freelancerLocPerSec,
+				locPerSec: freelancerLocPerSec * tokenScale,
 				color: SOURCE_COLORS.malt_freelancer,
 				count: ownedUpgrades.malt_freelancer,
 			});
 		if ((ownedUpgrades.intern ?? 0) > 0)
 			rows.push({
 				name: t("intern.name", { ns: "upgrades" }),
-				locPerSec: internLocPerSec,
+				locPerSec: internLocPerSec * tokenScale,
 				color: SOURCE_COLORS.intern,
 				count: ownedUpgrades.intern,
 			});
 		if ((ownedUpgrades.dev_team ?? 0) > 0)
 			rows.push({
 				name: t("dev_team.name", { ns: "upgrades" }),
-				locPerSec: teamLocPerSec,
+				locPerSec: teamLocPerSec * tokenScale,
 				color: SOURCE_COLORS.dev_team,
 				count: ownedUpgrades.dev_team,
 			});
 		if (devLocPerSec > 0 && (ownedUpgrades.dev_team ?? 0) === 0)
 			rows.push({
 				name: t("dev_team.name", { ns: "upgrades" }),
-				locPerSec: devLocPerSec,
+				locPerSec: devLocPerSec * tokenScale,
 				color: SOURCE_COLORS.dev_team,
 			});
 		rows.push({
 			name: t("stats_panel.you"),
-			locPerSec: youLocPerSec,
+			locPerSec: youLocPerSec * tokenScale,
 			color: SOURCE_COLORS.you,
 		});
 		rows.sort((a, b) => b.locPerSec - a.locPerSec);
@@ -138,7 +143,48 @@ export function StatsLocSection() {
 		devLocPerSec,
 		teamLocPerSec,
 		youLocPerSec,
+		tokenScale,
 		t,
+	]);
+
+	// AI LoC/s (same computation as flops-slider.tsx)
+	const flops = useGameStore((s) => s.flops);
+	const flopSlider = useGameStore((s) => s.flopSlider);
+	const unlockedModels = useGameStore((s) => s.unlockedModels);
+	const llmHostSlots = useGameStore((s) => s.llmHostSlots);
+
+	const aiLocPerSec = useMemo(() => {
+		if (!aiUnlocked) return 0;
+		const active = aiModels
+			.filter((m) => unlockedModels[m.id])
+			.sort((a, b) => a.flopsCost - b.flopsCost)
+			.slice(0, llmHostSlots);
+		const aiFlops = flops * (1 - flopSlider);
+		let totalTokenDemand = 0;
+		for (const m of active) totalTokenDemand += m.tokenCost;
+		const humanTokenOutput = autoLocPerSec * tokenMultiplier;
+		const tokenEff =
+			totalTokenDemand > 0
+				? Math.min(1, humanTokenOutput / totalTokenDemand)
+				: 0;
+		let totalLoc = 0;
+		let remaining = aiFlops;
+		for (const model of active) {
+			const modelFlops = Math.min(model.flopsCost, remaining);
+			remaining -= modelFlops;
+			const flopRatio =
+				model.flopsCost > 0 ? modelFlops / model.flopsCost : 0;
+			totalLoc += model.locPerSec * tokenEff * Math.min(1, flopRatio);
+		}
+		return totalLoc;
+	}, [
+		aiUnlocked,
+		unlockedModels,
+		flops,
+		flopSlider,
+		llmHostSlots,
+		autoLocPerSec,
+		tokenMultiplier,
 	]);
 
 	const humanMaxLoc = Math.max(1, ...humanSources.map((s) => s.locPerSec));
@@ -152,16 +198,45 @@ export function StatsLocSection() {
 	);
 	const latest = rateSnapshots[rateSnapshots.length - 1];
 
+	const totalTokensPerSec = locRate * tokenMultiplier;
+	const unit = aiUnlocked
+		? t("stats_panel.tokens_per_sec")
+		: t("stats_panel.per_sec");
+
 	return (
 		<CollapsibleSection
 			icon={<span style={{ color: theme.locColor }}>◇</span>}
-			label={t("stats_panel.loc")}
-			value={<RollingNumber value={formatNumber(loc)} color={theme.locColor} />}
+			label={
+				aiUnlocked
+					? t("stats_panel.token_producers")
+					: t("stats_panel.loc")
+			}
+			value={
+				aiUnlocked ? (
+					<RollingNumber
+						value={`${formatNumber(totalTokensPerSec)} tok/s`}
+						color={theme.locColor}
+					/>
+				) : (
+					<RollingNumber
+						value={formatNumber(loc)}
+						color={theme.locColor}
+					/>
+				)
+			}
 			rate={
-				<span style={{ color: theme.locColor }}>
-					{formatNumber(locRate)}
-					{t("stats_panel.per_sec")}
-				</span>
+				aiUnlocked ? (
+					<span style={{ color: "#c678dd" }}>
+						{"AI: "}
+						{formatNumber(aiLocPerSec)}
+						{t("stats_panel.per_sec")}
+					</span>
+				) : (
+					<span style={{ color: theme.locColor }}>
+						{formatNumber(locRate)}
+						{t("stats_panel.per_sec")}
+					</span>
+				)
 			}
 			collapsible={analyticsUnlocked}
 			defaultOpen={true}
@@ -219,10 +294,30 @@ export function StatsLocSection() {
 					</div>
 					<span css={sourceValueCss} style={{ color: s.color }}>
 						{formatNumber(s.locPerSec)}
-						{t("stats_panel.per_sec")}
+						{unit}
 					</span>
 				</div>
 			))}
+			{aiUnlocked && aiLocPerSec > 0 && (
+				<div css={sourceRowCss}>
+					<span css={sourceNameCss} style={{ color: "#c678dd" }}>
+						{t("stats_panel.ai_output")}
+					</span>
+					<div css={barTrackCss} style={{ background: theme.border }}>
+						<div
+							css={barFillCss}
+							style={{
+								transform: "scaleX(1)",
+								background: "#c678dd",
+							}}
+						/>
+					</div>
+					<span css={sourceValueCss} style={{ color: "#c678dd" }}>
+						{formatNumber(aiLocPerSec)}
+						{t("stats_panel.per_sec")}
+					</span>
+				</div>
+			)}
 			{managerBonus > 1 && (
 				<div style={{ fontSize: 10, color: theme.textMuted, marginTop: 3 }}>
 					{t("stats_panel.manager_bonus", {

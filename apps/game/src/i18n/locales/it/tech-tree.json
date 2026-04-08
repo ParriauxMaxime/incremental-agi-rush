@@ -255,7 +255,7 @@
 	},
 	"llm_capacity": {
 		"name": "Allocazione GPU",
-		"description": "+5 istanze LLM max per livello"
+		"description": "+4 slot LLM max per livello"
 	},
 	"agent_capacity": {
 		"name": "Sciame di agenti",

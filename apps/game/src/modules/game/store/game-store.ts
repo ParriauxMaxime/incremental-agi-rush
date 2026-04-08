@@ -157,6 +157,7 @@ export interface GameActions {
 	executeManual: () => void;
 	godSet: (overrides: GodModeOverrides) => void;
 	reset: () => void;
+	fullReset: () => void;
 	recalc: () => void;
 	setFlopSlider: (value: number) => void;
 	setEffectiveLocPerKey: (value: number) => void;
@@ -446,7 +447,7 @@ function recalcDerivedStats(state: GameState): void {
 			case "singularity:enable":
 				singularity = true;
 				break;
-			// autoPoke:enable, autoArbitrage:enable — no-op (handled elsewhere)
+			// autoPoke:enable, autoArbitrage:enable — derived in recalcDerivedStats from ownedTechNodes
 		}
 	}
 
@@ -561,6 +562,11 @@ function recalcDerivedStats(state: GameState): void {
 	state.unlockedModels = unlockedModels;
 	state.aiUnlocked =
 		llmHostSlots > 0 && Object.values(unlockedModels).some(Boolean);
+	// Derive auto-* flags from owned tech nodes (ensures correct state after load/prestige)
+	state.autoTypeEnabled = (state.ownedTechNodes.auto_type ?? 0) > 0;
+	state.autoExecuteEnabled = (state.ownedTechNodes.auto_execute ?? 0) > 0;
+	state.autoPokeEnabled = (state.ownedTechNodes.auto_poke ?? 0) > 0;
+	state.autoArbitrageEnabled = (state.ownedTechNodes.auto_arbitrage ?? 0) > 0;
 	// Track singularity eligibility — actual trigger is in researchNode/godmode only
 	if (singularity) {
 		state.hasReachedSingularity = true;
@@ -847,12 +853,7 @@ export const useGameStore = create<GameState & GameActions>()(
 						cash: useLoc ? s.cash : s.cash - cost,
 						ownedTechNodes: { ...s.ownedTechNodes, [node.id]: newOwned },
 					};
-					if (node.id === "auto_type") newState.autoTypeEnabled = true;
-					if (node.id === "auto_execute")
-						newState.autoExecuteEnabled = true;
-					if (node.id === "auto_poke") newState.autoPokeEnabled = true;
-					if (node.id === "auto_arbitrage")
-						newState.autoArbitrageEnabled = true;
+					// auto-* flags are derived in recalcDerivedStats from ownedTechNodes
 					if (node.id === "the_singularity") {
 						newState.singularity = true;
 						newState.running = false;
@@ -905,6 +906,12 @@ export const useGameStore = create<GameState & GameActions>()(
 					hasReachedSingularity,
 					endgameCompleted,
 				});
+				localStorage.removeItem("flopsed-editor");
+				useEventStore.getState().reset();
+			},
+
+			fullReset: () => {
+				set({ ...initialState });
 				localStorage.removeItem("flopsed-editor");
 				useEventStore.getState().reset();
 			},

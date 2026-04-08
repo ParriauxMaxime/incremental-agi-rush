@@ -255,7 +255,7 @@
 	},
 	"llm_capacity": {
 		"name": "GPU-Zuteilung",
-		"description": "+5 max. LLM-Instanzen pro Stufe"
+		"description": "+4 max. LLM-Slots pro Stufe"
 	},
 	"agent_capacity": {
 		"name": "Agenten-Schwarm",

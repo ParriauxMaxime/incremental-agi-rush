@@ -14,6 +14,8 @@
 		"resources": "资源",
 		"cash": "现金",
 		"loc": "LoC",
+		"token_producers": "Token 生产者",
+		"ai_output": "AI 产出",
 		"flops": "FLOPS",
 		"tokens": "代币",
 		"token_sources": "代币来源",
@@ -62,10 +64,10 @@
 		"flops_detail": "— {{flops}} FLOPS < {{locPerSec}} LoC/s"
 	},
 	"flops_slider": {
-		"exec_flops": "执行 LoC {{count}} FLOPS",
-		"ai_flops": "生成 LoC {{count}} FLOPS",
-		"exec_rate": "{{count}} LoC/s 已执行",
-		"ai_rate": "{{count}} LoC/s 已生成",
+		"exec_flops": "执行 → $ {{count}} FLOPS",
+		"ai_flops": "生成 → LoC {{count}} FLOPS",
+		"exec_rate": "{{count}} LoC/s → $",
+		"ai_rate": "AI: {{count}} LoC/s",
 		"auto_arbitrage_active": "自动套利已启用",
 		"targeting": "目标 {{pct}}%"
 	},
