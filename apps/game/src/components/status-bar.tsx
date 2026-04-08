@@ -61,6 +61,7 @@ export function StatusBar() {
 	const toggleMute = useAudioStore((s) => s.toggleMute);
 	const prestigeCount = useGameStore((s) => s.prestigeCount);
 	const prestigeMultiplier = useGameStore((s) => s.prestigeMultiplier);
+	const cashMultiplier = useGameStore((s) => s.cashMultiplier);
 	const theme = useIdeTheme();
 	const { t } = useTranslation();
 
@@ -106,7 +107,9 @@ export function StatusBar() {
 			</div>
 			<div css={rightCss}>
 				<span>
-					{t("status_bar.cash_per_loc", { rate: tier?.cashPerLoc ?? 0 })}
+					{t("status_bar.cash_per_loc", {
+							rate: Math.round((tier?.cashPerLoc ?? 0) * cashMultiplier * 100) / 100,
+						})}
 				</span>
 				<button
 					type="button"
