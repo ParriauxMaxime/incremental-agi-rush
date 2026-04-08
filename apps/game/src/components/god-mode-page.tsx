@@ -556,9 +556,10 @@ export function GodModePage() {
 						}}
 						onClick={() => {
 							const current = useGameStore.getState();
-							// Reset singularity first so the animate ref detects the transition
+							// Reset singularity so the animate ref detects false→true
 							useGameStore.setState({ singularity: false });
-							requestAnimationFrame(() => {
+							// Delay to ensure React processes the false before we set true
+							setTimeout(() => {
 								useGameStore.setState({
 									ownedTechNodes: {
 										...current.ownedTechNodes,
@@ -567,7 +568,7 @@ export function GodModePage() {
 									singularity: true,
 									running: false,
 								});
-							});
+							}, 50);
 						}}
 					>
 						{t("god_mode.trigger_singularity")}
