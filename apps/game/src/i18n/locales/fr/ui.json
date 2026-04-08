@@ -42,6 +42,7 @@
 		"ai_diagnostic_full_capacity": "L'IA fonctionne à pleine capacité"
 	},
 	"status_bar": {
+		"experience": "expérience :",
 		"tokens": "🪙 {{count}} tokens",
 		"loc": "◇ {{count}} LoC",
 		"flops": "⚡ {{count}} FLOPS",

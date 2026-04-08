@@ -86,7 +86,7 @@ export function StatusBar() {
 								fontSize: 11,
 							}}
 						>
-							{"★".repeat(prestigeCount)} {prestigeMultiplier.toFixed(1)}x
+							{t("status_bar.experience")} {"★".repeat(prestigeCount)} {prestigeMultiplier.toFixed(1)}x $/LoC
 						</span>
 					)}
 				</span>

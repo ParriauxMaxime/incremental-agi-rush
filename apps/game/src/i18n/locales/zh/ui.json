@@ -42,6 +42,7 @@
 		"ai_diagnostic_full_capacity": "AI 满负荷运行"
 	},
 	"status_bar": {
+		"experience": "经验：",
 		"tokens": "🪙 {{count}} 代币",
 		"loc": "◇ {{count}} LoC",
 		"flops": "⚡ {{count}} FLOPS",
