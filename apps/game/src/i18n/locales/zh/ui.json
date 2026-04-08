@@ -34,7 +34,12 @@
 		"no_purchases": "暂无购买记录",
 		"exec_ai_split": "执行 / AI 分配",
 		"exec_label": "执行",
-		"ai_label": "AI"
+		"ai_label": "AI",
+		"ai_diagnostic_starving": "AI 正在挨饿 — 需要更多工人",
+		"ai_diagnostic_needs_tokens": "AI 需要更多代币",
+		"ai_diagnostic_needs_compute": "AI 需要更多算力 — 调整 FLOPS 滑块",
+		"ai_diagnostic_needs_flops": "AI 需要更多 FLOPS",
+		"ai_diagnostic_full_capacity": "AI 满负荷运行"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} 代币",

@@ -34,7 +34,12 @@
 		"no_purchases": "No purchases yet",
 		"exec_ai_split": "Exec / AI allocation",
 		"exec_label": "Exec",
-		"ai_label": "AI"
+		"ai_label": "AI",
+		"ai_diagnostic_starving": "AI is starving — need more workers",
+		"ai_diagnostic_needs_tokens": "AI needs more tokens",
+		"ai_diagnostic_needs_compute": "AI needs more compute — move FLOPS slider",
+		"ai_diagnostic_needs_flops": "AI needs more FLOPS",
+		"ai_diagnostic_full_capacity": "AI running at full capacity"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} tokens",

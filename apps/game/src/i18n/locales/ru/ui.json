@@ -34,7 +34,12 @@
 		"no_purchases": "Покупок пока нет",
 		"exec_ai_split": "Распределение Exec / ИИ",
 		"exec_label": "Exec",
-		"ai_label": "ИИ"
+		"ai_label": "ИИ",
+		"ai_diagnostic_starving": "ИИ голодает — наймите больше работников",
+		"ai_diagnostic_needs_tokens": "ИИ нужно больше токенов",
+		"ai_diagnostic_needs_compute": "ИИ нужно больше мощности — переместите слайдер FLOPS",
+		"ai_diagnostic_needs_flops": "ИИ нужно больше FLOPS",
+		"ai_diagnostic_full_capacity": "ИИ работает на полную мощность"
 	},
 	"status_bar": {
 		"tokens": "🪙 {{count}} токенов",

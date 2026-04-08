@@ -89,6 +89,8 @@ export function StatsTokensSection() {
 		tokenDemand,
 		tokensConsumed,
 		surplusAsLoc,
+		diagnosticKey,
+		diagnosticColor,
 	} = useMemo(() => {
 		if (!aiUnlocked)
 			return {
@@ -101,6 +103,8 @@ export function StatsTokensSection() {
 				tokenDemand: 0,
 				tokensConsumed: 0,
 				surplusAsLoc: 0,
+				diagnosticKey: "",
+				diagnosticColor: "",
 			};
 		const activeModels = aiModels
 			.filter((m) => unlockedModels[m.id])
@@ -132,6 +136,24 @@ export function StatsTokensSection() {
 		rows.sort((a, b) => b.locPerSec - a.locPerSec);
 		const totalTok = rows.reduce((sum, r) => sum + r.tokenPerSec, 0);
 		const totalLoc = rows.reduce((sum, r) => sum + r.locPerSec, 0);
+
+		// Diagnostic message
+		let diagKey = "stats_panel.ai_diagnostic_full_capacity";
+		let diagColor = theme.success;
+		if (tokEff < 0.5) {
+			diagKey = "stats_panel.ai_diagnostic_starving";
+			diagColor = "#f44336";
+		} else if (tokEff < 0.9) {
+			diagKey = "stats_panel.ai_diagnostic_needs_tokens";
+			diagColor = "#fbbf24";
+		} else if (sat < 0.5) {
+			diagKey = "stats_panel.ai_diagnostic_needs_compute";
+			diagColor = "#f44336";
+		} else if (sat < 0.9) {
+			diagKey = "stats_panel.ai_diagnostic_needs_flops";
+			diagColor = "#fbbf24";
+		}
+
 		return {
 			aiSources: rows,
 			totalTokenPerSec: totalTok,
@@ -142,6 +164,8 @@ export function StatsTokensSection() {
 			tokenDemand: totalTokenDemand,
 			tokensConsumed,
 			surplusAsLoc,
+			diagnosticKey: diagKey,
+			diagnosticColor: diagColor,
 		};
 	}, [
 		aiUnlocked,
@@ -152,6 +176,7 @@ export function StatsTokensSection() {
 		autoLocPerSec,
 		tokenMultiplier,
 		theme.textMuted,
+		theme.success,
 	]);
 
 	if (!aiUnlocked) return null;
@@ -170,6 +195,19 @@ export function StatsTokensSection() {
 			collapsible={true}
 			defaultOpen={true}
 		>
+			{diagnosticKey && (
+				<div
+					style={{
+						fontSize: 10,
+						fontWeight: 600,
+						color: diagnosticColor,
+						marginBottom: 6,
+						padding: "2px 0",
+					}}
+				>
+					{t(diagnosticKey)}
+				</div>
+			)}
 			{/* Token pipeline */}
 			<div
 				style={{
