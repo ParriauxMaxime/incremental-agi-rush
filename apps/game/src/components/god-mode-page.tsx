@@ -556,13 +556,17 @@ export function GodModePage() {
 						}}
 						onClick={() => {
 							const current = useGameStore.getState();
-							useGameStore.setState({
-								ownedTechNodes: {
-									...current.ownedTechNodes,
-									the_singularity: 1,
-								},
-								singularity: true,
-								running: false,
+							// Reset singularity first so the animate ref detects the transition
+							useGameStore.setState({ singularity: false });
+							requestAnimationFrame(() => {
+								useGameStore.setState({
+									ownedTechNodes: {
+										...current.ownedTechNodes,
+										the_singularity: 1,
+									},
+									singularity: true,
+									running: false,
+								});
 							});
 						}}
 					>
