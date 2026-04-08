@@ -217,65 +217,55 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 	);
 
 	// ── Build flat line list ──
-	const cachedLines = useRef<FlatLine[]>([]);
 
-	const flatLines = useMemo(() => {
-		// Editor is a pure display of the loc counter.
-		// 1 LoC = 1 line. Show floor(loc) complete lines + partial last line.
-		if (loc <= 0) {
-			cachedLines.current = [];
-			return [];
-		}
-		const fullLines = Math.floor(loc);
-		const fraction = loc - fullLines;
-		const pool = ALL_CODE_LINES;
-		const result: FlatLine[] = [];
-		for (let i = 0; i < fullLines; i++) {
-			result.push({
-				key: `L${i}`,
-				lineNumber: i + 1,
-				html: pool[i % pool.length],
-			});
-		}
-		// Show partial line for the fractional part
-		if (fraction > 0) {
-			const nextLine = pool[fullLines % pool.length];
-			// Strip HTML tags to get raw text length, then slice proportionally
-			const rawText = nextLine.replace(/<[^>]*>/g, "");
-			const charsToShow = Math.max(1, Math.ceil(rawText.length * fraction));
-			// Rebuild partial: take characters from the HTML, respecting tags
-			let shown = 0;
-			let htmlIdx = 0;
-			let partial = "";
-			while (shown < charsToShow && htmlIdx < nextLine.length) {
-				if (nextLine[htmlIdx] === "<") {
-					// Include full tag
-					const tagEnd = nextLine.indexOf(">", htmlIdx);
-					partial += nextLine.slice(htmlIdx, tagEnd + 1);
-					htmlIdx = tagEnd + 1;
-				} else {
-					partial += nextLine[htmlIdx];
-					htmlIdx++;
-					shown++;
-				}
-			}
-			// Close any open span tags
-			const openSpans = (partial.match(/<span[^>]*>/g) ?? []).length;
-			const closeSpans = (partial.match(/<\/span>/g) ?? []).length;
-			for (let s = 0; s < openSpans - closeSpans; s++) {
-				partial += "</span>";
-			}
-			result.push({
-				key: `L${fullLines}`,
-				lineNumber: fullLines + 1,
-				html: partial,
-			});
-		}
-		cachedLines.current = result;
-		return result;
-	}, [loc]);
+	// Editor is a pure display of the loc counter. O(1) — no array allocation.
+	// 1 LoC = 1 line. Partial line for the fractional part.
+	const fullLines = Math.max(0, Math.floor(loc));
+	const fraction = loc > 0 ? loc - fullLines : 0;
+	const lineCount = fullLines + (fraction > 0 ? 1 : 0);
+	const totalLines = lineCount + 1; // +1 for cursor line
 
-	const totalLines = flatLines.length + 1;
+	// Compute partial line HTML (only for the fractional last line)
+	const partialHtml = useMemo(() => {
+		if (fraction <= 0) return "";
+		const nextLine = ALL_CODE_LINES[fullLines % ALL_CODE_LINES.length];
+		const rawText = nextLine.replace(/<[^>]*>/g, "");
+		const charsToShow = Math.max(1, Math.ceil(rawText.length * fraction));
+		let shown = 0;
+		let htmlIdx = 0;
+		let partial = "";
+		while (shown < charsToShow && htmlIdx < nextLine.length) {
+			if (nextLine[htmlIdx] === "<") {
+				const tagEnd = nextLine.indexOf(">", htmlIdx);
+				partial += nextLine.slice(htmlIdx, tagEnd + 1);
+				htmlIdx = tagEnd + 1;
+			} else {
+				partial += nextLine[htmlIdx];
+				htmlIdx++;
+				shown++;
+			}
+		}
+		const openSpans = (partial.match(/<span[^>]*>/g) ?? []).length;
+		const closeSpans = (partial.match(/<\/span>/g) ?? []).length;
+		for (let s = 0; s < openSpans - closeSpans; s++) {
+			partial += "</span>";
+		}
+		return partial;
+	}, [fullLines, fraction]);
+
+	/** Look up a line by index — O(1), no array needed */
+	const getLine = useCallback(
+		(idx: number): { html: string; lineNumber: number } => {
+			if (idx === fullLines && fraction > 0) {
+				return { html: partialHtml, lineNumber: idx + 1 };
+			}
+			return {
+				html: ALL_CODE_LINES[idx % ALL_CODE_LINES.length],
+				lineNumber: idx + 1,
+			};
+		},
+		[fullLines, fraction, partialHtml],
+	);
 
 	// ── Virtualization state ──
 	const [scrollTop, setScrollTop] = useState(0);
@@ -299,11 +289,11 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 	}, []);
 
 	// Auto-scroll: to bottom when lines grow, clamp when lines shrink
-	const prevLineCount = useRef(flatLines.length);
+	const prevLineCount = useRef(lineCount);
 	const prev = prevLineCount.current;
-	if (flatLines.length !== prev) {
-		const grew = flatLines.length > prev;
-		prevLineCount.current = flatLines.length;
+	if (lineCount !== prev) {
+		const grew = lineCount > prev;
+		prevLineCount.current = lineCount;
 		queueMicrotask(() => {
 			const el = editorRef.current;
 			if (!el) return;
@@ -324,9 +314,8 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 	const visibleCount = Math.ceil(viewportHeight / LINE_HEIGHT) + OVERSCAN * 2;
 	const endIdx = Math.min(totalLines, startIdx + visibleCount);
 
-	const currentLineIdx = flatLines.length;
-	const currentLineNumber =
-		flatLines.length > 0 ? flatLines[flatLines.length - 1].lineNumber + 1 : 1;
+	const currentLineIdx = lineCount;
+	const currentLineNumber = lineCount + 1;
 
 	return (
 		<>
@@ -337,7 +326,7 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 				onScroll={onScroll}
 			>
 				<div style={{ height: contentHeight, position: "relative" }}>
-					{flatLines.length === 0 && (
+					{lineCount === 0 && (
 						<div css={hintCss} style={{ color: theme.comment }}>
 							<span
 								css={lineNumberLayoutCss}
@@ -377,11 +366,11 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 								);
 							}
 
-							if (idx < flatLines.length) {
-								const line = flatLines[idx];
+							if (idx < lineCount) {
+								const line = getLine(idx);
 								return (
 									<EditorLine
-										key={line.key}
+										key={`L${idx}`}
 										lineNumber={line.lineNumber}
 										html={line.html}
 										lineNumberColor={theme.lineNumbers}
