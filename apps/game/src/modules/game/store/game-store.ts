@@ -561,9 +561,8 @@ function recalcDerivedStats(state: GameState): void {
 	state.unlockedModels = unlockedModels;
 	state.aiUnlocked =
 		llmHostSlots > 0 && Object.values(unlockedModels).some(Boolean);
-	// Only trigger singularity sequence if not already completed
-	// Godmode can re-trigger by setting singularity directly via setState
-	if (singularity && !state.endgameCompleted) {
+	// Trigger singularity when tech node is owned (skip if already playing)
+	if (singularity && !state.singularity) {
 		state.singularity = true;
 		state.hasReachedSingularity = true;
 		state.running = false;
