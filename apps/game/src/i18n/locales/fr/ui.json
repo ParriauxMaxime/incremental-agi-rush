@@ -47,7 +47,8 @@
 		"flops": "⚡ {{count}} FLOPS",
 		"cash_per_loc": "${{rate}}/loc",
 		"python": "Python",
-		"utf8": "UTF-8"
+		"utf8": "UTF-8",
+		"experience": "expérience :"
 	},
 	"hardware": {
 		"title": "Matériel",
