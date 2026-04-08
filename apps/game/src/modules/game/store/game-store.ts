@@ -717,6 +717,31 @@ export const useGameStore = create<GameState & GameActions>()(
 								}
 							}
 						}
+
+						// Sync visual queue with actual LoC counter:
+						// If loc is 0, clear all visual blocks
+						if (loc <= 0 && blockQueue.length > 0) {
+							blockQueue = [];
+						} else if (blockQueue.length > 0) {
+							// Trim excess blocks if visual total exceeds actual loc
+							let visualTotal = 0;
+							for (const b of blockQueue) visualTotal += b.loc;
+							if (visualTotal > loc * 1.5) {
+								// Over-represented — trim from front
+								let excess = visualTotal - Math.floor(loc);
+								blockQueue = blockQueue.slice();
+								while (blockQueue.length > 1 && excess > 0) {
+									const block = blockQueue[0];
+									if (block.loc <= excess) {
+										excess -= block.loc;
+										blockQueue.shift();
+									} else {
+										break;
+									}
+								}
+							}
+						}
+
 						const visualProduced = Math.floor(humanOutput + aiProduced);
 						if (visualProduced > 0 && visualTick % 5 === 0) {
 							blockQueue =
