@@ -48,7 +48,8 @@
 		"flops": "⚡ {{count}} FLOPS",
 		"cash_per_loc": "${{rate}}/loc",
 		"python": "Python",
-		"utf8": "UTF-8"
+		"utf8": "UTF-8",
+		"experience": "опыт:"
 	},
 	"hardware": {
 		"title": "Железо",
@@ -164,5 +165,17 @@
 		"header": "$ ai-lab --interactive",
 		"loaded": "✓ Модели загружены. Введите запрос или наблюдайте за работой.",
 		"placeholder": "Введите запрос..."
+	},
+	"prestige_modal": {
+		"title": "Предложение о покупке",
+		"subtitle": "Корпорация хочет купить вашу компанию.",
+		"pro_cash": "Уйти с ${{amount}} наличными",
+		"pro_experience": "Опыт получен: {{current}}x → {{next}}x $/LoC",
+		"pro_reputation": "Репутация: {{currentStars}} → {{nextStars}}",
+		"con_restart": "Начать заново из Гаража",
+		"con_employees": "Все сотрудники, оборудование и ИИ потеряны",
+		"con_tech": "Все технические исследования стёрты",
+		"cancel": "Продолжить работу",
+		"confirm": "Продать"
 	}
 }

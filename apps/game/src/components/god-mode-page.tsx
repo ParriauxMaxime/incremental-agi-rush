@@ -503,6 +503,7 @@ export function GodModePage() {
 									currentCash: gs.cash,
 									currentLoc: gs.loc,
 									currentLocPerSec: gs.autoLocPerSec,
+									currentTierIndex: gs.currentTierIndex,
 								});
 							}}
 						>

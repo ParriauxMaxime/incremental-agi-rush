@@ -292,6 +292,11 @@ const rickrollVideoCss = css({
 	opacity: 0,
 });
 
+const pulseRedDot = keyframes`
+	0%, 100% { box-shadow: 0 0 0 0 rgba(255, 95, 87, 0.6); }
+	50% { box-shadow: 0 0 8px 3px rgba(255, 95, 87, 0.8); }
+`;
+
 // ── Line rendering with syntax coloring ──
 
 const commandPrefixCss = css({ color: "#e94560" });
@@ -461,8 +466,15 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 		animate ? PhaseEnum.glitch : PhaseEnum.show_link,
 	);
 	const [inputValue, setInputValue] = useState("");
+	const [rickrollPlayed, setRickrollPlayed] = useState(false);
 	const contentRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		if (phase !== PhaseEnum.rickroll) return;
+		const timer = setTimeout(() => setRickrollPlayed(true), 5000);
+		return () => clearTimeout(timer);
+	}, [phase]);
 
 	// ── Phase transitions (timed) ──
 
@@ -594,6 +606,32 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 					allow="autoplay; encrypted-media"
 					allowFullScreen
 				/>
+				{rickrollPlayed && (
+					<button
+						type="button"
+						onClick={() => {
+							useGameStore.setState({
+								endgameCompleted: true,
+								singularity: false,
+							});
+						}}
+						css={css({
+							position: "absolute",
+							top: 12,
+							left: 12,
+							width: 14,
+							height: 14,
+							borderRadius: "50%",
+							background: "#ff5f57",
+							border: "none",
+							cursor: "pointer",
+							animation: `${pulseRedDot} 1.5s ease-in-out infinite`,
+							zIndex: 10,
+							"&:hover": { filter: "brightness(1.2)" },
+						})}
+						title="Exit"
+					/>
+				)}
 			</div>
 		);
 	}
@@ -609,14 +647,12 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 			<div css={cliContainerCss}>
 				{/* Top bar */}
 				<div css={topBarCss}>
-					<button
-						type="button"
-						css={[trafficDotBtnCss, { background: "#ff5f57" }]}
-						onClick={() => {
-							useGameStore.getState().reset();
-							window.location.reload();
-						}}
-						title="Reset game"
+					<span
+						css={[
+							trafficDotBtnCss,
+							{ background: "#ff5f57", cursor: "default" },
+						]}
+						title="No escape"
 					/>
 					<span css={[trafficDotCss, { background: "#febc2e" }]} />
 					<span css={[trafficDotCss, { background: "#28c840" }]} />

@@ -48,7 +48,8 @@
 		"flops": "⚡ {{count}} FLOPS",
 		"cash_per_loc": "${{rate}}/loc",
 		"python": "Python",
-		"utf8": "UTF-8"
+		"utf8": "UTF-8",
+		"experience": "经验："
 	},
 	"hardware": {
 		"title": "硬件",
@@ -164,5 +165,17 @@
 		"header": "$ ai-lab --interactive",
 		"loaded": "✓ 模型已加载。输入提示词或静待其工作。",
 		"placeholder": "输入提示词..."
+	},
+	"prestige_modal": {
+		"title": "收购要约",
+		"subtitle": "一家公司想要收购你的企业。",
+		"pro_cash": "带走 ${{amount}} 现金",
+		"pro_experience": "获得经验：{{current}}x → {{next}}x $/LoC",
+		"pro_reputation": "声望：{{currentStars}} → {{nextStars}}",
+		"con_restart": "从车库重新开始",
+		"con_employees": "所有员工、硬件和 AI 全部失去",
+		"con_tech": "所有技术研究被清除",
+		"cancel": "继续工作",
+		"confirm": "卖掉"
 	}
 }

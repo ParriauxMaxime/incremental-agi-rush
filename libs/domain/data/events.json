@@ -79,7 +79,11 @@
 			"maxTier": "startup",
 			"duration": 0,
 			"effects": [
-				{ "type": "instantCash", "op": "add", "value": "currentCash * 0.02" }
+				{
+					"type": "instantCash",
+					"op": "add",
+					"value": "20 + currentTierIndex * 40"
+				}
 			],
 			"weight": 15
 		},

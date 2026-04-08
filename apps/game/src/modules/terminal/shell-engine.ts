@@ -105,6 +105,23 @@ class ShellEngineImpl {
 			const name = parts[0];
 			const args = parts.slice(1);
 
+			if (name === "sudo") {
+				const subCmd = args.join(" ");
+				if (subCmd === "godmode") {
+					useGameStore.setState({ endgameCompleted: true });
+					allLines.push({
+						type: ShellLineTypeEnum.output,
+						text: "root access granted. You cheater.",
+					});
+					break;
+				}
+				allLines.push({
+					type: ShellLineTypeEnum.error,
+					text: "Permission denied. Nice try.",
+				});
+				break;
+			}
+
 			const handler = COMMANDS[name];
 			if (!handler) {
 				allLines.push({

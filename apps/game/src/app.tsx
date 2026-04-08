@@ -1170,9 +1170,8 @@ export function App() {
 		(s) => (s.ownedTechNodes.unlock_stats_panel ?? 0) > 0,
 	);
 	const singularity = useGameStore((s) => s.singularity);
-	const hasReachedSingularity = useGameStore((s) => s.hasReachedSingularity);
-	const showGodMode =
-		hasReachedSingularity || location.hostname === "localhost";
+	const endgameCompleted = useGameStore((s) => s.endgameCompleted);
+	const showGodMode = endgameCompleted || location.hostname === "localhost";
 	const middleTabs = showGodMode ? [...baseTabs, godModeTab] : baseTabs;
 	const theme = useIdeTheme();
 	const shellRef = useRef<HTMLDivElement>(null);

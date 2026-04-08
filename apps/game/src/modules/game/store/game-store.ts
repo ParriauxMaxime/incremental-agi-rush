@@ -77,6 +77,7 @@ export interface GameState {
 	locPerKey: number;
 	effectiveLocPerKey: number;
 	autoLocPerSec: number;
+	autoTypeLocPerSec: number;
 	freelancerLocPerSec: number;
 	internLocPerSec: number;
 	devLocPerSec: number;
@@ -130,6 +131,7 @@ export interface GameState {
 	prestigeCount: number;
 	prestigeMultiplier: number;
 	hasReachedSingularity: boolean;
+	endgameCompleted: boolean;
 }
 
 export interface GodModeOverrides {
@@ -180,6 +182,7 @@ const initialState: GameState = {
 	locPerKey: core.startingLocPerKey,
 	effectiveLocPerKey: core.startingLocPerKey,
 	autoLocPerSec: 0,
+	autoTypeLocPerSec: 0,
 	freelancerLocPerSec: 0,
 	internLocPerSec: 0,
 	devLocPerSec: 0,
@@ -233,6 +236,7 @@ const initialState: GameState = {
 	prestigeCount: 0,
 	prestigeMultiplier: 1,
 	hasReachedSingularity: false,
+	endgameCompleted: false,
 };
 
 function getEffectiveMax(upgrade: Upgrade, state?: GameState): number {
@@ -486,6 +490,15 @@ function recalcDerivedStats(state: GameState): void {
 		totalAutoLoc * locProductionMultiplier * eventMods.autoLocMultiplier;
 	if (!state.editorStreamingMode && state.autoLocPerSec > locPerKey * 8) {
 		state.editorStreamingMode = true;
+	}
+	// In streaming mode, auto-type doesn't go through advanceTokens (no visual editor),
+	// so include its LoC production in autoLocPerSec for the tick to handle.
+	const autoTypeLoc = state.autoTypeEnabled
+		? 5 * locPerKey * locProductionMultiplier * eventMods.autoLocMultiplier
+		: 0;
+	state.autoTypeLocPerSec = autoTypeLoc;
+	if (state.editorStreamingMode) {
+		state.autoLocPerSec += autoTypeLoc;
 	}
 	state.effectiveLocPerKey = locPerKey;
 	state.freelancerLocPerSec =
@@ -914,13 +927,18 @@ export const useGameStore = create<GameState & GameActions>()(
 			},
 
 			reset: () => {
-				const { prestigeCount, prestigeMultiplier, hasReachedSingularity } =
-					get();
+				const {
+					prestigeCount,
+					prestigeMultiplier,
+					hasReachedSingularity,
+					endgameCompleted,
+				} = get();
 				set({
 					...initialState,
 					prestigeCount,
 					prestigeMultiplier,
 					hasReachedSingularity,
+					endgameCompleted,
 				});
 				localStorage.removeItem("flopsed-editor");
 				useEventStore.getState().reset();
@@ -938,6 +956,7 @@ export const useGameStore = create<GameState & GameActions>()(
 					prestigeMultiplier: newMult,
 					cash: keptCash,
 					totalCash: keptCash,
+					endgameCompleted: s.endgameCompleted,
 				});
 				localStorage.removeItem("flopsed-editor");
 				useEventStore.getState().reset();

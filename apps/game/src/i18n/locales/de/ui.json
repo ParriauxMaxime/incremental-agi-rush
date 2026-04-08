@@ -48,7 +48,8 @@
 		"flops": "⚡ {{count}} FLOPS",
 		"cash_per_loc": "${{rate}}/loc",
 		"python": "Python",
-		"utf8": "UTF-8"
+		"utf8": "UTF-8",
+		"experience": "Erfahrung:"
 	},
 	"hardware": {
 		"title": "Hardware",
@@ -164,5 +165,17 @@
 		"header": "$ ai-lab --interactive",
 		"loaded": "✓ Modelle geladen. Gib einen Prompt ein oder schau zu wie sie arbeiten.",
 		"placeholder": "Prompt eingeben..."
+	},
+	"prestige_modal": {
+		"title": "Übernahmeangebot",
+		"subtitle": "Ein Konzern will Ihre Firma kaufen.",
+		"pro_cash": "Gehen Sie mit ${{amount}} Cash",
+		"pro_experience": "Erfahrung gewonnen: {{current}}x → {{next}}x $/LoC",
+		"pro_reputation": "Reputation: {{currentStars}} → {{nextStars}}",
+		"con_restart": "Neustart aus der Garage",
+		"con_employees": "Alle Mitarbeiter, Hardware & KI verloren",
+		"con_tech": "Alle Tech-Forschung gelöscht",
+		"cancel": "Weiterarbeiten",
+		"confirm": "Verkaufen"
 	}
 }

@@ -29,6 +29,15 @@ export function resolveExpression(
 		if (op === "/") return constant !== 0 ? variable / constant : 0;
 	}
 
+	// Try "constant + variable * constant" (e.g. "20 + currentTierIndex * 40")
+	const m2 = trimmed.match(/^([0-9.]+)\s*\+\s*(\w+)\s*\*\s*([0-9.]+)$/);
+	if (m2) {
+		const base = Number(m2[1]);
+		const variable = lookupVariable(m2[2], ctx);
+		const scale = Number(m2[3]);
+		return base + variable * scale;
+	}
+
 	// Try bare variable name
 	return lookupVariable(trimmed, ctx);
 }
@@ -37,5 +46,6 @@ function lookupVariable(name: string, ctx: ExpressionContext): number {
 	if (name === "currentCash") return ctx.currentCash;
 	if (name === "currentLoc") return ctx.currentLoc;
 	if (name === "currentLocPerSec") return ctx.currentLocPerSec;
+	if (name === "currentTierIndex") return ctx.currentTierIndex;
 	return 0;
 }

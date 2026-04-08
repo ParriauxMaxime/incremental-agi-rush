@@ -144,6 +144,7 @@ export function StreamingEditor() {
 	const locPerKey = useGameStore((s) => s.locPerKey);
 	const addLoc = useGameStore((s) => s.addLoc);
 	const running = useGameStore((s) => s.running);
+	const endgameCompleted = useGameStore((s) => s.endgameCompleted);
 	const editorTheme = useUiStore((s) => s.editorTheme);
 	const theme = EDITOR_THEMES[editorTheme];
 	const editorRef = useRef<HTMLDivElement>(null);
@@ -294,6 +295,21 @@ export function StreamingEditor() {
 				<span ref={totalLocRef} />
 				<span ref={locPerKeyRef} />
 			</div>
+			{endgameCompleted && (
+				<div
+					css={css({
+						fontSize: 10,
+						color: theme.comment,
+						fontStyle: "italic",
+						padding: "2px 12px",
+						opacity: 0.7,
+					})}
+				>
+					{
+						'// hint: You could have bypassed this whole grind by just running "sudo godmode"'
+					}
+				</div>
+			)}
 		</>
 	);
 }

@@ -19,6 +19,7 @@ export function useGameLoop() {
 			currentCash: 0,
 			currentLoc: 0,
 			currentLocPerSec: 0,
+			currentTierIndex: 0,
 		};
 
 		// Throttle game tick to ~20fps (50ms). The game is an incremental/idle
@@ -48,6 +49,7 @@ export function useGameLoop() {
 			ctx.currentCash = gameState.cash;
 			ctx.currentLoc = gameState.loc;
 			ctx.currentLocPerSec = gameState.autoLocPerSec;
+			ctx.currentTierIndex = gameState.currentTierIndex;
 			const eventChanged = eventStore.tick(
 				dt,
 				gameState.currentTierIndex,

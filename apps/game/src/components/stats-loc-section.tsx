@@ -87,11 +87,20 @@ export function StatsLocSection() {
 	const sessionStartTime = useGameStore((s) => s.sessionStartTime);
 
 	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
+	const autoTypeLocPerSec = useGameStore((s) => s.autoTypeLocPerSec);
+	const editorStreamingMode = useGameStore((s) => s.editorStreamingMode);
 	const keysPerSec = useKeypressRate();
-	const autoTypeKeysPerSec = autoTypeEnabled ? 5 : 0;
-	const typingLocPerSec =
-		Math.max(keysPerSec, autoTypeKeysPerSec) * effectiveLocPerKey;
-	const locRate = autoLocPerSec + typingLocPerSec;
+
+	// "You" row = auto-type + physical typing
+	// In streaming mode, auto-type LoC is already in autoLocPerSec (tick handles it),
+	// so we only add physical typing to the total to avoid double-counting.
+	const physicalTypingLoc = keysPerSec * effectiveLocPerKey;
+	const youLocPerSec = editorStreamingMode
+		? autoTypeLocPerSec + physicalTypingLoc
+		: Math.max(keysPerSec, autoTypeEnabled ? 5 : 0) * effectiveLocPerKey;
+	const locRate = editorStreamingMode
+		? autoLocPerSec + physicalTypingLoc
+		: autoLocPerSec + youLocPerSec;
 	const elapsed = (performance.now() - sessionStartTime) / 1000;
 
 	const humanSources = useMemo((): SourceRow[] => {
@@ -123,11 +132,9 @@ export function StatsLocSection() {
 				locPerSec: devLocPerSec,
 				color: SOURCE_COLORS.dev_team,
 			});
-		const autoTypeKeysPerSec = autoTypeEnabled ? 5 : 0;
-		const effectiveKeysPerSec = Math.max(keysPerSec, autoTypeKeysPerSec);
 		rows.push({
 			name: t("stats_panel.you"),
-			locPerSec: effectiveKeysPerSec * effectiveLocPerKey,
+			locPerSec: youLocPerSec,
 			color: SOURCE_COLORS.you,
 		});
 		rows.sort((a, b) => b.locPerSec - a.locPerSec);
@@ -138,9 +145,7 @@ export function StatsLocSection() {
 		internLocPerSec,
 		devLocPerSec,
 		teamLocPerSec,
-		effectiveLocPerKey,
-		autoTypeEnabled,
-		keysPerSec,
+		youLocPerSec,
 		t,
 	]);
 
