@@ -785,7 +785,7 @@
 			"icon": "\ud83c\udf00",
 			"requires": ["tier_ai_lab"],
 			"max": 1,
-			"baseCost": 30000000000,
+			"baseCost": 10000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
@@ -1798,7 +1798,7 @@
 			"icon": "\ud83c\udf00",
 			"requires": ["tier_agi_race"],
 			"max": 1,
-			"baseCost": 2000000000000000,
+			"baseCost": 3500000000000000,
 			"costMultiplier": 1,
 			"currency": "cash",
 			"effects": [
