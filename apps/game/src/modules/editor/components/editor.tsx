@@ -396,7 +396,7 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 				</div>
 			</div>
 			<div css={statusBarStyle}>
-				<span>{formatNumber(Math.round(loc))} LoC queued</span>
+				<span>{formatNumber(totalLoc)} lines</span>
 				<span>{Math.round(effectiveLocPerKey * 10) / 10} LoC/key</span>
 			</div>
 		</>

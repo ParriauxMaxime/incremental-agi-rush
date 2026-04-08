@@ -587,14 +587,18 @@ export const useGameStore = create<GameState & GameActions>()(
 				set((s) => {
 					const gained = amount * s.locProductionMultiplier;
 					if (!s.editorStreamingMode) {
-						// Block mode: loc = blockQueue total + typing buffer LoC
-						// addLoc represents LoC in the typing buffer (not yet a completed block)
-						const queueLoc = s.blockQueue.reduce((sum, b) => sum + b.loc, 0);
-						return {
-							loc: queueLoc + (s._typingLoc ?? 0) + gained,
-							_typingLoc: (s._typingLoc ?? 0) + gained,
-							totalLoc: s.totalLoc + gained,
+						// Block mode: add LoC to the last block in the queue.
+						// This LoC represents tokens being typed into the current block.
+						const blockQueue = s.blockQueue.length > 0
+							? s.blockQueue.slice()
+							: [{ lines: [], loc: 0 }];
+						const last = blockQueue[blockQueue.length - 1];
+						blockQueue[blockQueue.length - 1] = {
+							...last,
+							loc: last.loc + gained,
 						};
+						const loc = blockQueue.reduce((sum, b) => sum + b.loc, 0);
+						return { blockQueue, loc, totalLoc: s.totalLoc + gained };
 					}
 					return { loc: s.loc + gained, totalLoc: s.totalLoc + gained };
 				});
@@ -602,12 +606,9 @@ export const useGameStore = create<GameState & GameActions>()(
 
 			enqueueBlock: (block: QueuedBlock) => {
 				set((s) => {
-					const blockQueue = [...s.blockQueue, block];
-					if (!s.editorStreamingMode) {
-						// Block completes: move typing LoC into the block, reset typing buffer
-						const loc = blockQueue.reduce((sum, b) => sum + b.loc, 0);
-						return { blockQueue, loc, _typingLoc: 0 };
-					}
+					// Visual block completed. Add it with loc=0 since addLoc
+					// already accounted for the LoC on the previous "last" block.
+					const blockQueue = [...s.blockQueue, { ...block, loc: 0 }];
 					return { blockQueue };
 				});
 			},
@@ -702,9 +703,9 @@ export const useGameStore = create<GameState & GameActions>()(
 						execCapacity = 0;
 					}
 
-					// In block mode, loc = blockQueue total + typing buffer
+					// In block mode, loc is derived from blockQueue
 					if (!s.editorStreamingMode && !aiUnlocked) {
-						loc = blockQueue.reduce((sum, b) => sum + b.loc, 0) + (s._typingLoc ?? 0);
+						loc = blockQueue.reduce((sum, b) => sum + b.loc, 0);
 					}
 
 					const executed = Math.min(execCapacity, loc);
@@ -741,8 +742,8 @@ export const useGameStore = create<GameState & GameActions>()(
 									toRemove = 0;
 								}
 							}
-							// Derive loc from updated queue + typing buffer
-							loc = blockQueue.reduce((sum, b) => sum + b.loc, 0) + (s._typingLoc ?? 0);
+							// Derive loc from updated queue
+							loc = blockQueue.reduce((sum, b) => sum + b.loc, 0);
 						}
 					}
 
