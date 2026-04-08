@@ -194,7 +194,7 @@ export function StreamingEditor() {
 			const cutoff = now - 2000;
 			const ts = keystrokeTimestamps.current;
 			while (ts.length > 0 && ts[0] < cutoff) ts.shift();
-			const typingLocPerSec = (ts.length / 2) * state.effectiveLocPerKey;
+			const typingLocPerSec = (ts.length / 2) * state.locPerKey;
 
 			const totalLocPerSec = state.autoLocPerSec + typingLocPerSec;
 
@@ -266,7 +266,7 @@ export function StreamingEditor() {
 				totalLocRef.current.textContent = `${formatNumber(state.totalLoc)} lines`;
 			}
 			if (locPerKeyRef.current) {
-				locPerKeyRef.current.textContent = `${Math.round(state.effectiveLocPerKey * 10) / 10} LoC/key`;
+				locPerKeyRef.current.textContent = `${Math.round(state.locPerKey * 10) / 10} LoC/key`;
 			}
 		});
 		return unsub;

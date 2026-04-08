@@ -80,7 +80,7 @@ export function StatsLocSection() {
 	const devLocPerSec = useGameStore((s) => s.devLocPerSec);
 	const teamLocPerSec = useGameStore((s) => s.teamLocPerSec);
 	const managerBonus = useGameStore((s) => s.managerBonus);
-	const effectiveLocPerKey = useGameStore((s) => s.effectiveLocPerKey);
+	const locPerKey = useGameStore((s) => s.locPerKey);
 	const autoTypeEnabled = useGameStore((s) => s.autoTypeEnabled);
 	const rateSnapshots = useGameStore((s) => s.rateSnapshots);
 	const tierTransitions = useGameStore((s) => s.tierTransitions);
@@ -94,10 +94,10 @@ export function StatsLocSection() {
 	// "You" row = auto-type + physical typing
 	// In streaming mode, auto-type LoC is already in autoLocPerSec (tick handles it),
 	// so we only add physical typing to the total to avoid double-counting.
-	const physicalTypingLoc = keysPerSec * effectiveLocPerKey;
+	const physicalTypingLoc = keysPerSec * locPerKey;
 	const youLocPerSec = editorStreamingMode
 		? autoTypeLocPerSec + physicalTypingLoc
-		: Math.max(keysPerSec, autoTypeEnabled ? 5 : 0) * effectiveLocPerKey;
+		: Math.max(keysPerSec, autoTypeEnabled ? 5 : 0) * locPerKey;
 	const locRate = editorStreamingMode
 		? autoLocPerSec + physicalTypingLoc
 		: autoLocPerSec + youLocPerSec;

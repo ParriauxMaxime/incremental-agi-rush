@@ -3,7 +3,7 @@
 		{
 			"id": "better_keyboard",
 			"name": "Better Keyboard",
-			"description": "+3 LoC per keystroke",
+			"description": "+0.5 LoC per keystroke",
 			"icon": "\u2328\ufe0f",
 			"requires": ["computer"],
 			"max": 1,
@@ -14,7 +14,7 @@
 				{
 					"type": "locPerKey",
 					"op": "add",
-					"value": 3
+					"value": 0.5
 				}
 			],
 			"x": 980,
@@ -63,7 +63,7 @@
 		{
 			"id": "coffee",
 			"name": "Coffee",
-			"description": "+2 LoC per keystroke",
+			"description": "+0.3 LoC per keystroke",
 			"icon": "\u2615",
 			"requires": ["computer"],
 			"max": 1,
@@ -74,7 +74,7 @@
 				{
 					"type": "locPerKey",
 					"op": "add",
-					"value": 2
+					"value": 0.3
 				}
 			],
 			"x": 1160,
@@ -83,7 +83,7 @@
 		{
 			"id": "barista",
 			"name": "Barista",
-			"description": "+3 LoC per keystroke",
+			"description": "+0.5 LoC per keystroke",
 			"icon": "\u2615",
 			"requires": ["coffee"],
 			"max": 1,
@@ -94,7 +94,7 @@
 				{
 					"type": "locPerKey",
 					"op": "add",
-					"value": 3
+					"value": 0.5
 				}
 			],
 			"x": 1160,
@@ -103,7 +103,7 @@
 		{
 			"id": "doppio",
 			"name": "Doppio",
-			"description": "+5 LoC per keystroke",
+			"description": "+0.7 LoC per keystroke",
 			"icon": "\u2615",
 			"requires": ["barista"],
 			"max": 1,
@@ -114,7 +114,7 @@
 				{
 					"type": "locPerKey",
 					"op": "add",
-					"value": 5
+					"value": 0.7
 				}
 			],
 			"x": 1160,

@@ -67,33 +67,8 @@ export function useCodeTyping() {
 	const typingLinesRef = useRef<string[]>(typing.lines);
 	const typingCurrentRef = useRef(typing.currentLine);
 
-	// ── Batched LoC accumulator ──
-	// Instead of calling addLoc() per token, accumulate and flush every 150ms
-	const pendingLocRef = useRef(0);
-	useEffect(() => {
-		const interval = setInterval(() => {
-			if (pendingLocRef.current > 0) {
-				addLoc(pendingLocRef.current);
-				pendingLocRef.current = 0;
-			}
-		}, 150);
-		return () => clearInterval(interval);
-	}, [addLoc]);
-
-	// Compute average loc-per-token ratio across ALL code blocks (stable value).
-	// Recompute when locPerKey changes (from upgrades).
-	const locPerKeyForRatio = useGameStore((s) => s.locPerKey);
-	useEffect(() => {
-		let totalLoc = 0;
-		let totalTokens = 0;
-		for (const block of CODE_BLOCKS) {
-			const tokens = tokenizeBlock(block);
-			totalLoc += block.loc;
-			totalTokens += tokens.length;
-		}
-		const avgRatio = totalTokens > 0 ? totalLoc / totalTokens : 1;
-		useGameStore.getState().setEffectiveLocPerKey(locPerKeyForRatio * avgRatio);
-	}, [locPerKeyForRatio]);
+	// advanceTokens is purely visual — LoC accounting is done by addLoc()
+	// called directly from keystroke handlers.
 
 	// ── Batched rendering ──
 	// Throttle React state updates to ~20fps — fast enough to look smooth,
@@ -170,10 +145,6 @@ export function useCodeTyping() {
 					setTyping({ lines: [], currentLine: "" });
 					continue;
 				}
-
-				// Accumulate LoC regardless of visual budget
-				const locPerToken = currentBlockDef.current.loc / tokens.length;
-				pendingLocRef.current += locPerToken;
 
 				tokenPosRef.current = pos + 1;
 
