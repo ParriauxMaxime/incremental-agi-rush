@@ -1,5 +1,6 @@
 import { css, keyframes } from "@emotion/react";
 import { sfx } from "@modules/audio";
+import { CODE_BLOCKS } from "../data/code-tokens";
 import { allEvents, useEventStore } from "@modules/event";
 import { useGameStore, useUiStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
@@ -116,59 +117,14 @@ interface FlatLine {
 	html: string;
 }
 
-// Only render the last N blocks to avoid unbounded growth
-const MAX_DISPLAY_BLOCKS = 8;
-
-// Global counter for stable keys — never resets, so React never confuses lines
-let globalLineKey = 0;
-
-function buildLineList(
-	blockQueue: Array<{ lines: string[] }>,
-	typingLines: string[],
-): FlatLine[] {
-	const result: FlatLine[] = [];
-
-	// Always show blocks (no phantom hide/show that causes flicker)
-	const blocksToShow = blockQueue.slice(-MAX_DISPLAY_BLOCKS);
-
-	// Estimate line number from total blocks
-	let lineNumber = 1;
-	const startBlock = Math.max(0, blockQueue.length - MAX_DISPLAY_BLOCKS);
-	for (let bIdx = 0; bIdx < startBlock; bIdx++) {
-		lineNumber += blockQueue[bIdx].lines.length + 1; // +1 for gap
+// Pre-generate a flat pool of code lines from all code blocks.
+// The editor picks lines from this pool based on the loc counter.
+const ALL_CODE_LINES: string[] = [];
+for (const block of CODE_BLOCKS) {
+	for (const line of block.lines) {
+		ALL_CODE_LINES.push(line);
 	}
-
-	for (let bIdx = 0; bIdx < blocksToShow.length; bIdx++) {
-		const block = blocksToShow[bIdx];
-		for (let lIdx = 0; lIdx < block.lines.length; lIdx++) {
-			result.push({
-				key: `L${globalLineKey++}`,
-				lineNumber,
-				html: block.lines[lIdx],
-			});
-			lineNumber++;
-		}
-		// Empty line between blocks for readability
-		if (bIdx < blocksToShow.length - 1) {
-			result.push({
-				key: `L${globalLineKey++}`,
-				lineNumber,
-				html: "",
-			});
-			lineNumber++;
-		}
-	}
-
-	for (let i = 0; i < typingLines.length; i++) {
-		result.push({
-			key: `t-${i}`,
-			lineNumber,
-			html: typingLines[i],
-		});
-		lineNumber++;
-	}
-
-	return result;
+	ALL_CODE_LINES.push(""); // blank line between blocks
 }
 
 interface EditorProps {
@@ -179,11 +135,10 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 	const totalLoc = useGameStore((s) => s.totalLoc);
 	const loc = useGameStore((s) => s.loc);
 	const locPerKey = useGameStore((s) => s.locPerKey);
-	const blockQueue = useGameStore((s) => s.blockQueue);
 	const editorTheme = useUiStore((s) => s.editorTheme);
 	const editorRef = useRef<HTMLDivElement>(null);
 
-	const { typing, advanceTokens } = useCodeTyping();
+	const { advanceTokens } = useCodeTyping();
 
 	const running = useGameStore((s) => s.running);
 
@@ -262,27 +217,29 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 	);
 
 	// ── Build flat line list ──
-	// Throttle rebuilds: only recompute when block count changes or typing changes
-	const blockCount = blockQueue.length;
-	const prevBlockCount = useRef(blockCount);
 	const cachedLines = useRef<FlatLine[]>([]);
 
 	const flatLines = useMemo(() => {
 		// Editor is a pure display of the loc counter.
-		// Build all visual lines, then cap to floor(loc).
-		const maxLines = Math.floor(loc);
-		if (maxLines <= 0) {
+		// 1 LoC = 1 line. Show exactly floor(loc) lines from the pool.
+		const count = Math.max(0, Math.floor(loc));
+		if (count <= 0) {
 			cachedLines.current = [];
 			return [];
 		}
-		const allLines = buildLineList(blockQueue, typing.lines);
-		// Show only the LAST maxLines lines (newest code at bottom)
-		const capped =
-			allLines.length > maxLines ? allLines.slice(-maxLines) : allLines;
-		cachedLines.current = capped;
-		prevBlockCount.current = blockCount;
-		return capped;
-	}, [blockQueue, typing.lines, blockCount, loc]);
+		const pool = ALL_CODE_LINES;
+		const result: FlatLine[] = [];
+		for (let i = 0; i < count; i++) {
+			const html = pool[i % pool.length];
+			result.push({
+				key: `L${i}`,
+				lineNumber: i + 1,
+				html,
+			});
+		}
+		cachedLines.current = result;
+		return result;
+	}, [loc]);
 
 	const totalLines = flatLines.length + 1;
 
@@ -307,15 +264,15 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 		return () => ro.disconnect();
 	}, []);
 
-	// Auto-scroll to bottom — only when new blocks are added (not consumed)
-	const prevQueueLen = useRef(blockQueue.length);
-	if (blockQueue.length > prevQueueLen.current) {
+	// Auto-scroll to bottom when new lines appear
+	const prevLineCount = useRef(flatLines.length);
+	if (flatLines.length > prevLineCount.current) {
 		queueMicrotask(() => {
 			const el = editorRef.current;
 			if (el) el.scrollTop = el.scrollHeight;
 		});
 	}
-	prevQueueLen.current = blockQueue.length;
+	prevLineCount.current = flatLines.length;
 
 	// ── Compute visible window ──
 	// Use a high-water mark so the scrollbar doesn't shrink on every consumed block
@@ -379,13 +336,6 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 											{currentLineNumber}
 										</span>
 										<span css={lineContentStyle}>
-											{loc > 0 && (
-												<span
-													dangerouslySetInnerHTML={{
-														__html: typing.currentLine,
-													}}
-												/>
-											)}
 											<span css={themedCursorCss} />
 										</span>
 									</div>
