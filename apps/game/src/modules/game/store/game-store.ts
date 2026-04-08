@@ -130,6 +130,7 @@ export interface GameState {
 	prestigeCount: number;
 	prestigeMultiplier: number;
 	hasReachedSingularity: boolean;
+	endgameCompleted: boolean;
 }
 
 export interface GodModeOverrides {
@@ -233,6 +234,7 @@ const initialState: GameState = {
 	prestigeCount: 0,
 	prestigeMultiplier: 1,
 	hasReachedSingularity: false,
+	endgameCompleted: false,
 };
 
 function getEffectiveMax(upgrade: Upgrade, state?: GameState): number {
@@ -914,13 +916,14 @@ export const useGameStore = create<GameState & GameActions>()(
 			},
 
 			reset: () => {
-				const { prestigeCount, prestigeMultiplier, hasReachedSingularity } =
+				const { prestigeCount, prestigeMultiplier, hasReachedSingularity, endgameCompleted } =
 					get();
 				set({
 					...initialState,
 					prestigeCount,
 					prestigeMultiplier,
 					hasReachedSingularity,
+					endgameCompleted,
 				});
 				localStorage.removeItem("flopsed-editor");
 				useEventStore.getState().reset();
@@ -938,6 +941,7 @@ export const useGameStore = create<GameState & GameActions>()(
 					prestigeMultiplier: newMult,
 					cash: keptCash,
 					totalCash: keptCash,
+					endgameCompleted: s.endgameCompleted,
 				});
 				localStorage.removeItem("flopsed-editor");
 				useEventStore.getState().reset();
