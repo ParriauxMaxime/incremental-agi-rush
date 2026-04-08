@@ -2,17 +2,16 @@ import { useGameStore } from "@modules/game";
 import { useEffect, useRef } from "react";
 
 export function useAutoType(advanceTokens: (count: number) => void) {
-	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
 	const autoTypeEnabled = useGameStore((s) => s.autoTypeEnabled);
 	const locPerKey = useGameStore((s) => s.locPerKey);
 	const singularity = useGameStore((s) => s.singularity);
+	const running = useGameStore((s) => s.running);
 	const autoAccumRef = useRef(0);
 
 	useEffect(() => {
-		if (singularity) return;
+		if (singularity || !running) return;
 		const hasAutoType = autoTypeEnabled;
-		const hasDevs = autoLocPerSec > 0;
-		if (!hasAutoType && !hasDevs) return;
+		if (!hasAutoType) return;
 
 		let rafId: number;
 		let lastTime = performance.now();
@@ -23,11 +22,11 @@ export function useAutoType(advanceTokens: (count: number) => void) {
 			lastTime = now;
 
 			// Auto-type: ~5 keystrokes/sec (passive coding, not as fast as active typing)
-			const autoTypeRate = hasAutoType ? 5 : 0;
-			// Dev rate: proportional to autoLocPerSec
-			const devRate = hasDevs ? autoLocPerSec * 0.5 : 0;
+			// NOTE: Only auto-type keystrokes go through advanceTokens.
+			// Dev/freelancer/intern LoC is handled by the tick via autoLocPerSec.
+			const autoTypeRate = 5;
 
-			autoAccumRef.current += (autoTypeRate + devRate) * dt;
+			autoAccumRef.current += autoTypeRate * dt;
 
 			// Cap keystrokes per frame to prevent CPU spikes at high rates.
 			// advanceTokens already caps visual work internally, but limiting
@@ -48,5 +47,5 @@ export function useAutoType(advanceTokens: (count: number) => void) {
 
 		rafId = requestAnimationFrame(autoLoop);
 		return () => cancelAnimationFrame(rafId);
-	}, [autoLocPerSec, autoTypeEnabled, locPerKey, advanceTokens, singularity]);
+	}, [autoTypeEnabled, locPerKey, advanceTokens, singularity, running]);
 }

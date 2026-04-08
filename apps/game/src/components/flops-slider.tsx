@@ -69,22 +69,42 @@ export function FlopsSlider() {
 	const toggleAutoArbitrage = useGameStore((s) => s.toggleAutoArbitrage);
 	const theme = useIdeTheme();
 
+	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
+	const tokenMultiplier = useGameStore((s) => s.tokenMultiplier);
+
 	const { aiLocPerSec } = useMemo(() => {
 		const active = aiModels
 			.filter((m) => unlockedModels[m.id])
 			.sort((a, b) => a.flopsCost - b.flopsCost)
 			.slice(0, llmHostSlots);
 		const aiFlops = flops * (1 - flopSlider);
+
+		// Token efficiency: how well-fed are the AI models?
+		let totalTokenDemand = 0;
+		for (const m of active) totalTokenDemand += m.tokenCost;
+		const humanTokenOutput = autoLocPerSec * tokenMultiplier;
+		const tokenEff =
+			totalTokenDemand > 0
+				? Math.min(1, humanTokenOutput / totalTokenDemand)
+				: 0;
+
 		let totalLoc = 0;
 		let remaining = aiFlops;
 		for (const model of active) {
 			const modelFlops = Math.min(model.flopsCost, remaining);
 			remaining -= modelFlops;
-			const ratio = model.flopsCost > 0 ? modelFlops / model.flopsCost : 0;
-			totalLoc += model.locPerSec * Math.min(1, ratio);
+			const flopRatio = model.flopsCost > 0 ? modelFlops / model.flopsCost : 0;
+			totalLoc += model.locPerSec * tokenEff * Math.min(1, flopRatio);
 		}
 		return { aiLocPerSec: totalLoc };
-	}, [unlockedModels, flops, flopSlider, llmHostSlots]);
+	}, [
+		unlockedModels,
+		flops,
+		flopSlider,
+		llmHostSlots,
+		autoLocPerSec,
+		tokenMultiplier,
+	]);
 
 	const handleChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {

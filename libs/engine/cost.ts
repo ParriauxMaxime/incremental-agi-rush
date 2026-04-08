@@ -39,7 +39,10 @@ export function getUpgradeCost(
 	owned: number,
 	discounts?: CostDiscounts,
 ): number {
-	let cost = Math.floor(upgrade.baseCost * upgrade.costMultiplier ** owned);
+	let cost = Math.min(
+		Number.MAX_SAFE_INTEGER,
+		Math.floor(upgrade.baseCost * upgrade.costMultiplier ** owned),
+	);
 	if (discounts) {
 		if (upgrade.costCategory === "freelancer")
 			cost = Math.floor(cost * discounts.freelancerCostDiscount);
@@ -60,5 +63,8 @@ export function getUpgradeCost(
 }
 
 export function getTechNodeCost(node: TechNode, owned: number): number {
-	return Math.floor(node.baseCost * node.costMultiplier ** owned);
+	return Math.min(
+		Number.MAX_SAFE_INTEGER,
+		Math.floor(node.baseCost * node.costMultiplier ** owned),
+	);
 }

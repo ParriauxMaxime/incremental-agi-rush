@@ -598,7 +598,7 @@ export const useGameStore = create<GameState & GameActions>()(
 					const aiUnlocked = s.aiUnlocked;
 
 					// ── 1. Production ──
-					const humanOutput = s.autoLocPerSec * dt;
+					const humanOutput = s.running ? s.autoLocPerSec * dt : 0;
 					let aiProduced = 0;
 
 					if (aiUnlocked && s.running) {
@@ -1018,6 +1018,7 @@ export const useGameStore = create<GameState & GameActions>()(
 				cash: state.cash,
 				totalCash: state.totalCash,
 				tokens: state.tokens,
+				totalTokens: state.totalTokens,
 				blockQueue: state.blockQueue.slice(-20).map((b) => ({
 					lines: [],
 					loc: b.loc,
@@ -1034,6 +1035,11 @@ export const useGameStore = create<GameState & GameActions>()(
 				editorStreamingMode: state.editorStreamingMode,
 				tierTransitions: state.tierTransitions,
 				purchaseLog: state.purchaseLog,
+				prestigeCount: state.prestigeCount,
+				prestigeMultiplier: state.prestigeMultiplier,
+				hasReachedSingularity: state.hasReachedSingularity,
+				endgameCompleted: state.endgameCompleted,
+				totalExecutedLoc: state.totalExecutedLoc,
 				/** Persist elapsed seconds so the session timer survives reload */
 				_savedElapsed: (performance.now() - state.sessionStartTime) / 1000,
 			}),
