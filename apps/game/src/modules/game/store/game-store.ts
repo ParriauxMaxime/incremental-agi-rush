@@ -606,10 +606,23 @@ export const useGameStore = create<GameState & GameActions>()(
 
 			enqueueBlock: (block: QueuedBlock) => {
 				set((s) => {
-					// Visual block completed. Add it with loc=0 since addLoc
-					// already accounted for the LoC on the previous "last" block.
-					const blockQueue = [...s.blockQueue, { ...block, loc: 0 }];
-					return { blockQueue };
+					const queue = s.blockQueue.slice();
+					// The last block is a "typing accumulator" (no lines, just loc)
+					// created by addLoc. Take its loc and merge with the visual block.
+					let accumulatedLoc = 0;
+					if (queue.length > 0) {
+						const last = queue[queue.length - 1];
+						if (last.lines.length === 0) {
+							accumulatedLoc = last.loc;
+							queue.pop();
+						}
+					}
+					queue.push({ lines: block.lines, loc: accumulatedLoc });
+					if (!s.editorStreamingMode) {
+						const loc = queue.reduce((sum, b) => sum + b.loc, 0);
+						return { blockQueue: queue, loc };
+					}
+					return { blockQueue: queue };
 				});
 			},
 
