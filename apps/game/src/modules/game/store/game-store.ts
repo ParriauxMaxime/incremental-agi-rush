@@ -742,7 +742,7 @@ export const useGameStore = create<GameState & GameActions>()(
 
 					// ── 4. Session analytics snapshots (every 5s) ──
 					const elapsed = (performance.now() - s.sessionStartTime) / 1000;
-					if (elapsed - s.lastSnapshotTime >= 5) {
+					if (elapsed - s.lastSnapshotTime >= 1) {
 						const cashDelta = totalCash - s.prevTickTotalCash;
 						const locDelta = totalLoc - s.prevTickTotalLoc;
 						const execDelta = totalExecutedLoc - s.prevTickTotalExecLoc;
