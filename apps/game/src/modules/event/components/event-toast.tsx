@@ -1,9 +1,10 @@
+import { PrestigeModal } from "@components/prestige-modal";
 import { css, keyframes } from "@emotion/react";
 import type { EventEffect } from "@flopsed/domain";
 import { events as allEvents } from "@flopsed/domain";
 import { useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../../../hooks/use-ide-theme";
 import { resolveChoiceEffects, useEventStore } from "../store/event-store";
@@ -166,6 +167,7 @@ function MilestoneToastCard() {
 }
 
 export function EventToast() {
+	const [showPrestigeModal, setShowPrestigeModal] = useState(false);
 	const { t: tEvents } = useTranslation("events");
 	const theme = useIdeTheme();
 	const activeEvents = useEventStore((s) => s.activeEvents);
@@ -315,8 +317,7 @@ export function EventToast() {
 														"op" in chosenEffect &&
 														chosenEffect.op === "trigger"
 													) {
-														handleChoice(displayId, i, ctx);
-														useGameStore.getState().prestige();
+														setShowPrestigeModal(true);
 														return;
 													}
 													const { cashDelta, locDelta } = resolveChoiceEffects(
@@ -354,6 +355,15 @@ export function EventToast() {
 						</div>
 					);
 				})()}
+			{showPrestigeModal && (
+				<PrestigeModal
+					onConfirm={() => {
+						setShowPrestigeModal(false);
+						useGameStore.getState().prestige();
+					}}
+					onCancel={() => setShowPrestigeModal(false)}
+				/>
+			)}
 		</div>
 	);
 }
