@@ -55,6 +55,7 @@ export interface RateSnapshot {
 	cashPerSec: number;
 	locProducedPerSec: number;
 	locExecutedPerSec: number;
+	tokensConsumedPerSec: number;
 	flops: number;
 	flopUtilization: number;
 	tierIndex: number;
@@ -653,6 +654,7 @@ export const useGameStore = create<GameState & GameActions>()(
 					const tickAllocations: GameState["aiModelAllocations"] = [];
 					let tickTotalCap = 0;
 					let tickTotalConsumed = 0;
+					let tickTokensConsumed = 0;
 
 					if (aiUnlocked && s.running) {
 						const eventMods = useEventStore.getState().getEventModifiers();
@@ -700,8 +702,9 @@ export const useGameStore = create<GameState & GameActions>()(
 
 						loc += directLoc + aiProduced;
 						totalLoc += directLoc + aiProduced;
-						tokens += humanTokenOutput - remainingTokens;
-						totalTokens += humanTokenOutput - remainingTokens;
+						tickTokensConsumed = humanTokenOutput - remainingTokens;
+						tokens += tickTokensConsumed;
+						totalTokens += tickTokensConsumed;
 					} else if (aiUnlocked) {
 						// Not running but AI unlocked — compute allocations for UI
 						const activeModels = aiModels
@@ -817,6 +820,7 @@ export const useGameStore = create<GameState & GameActions>()(
 							cashPerSec: dtSnap > 0 ? cashDelta / dtSnap : 0,
 							locProducedPerSec: dtSnap > 0 ? locDelta / dtSnap : 0,
 							locExecutedPerSec: dtSnap > 0 ? execDelta / dtSnap : 0,
+							tokensConsumedPerSec: dt > 0 ? tickTokensConsumed / dt : 0,
 							flops: s.flops,
 							flopUtilization: flopUtil,
 							tierIndex: s.currentTierIndex,

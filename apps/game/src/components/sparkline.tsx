@@ -18,6 +18,8 @@ interface SparklineProps {
 	color: string;
 	data2?: number[];
 	color2?: string;
+	data3?: number[];
+	color3?: string;
 	tierTransitions?: TierTransition[];
 	totalTime?: number;
 }
@@ -27,13 +29,15 @@ export function Sparkline({
 	color,
 	data2,
 	color2,
+	data3,
+	color3,
 	tierTransitions,
 	totalTime,
 }: SparklineProps) {
-	const { points, points2, markers } = useMemo(() => {
+	const { points, points2, points3, markers } = useMemo(() => {
 		const W = 256;
 		const H = 32;
-		const allValues = [...data, ...(data2 ?? [])];
+		const allValues = [...data, ...(data2 ?? []), ...(data3 ?? [])];
 		const maxVal = Math.max(1, ...allValues);
 
 		const toPoints = (values: number[]) =>
@@ -47,6 +51,7 @@ export function Sparkline({
 
 		const pts = toPoints(data);
 		const pts2 = data2 ? toPoints(data2) : undefined;
+		const pts3 = data3 ? toPoints(data3) : undefined;
 
 		const mkrs: Array<{ x: number; color: string; label: string }> = [];
 		if (tierTransitions && totalTime && totalTime > 0) {
@@ -63,8 +68,8 @@ export function Sparkline({
 			}
 		}
 
-		return { points: pts, points2: pts2, markers: mkrs };
-	}, [data, data2, tierTransitions, totalTime]);
+		return { points: pts, points2: pts2, points3: pts3, markers: mkrs };
+	}, [data, data2, data3, tierTransitions, totalTime]);
 
 	const areaPoints = `0,32 ${points} 256,32`;
 
@@ -95,6 +100,15 @@ export function Sparkline({
 					strokeWidth={1.2}
 					strokeDasharray="3,2"
 					points={points2}
+				/>
+			)}
+			{points3 && (
+				<polyline
+					fill="none"
+					stroke={color3 ?? "#888"}
+					strokeWidth={1}
+					strokeDasharray="2,3"
+					points={points3}
 				/>
 			)}
 		</svg>

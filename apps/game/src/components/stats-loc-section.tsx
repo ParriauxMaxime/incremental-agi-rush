@@ -127,6 +127,7 @@ export function StatsLocSection() {
 
 	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
 	const agentLocPerSec = useGameStore((s) => s.agentLocPerSec);
+	const tokenMultiplier = useGameStore((s) => s.tokenMultiplier);
 	const aiUnlocked = useGameStore((s) => s.aiUnlocked);
 	const keysPerSec = useKeypressRate();
 
@@ -211,6 +212,26 @@ export function StatsLocSection() {
 	}, [aiUnlocked, aiModelAllocations]);
 
 	const totalAiLoc = aiSources.reduce((sum, s) => sum + s.locPerSec, 0);
+
+	// Fraction of each producer's output diverted as tokens to feed AI models
+	const tokenFraction = useMemo(() => {
+		if (!aiUnlocked || aiModelAllocations.length === 0) return 0;
+		// Total token demand from active models (proportional to their FLOPS allocation)
+		let totalTokenDemand = 0;
+		for (const alloc of aiModelAllocations) {
+			const model = aiModels.find((m) => m.id === alloc.modelId);
+			if (!model) continue;
+			const flopRatio =
+				alloc.flopsCap > 0 ? alloc.allocatedFlops / alloc.flopsCap : 0;
+			totalTokenDemand += model.tokenCost * flopRatio;
+		}
+		const humanTokenOutput = locRate * tokenMultiplier;
+		if (humanTokenOutput <= 0) return 0;
+		return Math.min(1, totalTokenDemand / humanTokenOutput);
+	}, [aiUnlocked, aiModelAllocations, locRate, tokenMultiplier]);
+
+	const TOKEN_COLOR = "#6a9955";
+
 	const allSources = useMemo(
 		() => [...humanSources, ...aiSources],
 		[humanSources, aiSources],
@@ -220,10 +241,13 @@ export function StatsLocSection() {
 	const [aiExpanded, setAiExpanded] = useState(false);
 	const toggleAi = useCallback(() => setAiExpanded((v) => !v), []);
 
-	const { locProdData, locExecData } = useMemo(
+	const { locProdData, locExecData, tokenConsumedData } = useMemo(
 		() => ({
 			locProdData: rateSnapshots.map((s) => s.locProducedPerSec),
 			locExecData: rateSnapshots.map((s) => s.locExecutedPerSec),
+			tokenConsumedData: rateSnapshots.map(
+				(s) => s.tokensConsumedPerSec ?? 0,
+			),
 		}),
 		[rateSnapshots],
 	);
@@ -278,35 +302,70 @@ export function StatsLocSection() {
 						color={theme.locColor ?? "#61afef"}
 						data2={locExecData}
 						color2={theme.flopsColor ?? "#c678dd"}
+						data3={aiUnlocked ? tokenConsumedData : undefined}
+						color3={TOKEN_COLOR}
 						tierTransitions={tierTransitions}
 						totalTime={elapsed}
 					/>
+					{aiUnlocked && (latest.tokensConsumedPerSec ?? 0) > 0 && (
+						<div
+							style={{
+								display: "flex",
+								gap: 8,
+								fontSize: 9,
+								color: theme.textMuted,
+								marginTop: 2,
+							}}
+						>
+							<span>
+								<span
+									style={{
+										display: "inline-block",
+										width: 8,
+										height: 2,
+										background: TOKEN_COLOR,
+										marginRight: 3,
+										verticalAlign: "middle",
+									}}
+								/>
+								tokens → AI:{" "}
+								{formatNumber(latest.tokensConsumedPerSec ?? 0)}/s
+							</span>
+						</div>
+					)}
 				</div>
 			)}
-			{/* Human source rows */}
-			{humanSources.map((s) => (
-				<div css={sourceRowCss} key={s.name}>
-					<span css={sourceNameCss} style={{ color: theme.textMuted }}>
-						{s.name}
-						{s.count !== undefined && (
-							<span style={{ color: theme.textMuted }}> x{s.count}</span>
-						)}
-					</span>
-					<div css={barTrackCss} style={{ background: theme.border }}>
-						<div
-							css={barFillCss}
-							style={{
-								transform: `scaleX(${s.locPerSec / maxLoc})`,
-								background: s.color,
-							}}
-						/>
+			{/* Human source rows — bar split into LoC (source color) + token (token color) */}
+			{humanSources.map((s) => {
+				const scale = s.locPerSec / maxLoc;
+				const locPct = aiUnlocked ? (1 - tokenFraction) * 100 : 100;
+				return (
+					<div css={sourceRowCss} key={s.name}>
+						<span css={sourceNameCss} style={{ color: theme.textMuted }}>
+							{s.name}
+							{s.count !== undefined && (
+								<span style={{ color: theme.textMuted }}> x{s.count}</span>
+							)}
+						</span>
+						<div css={barTrackCss} style={{ background: theme.border }}>
+							<div
+								css={barFillCss}
+								style={{
+									transform: `scaleX(${scale})`,
+									background:
+										aiUnlocked && tokenFraction > 0
+											? `linear-gradient(90deg, ${s.color} ${locPct}%, ${TOKEN_COLOR} ${locPct}%)`
+											: s.color,
+								}}
+							/>
+						</div>
+						<span css={sourceValueCss} style={{ color: s.color }}>
+							{formatNumber(s.locPerSec)}
+							{unit}
+						</span>
 					</div>
-					<span css={sourceValueCss} style={{ color: s.color }}>
-						{formatNumber(s.locPerSec)}
-						{unit}
-					</span>
-				</div>
-			))}
+				);
+			})}
 			{/* Collapsible AI sub-section */}
 			{aiUnlocked && aiSources.length > 0 && (
 				<>
