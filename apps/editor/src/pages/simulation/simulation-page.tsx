@@ -1,7 +1,8 @@
 import { css } from "@emotion/react";
+import type { AiModelData } from "@flopsed/domain";
 import type { SimConfig, SimData, SimResult } from "@flopsed/engine";
 import { runBalanceSim } from "@flopsed/engine";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
 	type BalanceCheckResult,
 	fetchData,
@@ -56,12 +57,14 @@ export function SimulationPage() {
 	const [running, setRunning] = useState(false);
 	const [cliRunning, setCliRunning] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const aiModelsRef = useRef<AiModelData[]>([]);
 
 	const handleRun = useCallback(async (config: SimConfig) => {
 		setRunning(true);
 		setError(null);
 		try {
 			const data = await fetchSimData();
+			aiModelsRef.current = data.aiModels as unknown as AiModelData[];
 			const result = runBalanceSim(data, config);
 			setSimResult(result);
 		} catch (e) {
@@ -94,7 +97,7 @@ export function SimulationPage() {
 				cliRunning={cliRunning}
 			/>
 			{error && <div css={errorCss}>{error}</div>}
-			{simResult && <SimResults result={simResult} />}
+			{simResult && <SimResults result={simResult} aiModels={aiModelsRef.current} />}
 			{cliResult && <CliOutput result={cliResult} />}
 		</div>
 	);

@@ -1,8 +1,10 @@
 import { css } from "@emotion/react";
 import { BalanceSummaryTable } from "@flopsed/design-system";
+import type { AiModelData } from "@flopsed/domain";
 import type { SimResult } from "@flopsed/engine";
 import { CashChart } from "./cash-chart";
 import { FlopsChart } from "./flops-chart";
+import { FlopsUtilChart } from "./flops-util-chart";
 import { TierTimeline } from "./tier-timeline";
 
 const bannerCss = (passed: boolean) =>
@@ -70,9 +72,10 @@ function formatTime(seconds: number | null): string {
 
 interface SimResultsProps {
 	result: SimResult;
+	aiModels: AiModelData[];
 }
 
-export function SimResults({ result }: SimResultsProps) {
+export function SimResults({ result, aiModels }: SimResultsProps) {
 	const agi = result.agiTime;
 	const snapshots =
 		agi !== null
@@ -166,6 +169,13 @@ export function SimResults({ result }: SimResultsProps) {
 
 			<div css={sectionTitleCss}>Economy Over Time</div>
 			<FlopsChart snapshots={snapshots} />
+
+			<div css={sectionTitleCss}>FLOPS Utilization</div>
+			<FlopsUtilChart
+				snapshots={snapshots}
+				purchases={result.purchases}
+				aiModels={aiModels}
+			/>
 
 			<div css={sectionTitleCss}>Tier Timeline</div>
 			<TierTimeline
