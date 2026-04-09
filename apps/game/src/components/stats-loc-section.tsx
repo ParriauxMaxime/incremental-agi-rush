@@ -1,7 +1,7 @@
 import { css } from "@emotion/react";
 import { aiModels, useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 import { useKeypressRate } from "../hooks/use-keypress-rate";
@@ -59,6 +59,30 @@ const barFillCss = css({
 	width: "100%",
 	transformOrigin: "left",
 	transition: "transform 0.3s ease",
+});
+
+const aiSubHeaderCss = css({
+	display: "flex",
+	alignItems: "center",
+	gap: 6,
+	cursor: "pointer",
+	userSelect: "none",
+	marginTop: 6,
+	marginBottom: 2,
+	"&:hover": { opacity: 0.8 },
+});
+
+const aiChevronCss = css({
+	fontSize: 10,
+	transition: "transform 0.15s ease",
+	display: "inline-block",
+	width: 12,
+	textAlign: "center",
+});
+
+const aiModelListCss = css({
+	overflow: "hidden",
+	transition: "max-height 0.2s ease, opacity 0.15s ease",
 });
 
 const sourceValueCss = css({
@@ -173,13 +197,15 @@ export function StatsLocSection() {
 			.filter((r): r is SourceRow => r !== null);
 	}, [aiUnlocked, aiModelAllocations]);
 
+	const totalAiLoc = aiSources.reduce((sum, s) => sum + s.locPerSec, 0);
 	const allSources = useMemo(
-		() =>
-			[...humanSources, ...aiSources].sort((a, b) => b.locPerSec - a.locPerSec),
+		() => [...humanSources, ...aiSources],
 		[humanSources, aiSources],
 	);
 	const maxLoc = Math.max(1, ...allSources.map((s) => s.locPerSec));
-	const totalAiLoc = aiSources.reduce((sum, s) => sum + s.locPerSec, 0);
+
+	const [aiExpanded, setAiExpanded] = useState(false);
+	const toggleAi = useCallback(() => setAiExpanded((v) => !v), []);
 
 	const { locProdData, locExecData } = useMemo(
 		() => ({
@@ -244,8 +270,8 @@ export function StatsLocSection() {
 					/>
 				</div>
 			)}
-			{/* Source rows */}
-			{allSources.map((s) => (
+			{/* Human source rows */}
+			{humanSources.map((s) => (
 				<div css={sourceRowCss} key={s.name}>
 					<span css={sourceNameCss} style={{ color: theme.textMuted }}>
 						{s.name}
@@ -268,6 +294,57 @@ export function StatsLocSection() {
 					</span>
 				</div>
 			))}
+			{/* Collapsible AI sub-section */}
+			{aiUnlocked && aiSources.length > 0 && (
+				<>
+					<div css={aiSubHeaderCss} onClick={toggleAi}>
+						<span
+							css={aiChevronCss}
+							style={{
+								color: theme.textMuted,
+								transform: aiExpanded ? "rotate(90deg)" : "none",
+							}}
+						>
+							&#9654;
+						</span>
+						<span style={{ fontSize: 11, color: theme.flopsColor, flex: 1 }}>
+							{t("stats_panel.ai_output")}
+						</span>
+						<span css={sourceValueCss} style={{ color: theme.flopsColor }}>
+							{formatNumber(totalAiLoc)}
+							{unit}
+						</span>
+					</div>
+					<div
+						css={aiModelListCss}
+						style={{
+							maxHeight: aiExpanded ? aiSources.length * 26 : 0,
+							opacity: aiExpanded ? 1 : 0,
+						}}
+					>
+						{aiSources.map((s) => (
+							<div css={sourceRowCss} key={s.name} style={{ paddingLeft: 18 }}>
+								<span css={sourceNameCss} style={{ color: theme.textMuted }}>
+									{s.name}
+								</span>
+								<div css={barTrackCss} style={{ background: theme.border }}>
+									<div
+										css={barFillCss}
+										style={{
+											transform: `scaleX(${s.locPerSec / maxLoc})`,
+											background: s.color,
+										}}
+									/>
+								</div>
+								<span css={sourceValueCss} style={{ color: s.color }}>
+									{formatNumber(s.locPerSec)}
+									{unit}
+								</span>
+							</div>
+						))}
+					</div>
+				</>
+			)}
 			{managerBonus > 1 && (
 				<div style={{ fontSize: 10, color: theme.textMuted, marginTop: 3 }}>
 					{t("stats_panel.manager_bonus", {
