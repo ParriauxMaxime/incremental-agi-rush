@@ -92,7 +92,8 @@ export function StatsExecuteBar() {
 	const execLoc = Math.min(Math.floor(execFlops), Math.floor(loc));
 	const earnPerExec = execLoc * cashPerLoc * cashMultiplier;
 
-	// Deterministic cash/s: min(queued loc, exec flops) * rate
+	// Cash/s: deterministic formula based on exec throughput
+	// min(queued LoC, exec FLOPS) = how many LoC we can execute per second
 	const cashRate = Math.min(loc, execFlops) * cashPerLoc * cashMultiplier;
 
 	const autoDisplay = (
