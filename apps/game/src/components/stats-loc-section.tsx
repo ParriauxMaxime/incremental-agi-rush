@@ -15,6 +15,7 @@ const SOURCE_COLORS = {
 	malt_freelancer: "#2a9d8f",
 	intern: "#2a9d8f",
 	dev_team: "#2d8a4e",
+	agent: "#e17055",
 } as const;
 
 const MODEL_COLORS: Record<string, string> = {
@@ -125,13 +126,14 @@ export function StatsLocSection() {
 	const sessionStartTime = useGameStore((s) => s.sessionStartTime);
 
 	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
+	const agentLocPerSec = useGameStore((s) => s.agentLocPerSec);
 	const aiUnlocked = useGameStore((s) => s.aiUnlocked);
 	const keysPerSec = useKeypressRate();
 
 	// "You" = max(physical typing, auto-type) + auto-type base
 	const youLocPerSec =
 		Math.max(keysPerSec, autoTypeEnabled ? 5 : 0) * locPerKey;
-	const locRate = autoLocPerSec + youLocPerSec;
+	const locRate = autoLocPerSec + youLocPerSec + agentLocPerSec;
 	const elapsed = (performance.now() - sessionStartTime) / 1000;
 
 	const humanSources = useMemo((): SourceRow[] => {
@@ -163,6 +165,13 @@ export function StatsLocSection() {
 				locPerSec: devLocPerSec,
 				color: SOURCE_COLORS.dev_team,
 			});
+		if ((ownedUpgrades.ai_agent ?? 0) > 0)
+			rows.push({
+				name: t("ai_agent.name", { ns: "upgrades" }),
+				locPerSec: agentLocPerSec,
+				color: SOURCE_COLORS.agent,
+				count: ownedUpgrades.ai_agent,
+			});
 		rows.push({
 			name: t("stats_panel.you"),
 			locPerSec: youLocPerSec,
@@ -176,6 +185,7 @@ export function StatsLocSection() {
 		internLocPerSec,
 		devLocPerSec,
 		teamLocPerSec,
+		agentLocPerSec,
 		youLocPerSec,
 		t,
 	]);
