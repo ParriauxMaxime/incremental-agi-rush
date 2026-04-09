@@ -11,6 +11,7 @@
 			"locPerSec": 1500,
 			"flopsCost": 800000,
 			"tokenCost": 1500,
+			"locPerToken": 1.0,
 			"codeQuality": 70,
 			"special": {
 				"id": "tab_complete",
@@ -29,6 +30,7 @@
 			"locPerSec": 800,
 			"flopsCost": 500000,
 			"tokenCost": 800,
+			"locPerToken": 1.0,
 			"codeQuality": 82,
 			"special": {
 				"id": "fast_cheap",
@@ -47,6 +49,7 @@
 			"locPerSec": 5000,
 			"flopsCost": 2500000,
 			"tokenCost": 2500,
+			"locPerToken": 2.0,
 			"codeQuality": 95,
 			"requires": "claude_haiku",
 			"special": {
@@ -67,6 +70,7 @@
 			"locPerSec": 30000,
 			"flopsCost": 10000000,
 			"tokenCost": 6000,
+			"locPerToken": 5.0,
 			"codeQuality": 98,
 			"requires": "claude_sonnet",
 			"special": {
@@ -87,6 +91,7 @@
 			"locPerSec": 500,
 			"flopsCost": 400000,
 			"tokenCost": 500,
+			"locPerToken": 1.0,
 			"codeQuality": 70,
 			"special": {
 				"id": "verbose",
@@ -107,6 +112,7 @@
 			"locPerSec": 1500,
 			"flopsCost": 1000000,
 			"tokenCost": 1200,
+			"locPerToken": 1.25,
 			"codeQuality": 78,
 			"requires": "gpt_3",
 			"special": {
@@ -128,6 +134,7 @@
 			"locPerSec": 8000,
 			"flopsCost": 2000000,
 			"tokenCost": 3000,
+			"locPerToken": 2.6667,
 			"codeQuality": 85,
 			"requires": "gpt_35",
 			"special": {
@@ -149,6 +156,7 @@
 			"locPerSec": 10000,
 			"flopsCost": 2500000,
 			"tokenCost": 3500,
+			"locPerToken": 2.8571,
 			"codeQuality": 88,
 			"requires": "gpt_4",
 			"special": {
@@ -169,6 +177,7 @@
 			"locPerSec": 80000,
 			"flopsCost": 20000000,
 			"tokenCost": 16000,
+			"locPerToken": 5.0,
 			"codeQuality": 88,
 			"requires": "gpt_41",
 			"special": {
@@ -189,6 +198,7 @@
 			"locPerSec": 6000,
 			"flopsCost": 1500000,
 			"tokenCost": 3000,
+			"locPerToken": 2.0,
 			"codeQuality": 80,
 			"special": {
 				"id": "multimodal",
@@ -208,6 +218,7 @@
 			"locPerSec": 200000,
 			"flopsCost": 30000000,
 			"tokenCost": 25000,
+			"locPerToken": 8.0,
 			"codeQuality": 82,
 			"requires": "gemini_pro",
 			"special": {
@@ -228,6 +239,7 @@
 			"locPerSec": 3000,
 			"flopsCost": 600000,
 			"tokenCost": 2000,
+			"locPerToken": 1.5,
 			"codeQuality": 75,
 			"special": {
 				"id": "open_source",
@@ -247,6 +259,7 @@
 			"locPerSec": 25000,
 			"flopsCost": 4000000,
 			"tokenCost": 8000,
+			"locPerToken": 3.125,
 			"codeQuality": 78,
 			"requires": "llama_70b",
 			"special": {
@@ -269,6 +282,7 @@
 			"locPerSec": 4000,
 			"flopsCost": 1000000,
 			"tokenCost": 2500,
+			"locPerToken": 1.6,
 			"codeQuality": 82,
 			"special": {
 				"id": "le_code",
@@ -291,6 +305,7 @@
 			"locPerSec": 12000,
 			"flopsCost": 3000000,
 			"tokenCost": 4000,
+			"locPerToken": 3.0,
 			"codeQuality": 70,
 			"special": {
 				"id": "distilled",
@@ -310,6 +325,7 @@
 			"locPerSec": 500000,
 			"flopsCost": 50000000,
 			"tokenCost": 50000,
+			"locPerToken": 10.0,
 			"codeQuality": 72,
 			"requires": "deepseek_v2",
 			"special": {
@@ -331,6 +347,7 @@
 			"locPerSec": 2000000,
 			"flopsCost": 100000000,
 			"tokenCost": 200000,
+			"locPerToken": 10.0,
 			"codeQuality": 95,
 			"requires": "gpt_5",
 			"special": {
@@ -350,6 +367,7 @@
 			"locPerSec": 10000000,
 			"flopsCost": 500000000,
 			"tokenCost": 1000000,
+			"locPerToken": 10.0,
 			"codeQuality": 99,
 			"requires": "gpt_6",
 			"special": {
@@ -369,6 +387,7 @@
 			"locPerSec": 5000000,
 			"flopsCost": 250000000,
 			"tokenCost": 500000,
+			"locPerToken": 10.0,
 			"codeQuality": 99,
 			"requires": "claude_opus",
 			"special": {
@@ -389,6 +408,7 @@
 			"locPerSec": 50000000,
 			"flopsCost": 2000000000,
 			"tokenCost": 5000000,
+			"locPerToken": 10.0,
 			"codeQuality": 100,
 			"requires": "claude_mythos",
 			"special": {
@@ -408,6 +428,7 @@
 			"locPerSec": 8000000,
 			"flopsCost": 400000000,
 			"tokenCost": 800000,
+			"locPerToken": 10.0,
 			"codeQuality": 96,
 			"requires": "gemini_ultra",
 			"special": {

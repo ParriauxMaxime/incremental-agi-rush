@@ -9,6 +9,7 @@ export interface AiModelData {
 	locPerSec: number;
 	flopsCost: number;
 	tokenCost: number;
+	locPerToken: number;
 	codeQuality: number;
 	requires?: string;
 	special?: Record<string, unknown>;
