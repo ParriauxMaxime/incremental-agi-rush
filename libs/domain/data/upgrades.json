@@ -23,7 +23,7 @@
 			"id": "desktop_pc",
 			"tier": "freelancing",
 			"name": "Desktop PC",
-			"description": "+50 FLOPS",
+			"description": "+15 FLOPS",
 			"icon": "🖥️",
 			"baseCost": 150,
 			"costMultiplier": 1.8,
@@ -32,7 +32,7 @@
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 50
+					"value": 15
 				}
 			]
 		},
@@ -40,7 +40,7 @@
 			"id": "second_monitor",
 			"tier": "freelancing",
 			"name": "Second Monitor",
-			"description": "+25 FLOPS",
+			"description": "+10 FLOPS",
 			"icon": "🖵",
 			"baseCost": 80,
 			"costMultiplier": 2,
@@ -49,7 +49,7 @@
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 25
+					"value": 10
 				}
 			]
 		},
@@ -57,7 +57,7 @@
 			"id": "server_rack",
 			"tier": "startup",
 			"name": "Server Rack",
-			"description": "+200 FLOPS",
+			"description": "+100 FLOPS",
 			"icon": "🗄️",
 			"baseCost": 3000,
 			"costMultiplier": 1.4,
@@ -66,7 +66,7 @@
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 200
+					"value": 100
 				}
 			]
 		},
@@ -131,7 +131,7 @@
 			"id": "gpu_cluster",
 			"tier": "tech_company",
 			"name": "GPU Cluster",
-			"description": "+30,000 FLOPS",
+			"description": "+5,000 FLOPS",
 			"icon": "🎮",
 			"baseCost": 800000,
 			"costMultiplier": 1.7,
@@ -140,7 +140,7 @@
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 30000
+					"value": 5000
 				}
 			]
 		},
@@ -165,7 +165,7 @@
 			"id": "data_center",
 			"tier": "tech_company",
 			"name": "Data Center",
-			"description": "+200,000 FLOPS",
+			"description": "+30,000 FLOPS",
 			"icon": "🏭",
 			"baseCost": 1500000,
 			"costMultiplier": 1.8,
@@ -174,7 +174,7 @@
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 200000
+					"value": 30000
 				}
 			]
 		},
@@ -269,7 +269,7 @@
 			"id": "tpu_pod",
 			"tier": "ai_lab",
 			"name": "TPU Pod",
-			"description": "+200K FLOPS",
+			"description": "+80K FLOPS",
 			"icon": "⚡",
 			"baseCost": 200000000,
 			"costMultiplier": 1.6,
@@ -278,7 +278,7 @@
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 200000
+					"value": 80000
 				}
 			]
 		},
@@ -304,16 +304,16 @@
 			"id": "supercomputer",
 			"tier": "agi_race",
 			"name": "Supercomputer",
-			"description": "+100M FLOPS",
+			"description": "+20M FLOPS",
 			"icon": "🖲️",
 			"baseCost": 25000000000,
-			"costMultiplier": 1.8,
+			"costMultiplier": 2.2,
 			"max": 5,
 			"effects": [
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 100000000
+					"value": 20000000
 				}
 			]
 		},
@@ -321,7 +321,7 @@
 			"id": "planetary_datacenter",
 			"tier": "agi_race",
 			"name": "Planetary Datacenter",
-			"description": "A continent-sized compute farm. +500M FLOPS",
+			"description": "A continent-sized compute farm. +200M FLOPS",
 			"icon": "🛰️",
 			"baseCost": 50000000000,
 			"costMultiplier": 1.35,
@@ -330,7 +330,7 @@
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 500000000
+					"value": 200000000
 				}
 			]
 		}
