@@ -1,26 +1,50 @@
 import { css } from "@emotion/react";
-import { aiModels, useGameStore } from "@modules/game";
+import { useGameStore } from "@modules/game";
 import { formatNumber } from "@utils/format";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
+
+const wrapperCss = css({
+	padding: "10px 14px",
+	flexShrink: 0,
+});
 
 const labelRowCss = css({
 	display: "flex",
 	justifyContent: "space-between",
-	marginBottom: 4,
+	marginBottom: 6,
+	fontSize: 10,
+	userSelect: "none",
 });
 
-const labelCss = css({
-	fontSize: 9,
-	textTransform: "uppercase",
-	letterSpacing: 0.5,
+const barWrapCss = css({
+	position: "relative",
+	height: 14,
+	borderRadius: 7,
+	overflow: "hidden",
+	cursor: "grab",
+	touchAction: "none",
+	"&:active": { cursor: "grabbing" },
 });
 
-const ratesCss = css({
+const handleCss = css({
+	position: "absolute",
+	top: -1,
+	width: 16,
+	height: 16,
+	borderRadius: "50%",
+	transform: "translateX(-50%)",
+	boxShadow: "0 0 4px rgba(0,0,0,0.5)",
+	zIndex: 1,
+	pointerEvents: "none",
+});
+
+const rateRowCss = css({
 	display: "flex",
 	justifyContent: "space-between",
 	marginTop: 4,
+	fontSize: 9,
 });
 
 const arbitrageCss = css({
@@ -59,8 +83,6 @@ export function FlopsSlider() {
 	const aiUnlocked = useGameStore((s) => s.aiUnlocked);
 	const flops = useGameStore((s) => s.flops);
 	const flopSlider = useGameStore((s) => s.flopSlider);
-	const unlockedModels = useGameStore((s) => s.unlockedModels);
-	const llmHostSlots = useGameStore((s) => s.llmHostSlots);
 	const autoArbitrageEnabled = useGameStore((s) => s.autoArbitrageEnabled);
 	const autoArbitrageUnlocked = useGameStore(
 		(s) => (s.ownedTechNodes.auto_arbitrage ?? 0) > 0,
@@ -69,137 +91,121 @@ export function FlopsSlider() {
 	const toggleAutoArbitrage = useGameStore((s) => s.toggleAutoArbitrage);
 	const theme = useIdeTheme();
 
-	const autoLocPerSec = useGameStore((s) => s.autoLocPerSec);
-	const tokenMultiplier = useGameStore((s) => s.tokenMultiplier);
+	const barRef = useRef<HTMLDivElement>(null);
+	const [dragging, setDragging] = useState(false);
 
-	const { aiLocPerSec } = useMemo(() => {
-		const active = aiModels
-			.filter((m) => unlockedModels[m.id])
-			.sort((a, b) => a.flopsCost - b.flopsCost)
-			.slice(0, llmHostSlots);
-		const aiFlops = flops * (1 - flopSlider);
-
-		// Token efficiency: how well-fed are the AI models?
-		let totalTokenDemand = 0;
-		for (const m of active) totalTokenDemand += m.tokenCost;
-		const humanTokenOutput = autoLocPerSec * tokenMultiplier;
-		const tokenEff =
-			totalTokenDemand > 0
-				? Math.min(1, humanTokenOutput / totalTokenDemand)
-				: 0;
-
-		let totalLoc = 0;
-		let remaining = aiFlops;
-		for (const model of active) {
-			const modelFlops = Math.min(model.flopsCost, remaining);
-			remaining -= modelFlops;
-			const flopRatio = model.flopsCost > 0 ? modelFlops / model.flopsCost : 0;
-			totalLoc += model.locPerSec * tokenEff * Math.min(1, flopRatio);
-		}
-		return { aiLocPerSec: totalLoc };
-	}, [
-		unlockedModels,
-		flops,
-		flopSlider,
-		llmHostSlots,
-		autoLocPerSec,
-		tokenMultiplier,
-	]);
-
-	const handleChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			setFlopSlider(Number.parseFloat(e.target.value));
+	const updateSlider = useCallback(
+		(clientX: number) => {
+			const bar = barRef.current;
+			if (!bar) return;
+			const rect = bar.getBoundingClientRect();
+			const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+			setFlopSlider(ratio);
 		},
 		[setFlopSlider],
 	);
 
-	const wrapperCss = useMemo(
-		() =>
-			css({
-				padding: "8px 12px",
-				background: theme.panelBg,
-				borderBottom: `1px solid ${theme.border}`,
-			}),
-		[theme.panelBg, theme.border],
+	const onPointerDown = useCallback(
+		(e: React.PointerEvent) => {
+			setDragging(true);
+			(e.target as HTMLElement).setPointerCapture(e.pointerId);
+			updateSlider(e.clientX);
+		},
+		[updateSlider],
 	);
 
-	const sliderCss = useMemo(
-		() =>
-			css({
-				width: "100%",
-				height: 10,
-				borderRadius: 5,
-				appearance: "none",
-				outline: "none",
-				cursor: "grab",
-				"&:active": { cursor: "grabbing" },
-				"&::-webkit-slider-thumb": {
-					appearance: "none",
-					width: 16,
-					height: 16,
-					borderRadius: "50%",
-					background: theme.foreground,
-					border: `2px solid ${theme.background}`,
-					boxShadow: "0 0 4px rgba(0,0,0,0.5)",
-					cursor: "grab",
-				},
-				"&::-moz-range-thumb": {
-					width: 16,
-					height: 16,
-					borderRadius: "50%",
-					background: theme.foreground,
-					border: `2px solid ${theme.background}`,
-					boxShadow: "0 0 4px rgba(0,0,0,0.5)",
-					cursor: "grab",
-				},
-			}),
-		[theme.foreground, theme.background],
+	const onPointerMove = useCallback(
+		(e: React.PointerEvent) => {
+			if (!dragging) return;
+			updateSlider(e.clientX);
+		},
+		[dragging, updateSlider],
 	);
+
+	const onPointerUp = useCallback(() => {
+		setDragging(false);
+	}, []);
 
 	if (!aiUnlocked) return null;
 
 	const execFlops = flops * flopSlider;
 	const aiFlops = flops * (1 - flopSlider);
 	const execPct = Math.round(flopSlider * 100);
+	const aiPct = 100 - execPct;
 
-	const sliderBg = `linear-gradient(90deg, ${theme.success} 0%, ${theme.success} ${execPct}%, ${theme.keyword} ${execPct}%, ${theme.keyword} 100%)`;
+	// Blue = LoC generation (AI side), Gold = cash execution
+	const locColor = theme.locColor ?? "#61afef";
+	const cashColor = theme.cashColor ?? "#e5c07b";
 
 	return (
-		<div css={wrapperCss}>
+		<div css={wrapperCss} style={{ borderBottom: `1px solid ${theme.border}` }}>
+			{/* Labels */}
 			<div css={labelRowCss}>
-				<span css={[labelCss, { color: theme.success }]}>
-					{t("flops_slider.exec_flops", {
-						count: formatNumber(execFlops),
-					})}
+				<span style={{ color: cashColor, fontWeight: 600 }}>
+					{t("flops_slider.exec_flops", { count: formatNumber(execFlops) })}
 				</span>
-				<span css={[labelCss, { color: theme.keyword }]}>
-					{t("flops_slider.ai_flops", {
-						count: formatNumber(aiFlops),
-					})}
+				<span style={{ color: locColor, fontWeight: 600 }}>
+					{t("flops_slider.ai_flops", { count: formatNumber(aiFlops) })}
 				</span>
 			</div>
-			<input
-				type="range"
-				min={0}
-				max={1}
-				step={0.01}
-				value={flopSlider}
-				onChange={handleChange}
-				css={sliderCss}
-				style={{ background: sliderBg }}
-			/>
-			<div css={ratesCss}>
-				<span style={{ fontSize: 9, color: theme.textMuted }}>
-					{t("flops_slider.exec_rate", {
-						count: formatNumber(execFlops),
-					})}
+
+			{/* Draggable split bar */}
+			<div
+				ref={barRef}
+				css={barWrapCss}
+				style={{ border: `1px solid ${theme.border}` }}
+				onPointerDown={onPointerDown}
+				onPointerMove={onPointerMove}
+				onPointerUp={onPointerUp}
+				onPointerCancel={onPointerUp}
+			>
+				<div
+					style={{
+						position: "absolute",
+						left: 0,
+						top: 0,
+						bottom: 0,
+						width: `${execPct}%`,
+						background: cashColor,
+						borderRadius: "6px 0 0 6px",
+						transition: dragging ? "none" : "width 0.1s ease",
+					}}
+				/>
+				<div
+					style={{
+						position: "absolute",
+						right: 0,
+						top: 0,
+						bottom: 0,
+						width: `${aiPct}%`,
+						background: locColor,
+						borderRadius: "0 6px 6px 0",
+						transition: dragging ? "none" : "width 0.1s ease",
+					}}
+				/>
+				{/* Drag handle */}
+				<div
+					css={handleCss}
+					style={{
+						left: `${execPct}%`,
+						background: theme.foreground,
+						border: `2px solid ${theme.background}`,
+						transition: dragging ? "none" : "left 0.1s ease",
+					}}
+				/>
+			</div>
+
+			{/* Rate labels */}
+			<div css={rateRowCss}>
+				<span style={{ color: theme.textMuted }}>
+					{formatNumber(execFlops)} LoC/s → $
 				</span>
-				<span style={{ fontSize: 9, color: theme.textMuted }}>
-					{t("flops_slider.ai_rate", {
-						count: formatNumber(aiLocPerSec),
-					})}
+				<span style={{ color: theme.textMuted }}>
+					{formatNumber(aiFlops)} → LoC
 				</span>
 			</div>
+
+			{/* Auto-arbitrage toggle */}
 			{autoArbitrageUnlocked && (
 				<div css={arbitrageCss} onClick={toggleAutoArbitrage}>
 					<span style={{ fontSize: 14 }}>{"⚖️"}</span>

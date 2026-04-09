@@ -86,21 +86,21 @@ export function StatsFlopsSection() {
 						<div
 							style={{
 								width: `${execPct}%`,
-								background: theme.success,
+								background: theme.cashColor,
 							}}
 						/>
 						<div
 							style={{
 								width: `${aiPct}%`,
-								background: theme.flopsColor,
+								background: theme.locColor,
 							}}
 						/>
 					</div>
 					<div css={splitLegendCss}>
-						<span style={{ color: theme.success }}>
+						<span style={{ color: theme.cashColor }}>
 							● {t("stats_panel.exec_label")} {formatNumber(execFlops)}
 						</span>
-						<span style={{ color: theme.flopsColor }}>
+						<span style={{ color: theme.locColor }}>
 							● {t("stats_panel.ai_label")} {formatNumber(aiFlops)}
 						</span>
 					</div>

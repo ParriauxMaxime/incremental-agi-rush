@@ -3,6 +3,7 @@ import { useGameStore } from "@modules/game";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
+import { FlopsSlider } from "./flops-slider";
 import { StatsAiComputeSection } from "./stats-ai-compute-section";
 import { StatsCashSection } from "./stats-cash-section";
 import { StatsExecuteBar } from "./stats-execute-bar";
@@ -131,6 +132,7 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 				<StatsCashSection />
 				<StatsLocSection />
 				<StatsAiComputeSection />
+				<FlopsSlider />
 				<StatsFlopsSection />
 				{timelineUnlocked && <StatsTierBar />}
 				<StatsHistory />
