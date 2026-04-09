@@ -198,13 +198,14 @@ export function StatsLocSection() {
 			label={t("stats_panel.loc")}
 			value={
 				<RollingNumber
-					value={`${formatNumber(locRate + totalAiLoc)}/s`}
+					value={formatNumber(loc)}
 					color={theme.locColor}
 				/>
 			}
 			rate={
 				<span style={{ color: theme.locColor }}>
-					{formatNumber(loc)} {t("stats_panel.loc").toLowerCase()}
+					{formatNumber(locRate + totalAiLoc)}
+					{t("stats_panel.per_sec")}
 				</span>
 			}
 			collapsible={analyticsUnlocked}
