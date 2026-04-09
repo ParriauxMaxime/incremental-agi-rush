@@ -131,8 +131,8 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 			>
 				<StatsCashSection />
 				<StatsLocSection />
-				<StatsAiComputeSection />
 				<FlopsSlider />
+				<StatsAiComputeSection />
 				<StatsFlopsSection />
 				{timelineUnlocked && <StatsTierBar />}
 				<StatsHistory />

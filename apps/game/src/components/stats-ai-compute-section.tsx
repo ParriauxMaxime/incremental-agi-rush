@@ -66,9 +66,7 @@ export function StatsAiComputeSection() {
 				if (!model) return null;
 				const color = MODEL_COLORS[model.family] ?? theme.textMuted;
 				const pct =
-					alloc.flopsCap > 0
-						? alloc.allocatedFlops / alloc.flopsCap
-						: 0;
+					alloc.flopsCap > 0 ? alloc.allocatedFlops / alloc.flopsCap : 0;
 				return {
 					id: model.id,
 					name: `${model.name} ${model.version}`,
@@ -81,29 +79,6 @@ export function StatsAiComputeSection() {
 			})
 			.filter((r) => r !== null);
 	}, [allocations, theme.textMuted]);
-
-	const diagnostic = useMemo(() => {
-		if (modelRows.length === 0) return null;
-		const nearCap = modelRows.find((m) => m.pct > 0.9 && m.pct < 1);
-		if (nearCap) {
-			return {
-				key: "stats_panel.ai_diagnostic_near_cap",
-				color: "#fab387",
-				name: nearCap.name,
-			};
-		}
-		const starved = modelRows.find((m) => m.pct < 0.5 && m.cap > 0);
-		if (starved) {
-			return {
-				key: "stats_panel.ai_diagnostic_needs_compute",
-				color: "#f44336",
-			};
-		}
-		return {
-			key: "stats_panel.ai_diagnostic_full_capacity",
-			color: theme.success,
-		};
-	}, [modelRows, theme.success]);
 
 	if (!aiUnlocked) return null;
 
@@ -176,10 +151,7 @@ export function StatsAiComputeSection() {
 							/{formatNumber(m.cap)}
 						</span>
 					</div>
-					<div
-						css={capBarTrackCss}
-						style={{ background: theme.border }}
-					>
+					<div css={capBarTrackCss} style={{ background: theme.border }}>
 						<div
 							css={capBarFillCss}
 							style={{
@@ -191,21 +163,6 @@ export function StatsAiComputeSection() {
 				</div>
 			))}
 
-			{/* Diagnostic */}
-			{diagnostic && (
-				<div
-					style={{
-						fontSize: 10,
-						fontWeight: 600,
-						color: diagnostic.color,
-						marginTop: 6,
-					}}
-				>
-					{diagnostic.name
-						? t(diagnostic.key, { name: diagnostic.name })
-						: t(diagnostic.key)}
-				</div>
-			)}
 		</CollapsibleSection>
 	);
 }
