@@ -9,7 +9,7 @@ import { StatsFlopsSection } from "./stats-flops-section";
 import { StatsHistory } from "./stats-history";
 import { StatsLocSection } from "./stats-loc-section";
 import { StatsTierBar } from "./stats-tier-bar";
-import { StatsTokensSection } from "./stats-tokens-section";
+import { StatsAiComputeSection } from "./stats-ai-compute-section";
 
 const panelCss = css({
 	display: "flex",
@@ -130,7 +130,7 @@ export function StatsPanel({ onCollapse }: { onCollapse?: () => void }) {
 			>
 				<StatsCashSection />
 				<StatsLocSection />
-				<StatsTokensSection />
+				<StatsAiComputeSection />
 				<StatsFlopsSection />
 				{timelineUnlocked && <StatsTierBar />}
 				<StatsHistory />
