@@ -118,6 +118,7 @@ export function runBalanceSim(
 		flopSlider: 0.7,
 		manualExecCooldown: 0,
 		reachedMilestones: new Set<string>(),
+		locSavingTarget: 0, // LoC needed for next LoC-cost purchase
 	};
 
 	// ── Event simulation state ──
@@ -655,32 +656,31 @@ export function runBalanceSim(
 				.sort((a, b) => a.flopsCost - b.flopsCost)
 				.slice(0, sim.llmHostSlots);
 
-			// Token split: humans produce tokens for AI, surplus → direct LoC
-			const adjustedHumanOutput =
+			// Human output → tokens
+			const humanTokenOutput =
 				humanOutput * sim.tokenMultiplier * eventTokenProductionMultiplier;
-			let totalTokenDemand = 0;
-			for (const m of activeModels) {
-				totalTokenDemand += m.tokenCost;
-			}
-			const tokensProduced = Math.min(adjustedHumanOutput, totalTokenDemand);
-			tokensConsumed = tokensProduced;
-			const directLoc = adjustedHumanOutput - tokensProduced;
-			const tokenEfficiency =
-				totalTokenDemand > 0 ? tokensProduced / totalTokenDemand : 0;
 
 			// FLOPS slider split
 			const aiFlops = flops * (1 - sim.flopSlider);
 			const execFlops = flops * sim.flopSlider;
 
-			// AI LoC (gated by tokens AND proportional FLOPS allocation)
-			let totalFlopsDemand = 0;
-			for (const m of activeModels) totalFlopsDemand += m.flopsCost;
-			const flopSaturation =
-				totalFlopsDemand > 0 ? Math.min(1, aiFlops / totalFlopsDemand) : 0;
+			// Allocate FLOPS smallest-cap-first
+			let remainingFlops = aiFlops;
+			let remainingTokens = humanTokenOutput;
+
 			for (const m of activeModels) {
-				aiLoc +=
-					m.locPerSec * sim.aiLocMultiplier * tokenEfficiency * flopSaturation;
+				const allocated = Math.min(m.flopsCost, remainingFlops);
+				remainingFlops -= allocated;
+				const flopRatio = m.flopsCost > 0 ? allocated / m.flopsCost : 0;
+				const tokensWanted = m.tokenCost * flopRatio;
+				const tokensGot = Math.min(tokensWanted, remainingTokens);
+				remainingTokens -= tokensGot;
+				aiLoc += tokensGot * m.locPerToken * sim.aiLocMultiplier;
 			}
+
+			// Surplus tokens → direct LoC
+			const directLoc = remainingTokens / Math.max(1, sim.tokenMultiplier * eventTokenProductionMultiplier);
+			tokensConsumed = humanTokenOutput - remainingTokens;
 
 			sim.loc += directLoc + aiLoc;
 			sim.totalLoc += directLoc + aiLoc;
@@ -691,6 +691,7 @@ export function runBalanceSim(
 
 			// Auto-arbitrage: target slider based on actual demand
 			if (sim.autoArbitrageEnabled) {
+				const totalFlopsDemand = activeModels.reduce((s, m) => s + m.flopsCost, 0);
 				const idealAiFraction =
 					flops > 0 ? Math.min(0.9, totalFlopsDemand / flops) : 0.3;
 				let targetSlider = 1 - idealAiFraction;
@@ -698,6 +699,18 @@ export function runBalanceSim(
 				else if (sim.loc < execFlops * 1) targetSlider -= 0.05;
 				targetSlider = Math.min(0.9, Math.max(0.1, targetSlider));
 				// Game lerps at 0.02/frame (~60fps) ≈ 70% convergence/sec
+				sim.flopSlider += (targetSlider - sim.flopSlider) * 0.7;
+				sim.flopSlider = Math.min(0.9, Math.max(0.1, sim.flopSlider));
+			}
+
+			// LoC saving: shift slider toward generation when saving for LoC-cost purchase
+			if (sim.locSavingTarget > 0 && sim.loc < sim.locSavingTarget) {
+				const targetSlider = 0.1; // maximize LoC generation
+				sim.flopSlider += (targetSlider - sim.flopSlider) * 0.7;
+				sim.flopSlider = Math.min(0.9, Math.max(0.1, sim.flopSlider));
+			} else if (sim.locSavingTarget > 0 && sim.loc >= sim.locSavingTarget) {
+				sim.locSavingTarget = 0;
+				const targetSlider = 0.7;
 				sim.flopSlider += (targetSlider - sim.flopSlider) * 0.7;
 				sim.flopSlider = Math.min(0.9, Math.max(0.1, sim.flopSlider));
 			}
@@ -867,6 +880,11 @@ export function runBalanceSim(
 			} // end cooldown else
 		} else {
 			// ── Balanced: value-based purchase AI ──
+			const totalLocS =
+				effLocPerKey() * cfg.keysPerSec + autoTypeLoc + calcAutoLoc() + aiLoc;
+			const execCap = sim.aiUnlocked ? flops * sim.flopSlider : flops;
+			const currentCashPerSec =
+				Math.min(totalLocS, execCap) * cashPerLoc();
 
 			// Research tech nodes
 			for (let b = 0; b < 5; b++) {
@@ -901,7 +919,10 @@ export function runBalanceSim(
 					const isGate =
 						n.effects.length === 0 ||
 						n.effects.every((e) => e.type === "tierUnlock");
-					return canAfford && isGate;
+					const isModelGate =
+						n.effects.some((e) => e.type === "modelUnlock") ||
+						n.effects.some((e) => e.type === "llmHostSlot");
+					return canAfford && (isGate || isModelGate);
 				});
 				if (gateNode) {
 					const cost = getTechCost(gateNode);
@@ -923,13 +944,61 @@ export function runBalanceSim(
 					continue;
 				}
 
+				// Eagerly buy model-unlock tech nodes when affordable (< 2 min income)
+				const modelUnlockNodes = availTech.filter((n) => {
+					const isModelUnlock = n.effects.some(
+						(e) => e.type === "modelUnlock",
+					);
+					return isModelUnlock;
+				});
+					const modelUnlockNode = modelUnlockNodes.find((n) => {
+					const cost = getTechCost(n);
+					if (n.currency === "loc" || cost > sim.cash) return false;
+					return currentCashPerSec > 0 && cost / currentCashPerSec < 600;
+				});
+				if (modelUnlockNode) {
+					const cost = getTechCost(modelUnlockNode);
+					sim.cash -= cost;
+					sim.ownedTech[modelUnlockNode.id] =
+						(sim.ownedTech[modelUnlockNode.id] ?? 0) + 1;
+					recalcSimStats();
+					applyInstantEffects(modelUnlockNode.effects);
+					purchaseCount++;
+					purchases.push({
+						time: t,
+						type: PurchaseTypeEnum.ai,
+						name: modelUnlockNode.name,
+						cost,
+						currency: modelUnlockNode.currency,
+						snapshot: capturePurchaseSnapshot(),
+					});
+					continue;
+				}
+
 				let bestTech: { node: TechNodeData; cost: number } | null = null;
 				let bestTechVal = 0;
 
+				let bestLocTarget = 0; // track highest-value LoC-cost node we can't afford
+				let bestLocTargetVal = 0;
 				for (const n of availTech) {
 					const cost = getTechCost(n);
 					const useLoc = n.currency === "loc";
-					if (useLoc && cost > sim.loc) continue;
+					if (useLoc && cost > sim.loc) {
+						// Can't afford — evaluate if worth saving for
+						let savingVal = 0;
+						for (const e of n.effects) {
+							const ev = e.value as number;
+							if (e.type === "flops") savingVal += ev * cashPerLoc() * 2;
+							if (e.type === "cpuFlops" || e.type === "ramFlops")
+								savingVal += ev * cashPerLoc() * 1.5;
+							if (e.type === "storageFlops") savingVal += ev * cashPerLoc();
+						}
+						if (cost > 0 && savingVal / cost > bestLocTargetVal) {
+							bestLocTargetVal = savingVal / cost;
+							bestLocTarget = cost;
+						}
+						continue;
+					}
 					if (!useLoc && cost > sim.cash) continue;
 					let val = 0;
 					for (const e of n.effects) {
@@ -989,9 +1058,7 @@ export function runBalanceSim(
 							const modelId = e.value as string;
 							const model = aiModels.find((x) => x.id === modelId);
 							if (model) {
-								val +=
-									(model.locPerSec * sim.aiLocMultiplier * cashPerLoc()) /
-									(model.cost + cost);
+								val += model.locPerSec * sim.aiLocMultiplier * cashPerLoc();
 							}
 						}
 					}
@@ -1001,7 +1068,13 @@ export function runBalanceSim(
 					}
 				}
 
-				if (!bestTech) break;
+				if (!bestTech) {
+					// No affordable tech — set LoC saving target if there's a worthy LoC-cost node
+					if (bestLocTarget > 0 && sim.aiUnlocked) {
+						sim.locSavingTarget = bestLocTarget;
+					}
+					break;
+				}
 				if (bestTech.node.currency === "loc") sim.loc -= bestTech.cost;
 				else sim.cash -= bestTech.cost;
 				sim.ownedTech[bestTech.node.id] =
@@ -1023,12 +1096,14 @@ export function runBalanceSim(
 			}
 
 			// ── Buy items ──
-			// At T5 approaching singularity: keep buying but reserve cash.
-			// Don't spend more than 50% of current cash on any item — lets savings
-			// grow naturally while still investing in FLOPS.
+			// At T5 approaching singularity: only reserve cash once we're past 50% of target.
+			// Below that, invest freely in models/upgrades to grow income.
+			const singularityFraction = useCashWin
+				? sim.cash / singularityCashCost
+				: 0;
 			const cashCap =
-				useCashWin && sim.currentTier >= 5
-					? sim.cash * 0.5
+				useCashWin && sim.currentTier >= 5 && singularityFraction > 0.5
+					? sim.cash * (1 - singularityFraction) // reserve grows as we approach target
 					: Number.POSITIVE_INFINITY;
 			let boughtThisTick = false;
 			for (let b = 0; b < 5; b++) {
@@ -1051,9 +1126,6 @@ export function runBalanceSim(
 							})
 						: [];
 
-				const totalLocS =
-					effLocPerKey() * cfg.keysPerSec + autoTypeLoc + calcAutoLoc() + aiLoc;
-				const execCap = sim.aiUnlocked ? flops * sim.flopSlider : flops;
 				const bottlenecked = totalLocS > execCap;
 
 				let best: {
@@ -1069,8 +1141,25 @@ export function runBalanceSim(
 					let val = 0;
 					for (const e of u.effects) {
 						const ev = e.value as number;
-						if (e.type === "flops")
-							val += ev * cashPerLoc() * (bottlenecked ? 2 : 0.5);
+						if (e.type === "tierUnlock") {
+							// Tier unlock boosts $/LoC for ALL future production — highest priority
+							const nextTier = tiers.find(
+								(t2) => t2.index === (ev as number),
+							);
+							if (nextTier) {
+								const newCashPerLoc = nextTier.cashPerLoc;
+								const boost = newCashPerLoc / Math.max(0.01, cashPerLoc());
+								val += currentCashPerSec * boost * 60; // value = 60s of boosted income
+							}
+						}
+						if (e.type === "flops") {
+							// FLOPS value = how much additional LoC we can actually execute
+							// Capped by current production rate — excess FLOPS have diminishing value
+							const usableFlops = bottlenecked
+								? Math.min(ev, totalLocS - execCap)
+								: ev * 0.1; // small value when not bottlenecked (future-proofing)
+							val += Math.max(0, usableFlops) * cashPerLoc();
+						}
 						if (e.type === "locPerKey" && e.op === "add")
 							val +=
 								ev * cfg.keysPerSec * cashPerLoc() * (bottlenecked ? 0.3 : 1);
@@ -1126,13 +1215,17 @@ export function runBalanceSim(
 					}
 				}
 
+				// Models: buy if we can afford it within 2 minutes of current income.
+				// A real player doesn't compare model ROI vs FLOPS — they buy models
+				// to grow production, especially when they have spare FLOPS.
 				for (const m of availModels) {
 					if (m.cost > sim.cash || m.cost > cashCap) continue;
-					const val =
-						(m.locPerSec * sim.aiLocMultiplier * cashPerLoc()) / m.cost;
-					if (val > bestVal) {
-						bestVal = val;
+					const secondsOfIncome =
+						currentCashPerSec > 0 ? m.cost / currentCashPerSec : Infinity;
+					if (secondsOfIncome < 120) {
+						// Costs less than 2 min of income — buy it
 						best = { type: "m", item: m, cost: m.cost };
+						break;
 					}
 				}
 
@@ -1199,9 +1292,10 @@ export function runBalanceSim(
 			});
 		}
 
-		// ── AGI check ──
+		// ── AGI check: must be in T5 and afford Singularity (cash is spent) ──
 		if (useCashWin) {
-			if (sim.cash >= singularityCashCost) {
+			if (sim.currentTier >= 5 && sim.cash >= singularityCashCost) {
+				sim.cash -= singularityCashCost;
 				agiTime = t;
 				break;
 			}

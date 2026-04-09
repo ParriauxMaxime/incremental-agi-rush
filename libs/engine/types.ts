@@ -132,6 +132,7 @@ export interface AiModel {
 	name: string;
 	version: string;
 	locPerSec: number;
+	locPerToken: number;
 	flopsCost: number;
 	tokenCost: number;
 	cost: number;
@@ -175,6 +176,7 @@ export interface SimData {
 		name: string;
 		version: string;
 		locPerSec: number;
+		locPerToken: number;
 		flopsCost: number;
 		tokenCost: number;
 		cost: number;
