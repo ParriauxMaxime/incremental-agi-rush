@@ -339,6 +339,8 @@ export function StatsLocSection() {
 			{humanSources.map((s) => {
 				const scale = s.locPerSec / maxLoc;
 				const locPct = aiUnlocked ? (1 - tokenFraction) * 100 : 100;
+				const netLoc = s.locPerSec * (1 - tokenFraction);
+				const tokenPart = s.locPerSec * tokenFraction;
 				return (
 					<div css={sourceRowCss} key={s.name}>
 						<span css={sourceNameCss} style={{ color: theme.textMuted }}>
@@ -359,10 +361,22 @@ export function StatsLocSection() {
 								}}
 							/>
 						</div>
-						<span css={sourceValueCss} style={{ color: s.color }}>
-							{formatNumber(s.locPerSec)}
-							{unit}
-						</span>
+						{aiUnlocked && tokenFraction > 0.01 ? (
+							<span css={sourceValueCss} style={{ fontSize: 10 }}>
+								<span style={{ color: s.color }}>
+									{formatNumber(netLoc)}
+								</span>
+								<span style={{ color: TOKEN_COLOR }}>
+									+{formatNumber(tokenPart)}
+								</span>
+								{unit}
+							</span>
+						) : (
+							<span css={sourceValueCss} style={{ color: s.color }}>
+								{formatNumber(s.locPerSec)}
+								{unit}
+							</span>
+						)}
 					</div>
 				);
 			})}
