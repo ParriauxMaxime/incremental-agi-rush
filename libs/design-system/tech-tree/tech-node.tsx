@@ -125,7 +125,7 @@ export function formatEffect(effect: TechNodeEffect): string {
 			const label = effectLabels[effect.type];
 			const prefix = label?.prefix ? `${label.prefix} ` : "";
 			const unit = label?.unit ?? effect.type;
-			return `+${effect.value} ${prefix}${unit}`;
+			return `+${formatCompact(effect.value as number)} ${prefix}${unit}`;
 		})
 		.with("multiply", () => {
 			const label = effectLabels[effect.type];
