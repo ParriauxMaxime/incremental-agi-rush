@@ -885,7 +885,7 @@
 			"icon": "🖥️",
 			"requires": ["tier_ai_lab"],
 			"max": 5,
-			"baseCost": 10000000,
+			"baseCost": 5000000,
 			"costMultiplier": 1.7,
 			"currency": "loc",
 			"effects": [
@@ -901,7 +901,7 @@
 		{
 			"id": "fiber_network",
 			"name": "Fiber Network",
-			"description": "+500K storage FLOPS per level",
+			"description": "+100K storage FLOPS per level",
 			"icon": "🔗",
 			"requires": ["tier_ai_lab"],
 			"max": 5,
@@ -912,7 +912,7 @@
 				{
 					"type": "storageFlops",
 					"op": "add",
-					"value": 500000
+					"value": 100000
 				}
 			],
 			"x": 1000,
@@ -995,18 +995,18 @@
 		{
 			"id": "quantum_compute",
 			"name": "Quantum Cluster",
-			"description": "+500M FLOPS per level",
+			"description": "+50M FLOPS per level",
 			"icon": "⚛️",
 			"requires": ["tier_agi_race"],
 			"max": 5,
-			"baseCost": 50000000,
+			"baseCost": 80000000,
 			"costMultiplier": 1.8,
 			"currency": "loc",
 			"effects": [
 				{
 					"type": "flops",
 					"op": "add",
-					"value": 500000000
+					"value": 50000000
 				}
 			],
 			"x": 1160,
@@ -1015,18 +1015,18 @@
 		{
 			"id": "neural_fabric",
 			"name": "Neural Fabric",
-			"description": "+10M storage FLOPS per level",
+			"description": "+20M storage FLOPS per level",
 			"icon": "🕸️",
 			"requires": ["tier_agi_race"],
 			"max": 5,
-			"baseCost": 30000000,
+			"baseCost": 60000000,
 			"costMultiplier": 1.6,
 			"currency": "loc",
 			"effects": [
 				{
 					"type": "storageFlops",
 					"op": "add",
-					"value": 10000000
+					"value": 20000000
 				}
 			],
 			"x": 1160,
