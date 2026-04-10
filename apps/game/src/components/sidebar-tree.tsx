@@ -141,8 +141,32 @@ function formatEffectSimple(
 		return { text: `+${val} AI slot`, color: theme.flopsColor };
 	if (effect.type === "managerLoc")
 		return { text: "+50% teams", color: theme.locColor };
-	if (effect.op === "multiply")
-		return { text: `×${val}`, color: theme.cashColor };
+	if (effect.op === "multiply") {
+		const multiplyLabels: Record<string, { label: string; color: string }> = {
+			cashMultiplier: { label: "$/loc", color: theme.cashColor },
+			locProductionSpeed: { label: "loc/s", color: theme.locColor },
+			locPerKey: { label: "loc/key", color: theme.locColor },
+			llmLocMultiplier: { label: "AI loc", color: theme.flopsColor },
+			tokenMultiplier: { label: "tokens", color: theme.flopsColor },
+			agentLocMultiplier: { label: "agent loc", color: theme.locColor },
+			freelancerLocMultiplier: { label: "freelancer", color: theme.locColor },
+			internLocMultiplier: { label: "intern", color: theme.locColor },
+			devLocMultiplier: { label: "dev loc", color: theme.locColor },
+			teamLocMultiplier: { label: "team loc", color: theme.locColor },
+			managerMultiplier: { label: "managers", color: theme.locColor },
+			freelancerCostDiscount: { label: "freelancer cost", color: theme.cashColor },
+			internCostDiscount: { label: "intern cost", color: theme.cashColor },
+			devCostDiscount: { label: "dev cost", color: theme.cashColor },
+			teamCostDiscount: { label: "team cost", color: theme.cashColor },
+			managerCostDiscount: { label: "manager cost", color: theme.cashColor },
+			llmCostDiscount: { label: "AI cost", color: theme.cashColor },
+			agentCostDiscount: { label: "agent cost", color: theme.cashColor },
+		};
+		const info = multiplyLabels[effect.type];
+		const label = info?.label ?? effect.type;
+		const color = info?.color ?? theme.cashColor;
+		return { text: `×${val} ${label}`, color };
+	}
 
 	if (LOC_RATE_KEY[effect.type] && rateValue > 0 && owned && owned > 0) {
 		const effectivePerUnit = rateValue / owned;
