@@ -35,6 +35,12 @@ function sfxVol(): [number, boolean] {
 	return [s.sfxVolume, s.muted];
 }
 
+/** Endgame SFX ignore mute — the singularity sequence should always have sound. */
+function forceSfxVol(): [number, boolean] {
+	const s = useAudioStore.getState();
+	return [Math.max(s.sfxVolume, 50), false];
+}
+
 /** Call on first user gesture (keydown / click). Safe to call multiple times. */
 export async function init(tierIndex: number) {
 	resumeCtx();
@@ -57,11 +63,11 @@ export const sfx = {
 	tierUnlock: () => playTierUnlock(...sfxVol()),
 	milestone: () => playMilestone(...sfxVol()),
 	event: () => playEvent(...sfxVol()),
-	crtDown: () => playCrtDown(...sfxVol()),
-	bootHum: () => playBootHum(...sfxVol()),
-	terminalKey: () => playTerminalKey(...sfxVol()),
-	errorAlarm: () => playErrorAlarm(...sfxVol()),
-	droneSwell: () => playDroneSwell(...sfxVol()),
+	crtDown: () => playCrtDown(...forceSfxVol()),
+	bootHum: () => playBootHum(...forceSfxVol()),
+	terminalKey: () => playTerminalKey(...forceSfxVol()),
+	errorAlarm: () => playErrorAlarm(...forceSfxVol()),
+	droneSwell: () => playDroneSwell(...forceSfxVol()),
 } as const;
 
 // ── Music wrappers ──
@@ -73,6 +79,8 @@ export const music = {
 	},
 	singularity: () => {
 		if (!isStarted()) return;
+		// Force unmute for the endgame sequence
+		setMusicVolume(useAudioStore.getState().musicVolume, false);
 		singularityBreakdown();
 	},
 	stop: () => stopMusic(),
