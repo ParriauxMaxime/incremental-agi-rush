@@ -323,8 +323,8 @@
 			"name": "Planetary Datacenter",
 			"description": "A continent-sized compute farm. +200M FLOPS",
 			"icon": "🛰️",
-			"baseCost": 50000000000,
-			"costMultiplier": 1.35,
+			"baseCost": 150000000000,
+			"costMultiplier": 1.4,
 			"max": 50,
 			"effects": [
 				{
