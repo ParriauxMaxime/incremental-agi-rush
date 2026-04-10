@@ -234,7 +234,6 @@ const TRIM_TO = 40;
 
 export function CliPrompt() {
 	const unlockedModels = useGameStore((s) => s.unlockedModels);
-	const autoPokeEnabled = useGameStore((s) => s.autoPokeEnabled);
 	const flopSlider = useGameStore((s) => s.flopSlider);
 	const theme = useIdeTheme();
 	const { t: tUi } = useTranslation();
@@ -393,7 +392,7 @@ export function CliPrompt() {
 		return () => clearTimeout(timer);
 	}, [stream.phase, flopSlider]);
 
-	// ── Auto-prompt: AI models produce when active + AI FLOPS available ──
+	// ── Auto-prompt: AI models always auto-produce when active + AI FLOPS available ──
 	const hasAiFlops = flopSlider < 1;
 	useEffect(() => {
 		if (stream.phase !== "idle") return;
@@ -401,22 +400,13 @@ export function CliPrompt() {
 		if (!hasAiFlops) return;
 
 		const aiShare = Math.max(0.05, 1 - flopSlider);
-		const baseDelay = autoPokeEnabled
-			? 500 + Math.random() * 1000
-			: 3000 + Math.random() * 4000;
+		const baseDelay = 500 + Math.random() * 1000;
 		const delay = baseDelay / aiShare;
 		const timer = setTimeout(() => {
 			startPrompt(pickPrompt());
 		}, delay);
 		return () => clearTimeout(timer);
-	}, [
-		autoPokeEnabled,
-		stream.phase,
-		activeModels.length,
-		startPrompt,
-		hasAiFlops,
-		flopSlider,
-	]);
+	}, [stream.phase, activeModels.length, startPrompt, hasAiFlops, flopSlider]);
 
 	// ── Manual submit ──
 	const handleSubmit = useCallback(() => {

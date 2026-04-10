@@ -1153,26 +1153,6 @@
 			"y": 920
 		},
 		{
-			"id": "auto_poke",
-			"name": "Auto-Prompt",
-			"description": "AI models autonomously generate prompts.",
-			"icon": "🔄",
-			"requires": ["llm_gate"],
-			"max": 1,
-			"baseCost": 250000000,
-			"costMultiplier": 1,
-			"currency": "cash",
-			"effects": [
-				{
-					"type": "autoPoke",
-					"op": "enable",
-					"value": 1
-				}
-			],
-			"x": 820,
-			"y": 820
-		},
-		{
 			"id": "auto_arbitrage",
 			"name": "Auto-Arbitrage",
 			"description": "Automatically optimizes FLOPS allocation for maximum cash flow.",

@@ -613,7 +613,7 @@ function recalcDerivedStats(state: GameState): void {
 	// Derive auto-* flags from owned tech nodes (ensures correct state after load/prestige)
 	state.autoTypeEnabled = (state.ownedTechNodes.auto_type ?? 0) > 0;
 	state.autoExecuteEnabled = (state.ownedTechNodes.auto_execute ?? 0) > 0;
-	state.autoPokeEnabled = (state.ownedTechNodes.auto_poke ?? 0) > 0;
+	state.autoPokeEnabled = true; // Always auto-prompt at T4+
 	if ((state.ownedTechNodes.auto_arbitrage ?? 0) === 0) {
 		state.autoArbitrageEnabled = false;
 	}
