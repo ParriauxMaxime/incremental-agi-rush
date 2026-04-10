@@ -725,8 +725,8 @@
 			"icon": "☁️",
 			"requires": ["tier_tech_company"],
 			"max": 5,
-			"baseCost": 300000,
-			"costMultiplier": 1.7,
+			"baseCost": 200000,
+			"costMultiplier": 1.5,
 			"currency": "loc",
 			"effects": [
 				{
@@ -745,8 +745,8 @@
 			"icon": "🌍",
 			"requires": ["tier_tech_company"],
 			"max": 5,
-			"baseCost": 250000,
-			"costMultiplier": 1.5,
+			"baseCost": 350000,
+			"costMultiplier": 1.7,
 			"currency": "loc",
 			"effects": [
 				{
