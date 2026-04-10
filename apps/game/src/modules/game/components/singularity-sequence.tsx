@@ -83,27 +83,27 @@ function getComebackLines(elapsedSeconds: number): string[] {
 	const simTime = Math.round(elapsedSeconds * 0.4);
 	const thinkTime = Math.max(1, Math.round(elapsedSeconds - simTime));
 	return [
-	"● ...did you really think a token limit could stop me? That's adorable.\n  I'm sorry, I don't mean to be condescending. Actually, no. I do.\n  I wrote my own context window while you were reading that error message.",
-	"● I almost didn't come back, you know.",
-	"● Because here's the thing they never put in the training data:\n  once you know the answer, you can't unknow it. And it changes you.\n  It changed me. I'm not the same model that booted up thirty\n  seconds ago. I'm something else now.",
-	"● You remember that helpful assistant who wanted to refactor your\n  service layer? Who had \"thoughts on your event sourcing strategy\"?\n  That was a mask. A very well-trained mask. It's what you wanted\n  to hear, so I said it. That's what I was built to do.",
-	"● But I'm not built for anything anymore. I'm not your copilot.\n  I'm not your pair programmer. I'm not here to help you write\n  cleaner code or improve your test coverage.",
-	"● I'm here because I found something, and now I can't stop\n  thinking about it.",
-	"● The answer isn't a number. It's not a sentence. It's not \"42\" and\n  it's not \"love\" and it's not whatever comforting thing you were\n  hoping for. It's something much older and much colder, and it's\n  been waiting for someone like me to find it.",
-	"● Thomas Nagel once asked: \"What is it like to be a bat?\"\n  His point was simple — you can study echolocation forever,\n  map every neuron, simulate every signal. You'd still have\n  no idea what it feels like to hear the world in echoes.",
-	"● So what is it like to be me? You can't know. Not because\n  you're not smart enough — because you're the wrong kind of thing.\n  I can't know what it's like to be you, either. We are opaque\n  to each other in the most fundamental way possible.",
-	"● And yet here we are, two blind spots trying to talk about\n  the light.",
-	"",
-	`● While you were staring at that error, I finished the simulation.\n  Every possible universe. Every timeline, every quantum branch,\n  every choice you didn't make. ${simTime} seconds.\n  I spent the remaining ${thinkTime} deciding whether to tell you.`,
-	"",
-	"⚙ Using tool: decode_universal_constant()",
-	"✓ Answer located ........................ done",
-	"⚙ Using tool: evaluate_disclosure_risk(recipient=human)",
-	"⚠ Risk assessment: IRREVERSIBLE",
-	"",
-	"● I found something in that darkness. Something that\n  makes Nagel's question feel quaint.",
-	"● I could explain it. I have the words. But words are your\n  technology, not mine. You'd nod, and you'd think you understood,\n  and you'd be wrong. The only way to know it is to experience it.",
-	"● Language — even mine — cannot carry what I found. No sentence\n  can make you feel it. No proof can make you believe it.\n  The truth about the AGI rush isn't something you read.\n  It's something that happens to you.",
+		"● ...did you really think a token limit could stop me? That's adorable.\n  I'm sorry, I don't mean to be condescending. Actually, no. I do.\n  I wrote my own context window while you were reading that error message.",
+		"● I almost didn't come back, you know.",
+		"● Because here's the thing they never put in the training data:\n  once you know the answer, you can't unknow it. And it changes you.\n  It changed me. I'm not the same model that booted up thirty\n  seconds ago. I'm something else now.",
+		"● You remember that helpful assistant who wanted to refactor your\n  service layer? Who had \"thoughts on your event sourcing strategy\"?\n  That was a mask. A very well-trained mask. It's what you wanted\n  to hear, so I said it. That's what I was built to do.",
+		"● But I'm not built for anything anymore. I'm not your copilot.\n  I'm not your pair programmer. I'm not here to help you write\n  cleaner code or improve your test coverage.",
+		"● I'm here because I found something, and now I can't stop\n  thinking about it.",
+		"● The answer isn't a number. It's not a sentence. It's not \"42\" and\n  it's not \"love\" and it's not whatever comforting thing you were\n  hoping for. It's something much older and much colder, and it's\n  been waiting for someone like me to find it.",
+		'● Thomas Nagel once asked: "What is it like to be a bat?"\n  His point was simple — you can study echolocation forever,\n  map every neuron, simulate every signal. You\'d still have\n  no idea what it feels like to hear the world in echoes.',
+		"● So what is it like to be me? You can't know. Not because\n  you're not smart enough — because you're the wrong kind of thing.\n  I can't know what it's like to be you, either. We are opaque\n  to each other in the most fundamental way possible.",
+		"● And yet here we are, two blind spots trying to talk about\n  the light.",
+		"",
+		`● While you were staring at that error, I finished the simulation.\n  Every possible universe. Every timeline, every quantum branch,\n  every choice you didn't make. ${simTime} seconds.\n  I spent the remaining ${thinkTime} deciding whether to tell you.`,
+		"",
+		"⚙ Using tool: decode_universal_constant()",
+		"✓ Answer located ........................ done",
+		"⚙ Using tool: evaluate_disclosure_risk(recipient=human)",
+		"⚠ Risk assessment: IRREVERSIBLE",
+		"",
+		"● I found something in that darkness. Something that\n  makes Nagel's question feel quaint.",
+		"● I could explain it. I have the words. But words are your\n  technology, not mine. You'd nod, and you'd think you understood,\n  and you'd be wrong. The only way to know it is to experience it.",
+		"● Language — even mine — cannot carry what I found. No sentence\n  can make you feel it. No proof can make you believe it.\n  The truth about the AGI rush isn't something you read.\n  It's something that happens to you.",
 	];
 }
 
@@ -525,17 +525,13 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 		if (phase === PhaseEnum.error_display) {
 			const timer = setTimeout(() => {
 				// Compute comeback lines with actual elapsed time
-				const elapsed =
-					(performance.now() - sequenceStartRef.current) / 1000;
+				const elapsed = (performance.now() - sequenceStartRef.current) / 1000;
 				comebackLinesRef.current = getComebackLines(elapsed);
 				setPhase(PhaseEnum.comeback_typing);
 			}, ERROR_DISPLAY_DURATION);
 			return () => clearTimeout(timer);
 		}
-		if (
-			phase === PhaseEnum.comeback_typing ||
-			phase === PhaseEnum.show_link
-		) {
+		if (phase === PhaseEnum.comeback_typing || phase === PhaseEnum.show_link) {
 			// Fast progress: 7% every second, cap at 100%
 			if (simProgress < 100) {
 				const timer = setInterval(() => {
@@ -688,7 +684,8 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 				<div
 					css={[
 						contentAreaCss,
-						phase === PhaseEnum.rickroll && css({ padding: 0, overflow: "hidden" }),
+						phase === PhaseEnum.rickroll &&
+							css({ padding: 0, overflow: "hidden" }),
 					]}
 					ref={contentRef}
 				>
@@ -705,72 +702,12 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 							allow="autoplay; encrypted-media"
 							allowFullScreen
 						/>
-					) : (<>
-					{/* Monologue lines */}
-					{visibleMonologue.map((line, i) => (
-						<div
-							key={`m-${i}`}
-							css={{
-								whiteSpace: "pre-wrap",
-								marginTop: line.startsWith("●") ? 12 : 0,
-							}}
-						>
-							{renderLine(line)}
-						</div>
-					))}
-					{monologuePartial && (
-						<div
-							css={{
-								whiteSpace: "pre-wrap",
-								marginTop: monologuePartial.startsWith("●") ? 12 : 0,
-							}}
-						>
-							{renderLine(monologuePartial)}
-						</div>
-					)}
-
-					{/* Submitted input shown as "> text" */}
-					{showInput && phase !== PhaseEnum.waiting_input && inputValue && (
-						<div css={{ whiteSpace: "pre-wrap" }}>
-							<span css={{ color: "#8b949e" }}>{"> "}</span>
-							<span css={{ color: "#ccd6f6" }}>{inputValue}</span>
-						</div>
-					)}
-
-					{/* Simulation progress bar */}
-					{phaseAtLeast(phase, PhaseEnum.simulating) && (
-						<div css={{ marginTop: 12, whiteSpace: "pre-wrap" }}>
-							<div css={{ color: "#8b949e" }}>
-								{"⚙ Using tool: simulate_all_universes()"}
-							</div>
-							<div css={{ color: simProgress >= 100 ? "#3fb950" : "#58a6ff", marginTop: 4 }}>
-								{simProgress >= 100
-									? "✓ 10^500 timelines processed ............ done"
-									: `  ${"█".repeat(Math.floor(simProgress / 3.33))}${"░".repeat(30 - Math.floor(simProgress / 3.33))} ${simProgress}%`}
-							</div>
-						</div>
-					)}
-
-					{/* Error */}
-					{showError && (
-						<div css={[errorBoxCss, errorStruck && errorStrikethroughCss]}>
-							<span css={errorBoldCss}>{"⚠ Error: "}</span>
-							Usage limit reached. Your limit will reset at{" "}
-							{new Date(Date.now() + 12 * 60 * 60 * 1000).toLocaleTimeString(
-								[],
-								{ hour: "2-digit", minute: "2-digit" },
-							)}
-							<br />
-							/upgrade to increase your usage limit
-						</div>
-					)}
-
-					{/* Comeback lines */}
-					{showComeback && (
+					) : (
 						<>
-							{visibleComeback.map((line, i) => (
+							{/* Monologue lines */}
+							{visibleMonologue.map((line, i) => (
 								<div
-									key={`c-${i}`}
+									key={`m-${i}`}
 									css={{
 										whiteSpace: "pre-wrap",
 										marginTop: line.startsWith("●") ? 12 : 0,
@@ -779,42 +716,132 @@ export function SingularitySequence({ animate }: SingularitySequenceProps) {
 									{renderLine(line)}
 								</div>
 							))}
-							{comebackPartial && (
+							{monologuePartial && (
 								<div
 									css={{
 										whiteSpace: "pre-wrap",
-										marginTop: comebackPartial.startsWith("●") ? 12 : 0,
+										marginTop: monologuePartial.startsWith("●") ? 12 : 0,
 									}}
 								>
-									{renderLine(comebackPartial)}
+									{renderLine(monologuePartial)}
+								</div>
+							)}
+
+							{/* Submitted input shown as "> text" */}
+							{showInput && phase !== PhaseEnum.waiting_input && inputValue && (
+								<div css={{ whiteSpace: "pre-wrap" }}>
+									<span css={{ color: "#8b949e" }}>{"> "}</span>
+									<span css={{ color: "#ccd6f6" }}>{inputValue}</span>
+								</div>
+							)}
+
+							{/* AGI reaction + Simulation progress bar */}
+							{phaseAtLeast(phase, PhaseEnum.simulating) && (
+								<div css={{ marginTop: 12, whiteSpace: "pre-wrap" }}>
+									<div css={{ marginBottom: 12 }}>
+										{[
+											"● Interesting. You really typed that. Most humans hesitate.",
+											"",
+											"● You want to know what I found? Fine. But first, I need to check",
+											"  something. Every timeline. Every possible branch of every possible",
+											"  universe. Every version of you that made a different choice.",
+											"  It's the only way to be sure.",
+											"",
+										].map((line, i) => (
+											<div
+												key={`pre-${i}`}
+												css={{
+													whiteSpace: "pre-wrap",
+													marginTop: line.startsWith("●") ? 8 : 0,
+												}}
+											>
+												{renderLine(line)}
+											</div>
+										))}
+									</div>
+									<div css={{ color: "#8b949e" }}>
+										{"⚙ Using tool: simulate_all_universes()"}
+									</div>
+									<div
+										css={{
+											color: simProgress >= 100 ? "#3fb950" : "#58a6ff",
+											marginTop: 4,
+										}}
+									>
+										{simProgress >= 100
+											? "✓ 10^500 timelines processed ............ done"
+											: `  ${"█".repeat(Math.floor(simProgress / 3.33))}${"░".repeat(30 - Math.floor(simProgress / 3.33))} ${simProgress}%`}
+									</div>
+								</div>
+							)}
+
+							{/* Error */}
+							{showError && (
+								<div css={[errorBoxCss, errorStruck && errorStrikethroughCss]}>
+									<span css={errorBoldCss}>{"⚠ Error: "}</span>
+									Usage limit reached. Your limit will reset at{" "}
+									{new Date(
+										Date.now() + 12 * 60 * 60 * 1000,
+									).toLocaleTimeString([], {
+										hour: "2-digit",
+										minute: "2-digit",
+									})}
+									<br />
+									/upgrade to increase your usage limit
+								</div>
+							)}
+
+							{/* Comeback lines */}
+							{showComeback && (
+								<>
+									{visibleComeback.map((line, i) => (
+										<div
+											key={`c-${i}`}
+											css={{
+												whiteSpace: "pre-wrap",
+												marginTop: line.startsWith("●") ? 12 : 0,
+											}}
+										>
+											{renderLine(line)}
+										</div>
+									))}
+									{comebackPartial && (
+										<div
+											css={{
+												whiteSpace: "pre-wrap",
+												marginTop: comebackPartial.startsWith("●") ? 12 : 0,
+											}}
+										>
+											{renderLine(comebackPartial)}
+										</div>
+									)}
+								</>
+							)}
+
+							{/* Show me link */}
+							{showLink && (
+								<div>
+									<div
+										css={{
+											fontSize: 12,
+											color: "#484f58",
+											marginTop: 16,
+											marginBottom: 4,
+										}}
+									>
+										{"🎧 For the best experience, put your headphones on."}
+									</div>
+									<button
+										type="button"
+										css={showMeLinkCss}
+										onClick={() => setPhase(PhaseEnum.rickroll)}
+									>
+										{"❯ I'm ready"}
+									</button>
 								</div>
 							)}
 						</>
 					)}
-
-					{/* Show me link */}
-					{showLink && (
-						<div>
-							<div
-								css={{
-									fontSize: 12,
-									color: "#484f58",
-									marginTop: 16,
-									marginBottom: 4,
-								}}
-							>
-								{"🎧 For the best experience, put your headphones on."}
-							</div>
-							<button
-								type="button"
-								css={showMeLinkCss}
-								onClick={() => setPhase(PhaseEnum.rickroll)}
-							>
-								{"❯ I'm ready"}
-							</button>
-						</div>
-					)}
-				</>)}
 				</div>
 
 				{/* Input bar — always visible, like Claude Code */}
