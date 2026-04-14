@@ -15,7 +15,7 @@ import {
 } from "react";
 import { CODE_BLOCKS } from "../data/code-tokens";
 import { EDITOR_THEMES } from "../data/editor-themes";
-import { useAutoType } from "../hooks/use-auto-type";
+import { autoTypeActive, useAutoType } from "../hooks/use-auto-type";
 import { useCodeTyping } from "../hooks/use-code-typing";
 import { useEditorFocus } from "../hooks/use-editor-focus";
 import { useKeyboardInput } from "../hooks/use-keyboard-input";
@@ -138,7 +138,7 @@ export function Editor({ keystrokeCallbackRef }: EditorProps) {
 	const addLoc = useGameStore((s) => s.addLoc);
 
 	const onKeystroke = useCallback(() => {
-		sfx.typing();
+		if (!autoTypeActive) sfx.typing();
 		addLoc(locPerKey);
 		advanceTokens(1); // purely visual: advance 1 token
 
