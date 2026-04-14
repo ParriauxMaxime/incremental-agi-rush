@@ -675,7 +675,7 @@ export function runBalanceSim(
 				const tokensWanted = m.tokenCost * flopRatio;
 				const tokensGot = Math.min(tokensWanted, remainingTokens);
 				remainingTokens -= tokensGot;
-				aiLoc += tokensGot * m.locPerToken * sim.aiLocMultiplier;
+				aiLoc += tokensGot * m.locPerToken * sim.llmLocMultiplier;
 			}
 
 			// Surplus tokens → direct LoC

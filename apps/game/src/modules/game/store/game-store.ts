@@ -87,6 +87,7 @@ export interface GameState {
 	agentLocPerSec: number;
 	managerBonus: number;
 	locProductionMultiplier: number;
+	llmLocMultiplier: number;
 	cashMultiplier: number;
 	tokenMultiplier: number;
 	freelancerCostDiscount: number;
@@ -203,6 +204,7 @@ const initialState: GameState = {
 	agentLocPerSec: 0,
 	managerBonus: 0,
 	locProductionMultiplier: 1,
+	llmLocMultiplier: 1,
 	cashMultiplier: 1,
 	tokenMultiplier: 1,
 	freelancerCostDiscount: 1,
@@ -548,6 +550,7 @@ function recalcDerivedStats(state: GameState): void {
 			? eventMods.flopsOverride
 			: computedFlops * eventMods.flopsMultiplier;
 	state.locProductionMultiplier = locProductionMultiplier;
+	state.llmLocMultiplier = llmLocMultiplier;
 	state.cashMultiplier = cashMultiplier;
 	state.tokenMultiplier = tokenMultiplier;
 	state.freelancerCostDiscount = freelancerCostDiscount;
@@ -683,7 +686,7 @@ export const useGameStore = create<GameState & GameActions>()(
 							const tokensWanted = model.tokenCost * flopRatio * dt;
 							const tokensGot = Math.min(tokensWanted, remainingTokens);
 							remainingTokens -= tokensGot;
-							const locOut = tokensGot * model.locPerToken;
+							const locOut = tokensGot * model.locPerToken * s.llmLocMultiplier;
 							aiProduced += locOut;
 							tickTotalCap += model.flopsCost;
 							tickTotalConsumed += allocated;
