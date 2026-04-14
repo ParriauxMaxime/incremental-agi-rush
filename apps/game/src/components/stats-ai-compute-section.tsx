@@ -234,37 +234,7 @@ export function StatsAiComputeSection() {
 						? Math.round((group.totalAllocated / group.totalCap) * 100)
 						: 0;
 
-				// Single model in family — show directly, no grouping
-				if (group.models.length === 1) {
-					const m = group.models[0];
-					return (
-						<div key={m.id} css={modelRowCss}>
-							<div css={modelHeaderCss}>
-								<span css={modelNameCss} style={{ color: m.color }}>
-									{m.name}
-								</span>
-								<span css={modelStatsCss} style={{ color: theme.textMuted }}>
-									{m.ratio}x &middot;{" "}
-									<span style={{ color: m.color }}>
-										{formatNumber(m.allocated)}
-									</span>
-									/{formatNumber(m.cap)}
-								</span>
-							</div>
-							<div css={capBarTrackCss} style={{ background: theme.border }}>
-								<div
-									css={capBarFillCss}
-									style={{
-										width: `${Math.round(m.pct * 100)}%`,
-										background: m.color,
-									}}
-								/>
-							</div>
-						</div>
-					);
-				}
-
-				// Multi-model family — collapsible group
+				// Family group — collapsible
 				return (
 					<div key={group.family} style={{ marginBottom: 4 }}>
 						<div

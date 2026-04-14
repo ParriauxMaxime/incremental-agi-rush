@@ -443,38 +443,7 @@ export function StatsLocSection() {
 						}}
 					>
 						{aiFamilyGroups.map((group) => {
-							// Single model — show directly
-							if (group.models.length === 1) {
-								const s = group.models[0];
-								return (
-									<div
-										css={sourceRowCss}
-										key={s.name}
-										style={{ paddingLeft: 18 }}
-									>
-										<span
-											css={sourceNameCss}
-											style={{ color: theme.textMuted }}
-										>
-											{s.name}
-										</span>
-										<div css={barTrackCss} style={{ background: theme.border }}>
-											<div
-												css={barFillCss}
-												style={{
-													transform: `scaleX(${s.locPerSec / maxLoc})`,
-													background: s.color,
-												}}
-											/>
-										</div>
-										<span css={sourceValueCss} style={{ color: s.color }}>
-											{formatNumber(s.locPerSec)}
-											{unit}
-										</span>
-									</div>
-								);
-							}
-							// Multi-model family — collapsible
+							// Family group — collapsible
 							const famExpanded = expandedAiFamilies[group.family] ?? false;
 							return (
 								<div key={group.family} style={{ paddingLeft: 12 }}>
