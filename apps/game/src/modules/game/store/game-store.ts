@@ -752,7 +752,7 @@ export const useGameStore = create<GameState & GameActions>()(
 						totalCash += executed * earnRate;
 						loc -= executed;
 						totalExecutedLoc += executed;
-						sfx.execute();
+						if (!s.autoExecuteEnabled) sfx.execute();
 					}
 
 					loc = Math.max(0, loc);
