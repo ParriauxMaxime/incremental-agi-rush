@@ -1,9 +1,6 @@
 import { useGameStore } from "@modules/game";
 import { useEffect, useRef } from "react";
 
-/** True while auto-type is actively producing tokens — used to suppress typing SFX. */
-export let autoTypeActive = false;
-
 export function useAutoType(advanceTokens: (count: number) => void) {
 	const autoTypeEnabled = useGameStore((s) => s.autoTypeEnabled);
 	const locPerKey = useGameStore((s) => s.locPerKey);
@@ -15,7 +12,6 @@ export function useAutoType(advanceTokens: (count: number) => void) {
 		if (singularity || !running) return;
 		if (!autoTypeEnabled) return;
 
-		autoTypeActive = true;
 		let rafId: number;
 		let lastTime = performance.now();
 
@@ -44,9 +40,6 @@ export function useAutoType(advanceTokens: (count: number) => void) {
 		}
 
 		rafId = requestAnimationFrame(autoLoop);
-		return () => {
-			cancelAnimationFrame(rafId);
-			autoTypeActive = false;
-		};
+		return () => cancelAnimationFrame(rafId);
 	}, [autoTypeEnabled, locPerKey, advanceTokens, singularity, running]);
 }
