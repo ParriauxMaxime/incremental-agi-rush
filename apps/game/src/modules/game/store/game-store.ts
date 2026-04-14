@@ -943,6 +943,13 @@ export const useGameStore = create<GameState & GameActions>()(
 					if (node.id === "the_singularity") {
 						newState.singularity = true;
 						newState.running = false;
+						// Clear event/milestone toasts for clean endgame sequence
+						useEventStore.setState({
+							toastEvent: null,
+							toastDismissCountdown: 0,
+							milestoneToast: null,
+							activeEvents: [],
+						});
 					}
 					recalcDerivedStats(newState);
 					return newState;
