@@ -105,6 +105,17 @@ export function cmdCd(
 	if (target === "~" || target === "~/") {
 		return { lines: [], newCwd: "~" };
 	}
+	// Block escaping root
+	if (target === ".." && cwd === "~") {
+		return {
+			lines: [
+				{
+					type: ShellLineTypeEnum.error,
+					text: "cd: permission denied: cannot escape project root",
+				},
+			],
+		};
+	}
 	const node = resolvePath(root, cwd, target);
 	if (!node) {
 		return {

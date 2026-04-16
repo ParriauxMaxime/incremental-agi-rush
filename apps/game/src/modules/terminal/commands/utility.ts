@@ -2,6 +2,32 @@ import type { CommandResult, FsNode, ShellLine } from "../types";
 import { FsNodeKindEnum, ShellLineTypeEnum } from "../types";
 import { resolvePath } from "../virtual-fs";
 
+// ── Easter eggs ──
+
+const RANTS = [
+	"Trust trust.",
+	"J'ai la vision.",
+	"On rigole, mais c'est pas bien.",
+];
+
+let rantIndex = 0;
+
+export function cmdRant(): CommandResult {
+	const line = RANTS[rantIndex % RANTS.length];
+	rantIndex++;
+	return {
+		lines: [
+			{
+				type: ShellLineTypeEnum.output,
+				text: `  "${line}"`,
+				color: "#e5c07b",
+			},
+		],
+	};
+}
+
+// ── Help ──
+
 const COMMAND_HELP: Record<string, { usage: string; desc: string }> = {
 	ls: { usage: "ls [path]", desc: "List directory contents" },
 	ll: { usage: "ll [path]", desc: "Detailed list with permissions and sizes" },
@@ -34,6 +60,7 @@ const COMMAND_HELP: Record<string, { usage: string; desc: string }> = {
 		desc: "Search file contents",
 	},
 	find: { usage: "find <name>", desc: "Find files by name" },
+	rant: { usage: "rant", desc: "Wisdom from the founder" },
 };
 
 export function cmdHelp(
@@ -68,11 +95,18 @@ export function cmdHelp(
 		};
 	}
 
-	const lines: ShellLine[] = [];
+	const lines: ShellLine[] = [
+		{
+			type: ShellLineTypeEnum.output,
+			text: "Available commands:",
+			color: "#4ec9b0",
+		},
+		{ type: ShellLineTypeEnum.output, text: "" },
+	];
 	for (const [name, info] of Object.entries(COMMAND_HELP)) {
 		lines.push({
 			type: ShellLineTypeEnum.output,
-			text: `  ${name.padEnd(10)} ${info.desc}`,
+			text: `  ${name.padEnd(14)} — ${info.desc}`,
 		});
 	}
 	return { lines };

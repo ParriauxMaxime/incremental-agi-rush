@@ -17,6 +17,7 @@ import {
 	cmdGrep,
 	cmdHelp,
 	cmdHistory,
+	cmdRant,
 } from "./commands/utility";
 import type { CommandResult, FsNode, PromptSegment, ShellLine } from "./types";
 import { ShellLineTypeEnum } from "./types";
@@ -64,6 +65,7 @@ const COMMANDS: Record<string, CommandFn> = {
 	find: cmdFind,
 	grep: cmdGrep,
 	history: cmdHistory,
+	rant: cmdRant,
 };
 
 function getGameState() {
