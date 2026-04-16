@@ -108,84 +108,36 @@ let currentTier = 0;
 let currentStyle: MusicStyleEnum = MusicStyleEnum.ferreira;
 
 /**
- * Find where the actual audio content ends (before trailing silence/padding).
- * Returns the sample index of the last non-silent sample.
+ * Apply a Hann crossfade at the buffer boundaries so the loop seam
+ * is smooth. Does NOT change loopStart/loopEnd — all stems must loop
+ * the full buffer to stay in sync.
  */
-function findContentEnd(buffer: AudioBuffer, threshold = 0.005): number {
-	let lastLoud = buffer.length - 1;
-	for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
-		const data = buffer.getChannelData(ch);
-		for (let i = data.length - 1; i >= 0; i--) {
-			if (Math.abs(data[i]) > threshold) {
-				lastLoud = Math.max(lastLoud === buffer.length - 1 ? 0 : lastLoud, i);
-				break;
-			}
-		}
-	}
-	return lastLoud;
-}
-
-/**
- * Find where the actual audio content starts (after leading silence/padding).
- */
-function findContentStart(buffer: AudioBuffer, threshold = 0.005): number {
-	let firstLoud = 0;
-	for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
-		const data = buffer.getChannelData(ch);
-		for (let i = 0; i < data.length; i++) {
-			if (Math.abs(data[i]) > threshold) {
-				if (firstLoud === 0) firstLoud = i;
-				else firstLoud = Math.min(firstLoud, i);
-				break;
-			}
-		}
-	}
-	return firstLoud;
-}
-
-/**
- * Set loop points to skip silence at start/end, then apply a tiny
- * crossfade at the loop boundary in the buffer data itself.
- */
-function makeBufferSeamless(player: ToneNs.Player, fadeMs = 20) {
+function makeBufferSeamless(player: ToneNs.Player, fadeMs = 30) {
 	const raw = player.buffer.get();
 	if (!raw || raw.length === 0) return;
 
 	const sampleRate = raw.sampleRate;
-
-	// Find actual content boundaries (skip codec padding/silence)
-	const contentStart = findContentStart(raw);
-	const contentEnd = findContentEnd(raw);
-
-	if (contentEnd <= contentStart) return;
-
-	// Set loop points to the actual content
-	player.loopStart = contentStart / sampleRate;
-	player.loopEnd = contentEnd / sampleRate;
-
-	// Apply a tiny Hann crossfade at the loop boundary
 	const fadeSamples = Math.min(
 		Math.floor((fadeMs / 1000) * sampleRate),
-		Math.floor((contentEnd - contentStart) / 8),
+		Math.floor(raw.length / 8),
 	);
 
 	if (fadeSamples < 2) return;
 
 	for (let ch = 0; ch < raw.numberOfChannels; ch++) {
 		const data = raw.getChannelData(ch);
+		const len = data.length;
+
 		for (let i = 0; i < fadeSamples; i++) {
 			const t = i / fadeSamples;
-			const fadeIn = 0.5 * (1 - Math.cos(Math.PI * t));
-			const fadeOut = 1 - fadeIn;
+			const w = 0.5 * (1 - Math.cos(Math.PI * t)); // 0→1 Hann curve
 
-			const si = contentStart + i;
-			const ei = contentEnd - fadeSamples + i;
+			// Blend start with end: at the boundary, mix them together
+			const startVal = data[i];
+			const endVal = data[len - fadeSamples + i];
 
-			const startVal = data[si];
-			const endVal = data[ei];
-
-			data[si] = startVal * fadeIn + endVal * fadeOut;
-			data[ei] = endVal * fadeIn + startVal * fadeOut;
+			data[i] = startVal * w + endVal * (1 - w);
+			data[len - fadeSamples + i] = endVal * w + startVal * (1 - w);
 		}
 	}
 }
