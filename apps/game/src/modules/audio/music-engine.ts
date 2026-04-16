@@ -107,6 +107,41 @@ let started = false;
 let currentTier = 0;
 let currentStyle: MusicStyleEnum = MusicStyleEnum.ferreira;
 
+/**
+ * Apply a crossfade window to the audio buffer so the end blends
+ * seamlessly into the start when looping. Modifies the buffer in place.
+ * Uses a raised-cosine (Hann) window for smooth transitions.
+ */
+function makeBufferSeamless(buffer: ToneNs.ToneAudioBuffer, fadeMs = 40) {
+	const raw = buffer.get();
+	if (!raw) return;
+
+	const sampleRate = raw.sampleRate;
+	const fadeSamples = Math.min(
+		Math.floor((fadeMs / 1000) * sampleRate),
+		Math.floor(raw.length / 4), // never fade more than 25% of the buffer
+	);
+
+	for (let ch = 0; ch < raw.numberOfChannels; ch++) {
+		const data = raw.getChannelData(ch);
+		const len = data.length;
+
+		for (let i = 0; i < fadeSamples; i++) {
+			// Hann window: smooth S-curve from 0→1
+			const t = i / fadeSamples;
+			const fadeIn = 0.5 * (1 - Math.cos(Math.PI * t));
+			const fadeOut = 1 - fadeIn;
+
+			// Blend: start of buffer gets mixed with end of buffer
+			const startSample = data[i];
+			const endSample = data[len - fadeSamples + i];
+
+			data[i] = startSample * fadeIn + endSample * fadeOut;
+			data[len - fadeSamples + i] = endSample * fadeIn + startSample * fadeOut;
+		}
+	}
+}
+
 async function loadPack(style: MusicStyleEnum) {
 	const pack = PACKS[style];
 	const basePath = `${window.location.origin}/audio/${pack.dir}`;
@@ -121,6 +156,9 @@ async function loadPack(style: MusicStyleEnum) {
 						autostart: false,
 						onerror: () => resolve(),
 						onload: () => {
+							// Blend loop boundaries in the actual audio data
+							makeBufferSeamless(player.buffer);
+
 							const gain = new Tone.Gain(0);
 							player.connect(gain);
 							gain.toDestination();
