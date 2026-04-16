@@ -378,7 +378,36 @@ export function ReadmePage() {
 				## Support
 			</div>
 
-			<p css={pCss}>
+			<div
+				css={{
+					display: "flex",
+					gap: 10,
+					flexWrap: "wrap",
+					marginBottom: 12,
+				}}
+			>
+				<a
+					href="https://github.com/ParriauxMaxime/flopsed"
+					target="_blank"
+					rel="noreferrer"
+					css={{
+						display: "inline-flex",
+						alignItems: "center",
+						gap: 6,
+						padding: "8px 16px",
+						borderRadius: 6,
+						border: `1px solid ${theme.border}`,
+						background: theme.hoverBg,
+						color: theme.foreground,
+						fontSize: 13,
+						fontWeight: 600,
+						textDecoration: "none",
+						transition: "opacity 0.15s, background 0.15s",
+						"&:hover": { background: theme.activeBg },
+					}}
+				>
+					{"⭐ Star on GitHub"}
+				</a>
 				<a
 					href="https://buymeacoffee.com/parriauxmaxime"
 					target="_blank"
@@ -400,7 +429,7 @@ export function ReadmePage() {
 				>
 					🪙 pls send tokens
 				</a>
-			</p>
+			</div>
 
 			<div
 				css={h2Css}
