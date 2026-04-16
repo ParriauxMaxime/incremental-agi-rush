@@ -107,40 +107,9 @@ let started = false;
 let currentTier = 0;
 let currentStyle: MusicStyleEnum = MusicStyleEnum.ferreira;
 
-/**
- * Apply a Hann crossfade at the buffer boundaries so the loop seam
- * is smooth. Does NOT change loopStart/loopEnd — all stems must loop
- * the full buffer to stay in sync.
- */
-function makeBufferSeamless(player: ToneNs.Player, fadeMs = 30) {
-	const raw = player.buffer.get();
-	if (!raw || raw.length === 0) return;
-
-	const sampleRate = raw.sampleRate;
-	const fadeSamples = Math.min(
-		Math.floor((fadeMs / 1000) * sampleRate),
-		Math.floor(raw.length / 8),
-	);
-
-	if (fadeSamples < 2) return;
-
-	for (let ch = 0; ch < raw.numberOfChannels; ch++) {
-		const data = raw.getChannelData(ch);
-		const len = data.length;
-
-		for (let i = 0; i < fadeSamples; i++) {
-			const t = i / fadeSamples;
-			const w = 0.5 * (1 - Math.cos(Math.PI * t)); // 0→1 Hann curve
-
-			// Blend start with end: at the boundary, mix them together
-			const startVal = data[i];
-			const endVal = data[len - fadeSamples + i];
-
-			data[i] = startVal * w + endVal * (1 - w);
-			data[len - fadeSamples + i] = endVal * w + startVal * (1 - w);
-		}
-	}
-}
+// TODO: Stems have a musical fade-out baked into the audio files.
+// No code-level fix can mask this — Quentin needs to re-export
+// the stems as perfectly looping files (no fade-out at the end).
 
 async function loadPack(style: MusicStyleEnum) {
 	const pack = PACKS[style];
@@ -156,9 +125,6 @@ async function loadPack(style: MusicStyleEnum) {
 						autostart: false,
 						onerror: () => resolve(),
 						onload: () => {
-							// Trim silence + blend loop boundaries
-							makeBufferSeamless(player);
-
 							const gain = new Tone.Gain(0);
 							player.connect(gain);
 							gain.toDestination();
