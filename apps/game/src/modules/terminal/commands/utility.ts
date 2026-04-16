@@ -104,9 +104,10 @@ export function cmdHelp(
 		{ type: ShellLineTypeEnum.output, text: "" },
 	];
 	for (const [name, info] of Object.entries(COMMAND_HELP)) {
+		const padded = name + "\u00A0".repeat(Math.max(1, 16 - name.length));
 		lines.push({
 			type: ShellLineTypeEnum.output,
-			text: `  ${name.padEnd(16)}${info.desc}`,
+			text: `\u00A0\u00A0${padded}${info.desc}`,
 		});
 	}
 	return { lines };
