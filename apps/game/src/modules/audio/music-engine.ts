@@ -118,11 +118,16 @@ async function loadPack(style: MusicStyleEnum) {
 					const player = new Tone.Player({
 						url: `${basePath}/${name}.ogg`,
 						loop: true,
-						fadeIn: 0.05,
-						fadeOut: 0.05,
 						autostart: false,
 						onerror: () => resolve(),
 						onload: () => {
+							// OGG codecs add padding that causes audible pops at loop boundaries.
+							// Trim loop start/end to skip codec padding.
+							const dur = player.buffer.duration;
+							if (dur > 0.1) {
+								player.loopStart = 0.01;
+								player.loopEnd = dur - 0.01;
+							}
 							const gain = new Tone.Gain(0);
 							player.connect(gain);
 							gain.toDestination();
