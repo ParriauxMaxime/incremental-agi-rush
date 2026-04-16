@@ -96,7 +96,7 @@ const PACKS: Record<MusicStyleEnum, StemPack> = {
 };
 
 const FADE_DURATION = 2; // seconds
-const LOOP_CROSSFADE = 3; // seconds of crossfade at loop boundary (long for smooth overlap)
+const LOOP_CROSSFADE = 6; // seconds of crossfade at loop boundary
 
 interface StemPlayer {
 	player: ToneNs.Player;
@@ -192,17 +192,21 @@ function startCrossfadeLoop(name: string) {
 		// Start the incoming copy
 		incoming.start();
 
-		// Equal-power crossfade: both stay loud in the middle
-		// Incoming: 0 → hold at 0 briefly → ramp to 1 over most of the crossfade
+		// Very gradual crossfade — both players loud together for most of the overlap
+		// Incoming: slowly rise from 0 → 1 over the full duration
 		inGain.gain.cancelScheduledValues(now);
 		inGain.gain.setValueAtTime(0, now);
-		inGain.gain.linearRampToValueAtTime(0.7, now + cf * 0.3);
-		inGain.gain.linearRampToValueAtTime(1.0, now + cf * 0.8);
+		inGain.gain.linearRampToValueAtTime(0.3, now + cf * 0.25);
+		inGain.gain.linearRampToValueAtTime(0.7, now + cf * 0.5);
+		inGain.gain.linearRampToValueAtTime(0.9, now + cf * 0.75);
+		inGain.gain.linearRampToValueAtTime(1.0, now + cf);
 
-		// Outgoing: 1 → stay at 1 for a bit → then ramp down
+		// Outgoing: stay near full for 75% then drop gently
 		outGain.gain.cancelScheduledValues(now);
 		outGain.gain.setValueAtTime(1, now);
-		outGain.gain.linearRampToValueAtTime(0.7, now + cf * 0.5);
+		outGain.gain.linearRampToValueAtTime(1.0, now + cf * 0.5);
+		outGain.gain.linearRampToValueAtTime(0.7, now + cf * 0.75);
+		outGain.gain.linearRampToValueAtTime(0.3, now + cf * 0.9);
 		outGain.gain.linearRampToValueAtTime(0, now + cf);
 
 		useA = !useA;
