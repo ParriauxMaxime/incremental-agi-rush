@@ -235,6 +235,7 @@ const TRIM_TO = 40;
 export function CliPrompt() {
 	const unlockedModels = useGameStore((s) => s.unlockedModels);
 	const flopSlider = useGameStore((s) => s.flopSlider);
+	const flops = useGameStore((s) => s.flops);
 	const theme = useIdeTheme();
 	const { t: tUi } = useTranslation();
 
@@ -259,11 +260,11 @@ export function CliPrompt() {
 
 	// ── Start a prompt run ──
 	const startPrompt = useCallback(
-		(promptText: string) => {
+		(promptText: string, showPrompt = true) => {
 			if (activeModels.length === 0) return;
 
-			// Show user prompt
-			addEntry({ kind: "prompt", text: promptText });
+			// Show prompt line (auto-prompts show it, manual calls may handle their own)
+			if (showPrompt) addEntry({ kind: "prompt", text: promptText });
 
 			// Pick model + snippet
 			const model =
@@ -347,13 +348,14 @@ export function CliPrompt() {
 		}
 
 		const line = snippet.lines[lineIdx];
-		// Speed scales with AI FLOPS share
+		// Speed scales with AI FLOPS share + total FLOPS magnitude
 		const aiShare = Math.max(0.05, 1 - flopSlider);
+		const flopScale = Math.max(1, 1 + Math.log10(Math.max(1, flops)) / 3);
 		const baseDelay =
 			line.type === "context"
 				? 60 + Math.random() * 80
 				: 100 + Math.random() * 150;
-		const delay = baseDelay / aiShare;
+		const delay = baseDelay / (aiShare * flopScale);
 
 		// Compute a fake line number starting from a random base
 		const baseLineNum =
@@ -377,20 +379,21 @@ export function CliPrompt() {
 		}, delay);
 
 		return () => clearTimeout(timer);
-	}, [stream, addEntry, flopSlider]);
+	}, [stream, addEntry, flopSlider, flops]);
 
 	// ── After streaming done, go back to idle (allow auto-poke) ──
 	useEffect(() => {
 		if (stream.phase !== "done") return;
 		const aiShare = Math.max(0.05, 1 - flopSlider);
+		const flopScale = Math.max(1, 1 + Math.log10(Math.max(1, flops)) / 3);
 		const timer = setTimeout(
 			() => {
 				setStream({ phase: "idle" });
 			},
-			(500 + Math.random() * 500) / aiShare,
+			(500 + Math.random() * 500) / (aiShare * flopScale),
 		);
 		return () => clearTimeout(timer);
-	}, [stream.phase, flopSlider]);
+	}, [stream.phase, flopSlider, flops]);
 
 	// ── Auto-prompt: AI models always auto-produce when active + AI FLOPS available ──
 	const hasAiFlops = flopSlider < 1;
@@ -400,18 +403,31 @@ export function CliPrompt() {
 		if (!hasAiFlops) return;
 
 		const aiShare = Math.max(0.05, 1 - flopSlider);
+		const flopScale = Math.max(1, 1 + Math.log10(Math.max(1, flops)) / 3);
 		const baseDelay = 500 + Math.random() * 1000;
-		const delay = baseDelay / aiShare;
+		const delay = baseDelay / (aiShare * flopScale);
 		const timer = setTimeout(() => {
 			startPrompt(pickPrompt());
 		}, delay);
 		return () => clearTimeout(timer);
-	}, [stream.phase, activeModels.length, startPrompt, hasAiFlops, flopSlider]);
+	}, [
+		stream.phase,
+		activeModels.length,
+		startPrompt,
+		hasAiFlops,
+		flopSlider,
+		flops,
+	]);
 
 	// ── Manual submit ──
 	const handleSubmit = useCallback(() => {
 		const text = input.trim();
-		if (!text) return;
+
+		// Empty enter — show a blank prompt line (like a real terminal)
+		if (!text) {
+			addEntry({ kind: "prompt", text: "" });
+			return;
+		}
 
 		if (text.startsWith("!")) {
 			const cmd = text.slice(1).trim();
@@ -425,10 +441,14 @@ export function CliPrompt() {
 			return;
 		}
 
-		if (activeModels.length === 0 || !hasAiFlops) return;
-		if (stream.phase === "streaming") return;
+		// Always show user's prompt in the log
+		addEntry({ kind: "prompt", text });
 		setInput("");
-		startPrompt(text);
+
+		// Start a new prompt if possible, otherwise just log it
+		if (activeModels.length > 0 && hasAiFlops && stream.phase !== "streaming") {
+			startPrompt(text, false);
+		}
 	}, [input, activeModels, stream.phase, startPrompt, hasAiFlops, addEntry]);
 
 	// ── Auto-scroll ──
@@ -623,8 +643,7 @@ export function CliPrompt() {
 					onKeyDown={(e) => {
 						if (e.key === "Enter") handleSubmit();
 					}}
-					placeholder={isStreaming ? "" : tUi("cli.placeholder")}
-					disabled={isStreaming}
+					placeholder={tUi("cli.placeholder")}
 					spellCheck={false}
 					autoComplete="off"
 				/>
