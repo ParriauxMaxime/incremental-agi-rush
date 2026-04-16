@@ -615,7 +615,9 @@ function recalcDerivedStats(state: GameState): void {
 		llmHostSlots > 0 && Object.values(unlockedModels).some(Boolean);
 	// Derive auto-* flags from owned tech nodes (ensures correct state after load/prestige)
 	state.autoTypeEnabled = (state.ownedTechNodes.auto_type ?? 0) > 0;
-	state.autoExecuteEnabled = (state.ownedTechNodes.auto_execute ?? 0) > 0;
+	if ((state.ownedTechNodes.auto_execute ?? 0) === 0) {
+		state.autoExecuteEnabled = false;
+	}
 	state.autoPokeEnabled = true; // Always auto-prompt at T4+
 	if ((state.ownedTechNodes.auto_arbitrage ?? 0) === 0) {
 		state.autoArbitrageEnabled = false;
@@ -936,7 +938,10 @@ export const useGameStore = create<GameState & GameActions>()(
 						cash: useLoc ? s.cash : s.cash - cost,
 						ownedTechNodes: { ...s.ownedTechNodes, [node.id]: newOwned },
 					};
-					// Enable auto-arbitrage on first unlock
+					// Enable auto-* on first unlock
+					if (node.id === "auto_execute" && newOwned === 1) {
+						newState.autoExecuteEnabled = true;
+					}
 					if (node.id === "auto_arbitrage" && newOwned === 1) {
 						newState.autoArbitrageEnabled = true;
 					}
