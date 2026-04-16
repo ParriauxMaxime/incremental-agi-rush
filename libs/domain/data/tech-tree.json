@@ -801,20 +801,14 @@
 		{
 			"id": "llm_gate",
 			"name": "LLM",
-			"description": "Unlock LLM instances. Start with 1 host slot.",
+			"description": "Unlock AI models. Buy host slots in the shop to run them.",
 			"icon": "🧠",
 			"requires": ["tier_ai_lab"],
 			"max": 1,
 			"baseCost": 40000000,
 			"costMultiplier": 1,
 			"currency": "cash",
-			"effects": [
-				{
-					"type": "llmHostSlot",
-					"op": "add",
-					"value": 1
-				}
-			],
+			"effects": [],
 			"x": 640,
 			"y": 820
 		},
