@@ -96,10 +96,13 @@ const PACKS: Record<MusicStyleEnum, StemPack> = {
 };
 
 const FADE_DURATION = 2; // seconds
+const LOOP_CROSSFADE = 1.5; // seconds of crossfade at loop boundary
 
 interface StemPlayer {
 	player: ToneNs.Player;
+	playerB: ToneNs.Player; // second copy for crossfade looping
 	gain: ToneNs.Gain;
+	crossfadeTimer?: ReturnType<typeof setInterval>;
 }
 
 const stems: Map<string, StemPlayer> = new Map();
@@ -115,36 +118,120 @@ async function loadPack(style: MusicStyleEnum) {
 		pack.stems.map(
 			(name) =>
 				new Promise<void>((resolve) => {
-					const player = new Tone.Player({
-						url: `${basePath}/${name}.ogg`,
-						loop: true,
+					let loadCount = 0;
+					const url = `${basePath}/${name}.ogg`;
+
+					// Two identical players for crossfade looping
+					const playerA = new Tone.Player({
+						url,
+						loop: false, // manual loop via crossfade
 						autostart: false,
 						onerror: () => resolve(),
-						onload: () => {
-							// OGG codecs add padding that causes audible pops at loop boundaries.
-							// Trim loop start/end to skip codec padding.
-							const dur = player.buffer.duration;
-							if (dur > 0.1) {
-								player.loopStart = 0.01;
-								player.loopEnd = dur - 0.01;
-							}
-							const gain = new Tone.Gain(0);
-							player.connect(gain);
-							gain.toDestination();
-							stems.set(name, { player, gain });
-							resolve();
-						},
+						onload: onLoaded,
 					});
+					const playerB = new Tone.Player({
+						url,
+						loop: false,
+						autostart: false,
+						onerror: () => resolve(),
+						onload: onLoaded,
+					});
+
+					function onLoaded() {
+						loadCount++;
+						if (loadCount < 2) return;
+
+						const gain = new Tone.Gain(0);
+						const gainA = new Tone.Gain(1);
+						const gainB = new Tone.Gain(0);
+						playerA.connect(gainA);
+						playerB.connect(gainB);
+						gainA.connect(gain);
+						gainB.connect(gain);
+						gain.toDestination();
+
+						stems.set(name, {
+							player: playerA,
+							playerB,
+							gain,
+							_gainA: gainA,
+							_gainB: gainB,
+						} as StemPlayer & { _gainA: ToneNs.Gain; _gainB: ToneNs.Gain });
+						resolve();
+					}
 				}),
 		),
 	);
 }
 
+/** Start crossfade looping for a stem: schedule alternating playback
+ *  with overlap, using setTimeout based on known buffer duration. */
+function startCrossfadeLoop(name: string) {
+	const stem = stems.get(name) as
+		| (StemPlayer & { _gainA: ToneNs.Gain; _gainB: ToneNs.Gain })
+		| undefined;
+	if (!stem) return;
+	if (stem.crossfadeTimer) return;
+
+	const dur = stem.player.buffer.duration;
+	if (dur <= 0) return;
+
+	const cf = LOOP_CROSSFADE;
+	const cycleDur = (dur - cf) * 1000; // ms between starting each copy
+	let useA = true;
+
+	function startNext() {
+		if (!stem || !stems.has(name)) return; // stem was cleared
+
+		const current = useA ? stem.player : stem.playerB;
+		const currentGain = useA ? stem._gainA : stem._gainB;
+		const prevGain = useA ? stem._gainB : stem._gainA;
+
+		// Start the next copy, fade it in, fade the previous out
+		current.start();
+		currentGain.gain.cancelScheduledValues(Tone.now());
+		currentGain.gain.setValueAtTime(0, Tone.now());
+		currentGain.gain.rampTo(1, cf);
+
+		prevGain.gain.cancelScheduledValues(Tone.now());
+		prevGain.gain.rampTo(0, cf);
+
+		useA = !useA;
+	}
+
+	// Start the first copy immediately
+	stem.player.start();
+	stem._gainA.gain.value = 1;
+	stem._gainB.gain.value = 0;
+
+	// Schedule the crossfade cycle
+	// First crossfade happens at (dur - cf), then every (dur - cf)
+	const firstDelay = cycleDur;
+
+	const scheduleLoop = () => {
+		useA = false; // first scheduled start is B
+		startNext();
+	};
+
+	// Use a repeating timeout chain instead of setInterval for drift resistance
+	let timerId: ReturnType<typeof setTimeout>;
+	function loop() {
+		scheduleLoop();
+		timerId = setTimeout(loop, cycleDur);
+	}
+	timerId = setTimeout(loop, firstDelay);
+
+	stem.crossfadeTimer = timerId as unknown as ReturnType<typeof setInterval>;
+}
+
 function clearStems() {
 	for (const [, stem] of stems) {
 		try {
+			if (stem.crossfadeTimer) clearInterval(stem.crossfadeTimer);
 			stem.player.stop();
 			stem.player.dispose();
+			stem.playerB.stop();
+			stem.playerB.dispose();
 			stem.gain.dispose();
 		} catch {
 			// ignore disposal errors
@@ -190,9 +277,9 @@ export function startMusic(tierIndex: number) {
 	started = true;
 	currentTier = tierIndex;
 
-	// Start all players (silent), then fade in active ones
-	for (const [, stem] of stems) {
-		stem.player.start();
+	// Start crossfade loops for all stems (silent), then fade in active ones
+	for (const [name] of stems) {
+		startCrossfadeLoop(name);
 	}
 
 	applyTier(tierIndex, 0.5); // quick initial fade
