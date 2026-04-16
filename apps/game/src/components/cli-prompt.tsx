@@ -1,45 +1,69 @@
-import { css, keyframes } from "@emotion/react";
+import { css } from "@emotion/react";
 import { aiModels, useGameStore } from "@modules/game";
-import { formatNumber } from "@utils/format";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdeTheme } from "../hooks/use-ide-theme";
 import { shellEngine } from "../modules/terminal";
 import {
-	type DiffLine,
-	type DiffSnippet,
-	pickDiffSnippet,
-} from "./diff-snippets";
+	type ActionStep,
+	AUTO_PROMPTS,
+	type BashSnippet,
+	type EditSnippet,
+	pickPattern,
+	type ReadSnippet,
+	type WriteSnippet,
+} from "./cli-prompt-content";
 
 // ── Types ──
 
+type LogEntryKind =
+	| "user_prompt"
+	| "queued_prompt"
+	| "thinking"
+	| "tool_header"
+	| "tool_content"
+	| "tool_result"
+	| "response_text"
+	| "completion"
+	| "bash_command"
+	| "bash_output"
+	| "blank";
+
 interface LogEntry {
-	kind:
-		| "prompt"
-		| "text"
-		| "tool-header"
-		| "tool-summary"
-		| "diff-line"
-		| "status"
-		| "blank";
+	kind: LogEntryKind;
 	text: string;
 	color?: string;
-	diffType?: DiffLine["type"];
-	lineNum?: number;
+	lineType?: "add" | "remove" | "context";
+	/** For tool_header: which tool badge */
+	toolName?: "Read" | "Edit" | "Write" | "Bash";
 }
 
-type StreamState =
-	| { phase: "idle" }
-	| {
-			phase: "streaming";
-			model: string;
-			color: string;
-			snippet: DiffSnippet;
-			lineIdx: number;
-			startTime: number;
-			tokenScale: number;
-	  }
-	| { phase: "done" };
+type Phase = "idle" | "thinking" | "executing" | "responding" | "completing";
+
+// ── Constants ──
+
+const MAX_LOG = 80;
+const TRIM_TO = 40;
+
+const SPINNER_FRAMES = [
+	"\u280B",
+	"\u2819",
+	"\u2839",
+	"\u2838",
+	"\u283C",
+	"\u2834",
+	"\u2826",
+	"\u2827",
+	"\u2807",
+	"\u280F",
+];
+
+const TOOL_COLORS = {
+	Read: { fg: "#58a6ff", bg: "rgba(88,166,255,0.15)" },
+	Edit: { fg: "#3fb950", bg: "rgba(63,185,80,0.15)" },
+	Write: { fg: "#a78bfa", bg: "rgba(167,139,250,0.15)" },
+	Bash: { fg: "#f0883e", bg: "rgba(240,136,62,0.15)" },
+};
 
 // ── Styles ──
 
@@ -69,389 +93,453 @@ const inputRowCss = css({
 	flexShrink: 0,
 });
 
-const blink = keyframes({
-	"50%": { opacity: 0 },
-});
-
-const cursorCss = css({
+const badgeCss = css({
 	display: "inline-block",
-	width: 7,
-	height: 14,
-	verticalAlign: "text-bottom",
-	animation: `${blink} 1s step-end infinite`,
+	padding: "2px 6px",
+	borderRadius: 4,
+	fontSize: 11,
+	fontWeight: 600,
 });
 
-const spin = keyframes({
-	"0%": { content: '"⠋"' },
-	"10%": { content: '"⠙"' },
-	"20%": { content: '"⠹"' },
-	"30%": { content: '"⠸"' },
-	"40%": { content: '"⠼"' },
-	"50%": { content: '"⠴"' },
-	"60%": { content: '"⠦"' },
-	"70%": { content: '"⠧"' },
-	"80%": { content: '"⠇"' },
-	"90%": { content: '"⠏"' },
-});
-
-const spinnerCss = css({
-	"&::before": {
-		content: '"⠋"',
-		animation: `${spin} 0.8s steps(1) infinite`,
-	},
-});
-
-const dotCss = css({
-	display: "inline-block",
-	width: 8,
-	height: 8,
-	borderRadius: "50%",
-	marginRight: 8,
-	verticalAlign: "middle",
-});
-
-const diffLineCss = css({
-	display: "flex",
+const toolContentCss = css({
+	display: "block",
+	marginLeft: 16,
 	fontSize: 12,
 	lineHeight: 1.6,
-	borderRadius: 2,
-	margin: "0 0 0 16px",
 });
-
-const lineNumCss = css({
-	display: "inline-block",
-	width: 32,
-	textAlign: "right",
-	paddingRight: 8,
-	userSelect: "none",
-	flexShrink: 0,
-});
-
-// ── Prompt suggestions ──
-
-const PROMPT_SUGGESTIONS = [
-	"Refactor the attention mechanism",
-	"Add chain-of-thought reasoning",
-	"Optimize the training loop",
-	"Implement RLHF pipeline",
-	"Scale to 2048 GPUs",
-	"Fix the alignment loss function",
-	"Add mixture of experts routing",
-	"Implement self-reflection module",
-	"Build autonomous agent framework",
-	"Deploy world model predictor",
-	"Compress the tokenizer vocabulary",
-	"Profile memory bottlenecks",
-	"Add safety guardrails",
-	"Improve benchmark evaluation",
-	"Implement emergent capability detection",
-	"Upgrade to flash attention",
-	"Add speculative decoding",
-	"Tune hyperparameters",
-	"Build data preprocessing pipeline",
-	"Implement tool-use capabilities",
-];
-
-function pickPrompt(): string {
-	return PROMPT_SUGGESTIONS[
-		Math.floor(Math.random() * PROMPT_SUGGESTIONS.length)
-	];
-}
 
 // ── Helpers ──
 
-function getModelColor(family: string): string {
-	const colors: Record<string, string> = {
-		claude: "#d4a574",
-		gpt: "#74b9ff",
-		gemini: "#fbbf24",
-		llama: "#a29bfe",
-		mistral: "#fd79a8",
-		grok: "#e17055",
-		copilot: "#6c5ce7",
-	};
-	return colors[family] ?? "#8b949e";
+function pickAutoPrompt(): string {
+	return AUTO_PROMPTS[Math.floor(Math.random() * AUTO_PROMPTS.length)];
 }
 
-function diffBg(type: DiffLine["type"]): string {
-	if (type === "add") return "rgba(46, 160, 67, 0.15)";
-	if (type === "remove") return "rgba(248, 81, 73, 0.15)";
-	return "transparent";
+function getFlopScale(flops: number): number {
+	return Math.max(1, 1 + Math.log10(Math.max(1, flops)) / 3);
 }
 
-function diffFg(
-	type: DiffLine["type"],
-	theme: { success: string; textMuted: string },
-): string {
-	if (type === "add") return theme.success;
-	if (type === "remove") return "#f85149";
-	return theme.textMuted;
+function randomBetween(min: number, max: number): number {
+	return min + Math.random() * (max - min);
 }
 
-function diffPrefix(type: DiffLine["type"]): string {
-	if (type === "add") return "+";
-	if (type === "remove") return "-";
-	return " ";
+function fakeCost(): string {
+	const input = Math.floor(randomBetween(800, 4200));
+	const output = Math.floor(randomBetween(200, 1200));
+	const cost = ((input * 3 + output * 15) / 1_000_000).toFixed(4);
+	return `$${cost}`;
 }
-
-function countDiffLines(snippet: DiffSnippet): {
-	added: number;
-	removed: number;
-} {
-	let added = 0;
-	let removed = 0;
-	for (const l of snippet.lines) {
-		if (l.type === "add") added++;
-		if (l.type === "remove") removed++;
-	}
-	return { added, removed };
-}
-
-// ── Thinking verbs (Claude Code style) ──
-
-const THINKING_VERBS = [
-	"Reasoning",
-	"Analyzing",
-	"Thinking",
-	"Planning",
-	"Evaluating",
-	"Considering",
-	"Processing",
-	"Synthesizing",
-	"Examining",
-	"Reviewing",
-];
-
-function pickThinkingVerb(): string {
-	return THINKING_VERBS[Math.floor(Math.random() * THINKING_VERBS.length)];
-}
-
-// ── Max visible log entries ──
-const MAX_LOG = 80;
-const TRIM_TO = 40;
 
 // ── Component ──
 
 export function CliPrompt() {
-	const unlockedModels = useGameStore((s) => s.unlockedModels);
-	const flopSlider = useGameStore((s) => s.flopSlider);
 	const flops = useGameStore((s) => s.flops);
+	const flopSlider = useGameStore((s) => s.flopSlider);
+	const unlockedModels = useGameStore((s) => s.unlockedModels);
 	const theme = useIdeTheme();
 	const { t: tUi } = useTranslation();
 
 	const [log, setLog] = useState<LogEntry[]>([]);
 	const [input, setInput] = useState("");
-	const [stream, setStream] = useState<StreamState>({ phase: "idle" });
+	const [phase, setPhase] = useState<Phase>("idle");
+	const [queue, setQueue] = useState<string[]>([]);
+
+	// Refs for mutable state accessed in timeouts
 	const logRef = useRef<HTMLDivElement>(null);
-	const streamRef = useRef(stream);
-	streamRef.current = stream;
+	const phaseRef = useRef(phase);
+	phaseRef.current = phase;
+	const queueRef = useRef(queue);
+	queueRef.current = queue;
+	const cancelRef = useRef<(() => void) | null>(null);
+
+	// Spinner state for the thinking phase
+	const [spinnerIdx, setSpinnerIdx] = useState(0);
+	const [thinkElapsed, setThinkElapsed] = useState(0);
 
 	const activeModels = useMemo(
 		() => aiModels.filter((m) => unlockedModels[m.id]),
 		[unlockedModels],
 	);
 
-	const addEntry = useCallback((entry: LogEntry) => {
+	// ── Log management ──
+
+	const appendEntry = useCallback((entry: LogEntry) => {
 		setLog((prev) => {
 			const next = [...prev, entry];
 			return next.length > MAX_LOG ? next.slice(-TRIM_TO) : next;
 		});
 	}, []);
 
-	// ── Start a prompt run ──
-	const startPrompt = useCallback(
-		(promptText: string, showPrompt = true) => {
-			if (activeModels.length === 0) return;
+	const updateLastEntry = useCallback((updater: (e: LogEntry) => LogEntry) => {
+		setLog((prev) => {
+			if (prev.length === 0) return prev;
+			const next = [...prev];
+			next[next.length - 1] = updater(next[next.length - 1]);
+			return next;
+		});
+	}, []);
 
-			// Show prompt line (auto-prompts show it, manual calls may handle their own)
-			if (showPrompt) addEntry({ kind: "prompt", text: promptText });
+	// ── Flop scale (memoized) ──
 
-			// Pick model + snippet
-			const model =
-				activeModels[Math.floor(Math.random() * activeModels.length)];
-			const snippet = pickDiffSnippet();
-			const modelLabel = `${model.name} ${model.version}`;
-			const color = getModelColor(model.family);
-			const { added, removed } = countDiffLines(snippet);
+	const flopScale = useMemo(() => getFlopScale(flops), [flops]);
 
-			// Token scale based on model power: GPT-3 (500) → ~1K, Universe (50M) → ~500M
-			const logPower = Math.log10(Math.max(1, model.locPerSec));
-			const tokenScale = 10 ** (logPower * 1.1 + 0.2);
+	// ── Process action steps ──
 
-			// Show thinking text, then tool header + summary after a short delay
-			setTimeout(
-				() => {
-					addEntry({
-						kind: "text",
-						text: `${pickThinkingVerb()}...`,
-						color,
-					});
-				},
-				100 + Math.random() * 150,
-			);
+	const processSteps = useCallback(
+		(steps: ActionStep[]) => {
+			let stepIdx = 0;
+			let subIdx = 0; // sub-index within a step (e.g., line index)
+			let wordIdx = 0; // for response streaming
+			let cancelled = false;
 
-			setTimeout(
-				() => {
-					addEntry({
-						kind: "tool-header",
-						text: `Update(${snippet.file})`,
-						color,
-					});
-					addEntry({
-						kind: "tool-summary",
-						text: `Added ${added} lines, removed ${removed} lines`,
-					});
-					setStream({
-						phase: "streaming",
-						model: modelLabel,
-						color,
-						snippet,
-						lineIdx: 0,
-						startTime: performance.now(),
-						tokenScale,
-					});
-				},
-				400 + Math.random() * 300,
-			);
+			const cancel = () => {
+				cancelled = true;
+			};
+			cancelRef.current = cancel;
+
+			function scheduleNext(delayMs: number, fn: () => void) {
+				if (cancelled) return;
+				const scaled = delayMs / flopScale;
+				const timer = setTimeout(() => {
+					if (cancelled) return;
+					fn();
+				}, scaled);
+				// Store cleanup
+				const prevCancel = cancel;
+				cancelRef.current = () => {
+					prevCancel();
+					clearTimeout(timer);
+				};
+			}
+
+			function advance() {
+				if (cancelled || stepIdx >= steps.length) {
+					setPhase("idle");
+					return;
+				}
+
+				const step = steps[stepIdx];
+
+				switch (step.type) {
+					case "think": {
+						setPhase("thinking");
+						// Add thinking entry that will be updated in place
+						appendEntry({
+							kind: "thinking",
+							text: `${SPINNER_FRAMES[0]} Thinking... (0s)`,
+						});
+						const thinkDuration = randomBetween(1500, 3000) / flopScale;
+						scheduleNext(thinkDuration, () => {
+							// Replace thinking line with final state
+							const elapsed = (thinkDuration / 1000).toFixed(1);
+							updateLastEntry(() => ({
+								kind: "thinking",
+								text: `${SPINNER_FRAMES[0]} Thinking... (${elapsed}s)`,
+							}));
+							stepIdx++;
+							subIdx = 0;
+							setPhase("executing");
+							advance();
+						});
+						break;
+					}
+
+					case "read": {
+						const snippet = step.snippet as ReadSnippet;
+						if (subIdx === 0) {
+							// Tool header
+							appendEntry({
+								kind: "tool_header",
+								text: snippet.file,
+								toolName: "Read",
+							});
+							subIdx = 1;
+							scheduleNext(randomBetween(80, 150), advance);
+						} else if (subIdx <= snippet.lines.length) {
+							const lineIdx = subIdx - 1;
+							appendEntry({
+								kind: "tool_content",
+								text: snippet.lines[lineIdx],
+								lineType: "context",
+							});
+							subIdx++;
+							scheduleNext(randomBetween(80, 150), advance);
+						} else {
+							appendEntry({
+								kind: "tool_result",
+								text: `${snippet.lines.length} lines read`,
+							});
+							stepIdx++;
+							subIdx = 0;
+							scheduleNext(randomBetween(80, 150), advance);
+						}
+						break;
+					}
+
+					case "edit": {
+						const snippet = step.snippet as EditSnippet;
+						if (subIdx === 0) {
+							appendEntry({
+								kind: "tool_header",
+								text: snippet.file,
+								toolName: "Edit",
+							});
+							subIdx = 1;
+							scheduleNext(randomBetween(80, 150), advance);
+						} else if (subIdx <= snippet.lines.length) {
+							const lineIdx = subIdx - 1;
+							const line = snippet.lines[lineIdx];
+							const prefix =
+								line.type === "add"
+									? "+ "
+									: line.type === "remove"
+										? "- "
+										: "  ";
+							appendEntry({
+								kind: "tool_content",
+								text: `${prefix}${line.text}`,
+								lineType: line.type,
+							});
+							subIdx++;
+							scheduleNext(randomBetween(80, 150), advance);
+						} else {
+							const added = snippet.lines.filter(
+								(l) => l.type === "add",
+							).length;
+							const removed = snippet.lines.filter(
+								(l) => l.type === "remove",
+							).length;
+							appendEntry({
+								kind: "tool_result",
+								text: `${snippet.description} (+${added} -${removed})`,
+							});
+							stepIdx++;
+							subIdx = 0;
+							scheduleNext(randomBetween(80, 150), advance);
+						}
+						break;
+					}
+
+					case "write": {
+						const snippet = step.snippet as WriteSnippet;
+						if (subIdx === 0) {
+							appendEntry({
+								kind: "tool_header",
+								text: snippet.file,
+								toolName: "Write",
+							});
+							subIdx = 1;
+							scheduleNext(randomBetween(80, 150), advance);
+						} else if (subIdx <= snippet.lines.length) {
+							const lineIdx = subIdx - 1;
+							appendEntry({
+								kind: "tool_content",
+								text: snippet.lines[lineIdx],
+								lineType: "context",
+							});
+							subIdx++;
+							scheduleNext(randomBetween(80, 150), advance);
+						} else {
+							appendEntry({
+								kind: "tool_result",
+								text: `Wrote ${snippet.lines.length} lines to ${snippet.file}`,
+							});
+							stepIdx++;
+							subIdx = 0;
+							scheduleNext(randomBetween(80, 150), advance);
+						}
+						break;
+					}
+
+					case "bash": {
+						const snippet = step.snippet as BashSnippet;
+						if (subIdx === 0) {
+							appendEntry({
+								kind: "tool_header",
+								text: snippet.command,
+								toolName: "Bash",
+							});
+							subIdx = 1;
+							scheduleNext(randomBetween(80, 150), advance);
+						} else if (subIdx <= snippet.output.length) {
+							const lineIdx = subIdx - 1;
+							appendEntry({
+								kind: "bash_output",
+								text: snippet.output[lineIdx],
+							});
+							subIdx++;
+							scheduleNext(randomBetween(80, 150), advance);
+						} else {
+							appendEntry({
+								kind: "tool_result",
+								text: `Command completed`,
+							});
+							stepIdx++;
+							subIdx = 0;
+							scheduleNext(randomBetween(80, 150), advance);
+						}
+						break;
+					}
+
+					case "respond": {
+						setPhase("responding");
+						const text = step.text ?? "";
+						const words = text.split(" ");
+						if (wordIdx === 0) {
+							// Start with empty response entry
+							appendEntry({ kind: "response_text", text: "" });
+							wordIdx = 1;
+						}
+						if (wordIdx <= words.length) {
+							const partial = words.slice(0, wordIdx).join(" ");
+							updateLastEntry(() => ({
+								kind: "response_text",
+								text: partial,
+							}));
+							wordIdx++;
+							scheduleNext(randomBetween(30, 60), advance);
+						} else {
+							stepIdx++;
+							subIdx = 0;
+							wordIdx = 0;
+							advance();
+						}
+						break;
+					}
+
+					case "complete": {
+						setPhase("completing");
+						const elapsed = randomBetween(2, 12).toFixed(1);
+						const tokens = Math.floor(randomBetween(1200, 8000));
+						appendEntry({
+							kind: "completion",
+							text: `${elapsed}s \u00b7 ${tokens.toLocaleString()} tokens \u00b7 ${fakeCost()}`,
+						});
+						appendEntry({ kind: "blank", text: "" });
+						scheduleNext(randomBetween(300, 600), () => {
+							stepIdx++;
+							subIdx = 0;
+							setPhase("idle");
+						});
+						break;
+					}
+
+					default:
+						stepIdx++;
+						advance();
+				}
+			}
+
+			advance();
 		},
-		[activeModels, addEntry],
+		[flopScale, appendEntry, updateLastEntry],
 	);
 
-	// ── Stream diff lines one by one ──
+	// ── Start processing a prompt ──
+
+	const startProcessing = useCallback(
+		(_promptText: string) => {
+			if (activeModels.length === 0) return;
+			const steps = pickPattern();
+			processSteps(steps);
+		},
+		[activeModels.length, processSteps],
+	);
+
+	// ── Thinking spinner animation ──
+
 	useEffect(() => {
-		if (stream.phase !== "streaming") return;
+		if (phase !== "thinking") return;
 
-		const { snippet, lineIdx } = stream;
+		const startTime = performance.now();
+		const interval = setInterval(() => {
+			const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+			setSpinnerIdx((prev) => (prev + 1) % SPINNER_FRAMES.length);
+			setThinkElapsed(Number(elapsed));
+			updateLastEntry(() => ({
+				kind: "thinking",
+				text: `thinking_placeholder`,
+			}));
+		}, 80);
 
-		if (lineIdx >= snippet.lines.length) {
-			// Done streaming — show LoC result as primary, tokens secondary
-			const elapsed = Math.round((performance.now() - stream.startTime) / 1000);
-			const tokenCount = Math.round(
-				stream.tokenScale * (0.8 + Math.random() * 0.4),
-			);
-			const { added, removed } = countDiffLines(snippet);
-			const net = added - removed;
-			addEntry({ kind: "blank", text: "" });
-			addEntry({
-				kind: "text",
-				text: `✓ +${net} LoC (${elapsed}s)`,
-				color: stream.color,
-			});
-			addEntry({
-				kind: "text",
-				text: `  ↑ ${formatNumber(tokenCount)} tokens`,
-				color: "#6272a4",
-			});
-			addEntry({ kind: "blank", text: "" });
-			setStream({ phase: "done" });
-			return;
-		}
+		return () => clearInterval(interval);
+	}, [phase, updateLastEntry]);
 
-		const line = snippet.lines[lineIdx];
-		// Speed scales with AI FLOPS share + total FLOPS magnitude
-		const aiShare = Math.max(0.05, 1 - flopSlider);
-		const flopScale = Math.max(1, 1 + Math.log10(Math.max(1, flops)) / 3);
-		const baseDelay =
-			line.type === "context"
-				? 60 + Math.random() * 80
-				: 100 + Math.random() * 150;
-		const delay = baseDelay / (aiShare * flopScale);
+	// ── When phase goes idle, check queue or start auto-prompt ──
 
-		// Compute a fake line number starting from a random base
-		const baseLineNum =
-			snippet.lines.length > 0 ? 42 + Math.floor(Math.random() * 200) : 42;
-		const contextOffset = snippet.lines
-			.slice(0, lineIdx)
-			.filter((l) => l.type !== "remove").length;
-
-		const timer = setTimeout(() => {
-			addEntry({
-				kind: "diff-line",
-				text: `${diffPrefix(line.type)} ${line.text}`,
-				diffType: line.type,
-				lineNum: baseLineNum + contextOffset,
-			});
-			setStream((prev) =>
-				prev.phase === "streaming"
-					? { ...prev, lineIdx: prev.lineIdx + 1 }
-					: prev,
-			);
-		}, delay);
-
-		return () => clearTimeout(timer);
-	}, [stream, addEntry, flopSlider, flops]);
-
-	// ── After streaming done, go back to idle (allow auto-poke) ──
-	useEffect(() => {
-		if (stream.phase !== "done") return;
-		const aiShare = Math.max(0.05, 1 - flopSlider);
-		const flopScale = Math.max(1, 1 + Math.log10(Math.max(1, flops)) / 3);
-		const timer = setTimeout(
-			() => {
-				setStream({ phase: "idle" });
-			},
-			(500 + Math.random() * 500) / (aiShare * flopScale),
-		);
-		return () => clearTimeout(timer);
-	}, [stream.phase, flopSlider, flops]);
-
-	// ── Auto-prompt: AI models always auto-produce when active + AI FLOPS available ──
 	const hasAiFlops = flopSlider < 1;
+
 	useEffect(() => {
-		if (stream.phase !== "idle") return;
+		if (phase !== "idle") return;
 		if (activeModels.length === 0) return;
 		if (!hasAiFlops) return;
 
-		const aiShare = Math.max(0.05, 1 - flopSlider);
-		const flopScale = Math.max(1, 1 + Math.log10(Math.max(1, flops)) / 3);
-		const baseDelay = 500 + Math.random() * 1000;
-		const delay = baseDelay / (aiShare * flopScale);
-		const timer = setTimeout(() => {
-			startPrompt(pickPrompt());
-		}, delay);
-		return () => clearTimeout(timer);
-	}, [
-		stream.phase,
-		activeModels.length,
-		startPrompt,
-		hasAiFlops,
-		flopSlider,
-		flops,
-	]);
-
-	// ── Manual submit ──
-	const handleSubmit = useCallback(() => {
-		const text = input.trim();
-
-		// Empty enter — show a blank prompt line (like a real terminal)
-		if (!text) {
-			addEntry({ kind: "prompt", text: "" });
+		// Check queue first
+		if (queueRef.current.length > 0) {
+			const next = queueRef.current[0];
+			setQueue((q) => q.slice(1));
+			appendEntry({ kind: "user_prompt", text: next });
+			startProcessing(next);
 			return;
 		}
 
+		// Auto-prompt timer
+		const baseDelay = randomBetween(500, 1500);
+		const delay = baseDelay / flopScale;
+		const timer = setTimeout(() => {
+			if (phaseRef.current !== "idle") return;
+			const prompt = pickAutoPrompt();
+			appendEntry({ kind: "user_prompt", text: prompt });
+			startProcessing(prompt);
+		}, delay);
+
+		return () => clearTimeout(timer);
+	}, [
+		phase,
+		activeModels.length,
+		hasAiFlops,
+		flopScale,
+		appendEntry,
+		startProcessing,
+	]);
+
+	// ── Manual submit ──
+
+	const handleSubmit = useCallback(() => {
+		const text = input.trim();
+
+		// Empty enter
+		if (!text) {
+			appendEntry({ kind: "user_prompt", text: "" });
+			return;
+		}
+
+		// Shell command
 		if (text.startsWith("!")) {
 			const cmd = text.slice(1).trim();
 			if (!cmd) return;
 			setInput("");
-			addEntry({ kind: "prompt", text: `! ${cmd}` });
+			appendEntry({ kind: "user_prompt", text: `! ${cmd}` });
 			const result = shellEngine.execute(cmd);
 			for (const line of result.lines) {
-				addEntry({ kind: "text", text: line.text });
+				appendEntry({ kind: "response_text", text: line.text });
 			}
 			return;
 		}
 
-		// Always show user's prompt in the log
-		addEntry({ kind: "prompt", text });
 		setInput("");
 
-		// Start a new prompt if possible, otherwise just log it
-		if (activeModels.length > 0 && hasAiFlops && stream.phase !== "streaming") {
-			startPrompt(text, false);
+		if (phase === "idle") {
+			appendEntry({ kind: "user_prompt", text });
+			startProcessing(text);
+		} else {
+			// Queue it
+			appendEntry({ kind: "queued_prompt", text });
+			setQueue((q) => [...q, text]);
 		}
-	}, [input, activeModels, stream.phase, startPrompt, hasAiFlops, addEntry]);
+	}, [input, phase, appendEntry, startProcessing]);
 
 	// ── Auto-scroll ──
+
 	// biome-ignore lint/correctness/useExhaustiveDependencies: log triggers scroll
 	useEffect(() => {
 		logRef.current?.scrollTo({
@@ -460,14 +548,164 @@ export function CliPrompt() {
 		});
 	}, [log]);
 
-	const isStreaming = stream.phase === "streaming";
+	// ── Cleanup on unmount ──
 
-	// ── Status line for active streaming ──
-	const statusText = useMemo(() => {
-		if (stream.phase !== "streaming") return null;
-		const elapsed = Math.round((performance.now() - stream.startTime) / 1000);
-		return `${pickThinkingVerb()}… (${elapsed}s)`;
-	}, [stream]);
+	useEffect(() => {
+		return () => {
+			cancelRef.current?.();
+		};
+	}, []);
+
+	// ── Render helpers ──
+
+	function renderEntry(entry: LogEntry, i: number) {
+		switch (entry.kind) {
+			case "user_prompt":
+				return (
+					<div key={i}>
+						<span
+							style={{
+								color: theme.accent,
+								fontWeight: "bold",
+								marginRight: 6,
+							}}
+						>
+							{"\u276F"}
+						</span>
+						<span style={{ color: theme.foreground }}>{entry.text}</span>
+					</div>
+				);
+
+			case "queued_prompt":
+				return (
+					<div key={i}>
+						<span
+							style={{
+								color: theme.accent,
+								fontWeight: "bold",
+								marginRight: 6,
+							}}
+						>
+							{"\u276F"}
+						</span>
+						<span style={{ color: theme.foreground, marginRight: 8 }}>
+							{entry.text}
+						</span>
+						<span
+							css={badgeCss}
+							style={{
+								color: "#d29922",
+								background: "rgba(210,153,34,0.15)",
+							}}
+						>
+							Queued
+						</span>
+					</div>
+				);
+
+			case "thinking": {
+				const frame = SPINNER_FRAMES[spinnerIdx % SPINNER_FRAMES.length];
+				return (
+					<div key={i} style={{ color: theme.textMuted }}>
+						<span>{frame}</span>
+						<span style={{ marginLeft: 6 }}>
+							Thinking... ({thinkElapsed.toFixed(1)}s)
+						</span>
+					</div>
+				);
+			}
+
+			case "tool_header": {
+				const tool = entry.toolName ?? "Read";
+				const colors = TOOL_COLORS[tool];
+				return (
+					<div key={i} style={{ marginTop: 4 }}>
+						<span
+							css={badgeCss}
+							style={{
+								color: colors.fg,
+								background: colors.bg,
+								marginRight: 8,
+							}}
+						>
+							{tool}
+						</span>
+						<span style={{ color: theme.textMuted }}>{entry.text}</span>
+					</div>
+				);
+			}
+
+			case "tool_content": {
+				const lt = entry.lineType ?? "context";
+				const fg =
+					lt === "add"
+						? "#3fb950"
+						: lt === "remove"
+							? "#f85149"
+							: theme.textMuted;
+				const bg =
+					lt === "add"
+						? "rgba(63,185,80,0.08)"
+						: lt === "remove"
+							? "rgba(248,81,73,0.08)"
+							: "transparent";
+				return (
+					<div
+						key={i}
+						css={toolContentCss}
+						style={{ color: fg, background: bg }}
+					>
+						{entry.text}
+					</div>
+				);
+			}
+
+			case "tool_result":
+				return (
+					<div key={i} style={{ marginLeft: 16, marginTop: 2 }}>
+						<span style={{ color: "#3fb950", marginRight: 6 }}>{"\u2713"}</span>
+						<span style={{ color: theme.foreground, fontSize: 12 }}>
+							{entry.text}
+						</span>
+					</div>
+				);
+
+			case "response_text":
+				return (
+					<div key={i} style={{ color: theme.foreground, marginTop: 4 }}>
+						{entry.text}
+					</div>
+				);
+
+			case "completion":
+				return (
+					<div key={i} style={{ color: theme.textMuted, fontSize: 12 }}>
+						{entry.text}
+					</div>
+				);
+
+			case "bash_command":
+				return (
+					<div key={i} style={{ marginLeft: 16 }}>
+						<span style={{ color: theme.textMuted, marginRight: 6 }}>$</span>
+						<span style={{ color: theme.foreground }}>{entry.text}</span>
+					</div>
+				);
+
+			case "bash_output":
+				return (
+					<div key={i} style={{ color: theme.textMuted, marginLeft: 16 }}>
+						{entry.text}
+					</div>
+				);
+
+			case "blank":
+				return <div key={i}>&nbsp;</div>;
+
+			default:
+				return null;
+		}
+	}
 
 	return (
 		<div css={wrapperCss} style={{ background: theme.panelBg }}>
@@ -479,136 +717,7 @@ export function CliPrompt() {
 						<div>{""}</div>
 					</div>
 				)}
-				{log.map((entry, i) => (
-					<div
-						key={i}
-						style={{
-							marginTop:
-								entry.kind === "text" || entry.kind === "tool-header" ? 4 : 0,
-						}}
-					>
-						{entry.kind === "prompt" && (
-							<>
-								<span
-									style={{
-										color: theme.accent,
-										fontWeight: "bold",
-										marginRight: 6,
-									}}
-								>
-									{"❯"}
-								</span>
-								<span style={{ color: theme.foreground }}>{entry.text}</span>
-							</>
-						)}
-						{entry.kind === "text" && (
-							<>
-								<span
-									css={dotCss}
-									style={{ background: entry.color ?? theme.success }}
-								/>
-								<span style={{ color: theme.foreground }}>{entry.text}</span>
-							</>
-						)}
-						{entry.kind === "tool-header" && (
-							<>
-								<span
-									css={dotCss}
-									style={{ background: entry.color ?? theme.success }}
-								/>
-								<span
-									style={{
-										color: theme.foreground,
-										fontWeight: "bold",
-									}}
-								>
-									{entry.text}
-								</span>
-							</>
-						)}
-						{entry.kind === "tool-summary" && (
-							<span
-								style={{
-									color: theme.textMuted,
-									fontSize: 12,
-									marginLeft: 18,
-								}}
-							>
-								{"└ "}
-								{entry.text}
-							</span>
-						)}
-						{entry.kind === "diff-line" && (
-							<div
-								css={diffLineCss}
-								style={{
-									background: diffBg(entry.diffType ?? "context"),
-								}}
-							>
-								<span
-									css={lineNumCss}
-									style={{
-										color:
-											entry.diffType === "remove"
-												? "#f8514966"
-												: theme.lineNumbers,
-									}}
-								>
-									{entry.diffType === "remove" ? "" : entry.lineNum}
-								</span>
-								<span
-									style={{
-										color: diffFg(entry.diffType ?? "context", theme),
-									}}
-								>
-									{entry.text}
-								</span>
-							</div>
-						)}
-						{entry.kind === "status" && (
-							<>
-								<span
-									css={spinnerCss}
-									style={{ color: entry.color ?? "#e5c07b" }}
-								/>
-								<span
-									style={{
-										color: theme.textMuted,
-										fontSize: 12,
-										marginLeft: 6,
-									}}
-								>
-									{entry.text}
-								</span>
-							</>
-						)}
-						{entry.kind === "blank" && <br />}
-					</div>
-				))}
-				{isStreaming && (
-					<div style={{ marginTop: 4 }}>
-						<span
-							css={spinnerCss}
-							style={{
-								color:
-									stream.phase === "streaming" ? stream.color : theme.accent,
-							}}
-						/>
-						<span
-							style={{
-								color: theme.textMuted,
-								fontSize: 12,
-								marginLeft: 6,
-							}}
-						>
-							{statusText}
-						</span>
-						<span
-							css={cursorCss}
-							style={{ background: theme.accent, marginLeft: 4 }}
-						/>
-					</div>
-				)}
+				{log.map((entry, i) => renderEntry(entry, i))}
 			</div>
 			<div
 				css={inputRowCss}
@@ -621,7 +730,7 @@ export function CliPrompt() {
 					css={{ fontSize: 13, userSelect: "none", fontWeight: "bold" }}
 					style={{ color: theme.accent }}
 				>
-					{"❯"}
+					{"\u276F"}
 				</span>
 				<input
 					css={{
