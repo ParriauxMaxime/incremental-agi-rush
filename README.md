@@ -81,9 +81,9 @@ The game is fully translated into 8 languages. Language is selectable in-game vi
 
 ## Support
 
-If you enjoyed the game, consider buying me a coffee:
+If you enjoyed the game, pls send tokens:
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/parriauxmaxime)
+[![pls send tokens](https://img.shields.io/badge/pls%20send%20tokens-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/parriauxmaxime)
 
 ## License
 

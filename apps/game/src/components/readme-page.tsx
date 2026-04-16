@@ -296,6 +296,20 @@ export function ReadmePage() {
 					</div>
 					<div css={linkRowCss}>
 						<a
+							href="https://bitcrusher-studio.com"
+							target="_blank"
+							rel="noreferrer"
+							css={linkCss}
+							style={{
+								color: theme.accent,
+								display: "inline-flex",
+								alignItems: "center",
+								gap: 4,
+							}}
+						>
+							<LinkIcon /> Bitcrusher Studio
+						</a>
+						<a
 							href="https://www.malt.fr/profile/quentinferreiracastico"
 							target="_blank"
 							rel="noreferrer"
@@ -384,7 +398,7 @@ export function ReadmePage() {
 						"&:hover": { opacity: 0.85 },
 					}}
 				>
-					☕ Buy me a coffee
+					🪙 pls send tokens
 				</a>
 			</p>
 
