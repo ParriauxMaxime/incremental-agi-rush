@@ -112,7 +112,7 @@ let currentStyle: MusicStyleEnum = MusicStyleEnum.ferreira;
  * is smooth. Does NOT change loopStart/loopEnd — all stems must loop
  * the full buffer to stay in sync.
  */
-function makeBufferSeamless(player: ToneNs.Player, fadeMs = 100) {
+function makeBufferSeamless(player: ToneNs.Player, fadeMs = 200) {
 	const raw = player.buffer.get();
 	if (!raw || raw.length === 0) return;
 
@@ -128,18 +128,25 @@ function makeBufferSeamless(player: ToneNs.Player, fadeMs = 100) {
 		const data = raw.getChannelData(ch);
 		const len = data.length;
 
+		// Store original values first to avoid read-after-write issues
+		const startCopy = new Float32Array(fadeSamples);
+		const endCopy = new Float32Array(fadeSamples);
+		for (let i = 0; i < fadeSamples; i++) {
+			startCopy[i] = data[i];
+			endCopy[i] = data[len - fadeSamples + i];
+		}
+
 		for (let i = 0; i < fadeSamples; i++) {
 			const t = i / fadeSamples;
-			const w = 0.5 * (1 - Math.cos(Math.PI * t)); // 0→1 Hann curve
+			const w = 0.5 * (1 - Math.cos(Math.PI * t));
 
-			// Blend start with end: at the boundary, mix them together
-			const startVal = data[i];
-			const endVal = data[len - fadeSamples + i];
-
-			data[i] = startVal * w + endVal * (1 - w);
-			data[len - fadeSamples + i] = endVal * w + startVal * (1 - w);
+			data[i] = startCopy[i] * w + endCopy[i] * (1 - w);
+			data[len - fadeSamples + i] = endCopy[i] * w + startCopy[i] * (1 - w);
 		}
 	}
+
+	// Force Tone.js to use the modified buffer
+	player.buffer.set(raw);
 }
 
 async function loadPack(style: MusicStyleEnum) {
