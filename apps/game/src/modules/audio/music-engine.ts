@@ -112,7 +112,7 @@ let currentStyle: MusicStyleEnum = MusicStyleEnum.ferreira;
  * is smooth. Does NOT change loopStart/loopEnd — all stems must loop
  * the full buffer to stay in sync.
  */
-function makeBufferSeamless(player: ToneNs.Player, fadeMs = 50) {
+function makeBufferSeamless(player: ToneNs.Player, fadeMs = 100) {
 	const raw = player.buffer.get();
 	if (!raw || raw.length === 0) return;
 
