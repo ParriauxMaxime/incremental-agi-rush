@@ -190,7 +190,7 @@ function formatEffectSimple(
 	if (locTypes.includes(effect.type))
 		return { text: `+${formatNumber(val)} loc/s`, color: theme.locColor };
 
-	const flopTypes = ["flops", "cpuFlops", "ramFlops", "storageFlops"];
+	const flopTypes = ["flops"];
 	if (flopTypes.includes(effect.type))
 		return { text: `+${formatNumber(val)} flops`, color: theme.flopsColor };
 

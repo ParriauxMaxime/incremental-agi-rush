@@ -69,9 +69,6 @@ export function runBalanceSim(
 		loc: 0,
 		totalLoc: 0,
 		flops: core.startingFlops,
-		cpuFlops: 0,
-		ramFlops: 0,
-		storageFlops: 0,
 		locPerKey: core.startingLocPerKey,
 		locPerKeyMultiplier: 1,
 		locProductionMultiplier: 1,
@@ -290,8 +287,7 @@ export function runBalanceSim(
 
 	function totalFlops(): number {
 		if (eventFlopsOverride !== null) return eventFlopsOverride;
-		const hw = Math.min(sim.cpuFlops, sim.ramFlops) + sim.storageFlops;
-		return (sim.flops + hw) * eventFlopsMultiplier;
+		return sim.flops * eventFlopsMultiplier;
 	}
 
 	function cashPerLoc(): number {
@@ -317,9 +313,6 @@ export function runBalanceSim(
 		sim.locPerKey = core.startingLocPerKey;
 		sim.locPerKeyMultiplier = 1;
 		sim.flops = core.startingFlops;
-		sim.cpuFlops = 0;
-		sim.ramFlops = 0;
-		sim.storageFlops = 0;
 		sim.freelancerLoc = 0;
 		sim.freelancerLocMultiplier = 1;
 		sim.freelancerCostDiscount = 1;
@@ -365,9 +358,6 @@ export function runBalanceSim(
 			if (e.op === "add") {
 				if (e.type === "locPerKey") sim.locPerKey += val * owned;
 				if (e.type === "flops") sim.flops += val * owned;
-				if (e.type === "cpuFlops") sim.cpuFlops += val * owned;
-				if (e.type === "ramFlops") sim.ramFlops += val * owned;
-				if (e.type === "storageFlops") sim.storageFlops += val * owned;
 				if (e.type === "autoLoc") sim.devLoc += val * owned;
 				if (e.type === "freelancerLoc") sim.freelancerLoc += val * owned;
 				if (e.type === "freelancerMaxBonus")
@@ -991,9 +981,6 @@ export function runBalanceSim(
 						for (const e of n.effects) {
 							const ev = e.value as number;
 							if (e.type === "flops") savingVal += ev * cashPerLoc() * 2;
-							if (e.type === "cpuFlops" || e.type === "ramFlops")
-								savingVal += ev * cashPerLoc() * 1.5;
-							if (e.type === "storageFlops") savingVal += ev * cashPerLoc();
 						}
 						if (cost > 0 && savingVal / cost > bestLocTargetVal) {
 							bestLocTargetVal = savingVal / cost;
@@ -1006,9 +993,6 @@ export function runBalanceSim(
 					for (const e of n.effects) {
 						const ev = e.value as number;
 						if (e.type === "flops") val += ev * cashPerLoc() * 2;
-						if (e.type === "cpuFlops" || e.type === "ramFlops")
-							val += ev * cashPerLoc() * 1.5;
-						if (e.type === "storageFlops") val += ev * cashPerLoc();
 						if (e.type === "locPerKey" && e.op === "add")
 							val += ev * cfg.keysPerSec * cashPerLoc();
 						if (e.type === "locPerKey" && e.op === "multiply")

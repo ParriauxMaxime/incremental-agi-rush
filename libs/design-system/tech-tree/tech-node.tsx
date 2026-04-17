@@ -82,9 +82,6 @@ function getStateStyle(
 const effectLabels: Record<string, { unit: string; prefix?: string }> = {
 	locPerKey: { unit: "LoC/key" },
 	flops: { unit: "FLOPS" },
-	cpuFlops: { unit: "FLOPS", prefix: "CPU" },
-	ramFlops: { unit: "FLOPS", prefix: "RAM" },
-	storageFlops: { unit: "FLOPS", prefix: "Disk" },
 	cashMultiplier: { unit: "$/LoC" },
 	locProductionSpeed: { unit: "LoC speed" },
 	managerMultiplier: { unit: "mgr bonus" },

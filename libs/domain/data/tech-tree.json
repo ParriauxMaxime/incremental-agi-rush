@@ -163,7 +163,7 @@
 		{
 			"id": "cpu_upgrade",
 			"name": "CPU Upgrade",
-			"description": "+2 FLOPS (bottlenecked by RAM)",
+			"description": "+2 FLOPS",
 			"icon": "🔲",
 			"requires": ["computer"],
 			"max": 7,
@@ -172,7 +172,7 @@
 			"currency": "loc",
 			"effects": [
 				{
-					"type": "cpuFlops",
+					"type": "flops",
 					"op": "add",
 					"value": 2
 				}
@@ -192,7 +192,7 @@
 		{
 			"id": "ram_upgrade",
 			"name": "RAM Upgrade",
-			"description": "+2 FLOPS (bottlenecked by CPU)",
+			"description": "+2 FLOPS",
 			"icon": "🧩",
 			"requires": ["computer"],
 			"max": 6,
@@ -201,7 +201,7 @@
 			"currency": "loc",
 			"effects": [
 				{
-					"type": "ramFlops",
+					"type": "flops",
 					"op": "add",
 					"value": 2
 				}
@@ -220,7 +220,7 @@
 		{
 			"id": "storage_upgrade",
 			"name": "Storage",
-			"description": "+2 FLOPS (no bottleneck)",
+			"description": "+2 FLOPS",
 			"icon": "💾",
 			"requires": ["computer"],
 			"max": 7,
@@ -229,7 +229,7 @@
 			"currency": "loc",
 			"effects": [
 				{
-					"type": "storageFlops",
+					"type": "flops",
 					"op": "add",
 					"value": 2
 				}
@@ -741,7 +741,7 @@
 		{
 			"id": "cdn_network",
 			"name": "CDN Network",
-			"description": "+2,000 storage FLOPS per level",
+			"description": "+2,000 FLOPS per level",
 			"icon": "🌍",
 			"requires": ["tier_tech_company"],
 			"max": 5,
@@ -750,7 +750,7 @@
 			"currency": "loc",
 			"effects": [
 				{
-					"type": "storageFlops",
+					"type": "flops",
 					"op": "add",
 					"value": 2000
 				}
@@ -895,7 +895,7 @@
 		{
 			"id": "fiber_network",
 			"name": "Fiber Network",
-			"description": "+100K storage FLOPS per level",
+			"description": "+100K FLOPS per level",
 			"icon": "🔗",
 			"requires": ["tier_ai_lab"],
 			"max": 5,
@@ -904,7 +904,7 @@
 			"currency": "loc",
 			"effects": [
 				{
-					"type": "storageFlops",
+					"type": "flops",
 					"op": "add",
 					"value": 100000
 				}
@@ -1009,7 +1009,7 @@
 		{
 			"id": "neural_fabric",
 			"name": "Neural Fabric",
-			"description": "+20M storage FLOPS per level",
+			"description": "+20M FLOPS per level",
 			"icon": "🕸️",
 			"requires": ["tier_agi_race"],
 			"max": 5,
@@ -1018,7 +1018,7 @@
 			"currency": "loc",
 			"effects": [
 				{
-					"type": "storageFlops",
+					"type": "flops",
 					"op": "add",
 					"value": 20000000
 				}

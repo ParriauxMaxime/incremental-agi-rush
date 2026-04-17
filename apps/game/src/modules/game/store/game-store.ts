@@ -70,9 +70,6 @@ export interface GameState {
 	tokens: number;
 	totalTokens: number;
 	flops: number;
-	cpuFlops: number;
-	ramFlops: number;
-	storageFlops: number;
 	blockQueue: QueuedBlock[];
 	executionProgress: number;
 	locPerKey: number;
@@ -187,9 +184,6 @@ const initialState: GameState = {
 	tokens: 0,
 	totalTokens: 0,
 	flops: core.startingFlops,
-	cpuFlops: 0,
-	ramFlops: 0,
-	storageFlops: 0,
 	blockQueue: [],
 	executionProgress: 0,
 	locPerKey: core.startingLocPerKey,
@@ -285,9 +279,6 @@ function recalcDerivedStats(state: GameState): void {
 	let agentLoc = 0;
 	let managerCount = 0;
 	let baseFlops = core.startingFlops;
-	let cpuFlops = 0;
-	let ramFlops = 0;
-	let storageFlops = 0;
 	let locProductionMultiplier = 1;
 	let cashMultiplier = 1;
 	let tokenMultiplier = 1;
@@ -360,15 +351,6 @@ function recalcDerivedStats(state: GameState): void {
 			// ── FLOPS ──
 			case "flops:add":
 				baseFlops += val * owned;
-				break;
-			case "cpuFlops:add":
-				cpuFlops += val * owned;
-				break;
-			case "ramFlops:add":
-				ramFlops += val * owned;
-				break;
-			case "storageFlops:add":
-				storageFlops += val * owned;
 				break;
 
 			// ── Multipliers ──
@@ -490,7 +472,6 @@ function recalcDerivedStats(state: GameState): void {
 	cashMultiplier *= eventMods.cashMultiplier;
 	cashMultiplier *= state.prestigeMultiplier;
 
-	const hardwareFlops = Math.min(cpuFlops, ramFlops) + storageFlops;
 	const managerTeamBonus = 1 + managerCount * 0.5 * managerMultiplier;
 	const totalAutoLoc =
 		freelancerLoc * freelancerLocMultiplier +
@@ -500,9 +481,6 @@ function recalcDerivedStats(state: GameState): void {
 		llmLoc * llmLocMultiplier +
 		agentLoc * agentLocMultiplier;
 
-	state.cpuFlops = cpuFlops;
-	state.ramFlops = ramFlops;
-	state.storageFlops = storageFlops;
 	state.locPerKey = locPerKey;
 	state.autoLocPerSec =
 		totalAutoLoc * locProductionMultiplier * eventMods.autoLocMultiplier;
@@ -544,7 +522,7 @@ function recalcDerivedStats(state: GameState): void {
 		locProductionMultiplier *
 		eventMods.autoLocMultiplier;
 	state.managerBonus = managerTeamBonus;
-	const computedFlops = baseFlops + hardwareFlops;
+	const computedFlops = baseFlops;
 	state.flops =
 		eventMods.flopsOverride !== null
 			? eventMods.flopsOverride
