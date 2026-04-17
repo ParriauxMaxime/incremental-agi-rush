@@ -100,12 +100,14 @@ const FADE_DURATION = 2; // seconds
 interface StemPlayer {
 	player: ToneNs.Player;
 	gain: ToneNs.Gain;
+	duckGain?: ToneNs.Gain; // sidechain duck gain (pads only)
 }
 
 const stems: Map<string, StemPlayer> = new Map();
 let started = false;
 let currentTier = 0;
 let currentStyle: MusicStyleEnum = MusicStyleEnum.ferreira;
+let sidechainInterval: ReturnType<typeof setInterval> | null = null;
 
 /**
  * Apply a Hann crossfade at the buffer boundaries so the loop seam
@@ -169,10 +171,15 @@ async function loadPack(style: MusicStyleEnum) {
 }
 
 function clearStems() {
+	if (sidechainInterval) {
+		clearInterval(sidechainInterval);
+		sidechainInterval = null;
+	}
 	for (const [, stem] of stems) {
 		try {
 			stem.player.stop();
 			stem.player.dispose();
+			if (stem.duckGain) stem.duckGain.dispose();
 			stem.gain.dispose();
 		} catch {
 			// ignore disposal errors
@@ -224,6 +231,64 @@ export function startMusic(tierIndex: number) {
 	}
 
 	applyTier(tierIndex, 0.5); // quick initial fade
+	setupSidechain();
+}
+
+/** Sidechain: duck pads when drums hit. Uses amplitude follower on
+ *  drum stems to modulate a separate duck gain node on pads. */
+function setupSidechain() {
+	if (sidechainInterval) clearInterval(sidechainInterval);
+
+	const drumNames = [...stems.keys()].filter((n) => n.startsWith("drums-"));
+	const padNames = [...stems.keys()].filter((n) => n.startsWith("pads-"));
+
+	if (drumNames.length === 0 || padNames.length === 0) return;
+
+	// Insert a duck gain node between player and tier gain for each pad
+	for (const name of padNames) {
+		const stem = stems.get(name);
+		if (!stem || stem.duckGain) continue;
+		const duck = new Tone.Gain(1);
+		stem.player.disconnect();
+		stem.player.connect(duck);
+		duck.connect(stem.gain);
+		stem.duckGain = duck;
+	}
+
+	// Analyser on drum stems
+	const analyser = new Tone.Analyser("waveform", 256);
+	for (const name of drumNames) {
+		const stem = stems.get(name);
+		if (stem) stem.player.connect(analyser);
+	}
+
+	let env = 0;
+	const attackCoeff = 0.85;
+	const releaseCoeff = 0.992;
+	const threshold = 0.04;
+	const maxDuck = 0.5; // duck to 50% at full hit
+
+	sidechainInterval = setInterval(() => {
+		const waveform = analyser.getValue() as Float32Array;
+		let peak = 0;
+		for (let i = 0; i < waveform.length; i++) {
+			peak = Math.max(peak, Math.abs(waveform[i]));
+		}
+
+		env = peak > env ? env + (peak - env) * attackCoeff : env * releaseCoeff;
+
+		const duckLevel =
+			env > threshold
+				? maxDuck + (1 - maxDuck) * Math.max(0, 1 - (env - threshold) / 0.2)
+				: 1;
+
+		for (const name of padNames) {
+			const stem = stems.get(name);
+			if (stem?.duckGain) {
+				stem.duckGain.gain.value = duckLevel;
+			}
+		}
+	}, 8);
 }
 
 export function setTier(tierIndex: number) {
