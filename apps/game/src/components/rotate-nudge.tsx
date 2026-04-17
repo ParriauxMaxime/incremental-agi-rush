@@ -40,7 +40,6 @@ const messageCss = css({
 	fontSize: 14,
 	lineHeight: 1.5,
 	maxWidth: 300,
-	opacity: 0.8,
 });
 
 const buttonCss = css({
@@ -95,9 +94,8 @@ export function RotateNudge() {
 		>
 			<div css={iconCss}>🖥️</div>
 			<div css={titleCss}>Best experienced on desktop</div>
-			<div css={messageCss} style={{ color: theme.textMuted }}>
-				Flopsed is an IDE-style game with sidebars, tech trees, and terminals. A
-				bigger screen makes everything better.
+			<div css={messageCss} style={{ color: theme.foreground }}>
+				Flopsed is an IDE-based game, a bigger screen makes everything better.
 			</div>
 			<button
 				type="button"
