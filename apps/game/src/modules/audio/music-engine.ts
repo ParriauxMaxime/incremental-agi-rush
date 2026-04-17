@@ -109,38 +109,6 @@ let currentTier = 0;
 let currentStyle: MusicStyleEnum = MusicStyleEnum.ferreira;
 let sidechainInterval: ReturnType<typeof setInterval> | null = null;
 
-/**
- * Apply a Hann crossfade at the buffer boundaries so the loop seam
- * is smooth. Does NOT change loopStart/loopEnd — all stems must loop
- * the full buffer to stay in sync.
- */
-function makeBufferSeamless(player: ToneNs.Player) {
-	const raw = player.buffer.get();
-	if (!raw || raw.length === 0) return;
-
-	// Simple fade-to-zero at boundaries: 5ms fade-out at end, 5ms fade-in at start.
-	// This guarantees both ends are at zero — the loop crosses at silence.
-	const fadeSamples = Math.min(
-		Math.floor(0.005 * raw.sampleRate),
-		Math.floor(raw.length / 4),
-	);
-
-	if (fadeSamples < 2) return;
-
-	for (let ch = 0; ch < raw.numberOfChannels; ch++) {
-		const data = raw.getChannelData(ch);
-		const len = data.length;
-
-		for (let i = 0; i < fadeSamples; i++) {
-			const t = i / fadeSamples; // 0→1
-			data[i] *= t; // fade in from zero
-			data[len - 1 - i] *= t; // fade out to zero
-		}
-	}
-
-	player.buffer.set(raw);
-}
-
 async function loadPack(style: MusicStyleEnum) {
 	const pack = PACKS[style];
 	const basePath = `${window.location.origin}/audio/${pack.dir}`;
